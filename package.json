@@ -1,11 +1,11 @@
 {
   "name": "futolnative-structures",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "private": true,
   "type": "module",
   "scripts": {
     "test": "node --test",
-    "check": "node --check src/app.js && node --check src/spliceApp.js && node --check src/solver/beamFem.js && node --check src/solver/column.js && node --check src/solver/limitStates.js && node --check src/solver/spliceDemand.js && node --check src/components/capacityWarnings.js",
+    "check": "node --check src/app.js && node --check src/spliceApp.js && node --check src/solver/beamFem.js && node --check src/solver/column.js && node --check src/solver/limitStates.js && node --check src/solver/spliceDemand.js && node --check src/components/capacityWarnings.js && node --check src/components/spliceVisualPicker.js && node --check src/data/spliceCatalog.js",
     "verify": "npm run check && npm test"
   }
 }
