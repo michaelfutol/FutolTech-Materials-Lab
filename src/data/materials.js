@@ -11,11 +11,11 @@ export const MATERIALS = [
     allowableBendingMPa: 15.4,
     compressionParallelMPa: 46.2,
     source: {
-      label: 'University of Hawaiʻi, UHM-CEE-07-03',
+      label: 'Erickson & Robertson, UHM/CEE/07-02 (2007)',
       year: 2007,
       status: 'published',
       confidence: 'medium',
-      note: 'E and bending strength are full-scale rectangular-member averages. Compression is a provisional average from round-log specimens and is not a sawn 2×4 design value.'
+      note: 'E and bending strength are full-scale rectangular-member averages. Compression is a provisional average from short round-log specimens and is not a sawn 2×4 design value.'
     }
   },
   {
