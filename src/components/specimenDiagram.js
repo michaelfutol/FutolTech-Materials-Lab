@@ -44,6 +44,13 @@ function drawSupport(svg, x, y, type, orientation = 'horizontal') {
   svg.append(group);
 }
 
+export function formatMagnificationLabel(value) {
+  if (!Number.isFinite(value) || value <= 0) return '—';
+  if (value >= 1) return value.toFixed(1).replace(/\.0$/, '');
+  if (value >= 0.1) return value.toFixed(2).replace(/0$/, '');
+  return value.toPrecision(2);
+}
+
 export function beamDeformationDisplayScale({
   x0,
   x1,
@@ -119,10 +126,10 @@ export function drawBeamDiagram(svg, { result, lengthM, loadPositionM, loadKN, l
   text(svg, 450, 282, `Physical deflection: ${direction} · maximum ${result.maxDeflectionMm.toFixed(3)} mm`, 'svg-direction-label');
 
   const displayLabel = displayScale.capped
-    ? `requested ×${magnification}, capped at ×${displayScale.effectiveMagnification.toFixed(1)}`
+    ? `requested ×${magnification}, capped at ×${formatMagnificationLabel(displayScale.effectiveMagnification)}`
     : magnification === 1
-      ? 'true geometric scale ×1'
-      : `true-scale deformation ×${magnification}`;
+      ? 'true geometric deformation ×1'
+      : `true geometric deformation ×${magnification}`;
   text(svg, 450, 345, `Dashed = undeformed · turquoise = deformed · ${displayLabel} · drag load arrow`, 'svg-caption');
 }
 
@@ -150,5 +157,5 @@ export function drawColumnDiagram(svg, { result, lengthM, loadKN, eccentricityMm
   text(svg, loadX + (loadOffset >= 0 ? 18 : -18), 30, `${loadKN.toFixed(2)} kN`, 'svg-label svg-label--strong');
   text(svg, x + 45, 190, `KL/r = ${result.slenderness.toFixed(1)}`);
   text(svg, x + 45, 215, `K = ${result.k.toFixed(3)}`);
-  text(svg, 450, 345, `Idealised schematic buckling shape · ${result.governingAxis}-axis · ${lengthM.toFixed(2)} m`, 'svg-caption');
+  text(svg, 450, 345, `Idealised schematic buckling shape · display multiplier ×${magnification} · ${result.governingAxis}-axis · ${lengthM.toFixed(2)} m`, 'svg-caption');
 }
