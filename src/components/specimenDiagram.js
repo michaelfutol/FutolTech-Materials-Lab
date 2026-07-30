@@ -66,12 +66,22 @@ export function drawBeamDiagram(svg, { result, lengthM, loadPositionM, loadKN, l
   svg.append(svgElement('path', { d: path, class: 'member-path' }));
 
   const loadX = x0 + loadPositionM * scaleX;
-  svg.append(svgElement('line', { x1: loadX, y1: 55, x2: loadX, y2: 128, class: 'load-arrow' }));
-  svg.append(svgElement('polygon', { points: `${loadX},140 ${loadX - 9},124 ${loadX + 9},124`, class: 'load-arrow-head' }));
-  text(svg, loadX, 42, `${loadKN.toFixed(2)} kN`, 'svg-label svg-label--strong');
+  const loadGroup = svgElement('g', {
+    class: 'load-handle',
+    'data-x0': x0,
+    'data-x1': x1,
+    'data-length-m': lengthM,
+    role: 'button',
+    'aria-label': `Point load at ${loadPositionM.toFixed(2)} metres. Drag horizontally to move.`
+  });
+  loadGroup.append(svgElement('line', { x1: loadX, y1: 45, x2: loadX, y2: 145, class: 'load-hitbox' }));
+  loadGroup.append(svgElement('line', { x1: loadX, y1: 55, x2: loadX, y2: 128, class: 'load-arrow' }));
+  loadGroup.append(svgElement('polygon', { points: `${loadX},140 ${loadX - 9},124 ${loadX + 9},124`, class: 'load-arrow-head' }));
+  svg.append(loadGroup);
+  text(svg, loadX, 42, `${loadKN.toFixed(2)} kN`, 'svg-label svg-label--strong load-value-label');
   text(svg, x0, 322, '0.00 m');
   text(svg, x1, 322, `${lengthM.toFixed(2)} m`, 'svg-label svg-label--end');
-  text(svg, 450, 345, `Displayed deformation: ${magnification === 1 ? 'actual' : `×${magnification}`}`, 'svg-caption');
+  text(svg, 450, 345, `Displayed deformation: ${magnification === 1 ? 'actual' : `×${magnification}`} · drag the load arrow to reposition`, 'svg-caption');
 }
 
 export function drawColumnDiagram(svg, { result, lengthM, loadKN, eccentricityMm, bottomSupport, topSupport, magnification }) {
@@ -80,7 +90,7 @@ export function drawColumnDiagram(svg, { result, lengthM, loadKN, eccentricityMm
   const yBottom = 300;
   const yTop = 65;
   const amplitude = Number.isFinite(result.amplification)
-    ? Math.min(75, Math.max(4, result.loadRatio * 45 * magnification / 10 + eccentricityMm * 0.4))
+    ? Math.min(75, Math.max(4, result.loadRatio * 45 * magnification / 10 + Math.abs(eccentricityMm) * 0.4))
     : 90;
 
   drawSupport(svg, x, yBottom, bottomSupport, 'vertical');
@@ -91,10 +101,11 @@ export function drawColumnDiagram(svg, { result, lengthM, loadKN, eccentricityMm
   const path = `M ${x} ${yBottom} Q ${controlX} ${(yBottom + yTop) / 2} ${x} ${yTop}`;
   svg.append(svgElement('path', { d: path, class: 'member-path' }));
 
-  const loadX = x + Math.min(60, eccentricityMm * 0.8);
+  const loadOffset = Math.max(-60, Math.min(60, eccentricityMm * 0.8));
+  const loadX = x + loadOffset;
   svg.append(svgElement('line', { x1: loadX, y1: 12, x2: loadX, y2: 44, class: 'load-arrow' }));
   svg.append(svgElement('polygon', { points: `${loadX},56 ${loadX - 9},40 ${loadX + 9},40`, class: 'load-arrow-head' }));
-  text(svg, loadX + 18, 30, `${loadKN.toFixed(2)} kN`, 'svg-label svg-label--strong');
+  text(svg, loadX + (loadOffset >= 0 ? 18 : -18), 30, `${loadKN.toFixed(2)} kN`, 'svg-label svg-label--strong');
   text(svg, x + 45, 190, `KL/r = ${result.slenderness.toFixed(1)}`);
   text(svg, x + 45, 215, `K = ${result.k.toFixed(3)}`);
   text(svg, 450, 345, `Idealised ${result.governingAxis}-axis buckling shape over ${lengthM.toFixed(2)} m`, 'svg-caption');
