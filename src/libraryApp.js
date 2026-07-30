@@ -1,4 +1,4 @@
-import { MATERIAL_LIBRARY, SECTION_LIBRARY, findSectionLibraryRecord, sectionLibraryCategories } from './data/libraryCatalog.js';
+import { MATERIAL_LIBRARY, SECTION_LIBRARY, sectionLibraryCategories } from './data/libraryCatalog.js';
 import { SECTION_CATEGORY_LABELS } from './data/sectionTaxonomy.js';
 import { sectionSketchSvg } from './components/sectionSketch.js';
 
@@ -27,8 +27,8 @@ function format(value, decimals = 2) {
 
 function statusGroup(record) {
   const text = `${record.marketStatus ?? ''} ${record.analysisStatus ?? ''} ${record.source?.sourceStatus ?? ''} ${record.source?.technicalStatus ?? ''} ${record.source?.status ?? ''}`.toLowerCase();
-  if (text.includes('official') || text.includes('confirmed') || text.includes('published')) return 'confirmed';
   if (text.includes('research') || text.includes('study') || text.includes('peer-reviewed')) return 'research';
+  if (text.includes('official') || text.includes('confirmed') || text.includes('published')) return 'confirmed';
   return 'provisional';
 }
 
@@ -147,7 +147,7 @@ function render() {
     const records = filteredSections();
     elements.libraryGrid.innerHTML = records.length ? records.map(sectionCard).join('') : '<div class="library-empty">No section matches the current filters.</div>';
     elements.librarySummary.innerHTML = `<p class="eyebrow">Section library</p><strong>${records.length} of ${SECTION_LIBRARY.length} records shown</strong><p>Includes ${SECTION_LIBRARY.filter((r) => r.category === 'steel-pipe').length} steel pipes, ${SECTION_LIBRARY.filter((r) => r.category === 'shs' || r.category === 'rhs').length} SHS/RHS sections, ${SECTION_LIBRARY.filter((r) => r.category === 'rolled-h').length} H sections, ${SECTION_LIBRARY.filter((r) => r.family === 'wood').length} sawn-size presets, and ${SECTION_LIBRARY.filter((r) => r.family === 'bamboo').length} round-bamboo geometries.</p>`;
-    renderDetail(findSectionLibraryRecord(selectedSectionId));
+    renderDetail(records.find((record) => record.id === selectedSectionId) ?? null);
   } else {
     const records = filteredMaterials();
     elements.libraryGrid.innerHTML = records.length ? records.map(materialCard).join('') : '<div class="library-empty">No material dataset matches the current filters.</div>';
