@@ -7,6 +7,14 @@ const configurations = [
   { inputId: 'recommendLoadInput', unitSelectId: 'recommendLoadUnitSelect' }
 ];
 
+const forceCardLabels = new Set([
+  'Predicted governing capacity',
+  'Euler critical load',
+  'Current applied load',
+  'Calculated first-yield load',
+  'Shear at selected splice'
+]);
+
 function installDisplay({ inputId, fixedUnit = null, unitSelectId = null }) {
   const input = document.getElementById(inputId);
   if (!input) return;
@@ -40,4 +48,24 @@ function installDisplay({ inputId, fixedUnit = null, unitSelectId = null }) {
   update();
 }
 
+function parseFirstNumber(text) {
+  const match = String(text ?? '').replaceAll(',', '').match(/-?\d+(?:\.\d+)?/);
+  return match ? Number(match[0]) : null;
+}
+
+function annotateForceCards() {
+  document.querySelectorAll('.result-card').forEach((card) => {
+    const label = card.querySelector('span')?.textContent.trim();
+    if (!forceCardLabels.has(label) || card.querySelector('.force-equivalent-note')) return;
+    const loadKN = parseFirstNumber(card.querySelector('strong')?.textContent);
+    if (!Number.isFinite(loadKN)) return;
+    const note = document.createElement('small');
+    note.className = 'force-equivalent-note';
+    note.textContent = formatLoadEquivalents(loadKN, { includeKN: false });
+    card.appendChild(note);
+  });
+}
+
 configurations.forEach(installDisplay);
+annotateForceCards();
+new MutationObserver(annotateForceCards).observe(document.body, { childList: true, subtree: true });
