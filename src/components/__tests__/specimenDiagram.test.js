@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { beamDeformationDisplayScale } from '../specimenDiagram.js';
+import { beamDeformationDisplayScale, formatMagnificationLabel } from '../specimenDiagram.js';
 
 test('beam deformation ×1 uses the same geometric pixel scale as member length', () => {
   const result = beamDeformationDisplayScale({
@@ -30,4 +30,10 @@ test('large requested deformation scale is capped and reports effective magnific
   assert.equal(result.capped, true);
   assert.ok(result.effectiveMagnification < 100);
   assert.ok(Math.abs(result.pxPerMm * 5.436 - 85) < 1e-9);
+});
+
+test('small effective magnifications retain significant digits', () => {
+  assert.equal(formatMagnificationLabel(0.034), '0.034');
+  assert.equal(formatMagnificationLabel(0.004), '0.0040');
+  assert.notEqual(formatMagnificationLabel(0.034), '0.0');
 });
