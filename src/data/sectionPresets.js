@@ -1,3 +1,5 @@
+import { PH_PIPE_SECTIONS } from './phSteelCatalog.js';
+
 export const SECTION_PRESETS = {
   wood: [
     { id: 'wood-2x2', label: 'Nominal 2×2 — enter/verify actual', type: 'rectangle', widthMm: 50, depthMm: 50 },
@@ -14,6 +16,7 @@ export const SECTION_PRESETS = {
     { id: 'rhs-75-50-15', label: 'RHS 75×50×1.5 mm — verify actual', type: 'rhs', widthMm: 50, depthMm: 75, thicknessMm: 1.5 },
     { id: 'rhs-75-50-20', label: 'RHS 75×50×2.0 mm — verify actual', type: 'rhs', widthMm: 50, depthMm: 75, thicknessMm: 2 },
     { id: 'rhs-100-50-20', label: 'RHS 100×50×2.0 mm — verify actual', type: 'rhs', widthMm: 50, depthMm: 100, thicknessMm: 2 },
+    ...PH_PIPE_SECTIONS,
     { id: 'custom', label: 'Custom measured / catalog steel section' }
   ]
 };
