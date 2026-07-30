@@ -20,11 +20,12 @@
       </div>
       <div class="status-cluster" aria-label="Platform modules">
         <span class="status-pill">Materials Lab · active</span>
+        <a class="status-pill" style="text-decoration: none" href="./recommend.html">Load Recommender · experimental</a>
         <a class="status-pill" style="text-decoration: none" href="./splice.html">Stock & Splice · active</a>
         <a class="status-pill" style="text-decoration: none" href="./yield.html">Steel Yield · experimental</a>
         <span class="status-pill status-pill--warning">Connections · next</span>
         <span class="status-pill status-pill--warning">Frames · next</span>
-        <span class="status-pill status-pill--warning">Optimizer · planned</span>
+        <span class="status-pill status-pill--warning">Optimizer · expanding</span>
       </div>
     </header>
 
@@ -44,62 +45,14 @@
         </div>
 
         <div class="control-grid">
-          <label>
-            <span>Material dataset</span>
-            <select id="materialSelect"></select>
-          </label>
-
-          <label>
-            <span>Section geometry</span>
-            <select id="sectionTypeSelect">
-              <option value="rectangle">Solid rectangle</option>
-              <option value="rhs">RHS / SHS tube</option>
-              <option value="chs">CHS / pipe</option>
-              <option value="round">Solid round</option>
-              <option value="custom">Catalog / user-defined properties</option>
-            </select>
-          </label>
-
-          <label>
-            <span>Length, m</span>
-            <input id="lengthInput" type="number" min="0.6" max="6" step="0.1" value="3" />
-            <small id="lengthHelp">Wood range: 0.60–3.60 m</small>
-          </label>
-
-          <label>
-            <span>Load, kN</span>
-            <input id="loadInput" type="number" min="0" step="0.1" value="1" />
-          </label>
-
-          <label class="beam-control">
-            <span>Point-load position, m from left</span>
-            <input id="loadPositionInput" type="number" min="0" max="3" step="0.05" value="1.5" />
-          </label>
-
-          <label class="column-control is-hidden">
-            <span>Load eccentricity, mm</span>
-            <input id="eccentricityInput" type="number" min="-500" max="500" step="1" value="0" />
-          </label>
-
-          <label>
-            <span>Left / bottom restraint</span>
-            <select id="leftSupportSelect">
-              <option value="pin">Pin / hinge</option>
-              <option value="roller">Roller support</option>
-              <option value="fixed">Fixed / built-in</option>
-              <option value="free">Free end</option>
-            </select>
-          </label>
-
-          <label>
-            <span>Right / top restraint</span>
-            <select id="rightSupportSelect">
-              <option value="roller">Roller support</option>
-              <option value="pin">Pin / hinge</option>
-              <option value="fixed">Fixed / built-in</option>
-              <option value="free">Free end</option>
-            </select>
-          </label>
+          <label><span>Material dataset</span><select id="materialSelect"></select></label>
+          <label><span>Section geometry</span><select id="sectionTypeSelect"><option value="rectangle">Solid rectangle</option><option value="rhs">RHS / SHS tube</option><option value="chs">CHS / pipe</option><option value="round">Solid round</option><option value="custom">Catalog / user-defined properties</option></select></label>
+          <label><span>Length, m</span><input id="lengthInput" type="number" min="0.6" max="6" step="0.1" value="3" /><small id="lengthHelp">Wood range: 0.60–3.60 m</small></label>
+          <label><span>Load, kN</span><input id="loadInput" type="number" min="0" step="0.1" value="1" /></label>
+          <label class="beam-control"><span>Point-load position, m from left</span><input id="loadPositionInput" type="number" min="0" max="3" step="0.05" value="1.5" /></label>
+          <label class="column-control is-hidden"><span>Load eccentricity, mm</span><input id="eccentricityInput" type="number" min="-500" max="500" step="1" value="0" /></label>
+          <label><span>Left / bottom restraint</span><select id="leftSupportSelect"><option value="pin">Pin / hinge</option><option value="roller">Roller support</option><option value="fixed">Fixed / built-in</option><option value="free">Free end</option></select></label>
+          <label><span>Right / top restraint</span><select id="rightSupportSelect"><option value="roller">Roller support</option><option value="pin">Pin / hinge</option><option value="fixed">Fixed / built-in</option><option value="free">Free end</option></select></label>
         </div>
 
         <div id="supportHelp" class="support-help" aria-live="polite"></div>
@@ -107,30 +60,12 @@
         <fieldset class="section-editor section-editor--actual">
           <legend>Actual section used in analysis</legend>
           <p class="section-editor__note">Presets only prefill the boxes. The solver always uses the actual dimensions or catalog properties shown below.</p>
-
           <div class="control-grid control-grid--section">
-            <label class="control-span-2">
-              <span>Convenience preset</span>
-              <select id="sectionPresetSelect"></select>
-              <small>Nominal labels are not proof of delivered size. Measure the specimen or copy verified catalog values.</small>
-            </label>
-
-            <label id="widthLabel">
-              <span id="widthLabelText">Actual width b, mm</span>
-              <input id="widthInput" type="number" min="0.1" step="0.1" value="50" />
-            </label>
-
-            <label id="depthLabel">
-              <span id="depthLabelText">Actual vertical depth h, mm</span>
-              <input id="depthInput" type="number" min="0.1" step="0.1" value="100" />
-            </label>
-
-            <label id="thicknessLabel" class="is-hidden">
-              <span id="thicknessLabelText">Actual wall thickness t, mm</span>
-              <input id="thicknessInput" type="number" min="0.1" step="0.1" value="1.5" />
-            </label>
+            <label class="control-span-2"><span>Convenience preset</span><select id="sectionPresetSelect"></select><small>Nominal labels are not proof of delivered size. Measure the specimen or copy verified catalog values.</small></label>
+            <label id="widthLabel"><span id="widthLabelText">Actual width b, mm</span><input id="widthInput" type="number" min="0.1" step="0.1" value="50" /></label>
+            <label id="depthLabel"><span id="depthLabelText">Actual vertical depth h, mm</span><input id="depthInput" type="number" min="0.1" step="0.1" value="100" /></label>
+            <label id="thicknessLabel" class="is-hidden"><span id="thicknessLabelText">Actual wall thickness t, mm</span><input id="thicknessInput" type="number" min="0.1" step="0.1" value="1.5" /></label>
           </div>
-
           <div id="customPropertyFields" class="custom-properties is-hidden">
             <p><strong>For I/H, channel, angle, built-up, or any catalog section:</strong> enter verified gross section properties about the analysis axes.</p>
             <div class="control-grid control-grid--properties">
@@ -141,62 +76,26 @@
               <label><span>Zᵧ, mm³</span><input id="zyInput" type="number" min="0.1" step="1" value="41667" /></label>
             </div>
           </div>
-
-          <div class="section-action-row">
-            <button id="rotateSectionButton" class="button" type="button">Rotate section 90°</button>
-            <output id="sectionSummary" class="section-summary" aria-live="polite"></output>
-          </div>
+          <div class="section-action-row"><button id="rotateSectionButton" class="button" type="button">Rotate section 90°</button><output id="sectionSummary" class="section-summary" aria-live="polite"></output></div>
         </fieldset>
-
         <div class="source-card" id="sourceCard" aria-live="polite"></div>
       </section>
 
       <section class="panel workspace-panel" aria-label="Analysis workspace">
         <div class="panel-heading">
-          <div>
-            <p class="eyebrow">Live member solver</p>
-            <h2 id="workspaceTitle">Beam bending test</h2>
-          </div>
-          <div class="magnification-control">
-            <label for="magnificationSelect">Display magnification</label>
-            <select id="magnificationSelect">
-              <option value="1">×1</option>
-              <option value="10">×10</option>
-              <option value="50" selected>×50</option>
-              <option value="100">×100</option>
-            </select>
-          </div>
+          <div><p class="eyebrow">Live member solver</p><h2 id="workspaceTitle">Beam bending test</h2></div>
+          <div class="magnification-control"><label for="magnificationSelect">Display magnification</label><select id="magnificationSelect"><option value="1">×1</option><option value="10">×10</option><option value="50" selected>×50</option><option value="100">×100</option></select></div>
         </div>
-
         <div id="errorBanner" class="error-banner is-hidden" role="alert"></div>
-
-        <div class="diagram-wrap">
-          <svg id="specimenDiagram" viewBox="0 0 900 360" role="img" aria-labelledby="diagramTitle diagramDescription">
-            <title id="diagramTitle">Structural specimen diagram</title>
-            <desc id="diagramDescription">A calculated deformation plot of the selected member and support conditions.</desc>
-          </svg>
-        </div>
-
+        <div class="diagram-wrap"><svg id="specimenDiagram" viewBox="0 0 900 360" role="img" aria-labelledby="diagramTitle diagramDescription"><title id="diagramTitle">Structural specimen diagram</title><desc id="diagramDescription">A calculated deformation plot of the selected member and support conditions.</desc></svg></div>
         <div id="resultCards" class="result-grid" aria-live="polite"></div>
-
-        <div class="details-grid">
-          <section>
-            <h3>Section properties</h3>
-            <dl id="sectionResults" class="definition-grid"></dl>
-          </section>
-          <section>
-            <h3>Engineering interpretation</h3>
-            <div id="interpretation" class="interpretation"></div>
-          </section>
-        </div>
+        <div class="details-grid"><section><h3>Section properties</h3><dl id="sectionResults" class="definition-grid"></dl></section><section><h3>Engineering interpretation</h3><div id="interpretation" class="interpretation"></div></section></div>
       </section>
     </main>
 
-    <footer>
-      <strong>Engineering notice:</strong> FutolNative Structures currently exposes the Materials Lab member-analysis module. Results are analytical predictions based on selected source data and assumptions; they are not certified capacities and do not replace testing, code checks or professional judgement.
-    </footer>
-
+    <footer><strong>Engineering notice:</strong> FutolNative Structures currently exposes the Materials Lab member-analysis module. Results are analytical predictions based on selected source data and assumptions; they are not certified capacities and do not replace testing, code checks or professional judgement.</footer>
     <script type="module" src="./src/app.js"></script>
     <script type="module" src="./src/components/capacityWarnings.js"></script>
+    <script type="module" src="./src/components/physicalThresholdCard.js"></script>
   </body>
 </html>
