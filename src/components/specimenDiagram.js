@@ -65,6 +65,15 @@ export function drawBeamDiagram(svg, { result, lengthM, loadPositionM, loadKN, l
   }).join(' ');
   svg.append(svgElement('path', { d: path, class: 'member-path' }));
 
+  const peak = result.deflectionSeries.reduce((current, point) => (
+    Math.abs(point.displacementMm) > Math.abs(current.displacementMm) ? point : current
+  ), result.deflectionSeries[0]);
+  const peakX = x0 + peak.xM * scaleX;
+  const peakY = baselineY - peak.displacementMm * deflectionScale;
+  const direction = peak.displacementMm < -1e-9 ? 'downward ↓' : peak.displacementMm > 1e-9 ? 'upward ↑' : 'zero';
+  svg.append(svgElement('line', { x1: peakX, y1: baselineY, x2: peakX, y2: peakY, class: 'deflection-marker' }));
+  svg.append(svgElement('circle', { cx: peakX, cy: peakY, r: 5, class: 'deflection-point' }));
+
   const loadX = x0 + loadPositionM * scaleX;
   const loadGroup = svgElement('g', {
     class: 'load-handle',
@@ -81,7 +90,8 @@ export function drawBeamDiagram(svg, { result, lengthM, loadPositionM, loadKN, l
   text(svg, loadX, 42, `${loadKN.toFixed(2)} kN`, 'svg-label svg-label--strong load-value-label');
   text(svg, x0, 322, '0.00 m');
   text(svg, x1, 322, `${lengthM.toFixed(2)} m`, 'svg-label svg-label--end');
-  text(svg, 450, 345, `Displayed deformation: ${magnification === 1 ? 'actual' : `×${magnification}`} · drag the load arrow to reposition`, 'svg-caption');
+  text(svg, 450, 282, `Physical deflection: ${direction} · maximum ${result.maxDeflectionMm.toFixed(3)} mm`, 'svg-direction-label');
+  text(svg, 450, 345, `Dashed = undeformed · turquoise = deformed · display ${magnification === 1 ? 'actual' : `×${magnification}`} · drag load arrow`, 'svg-caption');
 }
 
 export function drawColumnDiagram(svg, { result, lengthM, loadKN, eccentricityMm, bottomSupport, topSupport, magnification }) {
