@@ -1,3 +1,4 @@
+import { PH_BAMBOO_MATERIALS } from './phBambooMaterials.js';
 import { PH_WOOD_RESEARCH_MATERIALS } from './phWoodMaterials.js';
 
 export const MATERIALS = [
@@ -23,6 +24,7 @@ export const MATERIALS = [
     }
   },
   ...PH_WOOD_RESEARCH_MATERIALS,
+  ...PH_BAMBOO_MATERIALS,
   {
     id: 'steel-generic-250',
     name: 'Structural steel tube — provisional Fy 250 MPa',
