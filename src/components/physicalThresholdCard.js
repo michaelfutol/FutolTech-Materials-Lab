@@ -1,4 +1,5 @@
 import { getMaterial } from '../data/materials.js';
+import { formatLoadEquivalents } from '../utils/loadUnits.js';
 
 const resultCards = document.getElementById('resultCards');
 const materialSelect = document.getElementById('materialSelect');
@@ -19,13 +20,6 @@ function resultValue(label) {
   const card = [...resultCards.querySelectorAll('.result-card')]
     .find((candidate) => candidate.querySelector('span')?.textContent.trim() === label);
   return card ? parseFirstNumber(card.querySelector('strong')?.textContent) : null;
-}
-
-function formatLoad(value) {
-  if (!Number.isFinite(value)) return '—';
-  if (value >= 100) return `${value.toFixed(1)} kN`;
-  if (value >= 10) return `${value.toFixed(2)} kN`;
-  return `${value.toFixed(3)} kN`;
 }
 
 function addThresholdCard() {
@@ -59,9 +53,9 @@ function addThresholdCard() {
     : 'Calculated by elastic scaling to Fy. The Steel Yield Lab provides the separate path-dependent animation.';
   const allowable = allowableLoadKN == null
     ? ''
-    : `<small>Allowable-reference load ≈ ${formatLoad(allowableLoadKN)}</small>`;
+    : `<small>Allowable-reference load ≈ ${formatLoadEquivalents(allowableLoadKN)}</small>`;
 
-  card.innerHTML = `<span>${title}</span><strong>${formatLoad(physicalLoadKN)}</strong>${allowable}<small>${warning}</small>`;
+  card.innerHTML = `<span>${title}</span><strong>${formatLoadEquivalents(physicalLoadKN)}</strong>${allowable}<small>${warning}</small>`;
   resultCards.appendChild(card);
 }
 

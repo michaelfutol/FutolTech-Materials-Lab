@@ -1,7 +1,12 @@
 import { calculateSectionProperties } from './sections.js';
 import { solveBeam } from './beamFem.js';
+import {
+  KGF_TO_KN,
+  TONNE_FORCE_TO_KN,
+  convertLoadToKN
+} from '../utils/loadUnits.js';
 
-export const TONNE_FORCE_TO_KN = 9.80665;
+export { KGF_TO_KN, TONNE_FORCE_TO_KN, convertLoadToKN };
 
 function supportsForBoundary(boundary) {
   if (boundary === 'cantilever-left') return { leftSupport: 'fixed', rightSupport: 'free' };
@@ -26,11 +31,6 @@ function sectionVariants(preset) {
     });
   }
   return base;
-}
-
-export function convertLoadToKN(value, unit = 'kN') {
-  if (!Number.isFinite(value) || value < 0) throw new Error('Required load must be zero or greater.');
-  return unit === 'tf' ? value * TONNE_FORCE_TO_KN : value;
 }
 
 export function evaluateMemberCandidate({

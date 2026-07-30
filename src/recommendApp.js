@@ -1,6 +1,7 @@
 import { MATERIALS } from './data/materials.js';
 import { SECTION_PRESETS } from './data/sectionPresets.js';
 import { convertLoadToKN, recommendMemberSections } from './solver/sectionRecommender.js';
+import { formatLoadEquivalents } from './utils/loadUnits.js';
 
 const ids = [
   'recommendFamilySelect', 'recommendObjectiveSelect', 'recommendLengthInput',
@@ -45,8 +46,8 @@ function render() {
     const best = result.best;
     elements.recommendSummary.className = `recommend-summary ${best ? 'recommend-summary--pass' : 'recommend-summary--fail'}`;
     elements.recommendSummary.innerHTML = best
-      ? `<p class="eyebrow">Lowest-ranked passing option</p><strong>${best.materialName}</strong><h3>${best.sectionLabel} · ${best.orientation}</h3><p>${format(loadKN, 3)} kN required load; ${format(best.result.maxDeflectionMm, 2)} mm deflection; ${format((best.strengthRatio ?? 0) * 100, 1)}% strength-reference use; ${format(best.totalMassKg, 2)} kg member mass.</p>`
-      : `<p class="eyebrow">No listed candidate passes</p><h3>Increase the candidate library, shorten the span, change the boundary/load position, add a brace or intermediate support, or permit a designed splice/connection solution.</h3>`;
+      ? `<p class="eyebrow">Lowest-ranked passing option</p><strong>${best.materialName}</strong><h3>${best.sectionLabel} · ${best.orientation}</h3><p>Required load: <b>${formatLoadEquivalents(loadKN)}</b>; ${format(best.result.maxDeflectionMm, 2)} mm deflection; ${format((best.strengthRatio ?? 0) * 100, 1)}% strength-reference use; ${format(best.totalMassKg, 2)} kg member mass.</p>`
+      : `<p class="eyebrow">No listed candidate passes</p><h3>Increase the candidate library, shorten the span, change the boundary/load position, add a brace or intermediate support, or permit a designed splice/connection solution.</h3><p>Checked load: <b>${formatLoadEquivalents(loadKN)}</b>.</p>`;
 
     elements.recommendTableBody.innerHTML = result.candidates.slice(0, 30).map((candidate, index) => {
       const physicalLabel = candidate.family === 'wood' ? 'rupture est.' : 'yield est.';
@@ -57,7 +58,7 @@ function render() {
         <td><strong>${candidate.sectionLabel}</strong><small>${candidate.orientation}</small></td>
         <td>${format(candidate.result.maxDeflectionMm, 2)} mm<small>${format(candidate.deflectionRatio * 100, 1)}% of limit</small></td>
         <td>${candidate.strengthRatio == null ? 'unrated' : `${format(candidate.strengthRatio * 100, 1)}%`}<small>${format(candidate.result.maxBendingStressMPa, 1)} MPa</small></td>
-        <td>${candidate.physicalThresholdLoadKN == null ? '—' : `${format(candidate.physicalThresholdLoadKN, 2)} kN`}<small>${physicalLabel}</small></td>
+        <td>${candidate.physicalThresholdLoadKN == null ? '—' : formatLoadEquivalents(candidate.physicalThresholdLoadKN)}<small>${physicalLabel}</small></td>
         <td>${format(candidate.totalMassKg, 2)} kg<small>${format(candidate.massPerM, 2)} kg/m</small></td>
       </tr>`;
     }).join('');
@@ -84,8 +85,8 @@ function resetOneTonCase() {
   elements.recommendObjectiveSelect.value = 'mass';
   elements.recommendLengthInput.value = '3';
   elements.recommendBoundarySelect.value = 'simply-supported';
-  elements.recommendLoadInput.value = '1';
-  elements.recommendLoadUnitSelect.value = 'tf';
+  elements.recommendLoadInput.value = '1000';
+  elements.recommendLoadUnitSelect.value = 'kgf';
   elements.recommendLoadPositionInput.value = '1.5';
   elements.recommendDeflectionSelect.value = '360';
   render();

@@ -1,5 +1,6 @@
 import { getMaterial } from '../data/materials.js';
 import { evaluateBeamLimitState, evaluateColumnLimitState } from '../solver/limitStates.js';
+import { formatLoadEquivalents } from '../utils/loadUnits.js';
 
 const errorBanner = document.getElementById('errorBanner');
 const resultCards = document.getElementById('resultCards');
@@ -26,13 +27,6 @@ function resultValue(label) {
   return card ? parseFirstNumber(card.querySelector('strong')?.textContent) : null;
 }
 
-function formatLoad(value) {
-  if (!Number.isFinite(value)) return '—';
-  if (Math.abs(value) >= 100) return `${value.toFixed(1)} kN`;
-  if (Math.abs(value) >= 10) return `${value.toFixed(2)} kN`;
-  return `${value.toFixed(3)} kN`;
-}
-
 function renderThresholds(thresholds) {
   const unique = thresholds
     .filter((item) => Number.isFinite(item.estimatedLoadKN))
@@ -43,7 +37,7 @@ function renderThresholds(thresholds) {
   return `
     <div class="capacity-banner__thresholds">
       ${unique.map((item) => `
-        <span><b>${item.label}:</b> ${formatLoad(item.estimatedLoadKN)} <small>(${item.basis})</small></span>
+        <span><b>${item.label}:</b> ${formatLoadEquivalents(item.estimatedLoadKN)} <small>(${item.basis})</small></span>
       `).join('')}
     </div>
   `;

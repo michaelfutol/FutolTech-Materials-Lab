@@ -28,7 +28,7 @@
       <section class="panel controls-panel" aria-label="Load-driven recommendation inputs">
         <div class="panel-heading">
           <div><p class="eyebrow">Required performance</p><h2>Design target</h2></div>
-          <button id="recommendResetButton" class="button" type="button">Reset 1-ton case</button>
+          <button id="recommendResetButton" class="button" type="button">Reset 1,000 kgf case</button>
         </div>
 
         <div class="control-grid">
@@ -36,8 +36,8 @@
           <label><span>Ranking objective</span><select id="recommendObjectiveSelect"><option value="mass">Lowest member mass</option><option value="utilisation">Lowest governing utilisation</option></select></label>
           <label><span>Member length, m</span><input id="recommendLengthInput" type="number" min="0.6" max="12" step="0.1" value="3" /></label>
           <label><span>Boundary case</span><select id="recommendBoundarySelect"><option value="simply-supported">Pin + roller</option><option value="cantilever-left">Fixed left + free right</option><option value="cantilever-right">Free left + fixed right</option></select></label>
-          <label><span>Required point load</span><input id="recommendLoadInput" type="number" min="0.01" step="0.1" value="1" /></label>
-          <label><span>Load unit</span><select id="recommendLoadUnitSelect"><option value="tf">tonne-force</option><option value="kN">kN</option></select></label>
+          <label><span>Required point-load value</span><input id="recommendLoadInput" type="number" min="0.01" step="0.1" value="1000" /></label>
+          <label><span>Load input unit</span><select id="recommendLoadUnitSelect"><option value="kgf">kgf — familiar kilogram-force</option><option value="kN">kN — engineering force</option><option value="tf">tonne-force</option></select><small>Use kgf when you naturally think in kilograms. The solver converts it to kN internally.</small></label>
           <label><span>Point-load position, m from left</span><input id="recommendLoadPositionInput" type="number" min="0" max="3" step="0.05" value="1.5" /></label>
           <label><span>Deflection criterion</span><select id="recommendDeflectionSelect"><option value="360">L/360</option><option value="240">L/240</option><option value="180">L/180</option></select></label>
         </div>
@@ -68,5 +68,6 @@
 
     <footer><strong>Engineering notice:</strong> Recommendations are preliminary analytical comparisons using the current source datasets and idealised beam model. Verify actual materials, sections, connections, stability, loads, and governing codes before design use.</footer>
     <script type="module" src="./src/recommendApp.js"></script>
+    <script type="module" src="./src/components/loadEquivalentDisplay.js"></script>
   </body>
 </html>
