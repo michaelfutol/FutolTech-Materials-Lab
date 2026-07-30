@@ -25,7 +25,7 @@ export const MATERIALS = [
   ...PH_WOOD_RESEARCH_MATERIALS,
   {
     id: 'steel-generic-250',
-    name: 'Structural steel tube — provisional Fy 250 MPa',
+    name: 'Structural steel — provisional Fy 250 MPa',
     family: 'steel',
     maxLengthM: 6,
     elasticModulusMPa: 200_000,
@@ -39,12 +39,12 @@ export const MATERIALS = [
       year: null,
       status: 'assumed',
       confidence: 'low',
-      note: 'Galvanising is a coating, not a steel grade. Replace this dataset with a mill certificate or a verified product standard before design use.'
+      note: 'This is a product-neutral steel sensitivity dataset. Galvanising is a coating, not a steel grade. Verify the exact pipe, hollow section, rolled section, standard, wall/thickness, and mill certificate before design use.'
     }
   },
   {
     id: 'steel-generic-345',
-    name: 'Structural steel tube — provisional Fy 345 MPa',
+    name: 'Structural steel — provisional Fy 345 MPa',
     family: 'steel',
     maxLengthM: 6,
     elasticModulusMPa: 200_000,
@@ -58,7 +58,7 @@ export const MATERIALS = [
       year: null,
       status: 'assumed',
       confidence: 'low',
-      note: 'Use only as a sensitivity case. Actual tube grade, wall thickness, corner radius and weld-seam quality must be verified.'
+      note: 'Use only as a sensitivity case. Verify the actual pipe, hollow section, or rolled-section grade, dimensions, manufacturing standard, and certificate.'
     }
   }
 ];
