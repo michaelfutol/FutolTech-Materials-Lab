@@ -44,15 +44,41 @@ function drawSupport(svg, x, y, type, orientation = 'horizontal') {
   svg.append(group);
 }
 
+export function beamDeformationDisplayScale({
+  x0,
+  x1,
+  lengthM,
+  magnification,
+  maxDeflectionMm,
+  maxVisiblePx = 85
+}) {
+  if (lengthM <= 0) throw new Error('Beam display length must be greater than zero.');
+  const basePxPerMm = (x1 - x0) / (lengthM * 1000);
+  const requestedPxPerMm = basePxPerMm * magnification;
+  const maxComputed = Math.max(maxDeflectionMm, 0.001);
+  const cappedPxPerMm = maxVisiblePx / maxComputed;
+  const pxPerMm = Math.min(requestedPxPerMm, cappedPxPerMm);
+  return {
+    pxPerMm,
+    basePxPerMm,
+    effectiveMagnification: pxPerMm / basePxPerMm,
+    capped: pxPerMm < requestedPxPerMm - 1e-12
+  };
+}
+
 export function drawBeamDiagram(svg, { result, lengthM, loadPositionM, loadKN, leftSupport, rightSupport, magnification }) {
   clear(svg);
   const x0 = 90;
   const x1 = 810;
   const baselineY = 175;
   const scaleX = (x1 - x0) / lengthM;
-  const maxVisible = 85;
-  const maxComputed = Math.max(result.maxDeflectionMm, 0.001);
-  const deflectionScale = Math.min(magnification, maxVisible / maxComputed);
+  const displayScale = beamDeformationDisplayScale({
+    x0,
+    x1,
+    lengthM,
+    magnification,
+    maxDeflectionMm: result.maxDeflectionMm
+  });
 
   svg.append(svgElement('line', { x1: x0, y1: baselineY, x2: x1, y2: baselineY, class: 'reference-line' }));
   drawSupport(svg, x0, baselineY, leftSupport);
@@ -60,7 +86,7 @@ export function drawBeamDiagram(svg, { result, lengthM, loadPositionM, loadKN, l
 
   const path = result.deflectionSeries.map((point, index) => {
     const x = x0 + point.xM * scaleX;
-    const y = baselineY - point.displacementMm * deflectionScale;
+    const y = baselineY - point.displacementMm * displayScale.pxPerMm;
     return `${index === 0 ? 'M' : 'L'} ${x.toFixed(2)} ${y.toFixed(2)}`;
   }).join(' ');
   svg.append(svgElement('path', { d: path, class: 'member-path' }));
@@ -69,7 +95,7 @@ export function drawBeamDiagram(svg, { result, lengthM, loadPositionM, loadKN, l
     Math.abs(point.displacementMm) > Math.abs(current.displacementMm) ? point : current
   ), result.deflectionSeries[0]);
   const peakX = x0 + peak.xM * scaleX;
-  const peakY = baselineY - peak.displacementMm * deflectionScale;
+  const peakY = baselineY - peak.displacementMm * displayScale.pxPerMm;
   const direction = peak.displacementMm < -1e-9 ? 'downward ↓' : peak.displacementMm > 1e-9 ? 'upward ↑' : 'zero';
   svg.append(svgElement('line', { x1: peakX, y1: baselineY, x2: peakX, y2: peakY, class: 'deflection-marker' }));
   svg.append(svgElement('circle', { cx: peakX, cy: peakY, r: 5, class: 'deflection-point' }));
@@ -91,7 +117,13 @@ export function drawBeamDiagram(svg, { result, lengthM, loadPositionM, loadKN, l
   text(svg, x0, 322, '0.00 m');
   text(svg, x1, 322, `${lengthM.toFixed(2)} m`, 'svg-label svg-label--end');
   text(svg, 450, 282, `Physical deflection: ${direction} · maximum ${result.maxDeflectionMm.toFixed(3)} mm`, 'svg-direction-label');
-  text(svg, 450, 345, `Dashed = undeformed · turquoise = deformed · display ${magnification === 1 ? 'actual' : `×${magnification}`} · drag load arrow`, 'svg-caption');
+
+  const displayLabel = displayScale.capped
+    ? `requested ×${magnification}, capped at ×${displayScale.effectiveMagnification.toFixed(1)}`
+    : magnification === 1
+      ? 'true geometric scale ×1'
+      : `true-scale deformation ×${magnification}`;
+  text(svg, 450, 345, `Dashed = undeformed · turquoise = deformed · ${displayLabel} · drag load arrow`, 'svg-caption');
 }
 
 export function drawColumnDiagram(svg, { result, lengthM, loadKN, eccentricityMm, bottomSupport, topSupport, magnification }) {
@@ -118,5 +150,5 @@ export function drawColumnDiagram(svg, { result, lengthM, loadKN, eccentricityMm
   text(svg, loadX + (loadOffset >= 0 ? 18 : -18), 30, `${loadKN.toFixed(2)} kN`, 'svg-label svg-label--strong');
   text(svg, x + 45, 190, `KL/r = ${result.slenderness.toFixed(1)}`);
   text(svg, x + 45, 215, `K = ${result.k.toFixed(3)}`);
-  text(svg, 450, 345, `Idealised ${result.governingAxis}-axis buckling shape over ${lengthM.toFixed(2)} m`, 'svg-caption');
+  text(svg, 450, 345, `Idealised schematic buckling shape · ${result.governingAxis}-axis · ${lengthM.toFixed(2)} m`, 'svg-caption');
 }
