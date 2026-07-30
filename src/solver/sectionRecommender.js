@@ -93,7 +93,8 @@ export function evaluateMemberCandidate({
   const allowableThresholdLoadKN = strengthReferenceMPa && result.maxBendingStressMPa > 0
     ? loadKN * strengthReferenceMPa / result.maxBendingStressMPa
     : null;
-  const massPerM = properties.areaMm2 * 1e-6 * material.densityKgM3;
+  const calculatedMassKgM = properties.areaMm2 * 1e-6 * material.densityKgM3;
+  const massPerM = preset.publishedMassKgM ?? calculatedMassKgM;
   const stockPass = lengthM <= material.maxLengthM + 1e-9;
   const strengthPass = strengthRatio != null && strengthRatio <= 1;
   const deflectionPass = deflectionRatio <= 1;
@@ -123,6 +124,7 @@ export function evaluateMemberCandidate({
     physicalThresholdLoadKN,
     allowableThresholdLoadKN,
     massPerM,
+    calculatedMassKgM,
     publishedMassKgM: preset.publishedMassKgM ?? null,
     totalMassKg: massPerM * lengthM,
     stockPass,
