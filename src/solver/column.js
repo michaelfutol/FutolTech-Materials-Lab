@@ -43,7 +43,8 @@ export function solveColumn({
   const axialLoadN = axialLoadKN * 1000;
   const axialStressMPa = axialLoadN / areaMm2;
   const cMm = weakAxisIsX ? depthMm / 2 : widthMm / 2;
-  const firstOrderMomentNmm = axialLoadN * eccentricityMm;
+  const eccentricityMagnitudeMm = Math.abs(eccentricityMm);
+  const firstOrderMomentNmm = axialLoadN * eccentricityMagnitudeMm;
   const loadRatio = axialLoadN / eulerCriticalN;
   const amplification = loadRatio < 0.95 ? 1 / Math.max(1 - loadRatio, 0.05) : Number.POSITIVE_INFINITY;
   const amplifiedMomentNmm = firstOrderMomentNmm * amplification;
