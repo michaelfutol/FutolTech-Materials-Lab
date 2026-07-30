@@ -1,0 +1,19 @@
+.recommend-shell { grid-template-columns: minmax(360px, 430px) minmax(0, 1fr); }
+.status-link { text-decoration: none; }
+.recommend-summary { border: 1px solid var(--border); border-left-width: 5px; border-radius: .8rem; padding: 1rem; margin-bottom: 1rem; background: var(--panel); }
+.recommend-summary--pass { border-left-color: var(--accent); background: rgba(82, 214, 181, .07); }
+.recommend-summary--fail { border-left-color: var(--danger); background: rgba(255, 138, 138, .08); }
+.recommend-summary h3 { margin: .25rem 0 .45rem; font-size: 1.12rem; }
+.recommend-summary p:last-child { margin-bottom: 0; color: #cbd8df; }
+.recommend-table-wrap { overflow: auto; border: 1px solid var(--border); border-radius: .8rem; }
+.recommend-table { width: 100%; min-width: 1040px; border-collapse: collapse; background: var(--panel); }
+.recommend-table th, .recommend-table td { padding: .75rem; text-align: left; vertical-align: top; border-bottom: 1px solid var(--border); font-size: .78rem; }
+.recommend-table th { position: sticky; top: 0; z-index: 1; background: #101e29; color: var(--muted); }
+.recommend-table tr.is-pass { background: rgba(82, 214, 181, .035); }
+.recommend-table small { display: block; margin-top: .3rem; line-height: 1.35; }
+.recommend-badge { display: inline-block; padding: .2rem .45rem; border-radius: 999px; border: 1px solid var(--border); font-weight: 700; font-size: .68rem; }
+.recommend-badge--pass { color: var(--accent); border-color: var(--accent); }
+.recommend-badge--fail { color: var(--danger); border-color: var(--danger); }
+.recommend-badge--splice { color: var(--warning); border-color: var(--warning); }
+.recommend-note { margin-top: 1rem; padding: 1rem; border: 1px solid var(--border); border-radius: .8rem; color: #cbd8df; line-height: 1.5; }
+@media (max-width: 880px) { .recommend-shell { grid-template-columns: 1fr; } }
