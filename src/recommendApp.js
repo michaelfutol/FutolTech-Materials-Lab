@@ -17,7 +17,23 @@ function format(value, decimals = 2) {
   return new Intl.NumberFormat('en-GB', { maximumFractionDigits: decimals }).format(value);
 }
 
-function statusBadge(candidate) {
+function objectiveCopy(objective) {
+  if (objective === 'utilisation') {
+    return {
+      eyebrow: 'Lowest-utilisation passing option',
+      badge: 'BEST · LOWEST USE',
+      explanation: 'lowest governing strength/deflection utilisation'
+    };
+  }
+  return {
+    eyebrow: 'Lightest passing option',
+    badge: 'BEST · LIGHTEST PASS',
+    explanation: 'minimum member mass among the passing listed candidates'
+  };
+}
+
+function statusBadge(candidate, isBest, objective) {
+  if (isBest) return `<span class="recommend-badge recommend-badge--best">${objectiveCopy(objective).badge}</span>`;
   if (candidate.pass) return '<span class="recommend-badge recommend-badge--pass">PASS</span>';
   if (!candidate.stockPass) return '<span class="recommend-badge recommend-badge--splice">SPLICE</span>';
   return '<span class="recommend-badge recommend-badge--fail">FAIL</span>';
@@ -29,6 +45,7 @@ function render() {
     const lengthM = numeric(elements.recommendLengthInput);
     const loadKN = convertLoadToKN(numeric(elements.recommendLoadInput), elements.recommendLoadUnitSelect.value);
     const loadPositionM = numeric(elements.recommendLoadPositionInput);
+    const objective = elements.recommendObjectiveSelect.value;
     elements.recommendLoadPositionInput.max = String(lengthM);
 
     const result = recommendMemberSections({
@@ -40,30 +57,37 @@ function render() {
       loadPositionM,
       boundary: elements.recommendBoundarySelect.value,
       deflectionDivisor: numeric(elements.recommendDeflectionSelect),
-      objective: elements.recommendObjectiveSelect.value
+      objective
     });
 
     const best = result.best;
-    elements.recommendSummary.className = `recommend-summary ${best ? 'recommend-summary--pass' : 'recommend-summary--fail'}`;
+    const bestCopy = objectiveCopy(objective);
+    elements.recommendSummary.className = `recommend-summary ${best ? 'recommend-summary--pass recommend-summary--best' : 'recommend-summary--fail'}`;
     elements.recommendSummary.innerHTML = best
-      ? `<p class="eyebrow">Lowest-ranked passing option</p><strong>${best.materialName}</strong><h3>${best.sectionLabel} · ${best.orientation}</h3><p>Required load: <b>${formatLoadEquivalents(loadKN)}</b>; ${format(best.result.maxDeflectionMm, 2)} mm deflection; ${format((best.strengthRatio ?? 0) * 100, 1)}% strength-reference use; ${format(best.totalMassKg, 2)} kg member mass.</p>`
+      ? `<p class="eyebrow">${bestCopy.eyebrow}</p><strong>${best.materialName}</strong><h3>${best.sectionLabel} · ${best.orientation}</h3><p>Required load: <b>${formatLoadEquivalents(loadKN)}</b>; ${format(best.result.maxDeflectionMm, 2)} mm deflection; ${format((best.strengthRatio ?? 0) * 100, 1)}% strength-reference use; ${format(best.totalMassKg, 2)} kg member mass.</p><p class="recommend-best-note"><strong>Why highlighted:</strong> ${bestCopy.explanation}. This is not yet a peso-cost result; current supplier prices are required for a true lowest-cost ranking.</p>`
       : `<p class="eyebrow">No listed candidate passes</p><h3>Increase the candidate library, shorten the span, change the boundary/load position, add a brace or intermediate support, or permit a designed splice/connection solution.</h3><p>Checked load: <b>${formatLoadEquivalents(loadKN)}</b>.</p>`;
 
-    elements.recommendTableBody.innerHTML = result.candidates.slice(0, 30).map((candidate, index) => {
+    elements.recommendTableBody.innerHTML = result.candidates.slice(0, 50).map((candidate, index) => {
+      const isBest = candidate === best;
       const physicalLabel = candidate.family === 'wood' ? 'rupture est.' : 'yield est.';
-      return `<tr class="${candidate.pass ? 'is-pass' : ''}">
-        <td>${index + 1}</td>
-        <td>${statusBadge(candidate)}<small>${candidate.reasons.join('; ')}</small></td>
+      const sourceLine = candidate.marketStatus
+        ? candidate.marketStatus
+        : `${candidate.materialSource?.status ?? 'source status unavailable'} · ${candidate.strengthReferenceLabel}`;
+      return `<tr class="${candidate.pass ? 'is-pass' : ''} ${isBest ? 'is-best' : ''}">
+        <td>${index + 1}${isBest ? '<small class="best-arrow">★ minimum</small>' : ''}</td>
+        <td>${statusBadge(candidate, isBest, objective)}<small>${candidate.reasons.join('; ')}</small></td>
         <td>${candidate.materialName}<small>${candidate.family}</small></td>
-        <td><strong>${candidate.sectionLabel}</strong><small>${candidate.orientation}</small></td>
+        <td><strong>${candidate.sectionLabel}</strong><small>${candidate.orientation}</small><small class="candidate-source">${sourceLine}</small></td>
         <td>${format(candidate.result.maxDeflectionMm, 2)} mm<small>${format(candidate.deflectionRatio * 100, 1)}% of limit</small></td>
-        <td>${candidate.strengthRatio == null ? 'unrated' : `${format(candidate.strengthRatio * 100, 1)}%`}<small>${format(candidate.result.maxBendingStressMPa, 1)} MPa</small></td>
+        <td>${candidate.strengthRatio == null ? 'unrated' : `${format(candidate.strengthRatio * 100, 1)}%`}<small>${format(candidate.result.maxBendingStressMPa, 1)} MPa</small><small>${candidate.strengthReferenceLabel}</small></td>
         <td>${candidate.physicalThresholdLoadKN == null ? '—' : formatLoadEquivalents(candidate.physicalThresholdLoadKN)}<small>${physicalLabel}</small></td>
         <td>${format(candidate.totalMassKg, 2)} kg<small>${format(candidate.massPerM, 2)} kg/m</small></td>
       </tr>`;
     }).join('');
 
-    elements.recommendSourceNote.innerHTML = `<p class="eyebrow">Current search space</p><strong>${result.candidates.length} section/material/orientation candidates evaluated</strong><p>${result.passing.length} pass the selected strength, deflection, and no-splice checks. This is exhaustive enumeration of the current small library, so the ranking is transparent and repeatable.</p>`;
+    const woodCount = result.candidates.filter((candidate) => candidate.family === 'wood').length;
+    const steelCount = result.candidates.filter((candidate) => candidate.family === 'steel').length;
+    elements.recommendSourceNote.innerHTML = `<p class="eyebrow">Current search space</p><strong>${result.candidates.length} section/material/orientation candidates evaluated</strong><p>${result.passing.length} pass the selected strength, deflection, and no-splice checks. Search mix: ${woodCount} wood and ${steelCount} steel candidate combinations. The highlighted row is the minimum under the selected objective, not automatically the cheapest purchase price.</p>`;
   } catch (error) {
     elements.recommendErrorBanner.textContent = error instanceof Error ? error.message : String(error);
     elements.recommendErrorBanner.classList.remove('is-hidden');

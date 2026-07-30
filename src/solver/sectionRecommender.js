@@ -77,8 +77,11 @@ export function evaluateMemberCandidate({
   });
 
   const strengthReferenceMPa = material.family === 'wood'
-    ? material.allowableBendingMPa
+    ? (material.bendingReferenceMPa ?? material.allowableBendingMPa)
     : material.yieldStrengthMPa;
+  const strengthReferenceLabel = material.family === 'wood'
+    ? (material.strengthReferenceLabel ?? 'selected wood bending reference')
+    : 'first-yield reference';
   const physicalReferenceMPa = material.family === 'wood'
     ? material.ultimateBendingMPa
     : material.yieldStrengthMPa;
@@ -90,26 +93,28 @@ export function evaluateMemberCandidate({
   const physicalThresholdLoadKN = physicalReferenceMPa && result.maxBendingStressMPa > 0
     ? loadKN * physicalReferenceMPa / result.maxBendingStressMPa
     : null;
-  const allowableThresholdLoadKN = strengthReferenceMPa && result.maxBendingStressMPa > 0
+  const referenceThresholdLoadKN = strengthReferenceMPa && result.maxBendingStressMPa > 0
     ? loadKN * strengthReferenceMPa / result.maxBendingStressMPa
     : null;
   const calculatedMassKgM = properties.areaMm2 * 1e-6 * material.densityKgM3;
   const massPerM = preset.publishedMassKgM ?? calculatedMassKgM;
-  const stockPass = lengthM <= material.maxLengthM + 1e-9;
+  const stockBoundaryM = preset.maxLengthM ?? material.maxLengthM;
+  const stockPass = lengthM <= stockBoundaryM + 1e-9;
   const strengthPass = strengthRatio != null && strengthRatio <= 1;
   const deflectionPass = deflectionRatio <= 1;
   const pass = stockPass && strengthPass && deflectionPass;
   const governingRatio = Math.max(strengthRatio ?? Infinity, deflectionRatio);
 
   const reasons = [];
-  if (!stockPass) reasons.push(`splice required above ${material.maxLengthM.toFixed(2)} m stock boundary`);
-  if (!strengthPass) reasons.push('strength reference exceeded');
+  if (!stockPass) reasons.push(`splice required above ${stockBoundaryM.toFixed(2)} m stock boundary`);
+  if (!strengthPass) reasons.push(`${strengthReferenceLabel} exceeded`);
   if (!deflectionPass) reasons.push(`L/${deflectionDivisor} exceeded`);
   if (pass) reasons.push('passes selected elastic checks');
 
   return {
     materialId: material.id,
     materialName: material.name,
+    materialSource: material.source,
     family: material.family,
     presetId: preset.id,
     sectionLabel: preset.label,
@@ -117,21 +122,27 @@ export function evaluateMemberCandidate({
     properties,
     result,
     strengthReferenceMPa,
+    strengthReferenceLabel,
     physicalReferenceMPa,
     strengthRatio,
     deflectionRatio,
     deflectionLimitMm,
     physicalThresholdLoadKN,
-    allowableThresholdLoadKN,
+    allowableThresholdLoadKN: referenceThresholdLoadKN,
+    referenceThresholdLoadKN,
     massPerM,
     calculatedMassKgM,
     publishedMassKgM: preset.publishedMassKgM ?? null,
     totalMassKg: massPerM * lengthM,
+    stockBoundaryM,
     stockPass,
     strengthPass,
     deflectionPass,
     pass,
     governingRatio,
+    marketStatus: preset.marketStatus ?? null,
+    analysisStatus: preset.analysisStatus ?? null,
+    sourceId: preset.sourceId ?? null,
     reasons
   };
 }
@@ -187,6 +198,7 @@ export function recommendMemberSections({
   });
 
   return {
+    objective,
     candidates,
     passing: candidates.filter((candidate) => candidate.pass),
     best: candidates.find((candidate) => candidate.pass) ?? null

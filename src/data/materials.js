@@ -1,3 +1,5 @@
+import { PH_WOOD_RESEARCH_MATERIALS } from './phWoodMaterials.js';
+
 export const MATERIALS = [
   {
     id: 'coco-uh-2007-average',
@@ -9,6 +11,8 @@ export const MATERIALS = [
     yieldStrengthMPa: null,
     ultimateBendingMPa: 72.9,
     allowableBendingMPa: 15.4,
+    bendingReferenceMPa: 15.4,
+    strengthReferenceLabel: 'published proposed allowable bending reference',
     compressionParallelMPa: 46.2,
     source: {
       label: 'Erickson & Robertson, UHM/CEE/07-02 (2007)',
@@ -18,6 +22,7 @@ export const MATERIALS = [
       note: 'E and bending strength are full-scale rectangular-member averages. Compression is a provisional average from short round-log specimens and is not a sawn 2×4 design value.'
     }
   },
+  ...PH_WOOD_RESEARCH_MATERIALS,
   {
     id: 'steel-generic-250',
     name: 'Structural steel tube — provisional Fy 250 MPa',
