@@ -17,6 +17,7 @@
 .library-chip--pipe { color: #75d7ff; border-color: rgba(117, 215, 255, .55); }
 .library-chip--bamboo, .library-chip--wood { color: #ddbd72; border-color: rgba(221, 189, 114, .55); }
 .library-chip--steel { color: var(--accent); border-color: rgba(82, 214, 181, .55); }
+.library-chip--pending { color: var(--warning); border-color: rgba(255, 196, 92, .7); background: rgba(255, 196, 92, .06); }
 .library-card__action { display: inline-flex; margin-top: .55rem; color: var(--accent); font-size: .76rem; text-decoration: none; font-weight: 700; }
 .library-detail { margin-bottom: 1rem; padding: 1rem; border: 1px solid rgba(82, 214, 181, .55); border-radius: .9rem; background: linear-gradient(135deg, rgba(82, 214, 181, .09), rgba(12, 25, 35, .96)); }
 .library-detail__layout { display: grid; grid-template-columns: 180px minmax(0, 1fr); gap: 1rem; align-items: center; }
@@ -28,6 +29,9 @@
 .library-detail dd { margin: .18rem 0 0; font-weight: 700; font-size: .8rem; }
 .material-card { grid-template-rows: auto; }
 .material-card .library-card__body { min-height: 240px; }
+.material-card--pending { border-style: dashed; border-color: rgba(255, 196, 92, .45); }
+.material-card--pending .library-card__visual { background: radial-gradient(circle at 50% 45%, rgba(255, 196, 92, .13), transparent 62%), #171a1b; }
+.material-card--pending:hover { border-color: rgba(255, 196, 92, .78); box-shadow: 0 12px 28px rgba(0, 0, 0, .22), 0 0 18px rgba(255, 196, 92, .08); }
 .material-strengths { display: grid; grid-template-columns: 1fr 1fr; gap: .4rem; margin-top: .65rem; }
 .material-strengths div { padding: .42rem; border: 1px solid var(--border); border-radius: .45rem; }
 .material-strengths span { display: block; color: var(--muted); font-size: .64rem; }
