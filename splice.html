@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="FutolNative Structures stock-length and member-splice demand planner." />
+    <title>Stock Length & Splice Designer · FutolNative Structures</title>
+    <link rel="stylesheet" href="./src/styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">FutolNative Structures · SP-001</p>
+        <h1>Stock Length & Splice Designer</h1>
+        <p class="subtitle">Assemble longer coco-lumber or steel members from available stock, then check the actual force demand at the splice.</p>
+      </div>
+      <div class="status-cluster">
+        <a class="status-pill status-link" href="./index.html">← Materials Lab</a>
+        <span class="status-pill">Splice demand · active</span>
+        <span class="status-pill status-pill--warning">Fastener/weld design · next</span>
+      </div>
+    </header>
+
+    <main class="app-shell splice-shell">
+      <section class="panel controls-panel" aria-label="Splice setup">
+        <div class="panel-heading">
+          <div>
+            <p class="eyebrow">Stock and member geometry</p>
+            <h2>Assembly setup</h2>
+          </div>
+          <button id="spliceResetButton" class="button button--ghost" type="button">Reset SP-001</button>
+        </div>
+
+        <div class="control-grid">
+          <label class="control-span-2">
+            <span>Material dataset</span>
+            <select id="spliceMaterialSelect"></select>
+          </label>
+
+          <label class="control-span-2">
+            <span>Splice family</span>
+            <select id="spliceTypeSelect"></select>
+          </label>
+
+          <label>
+            <span>Required assembled length, m</span>
+            <input id="assembledLengthInput" type="number" min="0.6" max="20" step="0.1" value="5.4" />
+          </label>
+
+          <label>
+            <span>Available stock length, m</span>
+            <input id="stockLengthInput" type="number" min="0.3" max="12" step="0.1" value="3.6" />
+          </label>
+
+          <label>
+            <span>Main-member overlap, m</span>
+            <input id="spliceOverlapInput" type="number" min="0" max="3" step="0.05" value="0" />
+            <small>Use 0 for butt/scab, welded, sleeve, or cover-plate splices.</small>
+          </label>
+
+          <label>
+            <span>Scab / sleeve / splice-detail length, m</span>
+            <input id="spliceDetailLengthInput" type="number" min="0.1" max="4" step="0.05" value="0.9" />
+            <small>Shown for detailing; source-backed capacity calculation follows later.</small>
+          </label>
+        </div>
+
+        <fieldset class="section-editor section-editor--actual">
+          <legend>Actual main-member section</legend>
+          <div class="control-grid control-grid--section">
+            <label>
+              <span>Actual width B/b, mm</span>
+              <input id="spliceWidthInput" type="number" min="1" step="0.1" value="50" />
+            </label>
+            <label>
+              <span>Actual vertical depth H/h, mm</span>
+              <input id="spliceDepthInput" type="number" min="1" step="0.1" value="100" />
+            </label>
+            <label id="spliceThicknessLabel" class="is-hidden">
+              <span>Actual tube wall thickness, mm</span>
+              <input id="spliceThicknessInput" type="number" min="0.1" step="0.1" value="1.5" />
+            </label>
+          </div>
+          <output id="spliceSectionSummary" class="section-summary" aria-live="polite"></output>
+        </fieldset>
+
+        <fieldset class="section-editor">
+          <legend>Beam supports and point load</legend>
+          <div class="control-grid">
+            <label>
+              <span>Left restraint</span>
+              <select id="spliceLeftSupportSelect">
+                <option value="pin">Pin / hinge</option>
+                <option value="roller">Roller</option>
+                <option value="fixed">Fixed</option>
+                <option value="free">Free</option>
+              </select>
+            </label>
+            <label>
+              <span>Right restraint</span>
+              <select id="spliceRightSupportSelect">
+                <option value="roller">Roller</option>
+                <option value="pin">Pin / hinge</option>
+                <option value="fixed">Fixed</option>
+                <option value="free">Free</option>
+              </select>
+            </label>
+            <label>
+              <span>Point load, kN</span>
+              <input id="spliceLoadInput" type="number" min="0" step="0.1" value="1" />
+            </label>
+            <label>
+              <span>Point-load position, m from left</span>
+              <input id="spliceLoadPositionInput" type="number" min="0" step="0.05" value="2.7" />
+            </label>
+          </div>
+        </fieldset>
+
+        <fieldset class="section-editor section-editor--actual">
+          <legend>Splice location and provisional connection properties</legend>
+          <p class="section-editor__note"><strong>Research mode:</strong> capacities and stiffnesses below are user-entered assumptions until the nail, bolt, plate, sleeve, and weld engines are source-backed.</p>
+          <div class="control-grid">
+            <label class="control-span-2">
+              <span>Splice centre, m from left</span>
+              <input id="splicePositionInput" type="number" min="0" step="0.05" value="2.7" />
+              <input id="splicePositionRange" type="range" min="0" max="5.4" step="0.05" value="2.7" />
+            </label>
+            <label>
+              <span>Assumed moment capacity, kN·m</span>
+              <input id="spliceMomentCapacityInput" type="number" min="0" step="0.05" placeholder="unrated" />
+            </label>
+            <label>
+              <span>Assumed shear capacity, kN</span>
+              <input id="spliceShearCapacityInput" type="number" min="0" step="0.1" placeholder="unrated" />
+            </label>
+            <label>
+              <span>Rotational stiffness, kN·m/rad</span>
+              <input id="spliceRotationalStiffnessInput" type="number" min="0" step="1" placeholder="optional" />
+            </label>
+            <label>
+              <span>Shear-slip stiffness, kN/mm</span>
+              <input id="spliceShearStiffnessInput" type="number" min="0" step="0.1" placeholder="optional" />
+            </label>
+          </div>
+          <button id="useSuggestedSpliceButton" class="button splice-recommend-button" type="button">Use lowest-demand feasible position</button>
+        </fieldset>
+
+        <div id="spliceSourceCard" class="source-card" aria-live="polite"></div>
+      </section>
+
+      <section class="panel workspace-panel" aria-label="Splice analysis workspace">
+        <div class="panel-heading">
+          <div>
+            <p class="eyebrow">Live assembled-member solver</p>
+            <h2>Stock, force demand, and splice utilisation</h2>
+          </div>
+        </div>
+
+        <div id="spliceErrorBanner" class="error-banner is-hidden" role="alert"></div>
+        <section id="spliceStateBanner" class="capacity-banner capacity-banner--safe" role="status" aria-live="assertive"></section>
+
+        <div class="diagram-wrap">
+          <svg id="spliceDiagram" viewBox="0 0 900 360" role="img" aria-label="Beam assembly with stock-feasible zone, point load, and splice marker"></svg>
+        </div>
+
+        <div id="spliceResultCards" class="result-grid" aria-live="polite"></div>
+
+        <div class="details-grid splice-details-grid">
+          <section>
+            <h3>Stock and cut plan</h3>
+            <dl id="stockPlanResults" class="definition-grid"></dl>
+          </section>
+          <section>
+            <h3>Splice force demand</h3>
+            <dl id="spliceDemandResults" class="definition-grid"></dl>
+          </section>
+          <section>
+            <h3>Engineering interpretation</h3>
+            <div id="spliceInterpretation" class="interpretation"></div>
+          </section>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <strong>Engineering notice:</strong> SP-001 currently extracts beam force demand and checks it against user-entered splice capacities. It does not yet calculate nail, bolt, weld, sleeve, plate, splitting, local buckling, or nonlinear post-failure resistance.
+    </footer>
+
+    <script type="module" src="./src/spliceApp.js"></script>
+  </body>
+</html>
