@@ -45,7 +45,16 @@ The K factors are idealised and require later connection-stiffness modelling. Pi
 
 ## Material evidence
 
-Each dataset stores a source label, evidence status, confidence and limitations. The initial coconut-wood dataset uses the published full-scale rectangular-member average E = 13.1 GPa and bending strength = 72.9 MPa from UHM-CEE-07-03. Its average compression value is stored only as a provisional reference because the cited compression specimens were round logs rather than sawn 2×4 members.
+Each dataset stores a source label, evidence status, confidence and limitations. The initial coconut-wood dataset is based on Aaron Erickson and Ian N. Robertson, *Structural Properties of Coconut Wood*, University of Hawaiʻi Research Report UHM/CEE/07-02, April 2007.
+
+The selected full-scale rectangular-member averages are:
+
+- wet density: 0.91 g/cm³
+- modulus of elasticity: 13.1 GPa
+- maximum bending stress: 72.9 MPa
+- proposed safe allowable bending stress: 2,230 psi, approximately 15.4 MPa
+
+The stored 46.2 MPa compression reference is only a provisional average from short, approximately 8-inch-diameter round-log specimens. It is not a verified sawn 2×4 compression value. The report also states that its full-scale rectangular-member tests were conducted similarly to ASTM D198 but did not strictly follow every requirement, and some moisture and environmental records were incomplete.
 
 The generic steel datasets are intentionally marked assumed and low confidence. “GI” identifies galvanised coating, not base-steel grade.
 
