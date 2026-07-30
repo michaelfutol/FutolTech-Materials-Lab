@@ -9,7 +9,7 @@ const elements = Object.fromEntries([
   'eccentricityInput', 'leftSupportSelect', 'rightSupportSelect', 'widthInput', 'depthInput',
   'thicknessInput', 'thicknessLabel', 'sourceCard', 'workspaceTitle', 'magnificationSelect',
   'errorBanner', 'specimenDiagram', 'resultCards', 'sectionResults', 'interpretation',
-  'beamModeButton', 'columnModeButton', 'resetButton', 'lengthHelp'
+  'beamModeButton', 'columnModeButton', 'resetButton', 'lengthHelp', 'supportHelp'
 ].map((id) => [id, document.getElementById(id)]));
 
 let mode = 'beam';
@@ -86,6 +86,41 @@ function syncModeUi() {
     elements.leftSupportSelect.value = 'fixed';
     elements.rightSupportSelect.value = 'free';
   }
+  renderSupportHelp();
+}
+
+function renderSupportHelp() {
+  const left = elements.leftSupportSelect.value;
+  const right = elements.rightSupportSelect.value;
+  let contextual = '';
+  let warning = false;
+
+  if (mode === 'beam') {
+    if (left === 'roller' && right === 'roller') {
+      warning = true;
+      contextual = '<strong>Roller–roller warning:</strong> it can carry the shown vertical load in this bending-only solver, but it has no horizontal restraint in a full 2D model. Use <strong>pin + roller</strong> for the textbook simply supported beam.';
+    } else if ((left === 'pin' && right === 'roller') || (left === 'roller' && right === 'pin')) {
+      contextual = '<strong>Standard simply supported beam:</strong> the pin provides horizontal stability; the roller allows horizontal expansion.';
+    } else if (left === 'pin' && right === 'pin') {
+      contextual = '<strong>Pin–pin note:</strong> the bending curve is valid here, but a full axial model would restrain horizontal movement at both ends.';
+    } else {
+      contextual = 'The selected restraints are idealised. Connection flexibility is not included yet.';
+    }
+
+    elements.supportHelp.innerHTML = `
+      <strong>Support guide</strong>
+      <p><b>Pin / hinge:</b> vertical movement blocked, rotation free. <b>Roller:</b> vertical movement blocked, rotation and horizontal sliding free. <b>Fixed:</b> movement and rotation blocked. <b>Free:</b> no restraint.</p>
+      <p><b>Current model:</b> vertical bending uses only deflection and rotation DOFs, so pin and roller give the same flexural response. ${contextual}</p>
+    `;
+  } else {
+    elements.supportHelp.innerHTML = `
+      <strong>Column end-condition guide</strong>
+      <p><b>Fixed:</b> rotation restrained. <b>Pin / hinge:</b> rotation free but lateral position restrained. <b>Free:</b> no lateral or rotational restraint.</p>
+      <p>For the present Euler buckling check, a roller is treated as pin-like. The displayed K factor is an ideal end-condition value, not a connection-stiffness analysis.</p>
+    `;
+  }
+
+  elements.supportHelp.classList.toggle('support-help--warning', warning);
 }
 
 function renderSource(material) {
@@ -120,12 +155,27 @@ function resultCard(label, value, note = '') {
   return `<article class="result-card"><span>${label}</span><strong>${value}</strong>${note ? `<small>${note}</small>` : ''}</article>`;
 }
 
+function peakDeflectionPoint(result) {
+  return result.deflectionSeries.reduce((peak, point) => (
+    Math.abs(point.displacementMm) > Math.abs(peak.displacementMm) ? point : peak
+  ), result.deflectionSeries[0]);
+}
+
+function deflectionDirection(displacementMm) {
+  if (displacementMm < -1e-9) return 'downward';
+  if (displacementMm > 1e-9) return 'upward';
+  return 'zero';
+}
+
 function renderBeam(result, material, section, lengthM, loadKN, loadPositionM) {
   const limitL360 = lengthM * 1000 / 360;
   const stressReference = material.allowableBendingMPa ?? material.yieldStrengthMPa ?? material.ultimateBendingMPa;
   const utilisation = stressReference ? result.maxBendingStressMPa / stressReference : null;
+  const peak = peakDeflectionPoint(result);
+  const direction = deflectionDirection(peak.displacementMm);
+
   elements.resultCards.innerHTML = [
-    resultCard('Maximum deflection', `${formatNumber(result.maxDeflectionMm, 3)} mm`, `L/360 = ${formatNumber(limitL360, 2)} mm`),
+    resultCard('Maximum deflection', `${formatNumber(result.maxDeflectionMm, 3)} mm ${direction}`, `at x = ${formatNumber(peak.xM, 2)} m · L/360 = ${formatNumber(limitL360, 2)} mm`),
     resultCard('Maximum moment', `${formatNumber(result.maxMomentKNm, 3)} kN·m`),
     resultCard('Maximum bending stress', `${formatNumber(result.maxBendingStressMPa, 2)} MPa`, stressReference ? `${formatNumber((utilisation ?? 0) * 100, 1)}% of selected reference` : ''),
     resultCard('Support reactions', `${formatNumber(result.leftReactionKN, 3)} / ${formatNumber(result.rightReactionKN, 3)} kN`, 'left / right, upward positive')
@@ -134,7 +184,8 @@ function renderBeam(result, material, section, lengthM, loadKN, loadPositionM) {
   const deflectionStatus = result.maxDeflectionMm <= limitL360 ? 'within' : 'exceeds';
   const stressStatus = utilisation == null ? 'cannot yet be checked' : utilisation <= 1 ? 'is within' : 'exceeds';
   elements.interpretation.innerHTML = `
-    <p>The calculated elastic deflection <strong>${deflectionStatus} L/360</strong>. The peak bending stress <strong>${stressStatus} the selected material reference</strong>.</p>
+    <p>The calculated elastic deflection is <strong>${direction}</strong> and <strong>${deflectionStatus} L/360</strong>. The peak bending stress <strong>${stressStatus} the selected material reference</strong>.</p>
+    <p>The dashed line is the undeformed member. For the downward load shown, the turquoise member should lie <strong>below</strong> that dashed line. The browser SVG also labels the physical direction explicitly.</p>
     <p>This release uses an Euler–Bernoulli beam finite-element model. Point loads are inserted at their exact position as analysis nodes; the deformation is not scripted.</p>
     ${section.type === 'rhs' ? '<p>Thin-wall local buckling, corner radii, weld-seam effects and residual stresses are not yet included in this line-element result.</p>' : '<p>Timber variability, defects, moisture adjustment, duration of load and brittle fracture are not yet represented by the deterministic line-element result.</p>'}
   `;
@@ -182,6 +233,7 @@ function renderColumn(result, material, loadKN, lengthM, eccentricityMm) {
 function analyse() {
   try {
     elements.errorBanner.classList.add('is-hidden');
+    renderSupportHelp();
     const material = getMaterial(elements.materialSelect.value);
     const lengthM = Number(elements.lengthInput.value);
     if (lengthM < 0.6 || lengthM > material.maxLengthM) {

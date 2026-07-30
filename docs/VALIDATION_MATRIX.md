@@ -4,6 +4,8 @@
 |---|---|---|---|---|
 | V-BM-001 | Beam | Simply supported, centre point load | δ = PL³/(48EI), Mmax = PL/4 | Automated |
 | V-BM-002 | Beam | Cantilever, end point load | δ = PL³/(3EI) | Automated |
+| V-BM-003 | Beam | Downward point load sign convention | Nodal transverse displacement is negative; SVG renders it below the undeformed line | Automated |
+| V-BM-004 | Beam | Pin–roller versus roller–roller in vertical bending-only DOFs | Same flexural response; horizontal stability limitation documented | Automated |
 | V-SC-001 | Section | 50×100 mm solid rectangle | A, I and Z closed-form values | Automated |
 | V-CL-001 | Column | Pin–pin Euler column | Pcr = π²EI/L² | Automated |
 | V-CL-002 | Column | Fixed–fixed effective length | K = 0.5 | Automated |
