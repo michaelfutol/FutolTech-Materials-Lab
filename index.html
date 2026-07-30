@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="FutolTech Materials Lab: source-backed structural member testing and comparison."
+    />
+    <title>FutolTech Materials Lab</title>
+    <link rel="stylesheet" href="./src/styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">FutolTech Engineering Tools</p>
+        <h1>Materials Lab</h1>
+        <p class="subtitle">Source-backed virtual testing for individual structural members</p>
+      </div>
+      <div class="status-cluster">
+        <span class="status-pill">Calculation-driven</span>
+        <span class="status-pill status-pill--warning">Preliminary engineering</span>
+      </div>
+    </header>
+
+    <main class="app-shell">
+      <section class="panel controls-panel" aria-label="Test controls">
+        <div class="panel-heading">
+          <div>
+            <p class="eyebrow">Test setup</p>
+            <h2>Specimen and boundary conditions</h2>
+          </div>
+          <button id="resetButton" class="button button--ghost" type="button">Reset benchmark</button>
+        </div>
+
+        <div class="mode-switch" role="group" aria-label="Test mode">
+          <button id="beamModeButton" class="mode-button is-active" type="button">Beam bending</button>
+          <button id="columnModeButton" class="mode-button" type="button">Column compression</button>
+        </div>
+
+        <div class="control-grid">
+          <label>
+            <span>Material dataset</span>
+            <select id="materialSelect"></select>
+          </label>
+
+          <label>
+            <span>Section</span>
+            <select id="sectionTypeSelect">
+              <option value="rectangle">Solid rectangle</option>
+              <option value="rhs">Rectangular / square tube</option>
+            </select>
+          </label>
+
+          <label>
+            <span>Length, m</span>
+            <input id="lengthInput" type="number" min="0.6" max="6" step="0.1" value="3" />
+            <small id="lengthHelp">Wood range: 0.60–3.60 m</small>
+          </label>
+
+          <label>
+            <span>Load, kN</span>
+            <input id="loadInput" type="number" min="0" step="0.1" value="1" />
+          </label>
+
+          <label class="beam-control">
+            <span>Point-load position, m from left</span>
+            <input id="loadPositionInput" type="number" min="0" max="3" step="0.05" value="1.5" />
+          </label>
+
+          <label class="column-control is-hidden">
+            <span>Load eccentricity, mm</span>
+            <input id="eccentricityInput" type="number" min="-500" max="500" step="1" value="0" />
+          </label>
+
+          <label>
+            <span>Left / bottom restraint</span>
+            <select id="leftSupportSelect">
+              <option value="pin">Pin</option>
+              <option value="roller">Roller</option>
+              <option value="fixed">Fixed</option>
+              <option value="free">Free</option>
+            </select>
+          </label>
+
+          <label>
+            <span>Right / top restraint</span>
+            <select id="rightSupportSelect">
+              <option value="roller">Roller</option>
+              <option value="pin">Pin</option>
+              <option value="fixed">Fixed</option>
+              <option value="free">Free</option>
+            </select>
+          </label>
+        </div>
+
+        <fieldset class="section-editor">
+          <legend>Section dimensions</legend>
+          <div class="control-grid control-grid--compact">
+            <label>
+              <span>Width, mm</span>
+              <input id="widthInput" type="number" min="1" step="0.1" value="50" />
+            </label>
+            <label>
+              <span>Depth, mm</span>
+              <input id="depthInput" type="number" min="1" step="0.1" value="100" />
+            </label>
+            <label id="thicknessLabel" class="is-hidden">
+              <span>Wall thickness, mm</span>
+              <input id="thicknessInput" type="number" min="0.1" step="0.1" value="1.5" />
+            </label>
+          </div>
+        </fieldset>
+
+        <div class="source-card" id="sourceCard" aria-live="polite"></div>
+      </section>
+
+      <section class="panel workspace-panel" aria-label="Analysis workspace">
+        <div class="panel-heading">
+          <div>
+            <p class="eyebrow">Live solver</p>
+            <h2 id="workspaceTitle">Beam bending test</h2>
+          </div>
+          <div class="magnification-control">
+            <label for="magnificationSelect">Deformation</label>
+            <select id="magnificationSelect">
+              <option value="1">Actual</option>
+              <option value="10">×10</option>
+              <option value="50" selected>×50</option>
+              <option value="100">×100</option>
+            </select>
+          </div>
+        </div>
+
+        <div id="errorBanner" class="error-banner is-hidden" role="alert"></div>
+
+        <div class="diagram-wrap">
+          <svg id="specimenDiagram" viewBox="0 0 900 360" role="img" aria-labelledby="diagramTitle diagramDescription">
+            <title id="diagramTitle">Structural specimen diagram</title>
+            <desc id="diagramDescription">A calculated deformation plot of the selected member and support conditions.</desc>
+          </svg>
+        </div>
+
+        <div id="resultCards" class="result-grid" aria-live="polite"></div>
+
+        <div class="details-grid">
+          <section>
+            <h3>Section properties</h3>
+            <dl id="sectionResults" class="definition-grid"></dl>
+          </section>
+          <section>
+            <h3>Engineering interpretation</h3>
+            <div id="interpretation" class="interpretation"></div>
+          </section>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <strong>Engineering notice:</strong> Results are analytical predictions based on the selected source data and assumptions. They are not certified capacities and do not replace testing, code checks or professional judgement.
+    </footer>
+
+    <script type="module" src="./src/app.js"></script>
+  </body>
+</html>
