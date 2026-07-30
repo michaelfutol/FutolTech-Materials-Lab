@@ -1,5 +1,6 @@
 import { calculateSectionProperties } from './sections.js';
 import { solveBeam } from './beamFem.js';
+import { productMaterialName, sectionCategory, sectionCategoryLabel } from '../data/sectionTaxonomy.js';
 import {
   KGF_TO_KN,
   TONNE_FORCE_TO_KN,
@@ -117,6 +118,7 @@ export function evaluateMemberCandidate({
   const deflectionPass = deflectionRatio <= 1;
   const pass = stockPass && strengthPass && deflectionPass;
   const governingRatio = Math.max(strengthRatio ?? Infinity, deflectionRatio);
+  const productCategory = sectionCategory(preset, material.family);
 
   const reasons = [];
   if (!stockPass && stockBoundaryM != null) reasons.push(`splice required above ${stockBoundaryM.toFixed(2)} m stock boundary`);
@@ -128,8 +130,12 @@ export function evaluateMemberCandidate({
   return {
     materialId: material.id,
     materialName: material.name,
+    displayMaterialName: productMaterialName(material, preset),
     materialSource: material.source,
     family: material.family,
+    productCategory,
+    productCategoryLabel: sectionCategoryLabel(preset, material.family),
+    librarySectionId: preset.id?.replace(/-(listed|rotated)$/, '') ?? preset.id,
     presetId: preset.id,
     sectionLabel: preset.label,
     section,
@@ -194,6 +200,7 @@ export function recommendMemberSections({
           deflectionDivisor
         });
         evaluated.orientation = variant.orientation;
+        evaluated.librarySectionId = basePreset.id;
         candidates.push(evaluated);
       }
     }

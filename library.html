@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="FutolNative Structures visual library of native materials and Philippine-market structural sections." />
+    <title>Section & Materials Library · FutolNative Structures</title>
+    <link rel="stylesheet" href="./src/styles.css" />
+    <link rel="stylesheet" href="./src/library.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">FutolNative Structures · LIB-001</p>
+        <h1>Section & Materials Library</h1>
+        <p class="subtitle">Browse what each listed member actually looks like, its dimensions and properties, and the evidence behind it.</p>
+      </div>
+      <div class="status-cluster">
+        <a class="status-pill status-link" href="./index.html">← Materials Lab</a>
+        <a class="status-pill status-link" href="./recommend.html">Load Recommender</a>
+        <a class="status-pill status-link" href="./bamboo.html">Bamboo Culm Lab</a>
+        <span class="status-pill">Visual library · active</span>
+      </div>
+    </header>
+
+    <main class="library-shell">
+      <aside class="panel library-controls" aria-label="Library filters">
+        <div class="panel-heading">
+          <div><p class="eyebrow">Browse and verify</p><h2>Library controls</h2></div>
+        </div>
+
+        <div class="library-tabs" role="tablist" aria-label="Library view">
+          <button id="sectionsTab" class="mode-button is-active" type="button" role="tab" aria-selected="true">Sections</button>
+          <button id="materialsTab" class="mode-button" type="button" role="tab" aria-selected="false">Materials</button>
+        </div>
+
+        <label><span>Search</span><input id="librarySearchInput" type="search" placeholder="pipe, bamboo, H 300, coco..." /></label>
+        <label id="categoryFilterLabel"><span>Section family</span><select id="libraryCategorySelect"><option value="all">All section families</option></select></label>
+        <label><span>Source / market status</span><select id="libraryStatusSelect"><option value="all">All records</option><option value="confirmed">Confirmed catalog / published</option><option value="research">Research / study geometry</option><option value="provisional">Provisional / verify</option></select></label>
+
+        <div id="librarySummary" class="source-card"></div>
+        <div class="support-help">
+          <strong>How to read the library</strong>
+          <p><b>Pipe</b> means round product listed under a pipe standard such as PNS 26 or ASTM A53. <b>SHS/RHS</b> means structural hollow tube. A GI finish is a coating, not a steel grade.</p>
+          <p>Visual sketches are cross-section diagrams, not fabrication drawings. Actual dimensions, grade certificates, species, moisture, treatment, legality, and stock availability still require verification.</p>
+        </div>
+      </aside>
+
+      <section class="panel library-workspace" aria-label="Library records">
+        <div class="panel-heading">
+          <div><p class="eyebrow">Visual catalog</p><h2 id="libraryHeading">Structural sections</h2></div>
+          <button id="clearSelectionButton" class="button button--ghost is-hidden" type="button">Show all</button>
+        </div>
+        <div id="libraryDetail" class="library-detail is-hidden" aria-live="polite"></div>
+        <div id="libraryGrid" class="library-grid" aria-live="polite"></div>
+      </section>
+    </main>
+
+    <footer><strong>Engineering notice:</strong> Library entries are traceable comparison inputs, not blanket design approvals. Verify the exact delivered product or specimen and complete all member, stability, connection, durability, and code checks.</footer>
+    <script type="module" src="./src/libraryApp.js"></script>
+  </body>
+</html>

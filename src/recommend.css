@@ -23,6 +23,9 @@
 .recommend-badge--splice { color: var(--warning); border-color: var(--warning); }
 .best-arrow { color: var(--accent); font-weight: 700; letter-spacing: .04em; }
 .candidate-source { color: #7fa4b4; max-width: 34ch; }
+.recommend-section-link, .recommend-library-link { color: var(--accent); text-decoration: none; }
+.recommend-section-link:hover, .recommend-library-link:hover { text-decoration: underline; }
+.recommend-library-link { display: inline-flex; margin-top: .45rem; font-size: .74rem; font-weight: 700; }
 .recommend-note { margin-top: 1rem; padding: 1rem; border: 1px solid var(--border); border-radius: .8rem; color: #cbd8df; line-height: 1.5; }
 @media (prefers-reduced-motion: no-preference) {
   .recommend-summary--best, .recommend-table tr.is-best td { animation: bestGlow 2.6s ease-in-out infinite alternate; }
