@@ -27,3 +27,23 @@ test('Euler critical load uses governing weak axis', () => {
   assert.ok(Math.abs(result.eulerCriticalKN - expectedKN) < 1e-9);
   assert.equal(result.governingAxis, 'y');
 });
+
+test('eccentricity direction changes curvature direction, not stress magnitude', () => {
+  const base = {
+    lengthM: 2,
+    elasticModulusMPa: 200_000,
+    areaMm2: 1000,
+    ixMm4: 1_000_000,
+    iyMm4: 1_000_000,
+    widthMm: 50,
+    depthMm: 50,
+    bottomSupport: 'fixed',
+    topSupport: 'free',
+    axialLoadKN: 5,
+    compressionStrengthMPa: 250
+  };
+  const positive = solveColumn({ ...base, eccentricityMm: 10 });
+  const negative = solveColumn({ ...base, eccentricityMm: -10 });
+  assert.equal(positive.maxCompressionStressMPa, negative.maxCompressionStressMPa);
+  assert.ok(positive.bendingStressMPa > 0);
+});
