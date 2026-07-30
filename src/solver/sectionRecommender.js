@@ -55,6 +55,22 @@ function sectionVariants(preset) {
   return base;
 }
 
+function materialStrengthReferences(material) {
+  const naturalMaterial = material.family === 'wood' || material.family === 'bamboo';
+  if (naturalMaterial) {
+    return {
+      strengthReferenceMPa: material.bendingReferenceMPa ?? material.allowableBendingMPa,
+      strengthReferenceLabel: material.strengthReferenceLabel ?? 'selected natural-material bending reference',
+      physicalReferenceMPa: material.ultimateBendingMPa
+    };
+  }
+  return {
+    strengthReferenceMPa: material.yieldStrengthMPa,
+    strengthReferenceLabel: 'first-yield reference',
+    physicalReferenceMPa: material.yieldStrengthMPa
+  };
+}
+
 export function evaluateMemberCandidate({
   material,
   preset,
@@ -76,15 +92,11 @@ export function evaluateMemberCandidate({
     pointLoads: [{ xM: loadPositionM, forceKN: loadKN }]
   });
 
-  const strengthReferenceMPa = material.family === 'wood'
-    ? (material.bendingReferenceMPa ?? material.allowableBendingMPa)
-    : material.yieldStrengthMPa;
-  const strengthReferenceLabel = material.family === 'wood'
-    ? (material.strengthReferenceLabel ?? 'selected wood bending reference')
-    : 'first-yield reference';
-  const physicalReferenceMPa = material.family === 'wood'
-    ? material.ultimateBendingMPa
-    : material.yieldStrengthMPa;
+  const {
+    strengthReferenceMPa,
+    strengthReferenceLabel,
+    physicalReferenceMPa
+  } = materialStrengthReferences(material);
   const strengthRatio = strengthReferenceMPa
     ? result.maxBendingStressMPa / strengthReferenceMPa
     : null;
@@ -98,15 +110,17 @@ export function evaluateMemberCandidate({
     : null;
   const calculatedMassKgM = properties.areaMm2 * 1e-6 * material.densityKgM3;
   const massPerM = preset.publishedMassKgM ?? calculatedMassKgM;
-  const stockBoundaryM = preset.maxLengthM ?? material.maxLengthM;
-  const stockPass = lengthM <= stockBoundaryM + 1e-9;
+  const stockBoundaryM = preset.maxLengthM ?? material.maxLengthM ?? null;
+  const stockPass = stockBoundaryM == null || lengthM <= stockBoundaryM + 1e-9;
+  const stockVerified = stockBoundaryM != null;
   const strengthPass = strengthRatio != null && strengthRatio <= 1;
   const deflectionPass = deflectionRatio <= 1;
   const pass = stockPass && strengthPass && deflectionPass;
   const governingRatio = Math.max(strengthRatio ?? Infinity, deflectionRatio);
 
   const reasons = [];
-  if (!stockPass) reasons.push(`splice required above ${stockBoundaryM.toFixed(2)} m stock boundary`);
+  if (!stockPass && stockBoundaryM != null) reasons.push(`splice required above ${stockBoundaryM.toFixed(2)} m stock boundary`);
+  if (!stockVerified) reasons.push('usable straight member length must be verified');
   if (!strengthPass) reasons.push(`${strengthReferenceLabel} exceeded`);
   if (!deflectionPass) reasons.push(`L/${deflectionDivisor} exceeded`);
   if (pass) reasons.push('passes selected elastic checks');
@@ -135,6 +149,7 @@ export function evaluateMemberCandidate({
     publishedMassKgM: preset.publishedMassKgM ?? null,
     totalMassKg: massPerM * lengthM,
     stockBoundaryM,
+    stockVerified,
     stockPass,
     strengthPass,
     deflectionPass,
