@@ -13,6 +13,7 @@ const elements = Object.fromEntries([
 ].map((id) => [id, document.getElementById(id)]));
 
 let mode = 'beam';
+let activeLoadPointerId = null;
 
 function formatNumber(value, decimals = 2) {
   if (!Number.isFinite(value)) return '—';
@@ -45,6 +46,7 @@ function setBenchmark() {
   elements.widthInput.value = '50';
   elements.depthInput.value = '100';
   elements.thicknessInput.value = '1.5';
+  syncMaterialDefaults();
   syncModeUi();
   analyse();
 }
@@ -161,7 +163,7 @@ function renderColumn(result, material, loadKN, lengthM, eccentricityMm) {
 
   elements.interpretation.innerHTML = `
     <p>The applied load is <strong>${formatNumber(capacityRatio * 100, 1)}% of the predicted idealised capacity</strong>. The current governing mode is <strong>${result.governingMode.toLowerCase()}</strong>.</p>
-    <p>Axial shortening is ${formatNumber(result.shorteningMm, 3)} mm. ${eccentricityMm > 0 ? 'The entered eccentricity produces first-order bending and a secant-style P–Δ amplification.' : 'The model is concentrically loaded; real members still require an initial-imperfection allowance.'}</p>
+    <p>Axial shortening is ${formatNumber(result.shorteningMm, 3)} mm. ${eccentricityMm !== 0 ? 'The entered eccentricity produces first-order bending and a secant-style P–Δ amplification.' : 'The model is concentrically loaded; real members still require an initial-imperfection allowance.'}</p>
     ${stressRatio == null ? '' : `<p>The amplified compressive stress is ${formatNumber(stressRatio * 100, 1)}% of the selected material compression reference.</p>`}
     <p>The K-factor model is an idealised elastic column check, not a connection model. Local tube buckling and timber crushing/splitting require later nonlinear material modules.</p>
   `;
@@ -233,6 +235,33 @@ function analyse() {
   }
 }
 
+function svgCoordinateFromClientX(clientX) {
+  const rect = elements.specimenDiagram.getBoundingClientRect();
+  const viewBox = elements.specimenDiagram.viewBox.baseVal;
+  return viewBox.x + ((clientX - rect.left) / rect.width) * viewBox.width;
+}
+
+function movePointLoadFromPointer(clientX) {
+  if (mode !== 'beam') return;
+  const handle = elements.specimenDiagram.querySelector('.load-handle');
+  if (!handle) return;
+  const x0 = Number(handle.dataset.x0);
+  const x1 = Number(handle.dataset.x1);
+  const lengthM = Number(handle.dataset.lengthM);
+  const x = Math.max(x0, Math.min(x1, svgCoordinateFromClientX(clientX)));
+  const positionM = ((x - x0) / (x1 - x0)) * lengthM;
+  elements.loadPositionInput.value = positionM.toFixed(2);
+  analyse();
+}
+
+function finishPointLoadDrag(event) {
+  if (activeLoadPointerId !== event.pointerId) return;
+  if (elements.specimenDiagram.hasPointerCapture(event.pointerId)) {
+    elements.specimenDiagram.releasePointerCapture(event.pointerId);
+  }
+  activeLoadPointerId = null;
+}
+
 populateMaterials();
 setBenchmark();
 
@@ -251,3 +280,19 @@ for (const id of [
 elements.beamModeButton.addEventListener('click', () => { mode = 'beam'; syncModeUi(); analyse(); });
 elements.columnModeButton.addEventListener('click', () => { mode = 'column'; syncModeUi(); analyse(); });
 elements.resetButton.addEventListener('click', setBenchmark);
+
+elements.specimenDiagram.addEventListener('pointerdown', (event) => {
+  const target = event.target;
+  if (mode !== 'beam' || !(target instanceof Element) || !target.closest('.load-handle')) return;
+  activeLoadPointerId = event.pointerId;
+  elements.specimenDiagram.setPointerCapture(event.pointerId);
+  movePointLoadFromPointer(event.clientX);
+});
+
+elements.specimenDiagram.addEventListener('pointermove', (event) => {
+  if (activeLoadPointerId !== event.pointerId) return;
+  movePointLoadFromPointer(event.clientX);
+});
+
+elements.specimenDiagram.addEventListener('pointerup', finishPointLoadDrag);
+elements.specimenDiagram.addEventListener('pointercancel', finishPointLoadDrag);
