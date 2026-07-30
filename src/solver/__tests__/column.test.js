@@ -15,6 +15,8 @@ test('Euler critical load uses governing weak axis', () => {
     areaMm2: 1000,
     ixMm4: 2_000_000,
     iyMm4: 1_000_000,
+    zxMm3: 40_000,
+    zyMm3: 20_000,
     widthMm: 50,
     depthMm: 100,
     bottomSupport: 'pin',
@@ -35,6 +37,8 @@ test('eccentricity direction changes curvature direction, not stress magnitude',
     areaMm2: 1000,
     ixMm4: 1_000_000,
     iyMm4: 1_000_000,
+    zxMm3: 40_000,
+    zyMm3: 40_000,
     widthMm: 50,
     depthMm: 50,
     bottomSupport: 'fixed',
@@ -46,4 +50,30 @@ test('eccentricity direction changes curvature direction, not stress magnitude',
   const negative = solveColumn({ ...base, eccentricityMm: -10 });
   assert.equal(positive.maxCompressionStressMPa, negative.maxCompressionStressMPa);
   assert.ok(positive.bendingStressMPa > 0);
+});
+
+test('eccentric custom section uses supplied catalog modulus rather than half-depth approximation', () => {
+  const result = solveColumn({
+    lengthM: 1,
+    elasticModulusMPa: 200_000,
+    areaMm2: 1000,
+    ixMm4: 2_000_000,
+    iyMm4: 1_000_000,
+    zxMm3: 20_000,
+    zyMm3: 10_000,
+    widthMm: 100,
+    depthMm: 100,
+    bottomSupport: 'fixed',
+    topSupport: 'fixed',
+    axialLoadKN: 10,
+    eccentricityMm: 10,
+    compressionStrengthMPa: 250
+  });
+
+  const axialStress = 10_000 / 1000;
+  const firstOrderMoment = 10_000 * 10;
+  const expectedBendingStress = firstOrderMoment * result.amplification / 10_000;
+  assert.ok(Math.abs(result.bendingStressMPa - expectedBendingStress) < 1e-9);
+  assert.ok(Math.abs(result.maxCompressionStressMPa - (axialStress + expectedBendingStress)) < 1e-9);
+  assert.equal(result.governingSectionModulusMm3, 10_000);
 });
