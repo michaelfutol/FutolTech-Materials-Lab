@@ -26,6 +26,7 @@ function format(value, decimals = 2) {
 }
 
 function statusGroup(record) {
+  if (record.activeInSolver === false || record.libraryOnly) return 'provisional';
   const text = `${record.marketStatus ?? ''} ${record.analysisStatus ?? ''} ${record.source?.sourceStatus ?? ''} ${record.source?.technicalStatus ?? ''} ${record.source?.status ?? ''}`.toLowerCase();
   if (text.includes('research') || text.includes('study') || text.includes('peer-reviewed')) return 'research';
   if (text.includes('official') || text.includes('confirmed') || text.includes('published')) return 'confirmed';
@@ -67,20 +68,29 @@ function representativeSection(material) {
   return { type: 'custom', widthMm: 150, depthMm: 300, webThicknessMm: 7, flangeThicknessMm: 11, productCategory: 'rolled-h', label: material.name };
 }
 
+function valueWithUnit(value, unit, decimals = 2) {
+  return Number.isFinite(value) ? `${format(value, decimals)} ${unit}` : 'pending';
+}
+
 function materialCard(material) {
-  return `<article class="library-card material-card">
+  const active = material.activeInSolver !== false;
+  const familyClass = material.family === 'steel' ? 'library-chip--steel' : material.family === 'bamboo' ? 'library-chip--bamboo' : 'library-chip--wood';
+  const sourceNote = material.source?.note ?? material.strengthReferenceLabel ?? '';
+  const pendingContext = active ? '' : `<p><strong>Historical / field context:</strong> ${esc(material.traditionalUse ?? '')}</p><p><strong>Activation requirements:</strong> ${esc(material.activationRequirements ?? 'Engineering property package required.')}</p>`;
+  return `<article class="library-card material-card ${active ? '' : 'material-card--pending'}">
     <div class="library-card__visual">${sectionSketchSvg(representativeSection(material), material.family)}</div>
     <div class="library-card__body">
-      <div class="library-card__meta"><span class="library-chip ${material.family === 'steel' ? 'library-chip--steel' : material.family === 'bamboo' ? 'library-chip--bamboo' : 'library-chip--wood'}">${esc(material.familyLabel)}</span><span class="library-chip">${esc(material.source?.confidence ?? material.source?.status ?? 'verify')}</span></div>
+      <div class="library-card__meta"><span class="library-chip ${familyClass}">${esc(material.familyLabel)}</span><span class="library-chip ${active ? '' : 'library-chip--pending'}">${active ? 'active comparison dataset' : 'library only · inactive'}</span></div>
       <h3>${esc(material.name)}</h3>
       <p>${esc(material.source?.label ?? 'Source pending')}</p>
       <div class="material-strengths">
-        <div><span>Elastic modulus E</span><strong>${format(material.elasticModulusMPa / 1000, 2)} GPa</strong></div>
-        <div><span>Density</span><strong>${format(material.densityKgM3, 0)} kg/m³</strong></div>
-        <div><span>Bending reference</span><strong>${format(material.bendingReferenceMPa ?? material.yieldStrengthMPa, 2)} MPa</strong></div>
-        <div><span>Physical/ultimate</span><strong>${format(material.ultimateBendingMPa ?? material.yieldStrengthMPa, 2)} MPa</strong></div>
+        <div><span>Elastic modulus E</span><strong>${Number.isFinite(material.elasticModulusMPa) ? valueWithUnit(material.elasticModulusMPa / 1000, 'GPa') : 'pending'}</strong></div>
+        <div><span>Density</span><strong>${valueWithUnit(material.densityKgM3, 'kg/m³', 0)}</strong></div>
+        <div><span>Bending reference</span><strong>${valueWithUnit(material.bendingReferenceMPa ?? material.yieldStrengthMPa, 'MPa')}</strong></div>
+        <div><span>Physical/ultimate</span><strong>${valueWithUnit(material.ultimateBendingMPa ?? material.yieldStrengthMPa, 'MPa')}</strong></div>
       </div>
-      <p class="candidate-source">${esc(material.source?.note ?? material.strengthReferenceLabel ?? '')}</p>
+      ${pendingContext}
+      <p class="candidate-source">${esc(sourceNote)}</p>
     </div>
   </article>`;
 }
@@ -141,7 +151,7 @@ function render() {
   elements.sectionsTab.setAttribute('aria-selected', String(sectionsMode));
   elements.materialsTab.setAttribute('aria-selected', String(!sectionsMode));
   elements.categoryFilterLabel.classList.toggle('is-hidden', !sectionsMode);
-  elements.libraryHeading.textContent = sectionsMode ? 'Structural sections' : 'Material property datasets';
+  elements.libraryHeading.textContent = sectionsMode ? 'Structural sections' : 'Material property datasets and research priorities';
 
   if (sectionsMode) {
     const records = filteredSections();
@@ -150,8 +160,10 @@ function render() {
     renderDetail(records.find((record) => record.id === selectedSectionId) ?? null);
   } else {
     const records = filteredMaterials();
+    const activeCount = MATERIAL_LIBRARY.filter((record) => record.activeInSolver !== false).length;
+    const pendingCount = MATERIAL_LIBRARY.length - activeCount;
     elements.libraryGrid.innerHTML = records.length ? records.map(materialCard).join('') : '<div class="library-empty">No material dataset matches the current filters.</div>';
-    elements.librarySummary.innerHTML = `<p class="eyebrow">Material library</p><strong>${records.length} of ${MATERIAL_LIBRARY.length} datasets shown</strong><p>These are property datasets, separate from product shapes. A steel grade can be paired with a pipe, SHS/RHS, or rolled H section only after the actual product certificate and standard are verified.</p>`;
+    elements.librarySummary.innerHTML = `<p class="eyebrow">Material library</p><strong>${records.length} of ${MATERIAL_LIBRARY.length} records shown</strong><p>${activeCount} datasets are active for comparison and ${pendingCount} traditional-timber records are intentionally library-only until species, legality, grading, and mechanical-property packages are verified.</p>`;
     renderDetail(null);
   }
 }
