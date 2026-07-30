@@ -1,0 +1,28 @@
+.bamboo-shell { grid-template-columns: minmax(380px, 470px) minmax(0, 1fr); }
+.bamboo-link { text-decoration: none; }
+.bamboo-load-equivalent { display: block; margin: .85rem 0 1rem; padding: .8rem 1rem; border: 1px solid rgba(82, 214, 181, .45); border-radius: .75rem; background: rgba(82, 214, 181, .07); color: #dffbf4; font-weight: 700; }
+.bamboo-stations { margin-top: 1rem; border: 1px solid rgba(82, 214, 181, .45); border-radius: .85rem; padding: 1rem; }
+.bamboo-stations legend { padding: 0 .5rem; color: var(--accent); font-weight: 800; }
+.bamboo-stations > p { color: var(--muted); line-height: 1.5; }
+.bamboo-station-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .75rem; }
+.bamboo-station-grid article { border: 1px solid var(--border); border-radius: .75rem; padding: .8rem; background: rgba(255,255,255,.02); }
+.bamboo-station-grid h3 { margin: 0 0 .65rem; font-size: .9rem; }
+.bamboo-station-grid label { display: grid; gap: .35rem; margin-top: .55rem; color: var(--muted); font-size: .78rem; }
+.bamboo-state { border: 1px solid var(--border); border-left-width: 6px; border-radius: .85rem; padding: 1rem; margin-bottom: 1rem; background: rgba(82,214,181,.06); }
+.bamboo-state h3 { margin: .15rem 0 .4rem; }
+.bamboo-state p { margin: 0; color: #cbd8df; }
+.bamboo-state--warn { border-left-color: var(--warning); background: rgba(255,199,95,.08); }
+.bamboo-state--danger { border-left-color: var(--danger); background: rgba(255,138,138,.09); }
+.bamboo-state--pass { border-left-color: var(--accent); }
+.bamboo-outer { fill: none; stroke: #d5a84e; stroke-width: 3; }
+.bamboo-inner { fill: none; stroke: rgba(213,168,78,.45); stroke-width: 1.5; stroke-dasharray: 5 4; }
+.bamboo-undeformed { fill: none; stroke: #5e7888; stroke-width: 2; stroke-dasharray: 8 7; }
+.bamboo-centerline { fill: none; stroke: #52d6b5; stroke-width: 4; stroke-linecap: round; }
+.bamboo-station-mark { stroke: #d5a84e; stroke-width: 2; }
+.bamboo-load { stroke: #ffc75f; stroke-width: 4; }
+.bamboo-load-label { fill: #ffc75f; font-weight: 800; text-anchor: middle; }
+.bamboo-svg-label { fill: #afc5d2; font-size: 14px; }
+.bamboo-critical { fill: #ff8a8a; stroke: #07141d; stroke-width: 3; }
+.bamboo-critical-label { fill: #ffb5b5; font-weight: 800; }
+@media (max-width: 1050px) { .bamboo-shell { grid-template-columns: 1fr; } }
+@media (max-width: 680px) { .bamboo-station-grid { grid-template-columns: 1fr; } }
