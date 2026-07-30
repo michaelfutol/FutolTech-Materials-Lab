@@ -1,8 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { MATERIALS } from '../src/data/materials.js';
+import { PH_TRADITIONAL_TIMBER_LIBRARY } from '../src/data/phTraditionalTimberLibrary.js';
 import { SECTION_PRESETS } from '../src/data/sectionPresets.js';
-import { SECTION_LIBRARY, findSectionLibraryRecord } from '../src/data/libraryCatalog.js';
+import { MATERIAL_LIBRARY, SECTION_LIBRARY, findSectionLibraryRecord } from '../src/data/libraryCatalog.js';
 import { evaluateMemberCandidate } from '../src/solver/sectionRecommender.js';
 import { sectionSketchSvg } from '../src/components/sectionSketch.js';
 
@@ -55,4 +56,27 @@ test('section sketches distinguish pipe and H-section geometry', () => {
   assert.match(pipeSvg, /<circle/);
   assert.match(hSvg, /<rect/);
   assert.notEqual(pipeSvg, hSvg);
+});
+
+test('traditional Philippine timber priorities are visible but inactive', () => {
+  const pendingIds = new Set(PH_TRADITIONAL_TIMBER_LIBRARY.map((record) => record.id));
+  assert.equal(pendingIds.size, 8);
+  for (const record of PH_TRADITIONAL_TIMBER_LIBRARY) {
+    assert.equal(record.activeInSolver, false);
+    assert.equal(record.libraryOnly, true);
+    assert.equal(record.elasticModulusMPa, null);
+    assert.equal(record.densityKgM3, null);
+    assert.equal(record.bendingReferenceMPa, null);
+    assert.ok(record.activationRequirements.length > 40);
+    assert.ok(MATERIAL_LIBRARY.some((entry) => entry.id === record.id));
+    assert.ok(!MATERIALS.some((entry) => entry.id === record.id));
+  }
+});
+
+test('pending trade-group names do not borrow the active mahogany dataset', () => {
+  const bigLeafMahogany = MATERIALS.find((record) => record.id === 'wood-mahogany-ph-2025');
+  const tradeGroup = MATERIAL_LIBRARY.find((record) => record.id === 'timber-philippine-mahogany-pending');
+  assert.ok(bigLeafMahogany?.elasticModulusMPa > 0);
+  assert.equal(tradeGroup.elasticModulusMPa, null);
+  assert.match(tradeGroup.botanicalNote, /not the same as big-leaf mahogany/i);
 });
