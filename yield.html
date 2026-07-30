@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="FutolNative Structures NL-001 path-dependent steel beam yield-cycle simulator." />
+    <title>Steel Yield Lab · FutolNative Structures</title>
+    <link rel="stylesheet" href="./src/styles.css" />
+    <link rel="stylesheet" href="./src/yield.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">FutolNative Structures · NL-001</p>
+        <h1>Steel Yield Lab</h1>
+        <p class="subtitle">Incremental load–hold–unload simulation with first yield, plastic deformation, and residual curvature.</p>
+      </div>
+      <div class="status-cluster">
+        <a class="status-pill status-link" href="./index.html">← Materials Lab</a>
+        <a class="status-pill status-link" href="./splice.html">Stock & Splice</a>
+        <span class="status-pill">Path-dependent cycle · active</span>
+        <span class="status-pill status-pill--warning">Local buckling/fracture · pending</span>
+      </div>
+    </header>
+
+    <main class="app-shell yield-shell">
+      <section class="panel controls-panel" aria-label="Steel yield-cycle controls">
+        <div class="panel-heading">
+          <div>
+            <p class="eyebrow">Steel member and loading</p>
+            <h2>NL-001 setup</h2>
+          </div>
+          <button id="yieldResetButton" class="button" type="button">Reset NL-001</button>
+        </div>
+
+        <div class="control-grid">
+          <label class="control-span-2">
+            <span>Steel dataset</span>
+            <select id="yieldMaterialSelect"></select>
+          </label>
+          <label>
+            <span>Member length, m</span>
+            <input id="yieldLengthInput" type="number" min="0.6" max="6" step="0.1" value="3" />
+          </label>
+          <label>
+            <span>Boundary case</span>
+            <select id="yieldBoundarySelect">
+              <option value="simply-supported">Pin + roller</option>
+              <option value="cantilever-left">Fixed left + free right</option>
+              <option value="cantilever-right">Free left + fixed right</option>
+            </select>
+          </label>
+          <label>
+            <span>Requested peak load, kN</span>
+            <input id="yieldPeakLoadInput" type="number" min="0.01" step="0.1" value="2" />
+          </label>
+          <label>
+            <span>Point-load position, m from left</span>
+            <input id="yieldLoadPositionInput" type="number" min="0" max="3" step="0.05" value="1.5" />
+          </label>
+        </div>
+
+        <fieldset class="section-editor section-editor--actual">
+          <legend>Actual RHS / SHS section</legend>
+          <p class="section-editor__note">NL-001 starts with thin rectangular or square steel tubes. The solver uses the actual dimensions entered below.</p>
+          <div class="control-grid control-grid--section">
+            <label>
+              <span>Outside width B, mm</span>
+              <input id="yieldWidthInput" type="number" min="1" step="0.1" value="50" />
+            </label>
+            <label>
+              <span>Vertical outside depth H, mm</span>
+              <input id="yieldDepthInput" type="number" min="1" step="0.1" value="50" />
+            </label>
+            <label>
+              <span>Wall thickness t, mm</span>
+              <input id="yieldThicknessInput" type="number" min="0.1" step="0.1" value="1.5" />
+            </label>
+            <label>
+              <span>Post-yield tangent stiffness</span>
+              <input id="yieldTangentRatioInput" type="number" min="0.5" max="100" step="0.5" value="5" />
+              <small>Percent of initial global elastic stiffness; research assumption.</small>
+            </label>
+          </div>
+          <output id="yieldSectionSummary" class="section-summary" aria-live="polite"></output>
+        </fieldset>
+
+        <fieldset class="section-editor">
+          <legend>Cycle timing</legend>
+          <div class="control-grid">
+            <label><span>Loading, s</span><input id="yieldLoadingDurationInput" type="number" min="0.1" step="0.5" value="5" /></label>
+            <label><span>Hold, s</span><input id="yieldHoldDurationInput" type="number" min="0" step="0.5" value="1" /></label>
+            <label><span>Unloading, s</span><input id="yieldUnloadingDurationInput" type="number" min="0" step="0.5" value="5" /></label>
+            <label><span>Residual hold, s</span><input id="yieldResidualDurationInput" type="number" min="0" step="0.5" value="2" /></label>
+          </div>
+        </fieldset>
+
+        <div id="yieldSourceCard" class="source-card" aria-live="polite"></div>
+      </section>
+
+      <section class="panel workspace-panel" aria-label="Steel yield-cycle workspace">
+        <div class="panel-heading">
+          <div>
+            <p class="eyebrow">Path-dependent response</p>
+            <h2>Load, yielding, unloading, and residual shape</h2>
+          </div>
+          <div class="yield-playback-buttons">
+            <button id="yieldPlayButton" class="button" type="button">▶ Play</button>
+            <button id="yieldTimelineResetButton" class="button" type="button">↺ Timeline</button>
+            <select id="yieldSpeedSelect" aria-label="Playback speed">
+              <option value="0.5">0.5×</option>
+              <option value="1" selected>1×</option>
+              <option value="2">2×</option>
+              <option value="4">4×</option>
+            </select>
+          </div>
+        </div>
+
+        <div id="yieldErrorBanner" class="error-banner is-hidden" role="alert"></div>
+        <section id="yieldStateBanner" class="yield-state-banner" role="status" aria-live="assertive"></section>
+
+        <div class="yield-timeline-row">
+          <label for="yieldTimelineRange">Simulation time</label>
+          <input id="yieldTimelineRange" type="range" min="0" max="13" step="0.01" value="0" />
+          <output id="yieldTimelineOutput">0.00 s</output>
+        </div>
+
+        <div class="diagram-wrap yield-diagram-wrap">
+          <svg id="yieldDiagram" viewBox="0 0 900 360" role="img" aria-label="Steel beam yield-cycle deformation and plastic hinge"></svg>
+        </div>
+
+        <div id="yieldResultCards" class="result-grid" aria-live="polite"></div>
+
+        <div class="yield-chart-grid">
+          <section class="yield-chart-card">
+            <h3>Load–deflection path</h3>
+            <svg id="yieldHistoryChart" viewBox="0 0 520 310" role="img" aria-label="Load versus maximum deflection history"></svg>
+          </section>
+          <section>
+            <h3>Current cycle interpretation</h3>
+            <div id="yieldInterpretation" class="interpretation"></div>
+          </section>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <strong>Engineering notice:</strong> NL-001 is an idealised concentrated-plasticity, bilinear global response model for first steel yielding in statically determinate beams. It does not yet model tube-wall local buckling, lateral-torsional buckling, fracture, weld-seam behavior, cyclic hardening, Bauschinger effects, or connection failure.
+    </footer>
+
+    <script type="module" src="./src/yieldApp.js"></script>
+  </body>
+</html>
