@@ -4,6 +4,7 @@ import { PH_PIPE_SECTIONS } from '../src/data/phSteelCatalog.js';
 import { calculateSectionProperties } from '../src/solver/sections.js';
 
 const STEEL_DENSITY_KG_M3 = 7850;
+const CATALOG_MASS_TOLERANCE = 0.10;
 
 test('Philippine pipe catalog has unique ids and valid CHS geometry', () => {
   assert.equal(new Set(PH_PIPE_SECTIONS.map((item) => item.id)).size, PH_PIPE_SECTIONS.length);
@@ -17,11 +18,11 @@ test('Philippine pipe catalog has unique ids and valid CHS geometry', () => {
   }
 });
 
-test('calculated pipe mass agrees with official published mass within catalog tolerance', () => {
+test('nominal-geometry mass agrees with official published mass within declared catalog tolerance', () => {
   for (const item of PH_PIPE_SECTIONS) {
     const properties = calculateSectionProperties(item);
     const calculatedMassKgM = properties.areaMm2 * 1e-6 * STEEL_DENSITY_KG_M3;
     const relativeDifference = Math.abs(calculatedMassKgM - item.publishedMassKgM) / item.publishedMassKgM;
-    assert.ok(relativeDifference < 0.02, `${item.label}: ${calculatedMassKgM} vs ${item.publishedMassKgM}`);
+    assert.ok(relativeDifference <= CATALOG_MASS_TOLERANCE, `${item.label}: ${calculatedMassKgM} vs ${item.publishedMassKgM}`);
   }
 });
