@@ -17,6 +17,7 @@
       </div>
       <div class="status-cluster">
         <a class="status-pill status-link" href="./index.html">← Materials Lab</a>
+        <a class="status-pill status-link" href="./recommend.html">Load Recommender</a>
         <a class="status-pill status-link" href="./splice.html">Stock & Splice</a>
         <span class="status-pill">Path-dependent cycle · active</span>
         <span class="status-pill status-pill--warning">Local buckling/fracture · pending</span>
@@ -62,8 +63,13 @@
 
         <fieldset class="section-editor section-editor--actual">
           <legend>Actual RHS / SHS section</legend>
-          <p class="section-editor__note">NL-001 starts with thin rectangular or square steel tubes. The solver uses the actual dimensions entered below.</p>
+          <p class="section-editor__note">Choose a convenience preset or edit the actual dimensions directly. The nonlinear solver always uses the boxes below, not the nominal name.</p>
           <div class="control-grid control-grid--section">
+            <label class="control-span-2">
+              <span>Steel tube section preset</span>
+              <select id="yieldSectionPresetSelect"></select>
+              <small>Presets are geometry shortcuts only; verify delivered dimensions and steel grade.</small>
+            </label>
             <label>
               <span>Outside width B, mm</span>
               <input id="yieldWidthInput" type="number" min="1" step="0.1" value="50" />
@@ -82,7 +88,10 @@
               <small>Percent of initial global elastic stiffness; research assumption.</small>
             </label>
           </div>
-          <output id="yieldSectionSummary" class="section-summary" aria-live="polite"></output>
+          <div class="yield-section-actions">
+            <button id="yieldRotateSectionButton" class="button" type="button">Rotate RHS 90°</button>
+            <output id="yieldSectionSummary" class="section-summary" aria-live="polite"></output>
+          </div>
         </fieldset>
 
         <fieldset class="section-editor">
@@ -149,5 +158,6 @@
     </footer>
 
     <script type="module" src="./src/yieldApp.js"></script>
+    <script type="module" src="./src/components/yieldSectionPresets.js"></script>
   </body>
 </html>
