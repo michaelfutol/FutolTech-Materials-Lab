@@ -14,20 +14,42 @@ function supportsForBoundary(boundary) {
   return { leftSupport: 'pin', rightSupport: 'roller' };
 }
 
+function rotatedSection(preset) {
+  if (preset.type === 'rhs' || preset.type === 'rectangle') {
+    if (preset.widthMm === preset.depthMm) return null;
+    return { ...preset, widthMm: preset.depthMm, depthMm: preset.widthMm };
+  }
+  if (preset.type === 'custom') {
+    if (preset.widthMm === preset.depthMm && preset.ixMm4 === preset.iyMm4) return null;
+    return {
+      ...preset,
+      widthMm: preset.depthMm,
+      depthMm: preset.widthMm,
+      ixMm4: preset.iyMm4,
+      iyMm4: preset.ixMm4,
+      zxMm3: preset.zyMm3,
+      zyMm3: preset.zxMm3
+    };
+  }
+  return null;
+}
+
 function sectionVariants(preset) {
   if (!preset || preset.id === 'custom') return [];
+  const cleanLabel = preset.label.replace(/ —.*/, '');
   const base = [{
     id: `${preset.id}-listed`,
-    label: preset.label.replace(/ —.*/, ''),
+    label: cleanLabel,
     orientation: 'as listed',
     section: { ...preset }
   }];
-  if (preset.widthMm !== preset.depthMm) {
+  const rotated = rotatedSection(preset);
+  if (rotated) {
     base.push({
       id: `${preset.id}-rotated`,
-      label: `${preset.label.replace(/ —.*/, '')} rotated`,
+      label: `${cleanLabel} rotated`,
       orientation: 'rotated 90°',
-      section: { ...preset, widthMm: preset.depthMm, depthMm: preset.widthMm }
+      section: rotated
     });
   }
   return base;
@@ -42,12 +64,7 @@ export function evaluateMemberCandidate({
   boundary = 'simply-supported',
   deflectionDivisor = 360
 }) {
-  const section = {
-    type: preset.type,
-    widthMm: preset.widthMm,
-    depthMm: preset.depthMm,
-    thicknessMm: preset.thicknessMm
-  };
+  const section = { ...preset };
   const properties = calculateSectionProperties(section);
   const supports = supportsForBoundary(boundary);
   const result = solveBeam({
@@ -106,6 +123,7 @@ export function evaluateMemberCandidate({
     physicalThresholdLoadKN,
     allowableThresholdLoadKN,
     massPerM,
+    publishedMassKgM: preset.publishedMassKgM ?? null,
     totalMassKg: massPerM * lengthM,
     stockPass,
     strengthPass,
