@@ -95,7 +95,7 @@ function updateCapacityWarning() {
   const predictedCapacityKN = resultValue('Predicted governing capacity');
   const maxCompressionStressMPa = resultValue('Maximum compression stress');
   const compressionStrengthMPa = material.compressionParallelMPa ?? material.yieldStrengthMPa;
-  if (![predictedCapacityKN, maxCompressionStressMPa, compressionStrengthMPa, loadKN].every(Number.isFinite)) return;
+  if (![predictedCapacityKN, compressionStrengthMPa, loadKN].every(Number.isFinite)) return;
 
   renderState(evaluateColumnLimitState({
     family: material.family,
