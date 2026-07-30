@@ -13,7 +13,7 @@
       <div>
         <p class="eyebrow">FutolNative Structures · OPT-001</p>
         <h1>Load-Driven Member Recommender</h1>
-        <p class="subtitle">Start from the required load and rank source-backed wood and steel sections that satisfy the selected elastic checks.</p>
+        <p class="subtitle">Start from the required load and rank source-backed wood and Philippine-market steel sections that satisfy the selected elastic checks.</p>
       </div>
       <div class="status-cluster">
         <a class="status-pill status-link" href="./index.html">← Materials Lab</a>
@@ -32,8 +32,8 @@
         </div>
 
         <div class="control-grid">
-          <label><span>Material family</span><select id="recommendFamilySelect"><option value="all">Wood + steel</option><option value="wood">Coco / timber only</option><option value="steel">Steel only</option></select></label>
-          <label><span>Ranking objective</span><select id="recommendObjectiveSelect"><option value="mass">Lowest member mass</option><option value="utilisation">Lowest governing utilisation</option></select></label>
+          <label><span>Material family</span><select id="recommendFamilySelect"><option value="all">Wood + steel</option><option value="wood">Coco / Philippine woods</option><option value="steel">Steel only</option></select></label>
+          <label><span>Ranking objective</span><select id="recommendObjectiveSelect"><option value="mass">Lowest member mass</option><option value="utilisation">Lowest governing utilisation</option></select><small>Lowest mass is not yet lowest peso cost.</small></label>
           <label><span>Member length, m</span><input id="recommendLengthInput" type="number" min="0.6" max="12" step="0.1" value="3" /></label>
           <label><span>Boundary case</span><select id="recommendBoundarySelect"><option value="simply-supported">Pin + roller</option><option value="cantilever-left">Fixed left + free right</option><option value="cantilever-right">Free left + fixed right</option></select></label>
           <label><span>Required point-load value</span><input id="recommendLoadInput" type="number" min="0.01" step="0.1" value="1000" /></label>
@@ -44,7 +44,7 @@
 
         <div class="support-help">
           <strong>What “sufficient” means here</strong>
-          <p>Wood uses the selected allowable bending reference plus deflection. Steel uses first yield plus deflection. Commercial-length limits are also checked; a longer member is marked as needing a splice.</p>
+          <p>Coconut wood uses its published proposed allowable reference. Other Philippine woods currently use published stress-at-proportional-limit research values, not code design allowables. Steel uses first yield plus deflection. Commercial-length limits are also checked; a longer member is marked as needing a splice.</p>
         </div>
         <div id="recommendSourceNote" class="source-card"></div>
       </section>
@@ -61,12 +61,12 @@
         </div>
         <section class="recommend-note">
           <h3>Optimizer boundary</h3>
-          <p>This first solver enumerates every listed candidate and verifies it classically. It is not yet a cost optimizer, connection designer, local-buckling check, or quantum solver. Later QUBO searches may choose members, braces, joints, stock lengths, and splices together; the classical solver must still verify the selected solution.</p>
+          <p>The glowing option is the minimum under the selected objective—not automatically the cheapest item in pesos. A true cost objective needs dated supplier prices, location, stock length, wastage, splices, connections, fabrication, coating, and delivery. The present solver does not yet check steel lateral-torsional/local buckling or turn small-clear wood research averages into certified design values.</p>
         </section>
       </section>
     </main>
 
-    <footer><strong>Engineering notice:</strong> Recommendations are preliminary analytical comparisons using the current source datasets and idealised beam model. Verify actual materials, sections, connections, stability, loads, and governing codes before design use.</footer>
+    <footer><strong>Engineering notice:</strong> Recommendations are preliminary analytical comparisons using source datasets and an idealised beam model. Verify actual materials, grading, dimensions, sections, connections, stability, loads, market availability, and governing codes before design use.</footer>
     <script type="module" src="./src/recommendApp.js"></script>
     <script type="module" src="./src/components/loadEquivalentDisplay.js"></script>
   </body>
