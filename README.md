@@ -4,6 +4,15 @@ A source-backed virtual laboratory for structural materials and individual-membe
 
 The project is intentionally separate from the FutolTech Resilience Physics Engine. Materials Lab focuses on one-dimensional structural members and traceable engineering calculations; RPE focuses on complete assemblies and hazard response.
 
+## Live development site
+
+The current development branch is deployed through GitHub Pages after the engineering checks pass:
+
+https://michaelfutol.github.io/FutolTech-Materials-Lab/
+
+Deployment source: GitHub Actions  
+Development branch: `feat/member-test-bench-foundation`
+
 ## Foundation release
 
 The first working test bench includes:
