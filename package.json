@@ -1,11 +1,11 @@
 {
   "name": "futolnative-structures",
-  "version": "0.5.1",
+  "version": "0.6.0",
   "private": true,
   "type": "module",
   "scripts": {
     "test": "node --test",
-    "check": "node --check src/app.js && node --check src/spliceApp.js && node --check src/yieldApp.js && node --check src/recommendApp.js && node --check src/solver/beamFem.js && node --check src/solver/column.js && node --check src/solver/limitStates.js && node --check src/solver/spliceDemand.js && node --check src/solver/steelYieldCycle.js && node --check src/solver/sectionRecommender.js && node --check src/utils/loadUnits.js && node --check src/components/loadEquivalentDisplay.js && node --check src/components/capacityWarnings.js && node --check src/components/physicalThresholdCard.js && node --check src/components/yieldSectionPresets.js && node --check src/components/spliceVisualPicker.js && node --check src/data/spliceCatalog.js",
+    "check": "node --check src/app.js && node --check src/spliceApp.js && node --check src/yieldApp.js && node --check src/recommendApp.js && node --check src/solver/beamFem.js && node --check src/solver/column.js && node --check src/solver/limitStates.js && node --check src/solver/spliceDemand.js && node --check src/solver/steelYieldCycle.js && node --check src/solver/sectionRecommender.js && node --check src/utils/loadUnits.js && node --check src/components/loadEquivalentDisplay.js && node --check src/components/capacityWarnings.js && node --check src/components/physicalThresholdCard.js && node --check src/components/yieldSectionPresets.js && node --check src/components/spliceVisualPicker.js && node --check src/data/spliceCatalog.js && node --check src/data/phSteelCatalog.js",
     "verify": "npm run check && npm test"
   }
 }
