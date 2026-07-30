@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="FutolNative Structures tapered round-bamboo culm analysis lab." />
+    <title>Bamboo Culm Lab · FutolNative Structures</title>
+    <link rel="stylesheet" href="./src/styles.css" />
+    <link rel="stylesheet" href="./src/bamboo.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">FutolNative Structures · BC-001</p>
+        <h1>Bamboo Culm Lab</h1>
+        <p class="subtitle">Tapered hollow-culm bending analysis using actual butt, middle, and top measurements.</p>
+      </div>
+      <div class="status-cluster">
+        <a class="status-pill bamboo-link" href="./index.html">← Materials Lab</a>
+        <a class="status-pill bamboo-link" href="./recommend.html">Load Recommender</a>
+        <span class="status-pill">Variable-EI culm solver · active</span>
+        <span class="status-pill status-pill--warning">Nodes/connections/splitting · pending</span>
+      </div>
+    </header>
+
+    <main class="app-shell bamboo-shell">
+      <section class="panel controls-panel" aria-label="Bamboo culm inputs">
+        <div class="panel-heading">
+          <div><p class="eyebrow">Measured specimen</p><h2>Kawayan-tinik culm setup</h2></div>
+          <button id="bambooResetButton" class="button" type="button">Reset study means</button>
+        </div>
+
+        <div class="control-grid">
+          <label><span>Member length, m</span><input id="bambooLengthInput" type="number" min="0.6" max="12" step="0.1" value="3" /></label>
+          <label><span>Culm direction</span><select id="bambooDirectionSelect"><option value="butt-left">Butt at left</option><option value="butt-right">Butt at right</option></select></label>
+          <label><span>Boundary case</span><select id="bambooBoundarySelect"><option value="simply-supported">Pin + roller</option><option value="cantilever-left">Fixed left + free right</option><option value="cantilever-right">Free left + fixed right</option></select></label>
+          <label><span>Deflection criterion</span><select id="bambooDeflectionSelect"><option value="360">L/360</option><option value="240">L/240</option><option value="180">L/180</option></select></label>
+          <label><span>Point load</span><input id="bambooLoadInput" type="number" min="0" step="1" value="100" /><small>Enter the familiar kilogram-force equivalent.</small></label>
+          <label><span>Load unit</span><select id="bambooLoadUnitSelect"><option value="kgf">kgf</option><option value="kN">kN</option><option value="tf">tonne-force</option></select></label>
+          <label><span>Load position, m from left</span><input id="bambooLoadPositionInput" type="number" min="0" max="3" step="0.05" value="1.5" /></label>
+          <label><span>Elastic modulus case</span><select id="bambooECaseSelect"><option value="mean">Study mean E = 13.1 GPa</option><option value="minimum">Reported minimum E = 7.4 GPa</option></select></label>
+        </div>
+        <output id="bambooLoadEquivalent" class="bamboo-load-equivalent" aria-live="polite"></output>
+
+        <fieldset class="bamboo-stations">
+          <legend>Actual culm measurements</legend>
+          <p>Measure outside diameter and wall thickness at the three stations. The solver linearly interpolates geometry between them.</p>
+          <div class="bamboo-station-grid">
+            <article><h3>Butt station</h3><label><span>Outside diameter, mm</span><input id="bambooButtDiameterInput" type="number" min="1" step="0.1" value="94" /></label><label><span>Wall thickness, mm</span><input id="bambooButtThicknessInput" type="number" min="0.5" step="0.1" value="24" /></label></article>
+            <article><h3>Middle station</h3><label><span>Outside diameter, mm</span><input id="bambooMiddleDiameterInput" type="number" min="1" step="0.1" value="91.2" /></label><label><span>Wall thickness, mm</span><input id="bambooMiddleThicknessInput" type="number" min="0.5" step="0.1" value="10" /></label></article>
+            <article><h3>Top station</h3><label><span>Outside diameter, mm</span><input id="bambooTopDiameterInput" type="number" min="1" step="0.1" value="80.9" /></label><label><span>Wall thickness, mm</span><input id="bambooTopThicknessInput" type="number" min="0.5" step="0.1" value="7" /></label></article>
+          </div>
+        </fieldset>
+
+        <div class="source-card">
+          <p class="eyebrow">Property source</p>
+          <strong>Salzer, Wallbaum, Alipon & Lopez · BioResources 13(1), 2018</strong>
+          <p>Quality-controlled mature <em>Bambusa blumeana</em>: mean E 13.1 GPa, reported minimum E 7.4 GPa, suggested permissible bending 7.7 MPa, characteristic bending 34.6 MPa, density 570 kg/m³.</p>
+        </div>
+      </section>
+
+      <section class="panel workspace-panel" aria-label="Bamboo culm analysis">
+        <div class="panel-heading"><div><p class="eyebrow">Variable-stiffness FEM</p><h2>Taper, bending, and limit estimates</h2></div></div>
+        <div id="bambooErrorBanner" class="error-banner is-hidden" role="alert"></div>
+        <section id="bambooStateBanner" class="bamboo-state" aria-live="polite"></section>
+        <div class="diagram-wrap"><svg id="bambooDiagram" viewBox="0 0 900 400" role="img" aria-label="Calculated tapered bamboo culm deformation"></svg></div>
+        <div id="bambooResultCards" class="result-grid" aria-live="polite"></div>
+        <div class="details-grid">
+          <section><h3>Station and member summary</h3><dl id="bambooGeometryResults" class="definition-grid"></dl></section>
+          <section><h3>Engineering interpretation</h3><div id="bambooInterpretation" class="interpretation"></div></section>
+        </div>
+      </section>
+    </main>
+
+    <footer><strong>Engineering notice:</strong> BC-001 is an elastic variable-stiffness member comparison. It does not yet solve nodes, ovality, initial crookedness, splitting, shear failure, treatment degradation, joints, or post-fracture collapse. Measure and grade every culm before structural use.</footer>
+    <script type="module" src="./src/bambooApp.js"></script>
+  </body>
+</html>
