@@ -46,11 +46,12 @@ src/data/materials.js         source-labelled material datasets
 src/components/               calculated specimen visualisation
 docs/ENGINEERING_BASIS.md     equations, assumptions and modelling limits
 docs/VALIDATION_MATRIX.md     benchmark register and verification status
+docs/SOURCES.md               bibliographic records and extracted values
 ```
 
 ## Current engineering boundary
 
-The foundation solver is a verified elastic line-element core, not yet the full nonlinear laboratory. Local tube-wall buckling, lateral-torsional buckling, connection flexibility, wood fracture, moisture/time effects, plasticity and probabilistic material variability remain explicit future modules.
+The foundation solver is benchmarked against initial closed-form elastic cases; it is not yet the full nonlinear laboratory. Local tube-wall buckling, lateral-torsional buckling, connection flexibility, wood fracture, moisture/time effects, plasticity and probabilistic material variability remain explicit future modules.
 
 ## Engineering notice
 
