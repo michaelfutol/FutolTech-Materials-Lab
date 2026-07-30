@@ -1,5 +1,6 @@
 import { MATERIALS } from './materials.js';
 import { PH_BAMBOO_MATERIALS } from './phBambooMaterials.js';
+import { PH_TRADITIONAL_TIMBER_LIBRARY } from './phTraditionalTimberLibrary.js';
 import { PH_STEEL_SOURCES } from './phSteelCatalog.js';
 import { PH_ROLLED_STEEL_SOURCES } from './phRolledSteelCatalog.js';
 import { SECTION_PRESETS } from './sectionPresets.js';
@@ -69,9 +70,13 @@ export const SECTION_LIBRARY = Object.entries(SECTION_PRESETS).flatMap(([family,
     })
 ));
 
-export const MATERIAL_LIBRARY = [...MATERIALS, ...PH_BAMBOO_MATERIALS].map((material) => ({
+export const MATERIAL_LIBRARY = [
+  ...MATERIALS,
+  ...PH_BAMBOO_MATERIALS,
+  ...PH_TRADITIONAL_TIMBER_LIBRARY
+].map((material) => ({
   ...material,
-  familyLabel: material.family === 'wood' ? 'Wood' : material.family === 'bamboo' ? 'Bamboo' : 'Steel'
+  familyLabel: material.familyLabel ?? (material.family === 'wood' ? 'Wood' : material.family === 'bamboo' ? 'Bamboo' : 'Steel')
 }));
 
 export function findSectionLibraryRecord(id) {
