@@ -7,6 +7,7 @@
     <title>Stock Length & Splice Designer · FutolNative Structures</title>
     <link rel="stylesheet" href="./src/styles.css" />
     <link rel="stylesheet" href="./src/splice.css" />
+    <link rel="stylesheet" href="./src/splicePicker.css" />
   </head>
   <body>
     <header class="topbar">
@@ -38,10 +39,15 @@
             <select id="spliceMaterialSelect"></select>
           </label>
 
-          <label class="control-span-2">
-            <span>Splice family</span>
-            <select id="spliceTypeSelect"></select>
-          </label>
+          <div class="control-span-2">
+            <span class="control-group-label">Choose splice concept</span>
+            <div id="spliceVisualPicker" class="splice-visual-picker" role="radiogroup" aria-live="polite"></div>
+            <section id="spliceVisualDetail" class="splice-visual-detail" aria-live="polite"></section>
+            <label class="splice-select-fallback">
+              <span>Splice family — list fallback</span>
+              <select id="spliceTypeSelect"></select>
+            </label>
+          </div>
 
           <label>
             <span>Required assembled length, m</span>
@@ -188,5 +194,6 @@
     </footer>
 
     <script type="module" src="./src/spliceApp.js"></script>
+    <script type="module" src="./src/components/spliceVisualPicker.js"></script>
   </body>
 </html>
