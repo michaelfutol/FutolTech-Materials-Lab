@@ -1,3 +1,4 @@
+import { PH_BAMBOO_CULM_PRESETS } from './phBambooMaterials.js';
 import { PH_PIPE_SECTIONS } from './phSteelCatalog.js';
 import { PH_JIS_H_SECTIONS } from './phRolledSteelCatalog.js';
 
@@ -13,6 +14,7 @@ export const SECTION_PRESETS = {
     { id: 'wood-4x6', label: 'Nominal 4×6 — enter/verify actual', type: 'rectangle', widthMm: 100, depthMm: 150 },
     { id: 'custom', label: 'Custom measured wood section' }
   ],
+  bamboo: PH_BAMBOO_CULM_PRESETS,
   steel: [
     { id: 'shs-25-12', label: 'SHS 25×25×1.2 mm — verify actual', type: 'rhs', widthMm: 25, depthMm: 25, thicknessMm: 1.2 },
     { id: 'shs-38-12', label: 'SHS 38×38×1.2 mm — verify actual', type: 'rhs', widthMm: 38, depthMm: 38, thicknessMm: 1.2 },

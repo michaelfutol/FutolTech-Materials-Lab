@@ -1,7 +1,10 @@
 import { MATERIALS } from './data/materials.js';
+import { PH_BAMBOO_MATERIALS } from './data/phBambooMaterials.js';
 import { SECTION_PRESETS } from './data/sectionPresets.js';
 import { convertLoadToKN, recommendMemberSections } from './solver/sectionRecommender.js';
 import { formatLoadEquivalents } from './utils/loadUnits.js';
+
+const RECOMMENDER_MATERIALS = [...MATERIALS, ...PH_BAMBOO_MATERIALS];
 
 const ids = [
   'recommendFamilySelect', 'recommendObjectiveSelect', 'recommendLengthInput',
@@ -39,6 +42,12 @@ function statusBadge(candidate, isBest, objective) {
   return '<span class="recommend-badge recommend-badge--fail">FAIL</span>';
 }
 
+function physicalThresholdLabel(candidate) {
+  if (candidate.family === 'steel') return 'yield est.';
+  if (candidate.family === 'bamboo') return 'characteristic bending est.';
+  return 'rupture est.';
+}
+
 function render() {
   try {
     elements.recommendErrorBanner.classList.add('is-hidden');
@@ -49,7 +58,7 @@ function render() {
     elements.recommendLoadPositionInput.max = String(lengthM);
 
     const result = recommendMemberSections({
-      materials: MATERIALS,
+      materials: RECOMMENDER_MATERIALS,
       presetsByFamily: SECTION_PRESETS,
       familyFilter: elements.recommendFamilySelect.value,
       lengthM,
@@ -67,9 +76,8 @@ function render() {
       ? `<p class="eyebrow">${bestCopy.eyebrow}</p><strong>${best.materialName}</strong><h3>${best.sectionLabel} · ${best.orientation}</h3><p>Required load: <b>${formatLoadEquivalents(loadKN)}</b>; ${format(best.result.maxDeflectionMm, 2)} mm deflection; ${format((best.strengthRatio ?? 0) * 100, 1)}% strength-reference use; ${format(best.totalMassKg, 2)} kg member mass.</p><p class="recommend-best-note"><strong>Why highlighted:</strong> ${bestCopy.explanation}. This is not yet a peso-cost result; current supplier prices are required for a true lowest-cost ranking.</p>`
       : `<p class="eyebrow">No listed candidate passes</p><h3>Increase the candidate library, shorten the span, change the boundary/load position, add a brace or intermediate support, or permit a designed splice/connection solution.</h3><p>Checked load: <b>${formatLoadEquivalents(loadKN)}</b>.</p>`;
 
-    elements.recommendTableBody.innerHTML = result.candidates.slice(0, 50).map((candidate, index) => {
+    elements.recommendTableBody.innerHTML = result.candidates.slice(0, 60).map((candidate, index) => {
       const isBest = candidate === best;
-      const physicalLabel = candidate.family === 'wood' ? 'rupture est.' : 'yield est.';
       const sourceLine = candidate.marketStatus
         ? candidate.marketStatus
         : `${candidate.materialSource?.status ?? 'source status unavailable'} · ${candidate.strengthReferenceLabel}`;
@@ -80,14 +88,15 @@ function render() {
         <td><strong>${candidate.sectionLabel}</strong><small>${candidate.orientation}</small><small class="candidate-source">${sourceLine}</small></td>
         <td>${format(candidate.result.maxDeflectionMm, 2)} mm<small>${format(candidate.deflectionRatio * 100, 1)}% of limit</small></td>
         <td>${candidate.strengthRatio == null ? 'unrated' : `${format(candidate.strengthRatio * 100, 1)}%`}<small>${format(candidate.result.maxBendingStressMPa, 1)} MPa</small><small>${candidate.strengthReferenceLabel}</small></td>
-        <td>${candidate.physicalThresholdLoadKN == null ? '—' : formatLoadEquivalents(candidate.physicalThresholdLoadKN)}<small>${physicalLabel}</small></td>
+        <td>${candidate.physicalThresholdLoadKN == null ? '—' : formatLoadEquivalents(candidate.physicalThresholdLoadKN)}<small>${physicalThresholdLabel(candidate)}</small></td>
         <td>${format(candidate.totalMassKg, 2)} kg<small>${format(candidate.massPerM, 2)} kg/m</small></td>
       </tr>`;
     }).join('');
 
     const woodCount = result.candidates.filter((candidate) => candidate.family === 'wood').length;
+    const bambooCount = result.candidates.filter((candidate) => candidate.family === 'bamboo').length;
     const steelCount = result.candidates.filter((candidate) => candidate.family === 'steel').length;
-    elements.recommendSourceNote.innerHTML = `<p class="eyebrow">Current search space</p><strong>${result.candidates.length} section/material/orientation candidates evaluated</strong><p>${result.passing.length} pass the selected strength, deflection, and no-splice checks. Search mix: ${woodCount} wood and ${steelCount} steel candidate combinations. The highlighted row is the minimum under the selected objective, not automatically the cheapest purchase price.</p>`;
+    elements.recommendSourceNote.innerHTML = `<p class="eyebrow">Current search space</p><strong>${result.candidates.length} section/material/orientation candidates evaluated</strong><p>${result.passing.length} pass the selected strength and deflection checks plus stock limits where defined. Search mix: ${woodCount} sawn-wood, ${bambooCount} round-bamboo, and ${steelCount} steel candidate combinations. Bamboo culm diameter, wall thickness, taper, nodes, treatment, and usable straight length must be measured for the actual piece.</p>`;
   } catch (error) {
     elements.recommendErrorBanner.textContent = error instanceof Error ? error.message : String(error);
     elements.recommendErrorBanner.classList.remove('is-hidden');
