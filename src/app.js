@@ -379,7 +379,7 @@ function renderColumn(result, material, section, loadKN, lengthM, eccentricityMm
   elements.interpretation.innerHTML = `
     <p>The applied load is <strong>${formatNumber(capacityRatio * 100, 1)}% of the predicted idealised capacity</strong>. The current governing mode is <strong>${result.governingMode.toLowerCase()}</strong>.</p>
     <p>The analysis uses <strong>${sectionDescription(section)}</strong>. Axial shortening is ${formatNumber(result.shorteningMm, 3)} mm.</p>
-    <p>${eccentricityMm !== 0 ? 'The entered eccentricity produces first-order bending and a secant-style P–Δ amplification.' : 'The model is concentrically loaded; real members still require an initial-imperfection allowance.'}</p>
+    <p>${eccentricityMm !== 0 ? `The entered eccentricity produces first-order bending and a secant-style P–Δ amplification using the ${result.governingAxis}-axis section modulus.` : 'The model is concentrically loaded; real members still require an initial-imperfection allowance.'}</p>
     ${stressRatio == null ? '' : `<p>The amplified compressive stress is ${formatNumber(stressRatio * 100, 1)}% of the selected material compression reference.</p>`}
     <p>The K-factor model is an idealised elastic column check, not a connection model. Local tube buckling and timber crushing/splitting require later nonlinear material modules.</p>
   `;
@@ -435,6 +435,8 @@ function analyse() {
         areaMm2: properties.areaMm2,
         ixMm4: properties.ixMm4,
         iyMm4: properties.iyMm4,
+        zxMm3: properties.zxMm3,
+        zyMm3: properties.zyMm3,
         widthMm: section.widthMm,
         depthMm: section.depthMm,
         bottomSupport: elements.leftSupportSelect.value,
@@ -483,7 +485,7 @@ function finishPointLoadDrag(event) {
 populateMaterials();
 setBenchmark();
 
-elements.materialSelect.addEventListener('change', () => syncMaterialDefaults({ resetSection: true }));
+elements.materialSelect.addEventListener('change', () => syncMaterialDefaults({ resetSection: false }));
 elements.sectionPresetSelect.addEventListener('change', () => applySelectedPreset());
 elements.sectionTypeSelect.addEventListener('change', handleSectionTypeChange);
 elements.rotateSectionButton.addEventListener('click', rotateSection);

@@ -5,21 +5,23 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta
       name="description"
-      content="FutolTech Materials Lab: source-backed structural member testing and comparison."
+      content="FutolNative Structures: source-backed native-material structural design, analysis and optimization."
     />
-    <title>FutolTech Materials Lab</title>
+    <title>FutolNative Structures</title>
     <link rel="stylesheet" href="./src/styles.css" />
   </head>
   <body>
     <header class="topbar">
       <div>
         <p class="eyebrow">FutolTech Engineering Tools</p>
-        <h1>Materials Lab</h1>
-        <p class="subtitle">Source-backed virtual testing for individual structural members</p>
+        <h1>FutolNative Structures</h1>
+        <p class="subtitle">Native-material structural design, analysis and optimization</p>
       </div>
-      <div class="status-cluster">
-        <span class="status-pill">Calculation-driven</span>
-        <span class="status-pill status-pill--warning">Preliminary engineering</span>
+      <div class="status-cluster" aria-label="Platform modules">
+        <span class="status-pill">Materials Lab · active</span>
+        <span class="status-pill status-pill--warning">Connections · next</span>
+        <span class="status-pill status-pill--warning">Frames · next</span>
+        <span class="status-pill status-pill--warning">Optimizer · planned</span>
       </div>
     </header>
 
@@ -27,7 +29,7 @@
       <section class="panel controls-panel" aria-label="Test controls">
         <div class="panel-heading">
           <div>
-            <p class="eyebrow">Test setup</p>
+            <p class="eyebrow">Materials Lab module</p>
             <h2>Specimen and boundary conditions</h2>
           </div>
           <button id="resetButton" class="button button--ghost" type="button">Reset benchmark</button>
@@ -149,7 +151,7 @@
       <section class="panel workspace-panel" aria-label="Analysis workspace">
         <div class="panel-heading">
           <div>
-            <p class="eyebrow">Live solver</p>
+            <p class="eyebrow">Live member solver</p>
             <h2 id="workspaceTitle">Beam bending test</h2>
           </div>
           <div class="magnification-control">
@@ -188,7 +190,7 @@
     </main>
 
     <footer>
-      <strong>Engineering notice:</strong> Results are analytical predictions based on the selected source data and assumptions. They are not certified capacities and do not replace testing, code checks or professional judgement.
+      <strong>Engineering notice:</strong> FutolNative Structures currently exposes the Materials Lab member-analysis module. Results are analytical predictions based on selected source data and assumptions; they are not certified capacities and do not replace testing, code checks or professional judgement.
     </footer>
 
     <script type="module" src="./src/app.js"></script>

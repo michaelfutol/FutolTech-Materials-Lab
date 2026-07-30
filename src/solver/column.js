@@ -21,6 +21,8 @@ export function solveColumn({
   areaMm2,
   ixMm4,
   iyMm4,
+  zxMm3,
+  zyMm3,
   widthMm,
   depthMm,
   bottomSupport,
@@ -34,6 +36,11 @@ export function solveColumn({
   const lengthMm = lengthM * 1000;
   const weakAxisIsX = ixMm4 <= iyMm4;
   const governingI = weakAxisIsX ? ixMm4 : iyMm4;
+  const fallbackSectionModulusMm3 = governingI / ((weakAxisIsX ? depthMm : widthMm) / 2);
+  const suppliedSectionModulusMm3 = weakAxisIsX ? zxMm3 : zyMm3;
+  const governingSectionModulusMm3 = Number.isFinite(suppliedSectionModulusMm3) && suppliedSectionModulusMm3 > 0
+    ? suppliedSectionModulusMm3
+    : fallbackSectionModulusMm3;
   const governingRadiusMm = Math.sqrt(governingI / areaMm2);
   const effectiveLengthMm = k * lengthMm;
   const slenderness = effectiveLengthMm / governingRadiusMm;
@@ -42,13 +49,14 @@ export function solveColumn({
   const predictedCapacityN = Math.min(eulerCriticalN, squashN);
   const axialLoadN = axialLoadKN * 1000;
   const axialStressMPa = axialLoadN / areaMm2;
-  const cMm = weakAxisIsX ? depthMm / 2 : widthMm / 2;
   const eccentricityMagnitudeMm = Math.abs(eccentricityMm);
   const firstOrderMomentNmm = axialLoadN * eccentricityMagnitudeMm;
   const loadRatio = axialLoadN / eulerCriticalN;
   const amplification = loadRatio < 0.95 ? 1 / Math.max(1 - loadRatio, 0.05) : Number.POSITIVE_INFINITY;
   const amplifiedMomentNmm = firstOrderMomentNmm * amplification;
-  const bendingStressMPa = Number.isFinite(amplification) ? amplifiedMomentNmm * cMm / governingI : Number.POSITIVE_INFINITY;
+  const bendingStressMPa = Number.isFinite(amplification)
+    ? amplifiedMomentNmm / governingSectionModulusMm3
+    : Number.POSITIVE_INFINITY;
   const maxCompressionStressMPa = axialStressMPa + bendingStressMPa;
   const shorteningMm = axialLoadN * lengthMm / (areaMm2 * elasticModulusMPa);
 
@@ -56,6 +64,7 @@ export function solveColumn({
     k,
     governingAxis: weakAxisIsX ? 'x' : 'y',
     governingI,
+    governingSectionModulusMm3,
     governingRadiusMm,
     effectiveLengthMm,
     slenderness,
