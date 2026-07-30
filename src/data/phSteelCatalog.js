@@ -54,14 +54,16 @@ const A53_HEAVY = [
 function pipeRecord({ series, sourceId, designation, diameterMm, thicknessMm, publishedMassKgM }) {
   return {
     id: `ph-pipe-${series}-${designation}`,
-    label: `${series} BI/GI N${designation} · OD ${diameterMm} × t ${thicknessMm} mm`,
+    label: `BI/GI pipe — ${series} N${designation} · OD ${diameterMm} × t ${thicknessMm} mm`,
     type: 'chs',
+    productCategory: 'steel-pipe',
+    productLabel: 'Steel pipe',
     diameterMm,
     thicknessMm,
     publishedMassKgM,
     finishOptions: ['BI', 'GI'],
-    marketStatus: 'confirmed manufacturer catalog',
-    analysisStatus: 'geometry-ready; grade certificate required',
+    marketStatus: 'confirmed manufacturer pipe catalog',
+    analysisStatus: 'pipe geometry ready; steel grade certificate and structural-use checks required',
     sourceId
   };
 }
