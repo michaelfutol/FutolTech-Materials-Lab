@@ -49,11 +49,14 @@ h3 { font-size: 1rem; }
 .source-meta span { border: 1px solid var(--border); border-radius: 999px; padding: .2rem .45rem; font-size: .72rem; color: var(--muted); }
 .magnification-control { min-width: 120px; }
 .diagram-wrap { border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: .7rem 0; }
-#specimenDiagram { width: 100%; min-height: 280px; }
+#specimenDiagram { width: 100%; min-height: 280px; touch-action: none; }
 .reference-line { stroke: #506572; stroke-width: 2; stroke-dasharray: 7 7; }
 .member-path { fill: none; stroke: var(--accent); stroke-width: 9; stroke-linecap: round; }
 .load-arrow { stroke: var(--warning); stroke-width: 4; }
 .load-arrow-head { fill: var(--warning); }
+.load-handle { cursor: ew-resize; touch-action: none; }
+.load-hitbox { stroke: transparent; stroke-width: 42; pointer-events: stroke; }
+.load-handle:hover .load-arrow, .load-handle:active .load-arrow { stroke-width: 6; }
 .support-symbol { stroke: #d7e1e6; fill: none; stroke-width: 3; }
 .svg-label { fill: var(--muted); font-size: 15px; text-anchor: middle; }
 .svg-label--strong { fill: var(--warning); font-weight: 700; }
