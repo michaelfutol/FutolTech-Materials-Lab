@@ -76,23 +76,25 @@
           <label>
             <span>Left / bottom restraint</span>
             <select id="leftSupportSelect">
-              <option value="pin">Pin</option>
-              <option value="roller">Roller</option>
-              <option value="fixed">Fixed</option>
-              <option value="free">Free</option>
+              <option value="pin">Pin / hinge</option>
+              <option value="roller">Roller support</option>
+              <option value="fixed">Fixed / built-in</option>
+              <option value="free">Free end</option>
             </select>
           </label>
 
           <label>
             <span>Right / top restraint</span>
             <select id="rightSupportSelect">
-              <option value="roller">Roller</option>
-              <option value="pin">Pin</option>
-              <option value="fixed">Fixed</option>
-              <option value="free">Free</option>
+              <option value="roller">Roller support</option>
+              <option value="pin">Pin / hinge</option>
+              <option value="fixed">Fixed / built-in</option>
+              <option value="free">Free end</option>
             </select>
           </label>
         </div>
+
+        <div id="supportHelp" class="support-help" aria-live="polite"></div>
 
         <fieldset class="section-editor">
           <legend>Section dimensions</legend>
