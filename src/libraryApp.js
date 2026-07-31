@@ -3,13 +3,18 @@ import { SECTION_CATEGORY_LABELS } from './data/sectionTaxonomy.js';
 import { sectionSketchSvg } from './components/sectionSketch.js';
 
 const elements = Object.fromEntries([
-  'sectionsTab', 'materialsTab', 'librarySearchInput', 'libraryCategorySelect',
+  'sectionsTab', 'materialsTab', 'localTimbersButton', 'librarySearchInput', 'libraryCategorySelect',
   'libraryStatusSelect', 'librarySummary', 'libraryHeading', 'libraryGrid',
   'libraryDetail', 'clearSelectionButton', 'categoryFilterLabel'
 ].map((id) => [id, document.getElementById(id)]));
 
-let view = 'sections';
-let selectedSectionId = new URLSearchParams(window.location.search).get('section');
+const initialParams = new URLSearchParams(window.location.search);
+let view = initialParams.get('view') === 'local-timbers'
+  ? 'local-timbers'
+  : initialParams.get('view') === 'materials'
+    ? 'materials'
+    : 'sections';
+let selectedSectionId = initialParams.get('section');
 
 function esc(value) {
   return String(value ?? '')
@@ -76,12 +81,14 @@ function materialCard(material) {
   const active = material.activeInSolver !== false;
   const familyClass = material.family === 'steel' ? 'library-chip--steel' : material.family === 'bamboo' ? 'library-chip--bamboo' : 'library-chip--wood';
   const sourceNote = material.source?.note ?? material.strengthReferenceLabel ?? '';
-  const pendingContext = active ? '' : `<p><strong>Historical / field context:</strong> ${esc(material.traditionalUse ?? '')}</p><p><strong>Activation requirements:</strong> ${esc(material.activationRequirements ?? 'Engineering property package required.')}</p>`;
-  return `<article class="library-card material-card ${active ? '' : 'material-card--pending'}">
+  const aliases = material.aliases?.length ? `<p><strong>Also searchable as:</strong> ${esc(material.aliases.join(', '))}</p>` : '';
+  const pendingContext = active ? '' : `<p><strong>Traditional / field context:</strong> ${esc(material.traditionalUse ?? '')}</p><p><strong>Identity:</strong> ${esc(material.botanicalNote ?? '')}</p><p><strong>Activation requirements:</strong> ${esc(material.activationRequirements ?? 'Engineering property package required.')}</p>`;
+  return `<article class="library-card material-card ${active ? '' : 'material-card--pending'} ${material.priorityLocal ? 'material-card--priority' : ''}">
     <div class="library-card__visual">${sectionSketchSvg(representativeSection(material), material.family)}</div>
     <div class="library-card__body">
-      <div class="library-card__meta"><span class="library-chip ${familyClass}">${esc(material.familyLabel)}</span><span class="library-chip ${active ? '' : 'library-chip--pending'}">${active ? 'active comparison dataset' : 'library only · inactive'}</span></div>
+      <div class="library-card__meta"><span class="library-chip ${familyClass}">${esc(material.familyLabel)}</span><span class="library-chip ${active ? '' : 'library-chip--pending'}">${active ? 'active comparison dataset' : 'library only · inactive'}</span>${material.priorityLocal ? '<span class="library-chip">common local timber</span>' : ''}</div>
       <h3>${esc(material.name)}</h3>
+      ${aliases}
       <p>${esc(material.source?.label ?? 'Source pending')}</p>
       <div class="material-strengths">
         <div><span>Elastic modulus E</span><strong>${Number.isFinite(material.elasticModulusMPa) ? valueWithUnit(material.elasticModulusMPa / 1000, 'GPa') : 'pending'}</strong></div>
@@ -135,23 +142,38 @@ function filteredSections() {
   ));
 }
 
-function filteredMaterials() {
+function filteredMaterials(localOnly = false) {
   const query = elements.librarySearchInput.value.trim();
   const status = elements.libraryStatusSelect.value;
   return MATERIAL_LIBRARY.filter((record) => (
-    (status === 'all' || statusGroup(record) === status)
+    (!localOnly || record.priorityLocal)
+    && (status === 'all' || statusGroup(record) === status)
     && searchMatches(record, query)
   ));
 }
 
+function syncViewUrl() {
+  const url = new URL(window.location.href);
+  if (view === 'sections') url.searchParams.delete('view');
+  else url.searchParams.set('view', view);
+  window.history.replaceState({}, '', url);
+}
+
 function render() {
   const sectionsMode = view === 'sections';
+  const localMode = view === 'local-timbers';
   elements.sectionsTab.classList.toggle('is-active', sectionsMode);
-  elements.materialsTab.classList.toggle('is-active', !sectionsMode);
+  elements.materialsTab.classList.toggle('is-active', view === 'materials');
+  elements.localTimbersButton.classList.toggle('is-active', localMode);
   elements.sectionsTab.setAttribute('aria-selected', String(sectionsMode));
-  elements.materialsTab.setAttribute('aria-selected', String(!sectionsMode));
+  elements.materialsTab.setAttribute('aria-selected', String(view === 'materials'));
+  elements.localTimbersButton.setAttribute('aria-selected', String(localMode));
   elements.categoryFilterLabel.classList.toggle('is-hidden', !sectionsMode);
-  elements.libraryHeading.textContent = sectionsMode ? 'Structural sections' : 'Material property datasets and research priorities';
+  elements.libraryHeading.textContent = sectionsMode
+    ? 'Structural sections'
+    : localMode
+      ? 'Common local Philippine timbers'
+      : 'Material property datasets and research priorities';
 
   if (sectionsMode) {
     const records = filteredSections();
@@ -159,11 +181,13 @@ function render() {
     elements.librarySummary.innerHTML = `<p class="eyebrow">Section library</p><strong>${records.length} of ${SECTION_LIBRARY.length} records shown</strong><p>Includes ${SECTION_LIBRARY.filter((r) => r.category === 'steel-pipe').length} steel pipes, ${SECTION_LIBRARY.filter((r) => r.category === 'shs' || r.category === 'rhs').length} SHS/RHS sections, ${SECTION_LIBRARY.filter((r) => r.category === 'rolled-h').length} H sections, ${SECTION_LIBRARY.filter((r) => r.family === 'wood').length} sawn-size presets, and ${SECTION_LIBRARY.filter((r) => r.family === 'bamboo').length} round-bamboo geometries.</p>`;
     renderDetail(records.find((record) => record.id === selectedSectionId) ?? null);
   } else {
-    const records = filteredMaterials();
+    const records = filteredMaterials(localMode);
     const activeCount = MATERIAL_LIBRARY.filter((record) => record.activeInSolver !== false).length;
     const pendingCount = MATERIAL_LIBRARY.length - activeCount;
     elements.libraryGrid.innerHTML = records.length ? records.map(materialCard).join('') : '<div class="library-empty">No material dataset matches the current filters.</div>';
-    elements.librarySummary.innerHTML = `<p class="eyebrow">Material library</p><strong>${records.length} of ${MATERIAL_LIBRARY.length} records shown</strong><p>${activeCount} datasets are active for comparison and ${pendingCount} traditional-timber records are intentionally library-only until species, legality, grading, and mechanical-property packages are verified.</p>`;
+    elements.librarySummary.innerHTML = localMode
+      ? `<p class="eyebrow">Common local timber view</p><strong>${records.length} priority trade records shown</strong><p>Apitong, Yakal, Red Lauan, White Lauan, Tanguile and Narra are separated so they can be found directly. They are visible research priorities, not yet solver capacities.</p>`
+      : `<p class="eyebrow">Material library</p><strong>${records.length} of ${MATERIAL_LIBRARY.length} records shown</strong><p>${activeCount} datasets are active for comparison and ${pendingCount} traditional-timber records are intentionally library-only until species, legality, grading, and mechanical-property packages are verified.</p>`;
     renderDetail(null);
   }
 }
@@ -177,6 +201,15 @@ function selectSection(id) {
   elements.libraryDetail.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
+function switchView(nextView) {
+  view = nextView;
+  selectedSectionId = null;
+  elements.librarySearchInput.value = '';
+  elements.libraryStatusSelect.value = 'all';
+  syncViewUrl();
+  render();
+}
+
 for (const category of sectionLibraryCategories()) {
   const option = document.createElement('option');
   option.value = category;
@@ -184,8 +217,9 @@ for (const category of sectionLibraryCategories()) {
   elements.libraryCategorySelect.append(option);
 }
 
-elements.sectionsTab.addEventListener('click', () => { view = 'sections'; render(); });
-elements.materialsTab.addEventListener('click', () => { view = 'materials'; render(); });
+elements.sectionsTab.addEventListener('click', () => switchView('sections'));
+elements.materialsTab.addEventListener('click', () => switchView('materials'));
+elements.localTimbersButton.addEventListener('click', () => switchView('local-timbers'));
 for (const element of [elements.librarySearchInput, elements.libraryCategorySelect, elements.libraryStatusSelect]) {
   element.addEventListener('input', render);
   element.addEventListener('change', render);

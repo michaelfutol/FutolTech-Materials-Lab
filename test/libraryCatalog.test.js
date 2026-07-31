@@ -60,7 +60,7 @@ test('section sketches distinguish pipe and H-section geometry', () => {
 
 test('traditional Philippine timber priorities are visible but inactive', () => {
   const pendingIds = new Set(PH_TRADITIONAL_TIMBER_LIBRARY.map((record) => record.id));
-  assert.equal(pendingIds.size, 8);
+  assert.equal(pendingIds.size, 10);
   for (const record of PH_TRADITIONAL_TIMBER_LIBRARY) {
     assert.equal(record.activeInSolver, false);
     assert.equal(record.libraryOnly, true);
