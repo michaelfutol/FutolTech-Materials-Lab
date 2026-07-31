@@ -31,10 +31,11 @@
 
         <div class="library-tabs" role="tablist" aria-label="Library view">
           <button id="sectionsTab" class="mode-button is-active" type="button" role="tab" aria-selected="true">Sections</button>
-          <button id="materialsTab" class="mode-button" type="button" role="tab" aria-selected="false">Materials</button>
+          <button id="materialsTab" class="mode-button" type="button" role="tab" aria-selected="false">All materials</button>
+          <button id="localTimbersButton" class="mode-button" type="button" role="tab" aria-selected="false">Common local timbers</button>
         </div>
 
-        <label><span>Search</span><input id="librarySearchInput" type="search" placeholder="pipe, bamboo, H 300, coco..." /></label>
+        <label><span>Search</span><input id="librarySearchInput" type="search" placeholder="yakal, apitong, red lauan, pipe..." /></label>
         <label id="categoryFilterLabel"><span>Section family</span><select id="libraryCategorySelect"><option value="all">All section families</option></select></label>
         <label><span>Source / market status</span><select id="libraryStatusSelect"><option value="all">All records</option><option value="confirmed">Confirmed catalog / published</option><option value="research">Research / study geometry</option><option value="provisional">Provisional / verify</option></select></label>
 
@@ -42,6 +43,7 @@
         <div class="support-help">
           <strong>How to read the library</strong>
           <p><b>Pipe</b> means round product listed under a pipe standard such as PNS 26 or ASTM A53. <b>SHS/RHS</b> means structural hollow tube. A GI finish is a coating, not a steel grade.</p>
+          <p>The Common local timbers view keeps Apitong, Yakal, Red Lauan, White Lauan, Tanguile and Narra easy to find. They remain inactive in calculations until exact species, legal origin, grade, moisture and structural properties are verified.</p>
           <p>Visual sketches are cross-section diagrams, not fabrication drawings. Actual dimensions, grade certificates, species, moisture, treatment, legality, and stock availability still require verification.</p>
         </div>
       </aside>
@@ -56,7 +58,7 @@
       </section>
     </main>
 
-    <footer><strong>Engineering notice:</strong> Library entries are traceable comparison inputs, not blanket design approvals. Verify the exact delivered product or specimen and complete all member, stability, connection, durability, and code checks.</footer>
+    <footer><strong>Engineering notice:</strong> Library entries are traceable comparison inputs, not blanket design approvals. Verify the exact delivered product or specimen and complete all member, stability, connection, durability, legality and code checks.</footer>
     <script type="module" src="./src/libraryApp.js"></script>
   </body>
 </html>
