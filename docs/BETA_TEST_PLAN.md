@@ -28,6 +28,15 @@ For every issue, record:
 - kgf/kN/tf conversion
 - serviceability, allowable, yield, rupture and buckling warnings
 
+### Direct 2–3 Member Comparison
+
+- default 1½-inch PNS 26 light BI/GI pipe versus 2×2 SHS versus 2×4 coco lumber
+- two-member and three-member modes
+- same load/span/support applied to all alternatives
+- section/material switching and 90° orientation
+- winner highlights for deflection, strength use, threshold load and lightest passing mass
+- consistent results against the Materials Lab and Load Recommender for identical inputs
+
 ### Steel Yield Lab
 
 - preset switching and custom RHS/SHS sizes

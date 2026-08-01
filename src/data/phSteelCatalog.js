@@ -28,6 +28,13 @@ export const PH_STEEL_SOURCES = {
   }
 };
 
+const NOMINAL_INCH = new Map([
+  [15, '½'], [20, '¾'], [25, '1'], [32, '1¼'], [40, '1½'], [50, '2'],
+  [65, '2½'], [80, '3'], [100, '4'], [125, '5'], [150, '6'], [200, '8'],
+  [250, '10'], [300, '12'], [350, '14'], [400, '16'], [450, '18'], [500, '20'],
+  [600, '24'], [700, '28'], [750, '30'], [800, '32']
+]);
+
 const LIGHT = [
   [15, 21.3, 2.0, 0.952], [20, 26.7, 2.3, 1.384], [25, 33.4, 2.6, 1.875],
   [32, 42.2, 2.8, 2.539], [40, 48.3, 2.9, 3.247], [50, 60.3, 2.9, 4.105],
@@ -52,12 +59,16 @@ const A53_HEAVY = [
 ];
 
 function pipeRecord({ series, sourceId, designation, diameterMm, thicknessMm, publishedMassKgM }) {
+  const nominalInchLabel = NOMINAL_INCH.get(designation) ?? null;
+  const familiar = nominalInchLabel ? ` (${nominalInchLabel} in nominal)` : '';
   return {
     id: `ph-pipe-${series}-${designation}`,
-    label: `BI/GI pipe — ${series} N${designation} · OD ${diameterMm} × t ${thicknessMm} mm`,
+    label: `BI/GI pipe — ${series} N${designation}${familiar} · OD ${diameterMm} × t ${thicknessMm} mm`,
     type: 'chs',
     productCategory: 'steel-pipe',
     productLabel: 'Steel pipe',
+    designation,
+    nominalInchLabel,
     diameterMm,
     thicknessMm,
     publishedMassKgM,
