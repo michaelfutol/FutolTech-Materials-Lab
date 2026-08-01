@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Compare two or three native-material and Philippine-market structural members under identical loading." />
+    <title>Direct Member Comparison · FutolNative Structures</title>
+    <link rel="stylesheet" href="./src/styles.css" />
+    <link rel="stylesheet" href="./src/compare.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">FutolNative Structures · CMP-001</p>
+        <h1>Direct 2–3 Member Comparison</h1>
+        <p class="subtitle">Put GI/BI pipe, square tube, coco lumber, bamboo, or rolled steel under the exact same span and load.</p>
+      </div>
+      <div class="status-cluster">
+        <a class="status-pill status-link" href="./index.html">← Materials Lab</a>
+        <a class="status-pill status-link" href="./recommend.html">Load Recommender</a>
+        <a class="status-pill status-link" href="./library.html">Section Library</a>
+        <span class="status-pill">Direct comparison · active</span>
+      </div>
+    </header>
+
+    <main class="compare-shell">
+      <section class="panel compare-inputs" aria-label="Shared comparison conditions">
+        <div class="panel-heading">
+          <div><p class="eyebrow">One test, same conditions</p><h2>Shared load and span</h2></div>
+          <button id="compareResetButton" class="button" type="button">Reset common comparison</button>
+        </div>
+        <div class="control-grid">
+          <label><span>Member length, m</span><input id="compareLengthInput" type="number" min="0.6" max="12" step="0.1" value="3" /></label>
+          <label><span>Boundary case</span><select id="compareBoundarySelect"><option value="simply-supported">Pin + roller</option><option value="cantilever-left">Fixed left + free right</option><option value="cantilever-right">Free left + fixed right</option></select></label>
+          <label><span>Point load</span><input id="compareLoadInput" type="number" min="0.01" step="0.1" value="100" /></label>
+          <label><span>Load unit</span><select id="compareLoadUnitSelect"><option value="kgf">kgf — familiar kilogram-force</option><option value="kN">kN — engineering force</option><option value="tf">tonne-force</option></select></label>
+          <label><span>Load position, m from left</span><input id="compareLoadPositionInput" type="number" min="0" max="3" step="0.05" value="1.5" /></label>
+          <label><span>Deflection criterion</span><select id="compareDeflectionSelect"><option value="360">L/360</option><option value="240">L/240</option><option value="180">L/180</option></select></label>
+        </div>
+        <div id="compareLoadEquivalent" class="source-card"></div>
+        <div class="support-help">
+          <strong>Fair-comparison rule</strong>
+          <p>All selected members receive the same idealised point load, span, support case, and deflection criterion. Material source assumptions, actual section geometry, stock limits, and pass/fail references remain specific to each member.</p>
+        </div>
+      </section>
+
+      <section class="panel compare-members" aria-label="Members being compared">
+        <div class="panel-heading"><div><p class="eyebrow">Choose the actual alternatives</p><h2>Comparison members</h2></div></div>
+        <div id="compareSelectors" class="compare-selector-grid"></div>
+        <div id="compareErrorBanner" class="error-banner is-hidden" role="alert"></div>
+      </section>
+
+      <section class="panel compare-results" aria-label="Comparison results">
+        <div class="panel-heading"><div><p class="eyebrow">Side-by-side engineering response</p><h2>Direct results</h2></div></div>
+        <div id="compareSummary" class="compare-summary" aria-live="polite"></div>
+        <div id="compareResultCards" class="compare-card-grid" aria-live="polite"></div>
+        <div class="compare-table-wrap">
+          <table class="compare-table">
+            <thead><tr><th>Metric</th><th id="compareHeadA">Member A</th><th id="compareHeadB">Member B</th><th id="compareHeadC">Member C</th></tr></thead>
+            <tbody id="compareTableBody"></tbody>
+          </table>
+        </div>
+        <section class="recommend-note">
+          <h3>Comparison boundary</h3>
+          <p>This is an elastic member comparison. It does not yet compare connection capacity, support bearing, local/lateral-torsional buckling, corrosion, treatment, fabrication, installed cost, or nonlinear fracture. A lighter passing member is not automatically the cheapest or most buildable solution.</p>
+        </section>
+      </section>
+    </main>
+
+    <footer><strong>Engineering notice:</strong> Verify delivered dimensions, species or steel grade, moisture/treatment, product standard, connections, stability, loads, and governing codes before design use.</footer>
+    <script type="module" src="./src/compareApp.js"></script>
+  </body>
+</html>
