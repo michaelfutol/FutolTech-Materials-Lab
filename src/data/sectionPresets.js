@@ -1,5 +1,5 @@
 import { PH_BAMBOO_CULM_PRESETS } from './phBambooMaterials.js';
-import { PH_PIPE_SECTIONS } from './phSteelCatalog.js';
+import { PH_PIPE_SECTIONS } from './phSteelCatalog.js?v=20260801-1545';
 import { PH_JIS_H_SECTIONS } from './phRolledSteelCatalog.js';
 
 const woodPreset = (id, label, widthMm, depthMm) => ({

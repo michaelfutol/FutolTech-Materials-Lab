@@ -1,11 +1,11 @@
 import { MATERIALS } from './materials.js';
 import { PH_BAMBOO_MATERIALS } from './phBambooMaterials.js';
 import { PH_TRADITIONAL_TIMBER_LIBRARY } from './phTraditionalTimberLibrary.js';
-import { PH_STEEL_SOURCES } from './phSteelCatalog.js';
+import { PH_STEEL_SOURCES } from './phSteelCatalog.js?v=20260801-1545';
 import { PH_ROLLED_STEEL_SOURCES } from './phRolledSteelCatalog.js';
-import { SECTION_PRESETS } from './sectionPresets.js';
+import { SECTION_PRESETS } from './sectionPresets.js?v=20260801-1545';
 import { calculateSectionProperties } from '../solver/sections.js';
-import { sectionCategory, sectionCategoryLabel, sectionShapeKind } from './sectionTaxonomy.js';
+import { sectionCategory, sectionCategoryLabel, sectionShapeKind } from './sectionTaxonomy.js?v=20260801-1545';
 
 const SOURCE_LOOKUP = new Map([
   ...Object.values(PH_STEEL_SOURCES).map((source) => [source.id, source]),
