@@ -3,7 +3,8 @@ export const PH_STEEL_SOURCES = {
     id: 'supreme-pns26-light-2026',
     organization: 'Supreme Steel Pipe Corporation',
     standard: 'PNS 26:2018',
-    product: 'ERW BI/GI light-gauge pipe',
+    product: 'ERW galvanized steel light-gauge pipe',
+    catalogNote: 'The official manufacturer catalog also covers black steel pipe; FutolNative uses GI pipe as the local-market display name.',
     market: 'Philippines',
     sourceStatus: 'official manufacturer catalog',
     accessed: '2026-07-30'
@@ -12,7 +13,8 @@ export const PH_STEEL_SOURCES = {
     id: 'supreme-pns26-heavy-2026',
     organization: 'Supreme Steel Pipe Corporation',
     standard: 'PNS 26:2018',
-    product: 'ERW BI/GI heavy-gauge / Schedule 40 pipe',
+    product: 'ERW galvanized steel heavy-gauge / Schedule 40 pipe',
+    catalogNote: 'The official manufacturer catalog also covers black steel pipe; FutolNative uses GI pipe as the local-market display name.',
     market: 'Philippines',
     sourceStatus: 'official manufacturer catalog',
     accessed: '2026-07-30'
@@ -21,7 +23,8 @@ export const PH_STEEL_SOURCES = {
     id: 'supreme-a53-heavy-2026',
     organization: 'Supreme Steel Pipe Corporation',
     standard: 'ASTM A53/A53M-2018',
-    product: 'ERW BI/GI heavy-gauge pipe',
+    product: 'ERW galvanized steel heavy-gauge pipe',
+    catalogNote: 'The official manufacturer catalog also covers black steel pipe; FutolNative uses GI pipe as the local-market display name.',
     market: 'Philippines',
     sourceStatus: 'official manufacturer catalog',
     accessed: '2026-07-30'
@@ -63,18 +66,18 @@ function pipeRecord({ series, sourceId, designation, diameterMm, thicknessMm, pu
   const familiar = nominalInchLabel ? ` (${nominalInchLabel} in nominal)` : '';
   return {
     id: `ph-pipe-${series}-${designation}`,
-    label: `BI/GI pipe — ${series} N${designation}${familiar} · OD ${diameterMm} × t ${thicknessMm} mm`,
+    label: `GI pipe — ${series} N${designation}${familiar} · OD ${diameterMm} × t ${thicknessMm} mm`,
     type: 'chs',
     productCategory: 'steel-pipe',
-    productLabel: 'Steel pipe',
+    productLabel: 'GI pipe',
     designation,
     nominalInchLabel,
     diameterMm,
     thicknessMm,
     publishedMassKgM,
-    finishOptions: ['BI', 'GI'],
-    marketStatus: 'confirmed manufacturer pipe catalog',
-    analysisStatus: 'pipe geometry ready; steel grade certificate and structural-use checks required',
+    finishOptions: ['GI'],
+    marketStatus: 'confirmed Philippine manufacturer pipe catalog; local-market display uses GI pipe',
+    analysisStatus: 'pipe geometry ready; steel grade certificate, coating condition, and structural-use checks required',
     sourceId
   };
 }
