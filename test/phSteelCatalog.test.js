@@ -14,7 +14,9 @@ test('Philippine pipe catalog has unique ids and valid CHS geometry', () => {
     assert.ok(item.diameterMm > 0);
     assert.ok(item.thicknessMm > 0);
     assert.ok(item.thicknessMm * 2 < item.diameterMm);
-    assert.deepEqual(item.finishOptions, ['BI', 'GI']);
+    assert.deepEqual(item.finishOptions, ['GI']);
+    assert.match(item.label, /^GI pipe/);
+    assert.doesNotMatch(item.label, /BI/i);
   }
 });
 
