@@ -15,6 +15,13 @@
   grid-row: span 2;
 }
 
+.compare-mode-switch {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin: 0 0 18px;
+}
+
 .compare-selector-grid,
 .compare-card-grid {
   display: grid;
@@ -71,7 +78,7 @@
   margin: 10px 0 14px;
   border-radius: 12px;
   border: 1px solid rgba(113, 234, 207, 0.18);
-  background: rgba(3, 15, 23, 0.54);
+  background: radial-gradient(circle at 50% 45%, rgba(82, 214, 181, 0.12), transparent 62%), #0d1a24;
 }
 
 .compare-selector-visual svg,
@@ -81,7 +88,59 @@
 }
 
 .compare-selector-card label {
+  display: grid;
+  gap: 5px;
   margin-top: 10px;
+}
+
+.compare-selector-card select {
+  width: 100%;
+  min-width: 0;
+}
+
+.section-sketch {
+  width: 112px;
+  height: 112px;
+  overflow: visible;
+}
+
+.section-sketch__solid {
+  fill: rgba(82, 214, 181, 0.72);
+  stroke: #b8f5e5;
+  stroke-width: 1.4;
+}
+
+.section-sketch__solid.is-bamboo {
+  fill: rgba(221, 189, 114, 0.7);
+  stroke: #ffe0a1;
+}
+
+.section-sketch__void {
+  fill: #0b1720;
+  stroke: rgba(255, 255, 255, 0.25);
+  stroke-width: 1;
+}
+
+.section-sketch__node {
+  stroke: rgba(116, 71, 26, 0.8);
+  stroke-width: 4;
+  stroke-dasharray: 3 3;
+}
+
+.section-sketch__node-dot {
+  fill: #70491d;
+}
+
+.section-sketch__catalog {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 8;
+}
+
+.section-sketch__question {
+  fill: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
 }
 
 .compare-summary {
