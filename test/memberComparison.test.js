@@ -11,7 +11,7 @@ function preset(family, id) {
   return SECTION_PRESETS[family].find((record) => record.id === id);
 }
 
-test('common comparison evaluates 1.5-inch pipe, 2x2 SHS, and 2x4 coco under identical loading', () => {
+test('common comparison evaluates 1.5-inch GI pipe, 2x2 SHS, and 2x4 coco under identical loading', () => {
   const result = compareMemberCandidates({
     selections: [
       { id: 'pipe', material: material('steel-generic-250'), preset: preset('steel', 'ph-pipe-PNS26 light-40'), orientation: 'listed' },
@@ -28,6 +28,8 @@ test('common comparison evaluates 1.5-inch pipe, 2x2 SHS, and 2x4 coco under ide
   assert.equal(result.records.length, 3);
   assert.ok(result.records.every((record) => Number.isFinite(record.result.maxDeflectionMm)));
   assert.ok(result.records.every((record) => Number.isFinite(record.result.maxBendingStressMPa)));
+  assert.match(result.records[0].displayMaterialName, /^GI pipe/);
+  assert.doesNotMatch(result.records[0].sectionLabel, /BI/i);
   assert.ok(result.winners.leastDeflection);
   assert.ok(result.winners.lowestStrengthUse);
   assert.ok(result.winners.highestPhysicalThreshold);
@@ -42,8 +44,9 @@ test('comparison rejects fewer than two active members', () => {
   }), /two or three/i);
 });
 
-test('PNS N40 pipe exposes the familiar 1.5-inch nominal designation', () => {
+test('PNS N40 GI pipe exposes the familiar 1.5-inch nominal designation', () => {
   const n40 = preset('steel', 'ph-pipe-PNS26 light-40');
   assert.equal(n40.nominalInchLabel, '1½');
+  assert.match(n40.label, /^GI pipe/);
   assert.match(n40.label, /1½ in nominal/);
 });

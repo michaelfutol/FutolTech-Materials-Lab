@@ -7,11 +7,12 @@ import { MATERIAL_LIBRARY, SECTION_LIBRARY, findSectionLibraryRecord } from '../
 import { evaluateMemberCandidate } from '../src/solver/sectionRecommender.js';
 import { sectionSketchSvg } from '../src/components/sectionSketch.js';
 
-test('PNS 26 records are classified and labelled as steel pipes', () => {
+test('PNS 26 records are classified and labelled as GI pipes', () => {
   const pipe = SECTION_PRESETS.steel.find((section) => section.id.includes('ph-pipe-PNS26 light-125'));
   assert.ok(pipe);
   assert.equal(pipe.productCategory, 'steel-pipe');
-  assert.match(pipe.label, /BI\/GI pipe/);
+  assert.match(pipe.label, /^GI pipe/);
+  assert.doesNotMatch(pipe.label, /BI/i);
 
   const material = MATERIALS.find((item) => item.id === 'steel-generic-250');
   const candidate = evaluateMemberCandidate({
@@ -21,9 +22,9 @@ test('PNS 26 records are classified and labelled as steel pipes', () => {
     loadKN: 1,
     loadPositionM: 1.5
   });
-  assert.equal(candidate.productCategoryLabel, 'Steel pipe');
-  assert.match(candidate.displayMaterialName, /^Steel pipe/);
-  assert.doesNotMatch(candidate.displayMaterialName, /tube/i);
+  assert.equal(candidate.productCategoryLabel, 'GI pipe');
+  assert.match(candidate.displayMaterialName, /^GI pipe/);
+  assert.doesNotMatch(candidate.displayMaterialName, /tube|BI/i);
 });
 
 test('SHS remains a structural hollow section rather than a pipe', () => {

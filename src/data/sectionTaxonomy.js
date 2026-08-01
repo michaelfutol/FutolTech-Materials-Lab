@@ -3,7 +3,7 @@ export const SECTION_CATEGORY_LABELS = {
   'round-bamboo': 'Round bamboo culm',
   shs: 'Square hollow section (SHS)',
   rhs: 'Rectangular hollow section (RHS)',
-  'steel-pipe': 'Steel pipe',
+  'steel-pipe': 'GI pipe',
   'rolled-h': 'Rolled H / wide-flange section',
   'catalog-other': 'Catalog / built-up section'
 };
@@ -41,7 +41,7 @@ function steelGradeText(material) {
 export function productMaterialName(material, preset) {
   const category = sectionCategory(preset, material?.family);
   if (material?.family !== 'steel') return material?.name ?? 'Material';
-  if (category === 'steel-pipe') return `Steel pipe — ${steelGradeText(material)}`;
+  if (category === 'steel-pipe') return `GI pipe — ${steelGradeText(material)}`;
   if (category === 'rolled-h') return `Rolled structural steel — ${steelGradeText(material)}`;
   if (category === 'shs' || category === 'rhs') return `Structural steel hollow section — ${steelGradeText(material)}`;
   return `Structural steel — ${steelGradeText(material)}`;
