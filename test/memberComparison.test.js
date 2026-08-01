@@ -79,7 +79,7 @@ test('fixed-fixed restraint raises idealised Euler capacity above pin-pin for th
   assert.equal(pinned.records[0].result.k, 1);
 });
 
-test('compression eccentricity increases governing use', () => {
+test('compression eccentricity increases amplified stress use', () => {
   const selections = commonSelections().slice(0, 2);
   const concentric = compareCompressionCandidates({
     selections,
@@ -96,7 +96,8 @@ test('compression eccentricity increases governing use', () => {
     boundary: 'pinned-pinned'
   });
 
-  assert.ok(eccentric.records[0].governingRatio > concentric.records[0].governingRatio);
+  assert.ok(eccentric.records[0].stressRatio > concentric.records[0].stressRatio);
+  assert.ok(eccentric.records[0].result.maxCompressionStressMPa > concentric.records[0].result.maxCompressionStressMPa);
 });
 
 test('comparison rejects fewer than two active members', () => {
