@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { readFile } from 'node:fs/promises';
 import { MATERIALS } from '../src/data/materials.js';
 import { PH_TRADITIONAL_TIMBER_LIBRARY } from '../src/data/phTraditionalTimberLibrary.js';
 import { SECTION_PRESETS } from '../src/data/sectionPresets.js';
@@ -24,7 +25,24 @@ test('PNS 26 records are classified and labelled as GI pipes', () => {
   });
   assert.equal(candidate.productCategoryLabel, 'GI pipe');
   assert.match(candidate.displayMaterialName, /^GI pipe/);
-  assert.doesNotMatch(candidate.displayMaterialName, /tube|BI/i);
+  assert.doesNotMatch(candidate.displayMaterialName, /BI|tube/i);
+});
+
+test('generated Library section records never expose BI in active pipe labels', () => {
+  const pipes = SECTION_LIBRARY.filter((record) => record.category === 'steel-pipe');
+  assert.ok(pipes.length >= 36);
+  for (const pipe of pipes) {
+    assert.match(pipe.label, /^GI pipe/);
+    assert.doesNotMatch(pipe.label, /BI/i);
+    assert.equal(pipe.section.productLabel, 'GI pipe');
+  }
+});
+
+test('Library page uses a cache-busted module build and visible build id', async () => {
+  const html = await readFile(new URL('../library.html', import.meta.url), 'utf8');
+  assert.match(html, /Build 2026-08-01\.3/);
+  assert.match(html, /libraryApp\.js\?v=20260801-1545/);
+  assert.doesNotMatch(html, /BI\/GI/);
 });
 
 test('SHS remains a structural hollow section rather than a pipe', () => {
