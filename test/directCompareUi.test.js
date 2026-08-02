@@ -19,8 +19,9 @@ test('direct comparison defines explicit SVG solid and void fills', () => {
   assert.match(compareCss, /section-sketch__void[\s\S]*fill:/);
 });
 
-test('direct comparison assets are cache-busted for live acceptance', () => {
-  assert.match(compareHtml, /compare\.css\?v=20260801-5/);
-  assert.match(compareHtml, /compareApp\.js\?v=20260801-5/);
-  assert.match(compareHtml, /Build 2026-08-01\.5/);
+test('direct comparison assets are cache-busted for curated hardwood acceptance', () => {
+  assert.match(compareHtml, /compare\.css\?v=20260802-1/);
+  assert.match(compareHtml, /compareApp\.js\?v=20260802-1/);
+  assert.match(compareHtml, /Build 2026-08-02\.1/);
+  assert.match(compareHtml, /common Philippine hardwoods/i);
 });
