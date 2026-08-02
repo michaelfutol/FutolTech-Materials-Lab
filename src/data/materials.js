@@ -1,4 +1,4 @@
-import { PH_WOOD_RESEARCH_MATERIALS } from './phWoodMaterials.js';
+import { PH_COMMON_TIMBER_MATERIALS } from './phCommonTimberMaterials.js';
 
 export const MATERIALS = [
   {
@@ -6,6 +6,7 @@ export const MATERIALS = [
     name: 'Coconut wood — UH 2007 published average',
     family: 'wood',
     maxLengthM: 3.6,
+    showInPrimaryUi: true,
     elasticModulusMPa: 13_100,
     densityKgM3: 910,
     yieldStrengthMPa: null,
@@ -22,12 +23,13 @@ export const MATERIALS = [
       note: 'E and bending strength are full-scale rectangular-member averages. Compression is a provisional average from short round-log specimens and is not a sawn 2×4 design value.'
     }
   },
-  ...PH_WOOD_RESEARCH_MATERIALS,
+  ...PH_COMMON_TIMBER_MATERIALS,
   {
     id: 'steel-generic-250',
     name: 'Structural steel — provisional Fy 250 MPa',
     family: 'steel',
     maxLengthM: 6,
+    showInPrimaryUi: true,
     elasticModulusMPa: 200_000,
     densityKgM3: 7_850,
     yieldStrengthMPa: 250,
@@ -47,6 +49,7 @@ export const MATERIALS = [
     name: 'Structural steel — provisional Fy 345 MPa',
     family: 'steel',
     maxLengthM: 6,
+    showInPrimaryUi: true,
     elasticModulusMPa: 200_000,
     densityKgM3: 7_850,
     yieldStrengthMPa: 345,

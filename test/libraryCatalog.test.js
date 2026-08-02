@@ -77,9 +77,34 @@ test('section sketches distinguish pipe and H-section geometry', () => {
   assert.notEqual(pipeSvg, hSvg);
 });
 
-test('traditional Philippine timber priorities are visible but inactive', () => {
+test('primary wood selector is curated around common Philippine construction timbers', () => {
+  const names = MATERIALS.filter((record) => record.family === 'wood').map((record) => record.name).join(' | ');
+  for (const expected of ['Coconut', 'Yakal', 'Guijo', 'Molave', 'Narra', 'Apitong', 'Red Lauan', 'White Lauan', 'Tanguile', 'Mahogany']) {
+    assert.match(names, new RegExp(expected, 'i'));
+  }
+  for (const hiddenResearchName of ['Bagalunga', 'Falcata', 'Gmelina', 'Kalumpit']) {
+    assert.doesNotMatch(names, new RegExp(hiddenResearchName, 'i'));
+  }
+});
+
+test('curated common hardwood baselines retain provisional source warnings and no invented density', () => {
+  const common = MATERIALS.filter((record) => record.id.startsWith('timber-') && record.id.endsWith('-provisional'));
+  assert.equal(common.length, 9);
+  for (const record of common) {
+    assert.ok(record.elasticModulusMPa > 0);
+    assert.ok(record.bendingReferenceMPa > 0);
+    assert.ok(record.compressionParallelMPa > 0);
+    assert.equal(record.densityKgM3, null);
+    assert.match(record.source.status, /provisional transcription/i);
+    assert.match(record.source.note, /verified|verification|reconciliation/i);
+  }
+});
+
+test('only unresolved Ipil and ambiguous Philippine mahogany remain library-only', () => {
   const pendingIds = new Set(PH_TRADITIONAL_TIMBER_LIBRARY.map((record) => record.id));
-  assert.equal(pendingIds.size, 10);
+  assert.equal(pendingIds.size, 2);
+  assert.ok(pendingIds.has('timber-ipil-pending'));
+  assert.ok(pendingIds.has('timber-philippine-mahogany-pending'));
   for (const record of PH_TRADITIONAL_TIMBER_LIBRARY) {
     assert.equal(record.activeInSolver, false);
     assert.equal(record.libraryOnly, true);
@@ -92,8 +117,8 @@ test('traditional Philippine timber priorities are visible but inactive', () => 
   }
 });
 
-test('pending trade-group names do not borrow the active mahogany dataset', () => {
-  const bigLeafMahogany = MATERIALS.find((record) => record.id === 'wood-mahogany-ph-2025');
+test('ambiguous Philippine mahogany does not borrow the active big-leaf-mahogany record', () => {
+  const bigLeafMahogany = MATERIALS.find((record) => record.id === 'timber-mahogany-ph-80-provisional');
   const tradeGroup = MATERIAL_LIBRARY.find((record) => record.id === 'timber-philippine-mahogany-pending');
   assert.ok(bigLeafMahogany?.elasticModulusMPa > 0);
   assert.equal(tradeGroup.elasticModulusMPa, null);
