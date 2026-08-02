@@ -6,6 +6,7 @@ import {
   evaluateQuboEnergy,
   solveMemberSelectionQubo
 } from '../src/solver/quboMemberSelector.js';
+import { MATERIALS } from '../src/data/materials.js';
 import { PH_TRADITIONAL_TIMBER_LIBRARY } from '../src/data/phTraditionalTimberLibrary.js';
 
 function candidate({ id, pass, mass, utilisation }) {
@@ -53,21 +54,24 @@ test('exactly-one penalty makes a feasible selected state better than empty or m
   assert.ok(selected < multiple);
 });
 
-test('priority local timbers are separate visible records and remain solver-inactive', () => {
-  const requiredIds = [
-    'timber-apitong-pending',
-    'timber-yakal-pending',
-    'timber-red-lauan-pending',
-    'timber-white-lauan-pending',
-    'timber-tanguile-pending',
-    'timber-narra-pending'
+test('priority local timbers are active comparison records while unresolved names stay library-only', () => {
+  const requiredActiveIds = [
+    'timber-apitong-ph-80-provisional',
+    'timber-yakal-ph-80-provisional',
+    'timber-red-lauan-ph-80-provisional',
+    'timber-white-lauan-ph-80-provisional',
+    'timber-tanguile-ph-80-provisional',
+    'timber-narra-ph-80-provisional'
   ];
-  for (const id of requiredIds) {
-    const record = PH_TRADITIONAL_TIMBER_LIBRARY.find((item) => item.id === id);
+  for (const id of requiredActiveIds) {
+    const record = MATERIALS.find((item) => item.id === id);
     assert.ok(record, `${id} should exist`);
     assert.equal(record.priorityLocal, true);
-    assert.equal(record.activeInSolver, false);
-    assert.equal(record.elasticModulusMPa, null);
-    assert.equal(record.bendingReferenceMPa, null);
+    assert.ok(record.elasticModulusMPa > 0);
+    assert.ok(record.bendingReferenceMPa > 0);
+    assert.equal(record.densityKgM3, null);
   }
+
+  const unresolved = new Set(PH_TRADITIONAL_TIMBER_LIBRARY.map((record) => record.id));
+  assert.deepEqual(unresolved, new Set(['timber-ipil-pending', 'timber-philippine-mahogany-pending']));
 });
