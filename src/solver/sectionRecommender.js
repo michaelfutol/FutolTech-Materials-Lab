@@ -72,6 +72,21 @@ function materialStrengthReferences(material) {
   };
 }
 
+function massProperties(material, preset, properties, lengthM) {
+  const calculatedMassKgM = Number.isFinite(material.densityKgM3)
+    ? properties.areaMm2 * 1e-6 * material.densityKgM3
+    : null;
+  const massPerM = Number.isFinite(preset.publishedMassKgM)
+    ? preset.publishedMassKgM
+    : calculatedMassKgM;
+  return {
+    calculatedMassKgM,
+    massPerM,
+    totalMassKg: Number.isFinite(massPerM) ? massPerM * lengthM : null,
+    massVerified: Number.isFinite(massPerM)
+  };
+}
+
 export function evaluateMemberCandidate({
   material,
   preset,
@@ -109,8 +124,7 @@ export function evaluateMemberCandidate({
   const referenceThresholdLoadKN = strengthReferenceMPa && result.maxBendingStressMPa > 0
     ? loadKN * strengthReferenceMPa / result.maxBendingStressMPa
     : null;
-  const calculatedMassKgM = properties.areaMm2 * 1e-6 * material.densityKgM3;
-  const massPerM = preset.publishedMassKgM ?? calculatedMassKgM;
+  const mass = massProperties(material, preset, properties, lengthM);
   const stockBoundaryM = preset.maxLengthM ?? material.maxLengthM ?? null;
   const stockPass = stockBoundaryM == null || lengthM <= stockBoundaryM + 1e-9;
   const stockVerified = stockBoundaryM != null;
@@ -123,6 +137,7 @@ export function evaluateMemberCandidate({
   const reasons = [];
   if (!stockPass && stockBoundaryM != null) reasons.push(`splice required above ${stockBoundaryM.toFixed(2)} m stock boundary`);
   if (!stockVerified) reasons.push('usable straight member length must be verified');
+  if (!mass.massVerified) reasons.push('mass ranking unavailable until density is verified');
   if (!strengthPass) reasons.push(`${strengthReferenceLabel} exceeded`);
   if (!deflectionPass) reasons.push(`L/${deflectionDivisor} exceeded`);
   if (pass) reasons.push('passes selected elastic checks');
@@ -150,10 +165,11 @@ export function evaluateMemberCandidate({
     physicalThresholdLoadKN,
     allowableThresholdLoadKN: referenceThresholdLoadKN,
     referenceThresholdLoadKN,
-    massPerM,
-    calculatedMassKgM,
+    massPerM: mass.massPerM,
+    calculatedMassKgM: mass.calculatedMassKgM,
     publishedMassKgM: preset.publishedMassKgM ?? null,
-    totalMassKg: massPerM * lengthM,
+    totalMassKg: mass.totalMassKg,
+    massVerified: mass.massVerified,
     stockBoundaryM,
     stockVerified,
     stockPass,
@@ -208,14 +224,15 @@ export function recommendMemberSections({
 
   const score = (candidate) => {
     if (objective === 'utilisation') return candidate.governingRatio;
-    return candidate.totalMassKg;
+    return Number.isFinite(candidate.totalMassKg) ? candidate.totalMassKg : Number.POSITIVE_INFINITY;
   };
 
   candidates.sort((a, b) => {
     if (a.pass !== b.pass) return a.pass ? -1 : 1;
     if (a.stockPass !== b.stockPass) return a.stockPass ? -1 : 1;
-    const primary = score(a) - score(b);
-    if (Math.abs(primary) > 1e-12) return primary;
+    const scoreA = score(a);
+    const scoreB = score(b);
+    if (scoreA !== scoreB) return scoreA < scoreB ? -1 : 1;
     return a.governingRatio - b.governingRatio;
   });
 
