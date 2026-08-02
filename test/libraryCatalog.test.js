@@ -96,7 +96,7 @@ test('curated common hardwood baselines retain provisional source warnings and n
     assert.ok(record.compressionParallelMPa > 0);
     assert.equal(record.densityKgM3, null);
     assert.match(record.source.status, /provisional transcription/i);
-    assert.match(record.source.note, /verify|verification|reconciliation/i);
+    assert.match(record.source.note, /verified|verification|reconciliation/i);
   }
 });
 
