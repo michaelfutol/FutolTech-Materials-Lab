@@ -152,8 +152,13 @@ function evaluateCompressionCandidate({
     ? result.maxCompressionStressMPa / compressionStrengthMPa
     : Number.POSITIVE_INFINITY;
   const governingRatio = Math.max(capacityRatio, stressRatio);
-  const calculatedMassKgM = properties.areaMm2 * 1e-6 * material.densityKgM3;
-  const massPerM = selection.preset.publishedMassKgM ?? calculatedMassKgM;
+  const calculatedMassKgM = Number.isFinite(material.densityKgM3)
+    ? properties.areaMm2 * 1e-6 * material.densityKgM3
+    : null;
+  const massPerM = Number.isFinite(selection.preset.publishedMassKgM)
+    ? selection.preset.publishedMassKgM
+    : calculatedMassKgM;
+  const totalMassKg = Number.isFinite(massPerM) ? massPerM * lengthM : null;
   const stockBoundaryM = selection.preset.maxLengthM ?? material.maxLengthM ?? null;
   const stockPass = stockBoundaryM == null || lengthM <= stockBoundaryM + 1e-9;
   const capacityPass = capacityRatio <= 1;
@@ -161,6 +166,7 @@ function evaluateCompressionCandidate({
   const pass = stockPass && capacityPass && stressPass;
   const reasons = [];
   if (!stockPass) reasons.push(`splice required above ${stockBoundaryM.toFixed(2)} m stock boundary`);
+  if (!Number.isFinite(totalMassKg)) reasons.push('mass comparison unavailable until density is verified');
   if (!capacityPass) reasons.push(`${result.governingMode.toLowerCase()} capacity exceeded`);
   if (!stressPass) reasons.push('amplified compression-stress reference exceeded');
   if (pass) reasons.push('passes current idealised compression checks');
@@ -184,7 +190,8 @@ function evaluateCompressionCandidate({
     governingRatio,
     physicalThresholdLoadKN: result.predictedCapacityKN,
     massPerM,
-    totalMassKg: massPerM * lengthM,
+    totalMassKg,
+    massVerified: Number.isFinite(totalMassKg),
     stockBoundaryM,
     stockPass,
     capacityPass,
