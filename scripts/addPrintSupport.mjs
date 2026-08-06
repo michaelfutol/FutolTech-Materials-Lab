@@ -2,7 +2,7 @@ import { readdir, readFile, writeFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 
 const root = resolve(import.meta.dirname, '..');
-const version = '20260806-report3';
+const version = '20260806-brand1';
 const printCss = `    <link rel="stylesheet" href="./src/printReport.css?v=${version}" />`;
 const printScript = `    <script type="module" src="./src/printReport.js?v=${version}"></script>`;
 
