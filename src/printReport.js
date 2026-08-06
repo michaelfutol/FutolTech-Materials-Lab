@@ -32,7 +32,7 @@ function createPrintButton() {
 
 function reportIdentity() {
   const title = document.querySelector('h1')?.textContent?.trim() || document.title;
-  const eyebrow = document.querySelector('.topbar .eyebrow, header .eyebrow')?.textContent?.trim() || 'FutolNative Structures';
+  const eyebrow = document.querySelector('.topbar .eyebrow, header .eyebrow')?.textContent?.trim() || 'Native Structures';
   const codeMatch = eyebrow.match(/(?:·|—)\s*([A-Z]{2,5}-\d{3})/);
   return {
     title,
@@ -58,11 +58,11 @@ function ensurePrintFurniture() {
     letterhead.className = 'print-letterhead';
     letterhead.setAttribute('aria-hidden', 'true');
     letterhead.innerHTML = `
-      <div class="print-brand-mark">FT</div>
+      <div class="print-brand-mark">T</div>
       <div class="print-brand-copy">
-        <strong>FutolTech Engineering Tools</strong>
-        <span>FutolNative Structures</span>
-        <small>Practical, source-backed preliminary structural analysis</small>
+        <strong>TOOLS</strong>
+        <span>Native Structures</span>
+        <small>FutolTech Engineering and Project Systems</small>
       </div>
       <div class="print-report-meta">
         <strong data-print-title></strong>
@@ -80,7 +80,7 @@ function ensurePrintFurniture() {
     documentFooter.innerHTML = `
       <div>
         <strong>Michael D Futol, RCE, RMP</strong>
-        <span>FutolNative Structures</span>
+        <span>TOOLS | Native Structures</span>
       </div>
       <p>Preliminary engineering output - verify inputs, material sources, actual dimensions, connections, supports, workmanship and final design before use.</p>
       <div class="print-document-footer__meta">
