@@ -3,7 +3,7 @@ import { PH_COMMON_TIMBER_MATERIALS } from './phCommonTimberMaterials.js';
 export const MATERIALS = [
   {
     id: 'coco-uh-2007-average',
-    name: 'Coconut wood — UH 2007 published average',
+    name: 'Coco lumber',
     family: 'wood',
     maxLengthM: 3.6,
     showInPrimaryUi: true,
@@ -26,7 +26,7 @@ export const MATERIALS = [
   ...PH_COMMON_TIMBER_MATERIALS,
   {
     id: 'steel-generic-250',
-    name: 'Structural steel — provisional Fy 250 MPa',
+    name: 'Steel Fy 250 MPa',
     family: 'steel',
     maxLengthM: 6,
     showInPrimaryUi: true,
@@ -46,7 +46,7 @@ export const MATERIALS = [
   },
   {
     id: 'steel-generic-345',
-    name: 'Structural steel — provisional Fy 345 MPa',
+    name: 'Steel Fy 345 MPa',
     family: 'steel',
     maxLengthM: 6,
     showInPrimaryUi: true,

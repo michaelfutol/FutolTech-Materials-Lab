@@ -2,115 +2,97 @@
 
 Status: beta screening module, not a construction-release design calculator.
 
-## What can be trusted now
+## Deep-pass result
+
+SH2 corrected the main P1 load-path weakness found in SH1:
+
+1. every joist is analysed using its actual edge or interior tributary width;
+2. each calculated joist support reaction is applied to the matching bearer;
+3. every bearer is analysed under that actual series of joist reactions;
+4. each bearer support reaction becomes the calculated load of its shore;
+5. the schedule retains geometric tributary area only as a location/reference value;
+6. total vertical load and total shore reactions remain subject to an equilibrium regression;
+7. negative support reactions now stop the calculation as possible contact loss instead of being silently hidden;
+8. Auto bracing must meet both capacity and amplified-stress targets;
+9. all passing SH-001 results remain `SCREENING`.
+
+## What can reasonably be trusted now
 
 Within the stated idealisations, SH-001 is useful for:
 
-- calculating fresh-concrete, plywood, rebar, construction and miscellaneous area-load components;
-- generating equal joist, bearer and shore grids that do not exceed the requested maximum spacing;
-- displaying the number and position of shores;
-- calculating corner, edge and interior tributary areas;
-- finite-element elastic bending analysis of the selected joist and bearer sections;
-- mapping bearer support reactions into a shore schedule;
-- checking total vertical-load versus total shore-reaction equilibrium;
-- comparing the effect of shore material, section, height, eccentricity and assumed unbraced length;
-- showing how equally spaced assumed brace levels reduce the longest unbraced segment;
-- preliminary AISC-style global steel-column buckling comparison through the shared column solver;
-- natural-material compression screening against the currently selected research/provisional property record.
+- fresh-concrete, plywood, rebar, construction and miscellaneous area-load arithmetic;
+- equal joist, bearer and shore grids that do not exceed the entered target spacing;
+- shore count, positions and geometric tributary areas;
+- linear-elastic analysis of continuous prismatic joists and bearers;
+- actual calculated vertical reaction transfer from joists to bearers to shores;
+- total vertical-load versus total shore-reaction equilibrium;
+- spacing, material, section, orientation and load sensitivity comparisons;
+- preliminary individual-shore global-buckling comparison;
+- showing how assumed intermediate lateral restraints change the longest unbraced shore segment.
 
-These calculations are suitable for debugging layouts, comparing alternatives, understanding load paths and identifying obviously inadequate arrangements.
+These are appropriate for layout study, comparison, debugging and identifying clearly poor arrangements.
 
-## P1 correction required before stronger reliance
+## Main modelling assumptions
 
-### Actual joist reactions must feed the bearers
+- Joists and bearers are uncut members continuous over every shown support.
+- Uniform line load is represented by closely spaced equivalent point loads in the beam FEM.
+- Shores are idealised straight prismatic pin-ended columns with user-entered eccentricity.
+- An entered brace elevation is treated as ideal lateral restraint of the shore in its governing buckling direction.
+- Vertical contact is compression-only; a negative reaction produces an error because redistribution/contact behaviour is not yet modelled.
 
-The current implementation analyses a representative continuous joist, but bearer point loads are still generated through equivalent tributary allocation. The total load is conserved, but the individual support-reaction pattern of a continuous joist is not transferred literally to each bearer.
+Simple spans, loose stacked members, splice-over-support behaviour, connection slip and partial contact can produce materially different results.
 
-Required correction:
-
-1. analyse every joist line using its own edge or interior tributary width;
-2. obtain the calculated reaction at every bearer support;
-3. place that reaction as a point load on the matching bearer;
-4. add bearer self-weight separately;
-5. rerun each bearer and map its reactions to shores;
-6. retain global reaction-equilibrium tests and add reaction-pattern benchmarks.
-
-Until this is completed, bearer and shore reactions should be treated as preliminary load-distribution estimates, not exact continuous-framing reactions.
-
-## Current results that are screening only
+## Current results that remain screening only
 
 ### Joists and bearers
 
-- Steel bending currently compares stress with a first-yield property record.
+- Steel bending is compared with a first-yield property record.
 - Local plate buckling, lateral-torsional buckling, section compactness, holes, dents, corrosion and connection restraint are not checked.
-- Wood values depend on provisional or research datasets and do not yet include complete grading, moisture, duration, repetitive-member or defect adjustments.
-- Deflection limits are selectable preliminary ratios, not a verified formwork-finish criterion.
-- Actual delivered dimensions cannot yet be edited directly inside SH-001; nominal presets must be verified elsewhere.
-
-Therefore even a passing joist or bearer must remain `SCREENING`, not final approval.
+- Wood values do not yet include complete grading, moisture, duration, repetitive-member, size or defect adjustments.
+- Deflection ratios are selectable preliminary screens, not verified project formwork tolerances.
+- Nominal presets still require actual delivered dimensions.
 
 ### Shores
 
-- Steel shore screening includes a preliminary global column curve, but not local wall buckling, damaged/reused condition, holes, couplers, adjustable-jack extension, clamps or certified prop capacity.
-- Coco and hardwood shores use research/provisional compression properties and are not code-rated shore capacities.
-- Top and bottom conditions are idealised as pin-like.
-- Eccentricity is user-entered; the default is not a measured site imperfection.
-- Base and head bearing, wedges, U-heads, sole plates and support settlement are not checked.
+- Steel screening includes a preliminary global column curve, but not local wall buckling, damage/reuse, holes, couplers, jack extension, clamps or certified prop capacity.
+- Coco and hardwood compression records are research/provisional screening values, not code-rated shore capacities.
+- Head and base bearing, wedges, U-heads, sole plates and settlement are not checked.
 
-### Auto-Suggested brace levels
+### Auto brace levels
 
-Auto-Suggest is only an **unbraced-length trial**. It assumes every level has:
+Auto only tests the unbraced length of an individual shore. Even when it reports zero intermediate levels, the complete shoring field still needs a verified lateral system. The calculator does not design ledger/diagonal members, connections or anchorage.
 
-- adequately stiff and strong horizontal ledgers;
-- diagonal bracing in both plan directions;
-- adequate clamps, nails, bolts or welds;
-- anchorage and a complete load path;
-- restraint in the governing weak direction.
+## Missing checks before construction use
 
-The module does not design those brace members or connections. The suggested elevations must never be read as a complete bracing design.
-
-## Missing system checks
-
-The current module does not yet verify:
-
-- plywood bending, shear, rolling shear, punching or panel-joint layout;
-- joist and bearer bearing perpendicular to grain;
-- connection capacity and slip;
-- local concrete accumulation, pump-hose impact or moving concentrated loads;
-- beams, drop panels, openings and thickened zones;
-- nonuniform pour sequence and partial loading;
-- shore settlement or uneven engagement;
-- base/sole-plate bearing on soil or an existing slab;
-- supporting-slab age and strength;
+- plywood bending, shear, punching and panel joints;
+- joist/bearer shear, bearing and support crushing;
+- simple-span and splice alternatives;
+- nails, clamps, wedges, welds, U-heads and base plates;
+- steel local buckling and actual product tolerances/certificates;
+- timber grading, defects, moisture, duration and column-stability adjustments;
+- horizontal construction loads and whole-grid sway stability;
+- brace strength, stiffness, connections and anchorage;
+- sole plates, soil bearing, supporting-slab capacity and settlement;
+- local concrete piles, pump-hose impact, carts/equipment and uneven pour sequence;
 - stripping, reshoring and multilevel construction-load distribution;
-- global shoring-frame sway and notional horizontal loads;
-- accidental removal or failure of one shore;
-- code load combinations and project-specific temporary-works requirements.
+- inspection of damaged or reused members.
 
 ## Reliability classification
 
 | Output | Current reliance |
 |---|---|
-| Area-load arithmetic | High, when inputs are correct |
-| Grid count and actual equal spacing | High |
-| Tributary areas | High for the generated regular grid |
-| Total vertical-load equilibrium | High |
-| Joist elastic response | Moderate screening |
-| Bearer and individual shore reactions | Preliminary until actual joist reactions are transferred |
-| Steel shore global buckling comparison | Moderate screening only |
+| Unit and load arithmetic | High when inputs are correct |
+| Grid count and equal spacing | High |
+| Idealised joist/bearer FEM | Moderate-to-good screening |
+| Vertical reaction chain | Good for the continuous-member model |
+| Reaction equilibrium | High numerical confidence |
+| Steel shore global buckling | Moderate screening only |
 | Coco/hardwood shore capacity | Research screening only |
-| Auto brace elevations | Conceptual unbraced-length suggestion only |
+| Auto brace elevations | Individual-column sensitivity only |
 | Complete shoring safety | Not established |
 
-## Release gates before actual design reliance
+## Bottom line
 
-1. Transfer actual joist FEM reactions to bearers.
-2. Add plywood panel checks and panel layout.
-3. Add verified temporary-works load cases, concentrated loads and pour sequence.
-4. Add bearing, connection, head/base and sole-plate checks.
-5. Add brace-member, brace-connection and whole-grid stability checks.
-6. Add actual measured section inputs inside SH-001.
-7. Add steel local-buckling/product-certification checks and timber grading adjustments.
-8. Add supporting soil/slab and reshoring checks.
-9. Validate against hand calculations and at least one independently modelled real project.
-10. Keep a qualified engineer review and site inspection gate before construction.
+Reasonable to rely on the arithmetic, regular-grid geometry, idealised elastic vertical load path, reaction mapping and comparative trends under identical assumptions.
+
+Do not treat a low utilisation or `SCREENING` result as permission to fabricate, erect or pour. A complete temporary-works design still needs the missing member, connection, bracing, foundation and construction-sequence checks plus qualified engineering review and site inspection.
