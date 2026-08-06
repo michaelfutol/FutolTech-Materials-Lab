@@ -45,7 +45,13 @@ function reportIdentity() {
   };
 }
 
+function removeLegacyFixedFurniture() {
+  document.querySelectorAll('.print-running-header, .print-running-footer').forEach((node) => node.remove());
+}
+
 function ensurePrintFurniture() {
+  removeLegacyFixedFurniture();
+
   let letterhead = document.querySelector('.print-letterhead');
   if (!letterhead) {
     letterhead = document.createElement('section');
@@ -66,31 +72,30 @@ function ensurePrintFurniture() {
     document.body.prepend(letterhead);
   }
 
-  let runningHeader = document.querySelector('.print-running-header');
-  if (!runningHeader) {
-    runningHeader = document.createElement('div');
-    runningHeader.className = 'print-running-header';
-    runningHeader.setAttribute('aria-hidden', 'true');
-    runningHeader.innerHTML = '<strong>FutolNative Structures</strong><span data-print-running-title></span>';
-    document.body.appendChild(runningHeader);
-  }
-
-  let runningFooter = document.querySelector('.print-running-footer');
-  if (!runningFooter) {
-    runningFooter = document.createElement('div');
-    runningFooter.className = 'print-running-footer';
-    runningFooter.setAttribute('aria-hidden', 'true');
-    runningFooter.innerHTML = `
-      <span>Michael D Futol, RCE, RMP</span>
-      <span>Preliminary engineering output — verify inputs, sources, connections and final design.</span>`;
-    document.body.appendChild(runningFooter);
+  let documentFooter = document.querySelector('.print-document-footer');
+  if (!documentFooter) {
+    documentFooter = document.createElement('section');
+    documentFooter.className = 'print-document-footer';
+    documentFooter.setAttribute('aria-hidden', 'true');
+    documentFooter.innerHTML = `
+      <div>
+        <strong>Michael D Futol, RCE, RMP</strong>
+        <span>FutolNative Structures</span>
+      </div>
+      <p>Preliminary engineering output - verify inputs, material sources, actual dimensions, connections, supports, workmanship and final design before use.</p>
+      <div class="print-document-footer__meta">
+        <strong data-print-footer-title></strong>
+        <span data-print-footer-code></span>
+      </div>`;
+    document.body.appendChild(documentFooter);
   }
 
   const identity = reportIdentity();
   letterhead.querySelector('[data-print-title]').textContent = identity.title;
   letterhead.querySelector('[data-print-code]').textContent = identity.documentCode;
   letterhead.querySelector('[data-print-date]').textContent = identity.generated;
-  runningHeader.querySelector('[data-print-running-title]').textContent = identity.title;
+  documentFooter.querySelector('[data-print-footer-title]').textContent = identity.title;
+  documentFooter.querySelector('[data-print-footer-code]').textContent = `Document ${identity.documentCode} · generated ${identity.generated}`;
 }
 
 function mountPrintReport() {
@@ -102,7 +107,8 @@ function mountPrintReport() {
   document.documentElement.dataset.printReportReady = 'true';
 
   if (document.querySelector('.compare-shell')) {
-    import('./comparisonLimit.js').then(({ mountComparisonLimitFinder }) => mountComparisonLimitFinder());
+    import('./comparisonLimit.js?v=20260806-motion1')
+      .then(({ mountComparisonLimitFinder }) => mountComparisonLimitFinder());
   }
 }
 
