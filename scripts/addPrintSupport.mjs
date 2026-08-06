@@ -18,6 +18,11 @@ for (const fileName of htmlFiles) {
   let html = await readFile(path, 'utf8');
   const original = html;
 
+  html = html
+    .replace(/(<title>[^<]*) · FutolNative Structures(<\/title>)/g, '$1 · Native Structures$2')
+    .replace(/(<p class="eyebrow">)FutolNative Structures\s*·\s*/g, '$1TOOLS · Native Structures · ')
+    .replaceAll('FutolNative Structures', 'Native Structures');
+
   if (html.includes('printReport.css')) {
     html = html.replace(/<link\s+rel="stylesheet"\s+href="\.\/src\/printReport\.css\?v=[^"]+"\s*\/>/, printCss.trim());
   } else {
@@ -38,4 +43,4 @@ for (const fileName of htmlFiles) {
   }
 }
 
-console.log(`Print support checked on ${htmlFiles.length} HTML pages; ${changedCount} file(s) updated to ${version}.`);
+console.log(`Branding and print support checked on ${htmlFiles.length} HTML pages; ${changedCount} file(s) updated to ${version}.`);
