@@ -2,7 +2,7 @@ import { readdir, readFile, writeFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 
 const root = resolve(import.meta.dirname, '..');
-const version = '20260806-report3';
+const version = '20260806-brand1';
 const printCss = `    <link rel="stylesheet" href="./src/printReport.css?v=${version}" />`;
 const printScript = `    <script type="module" src="./src/printReport.js?v=${version}"></script>`;
 
@@ -17,6 +17,11 @@ for (const fileName of htmlFiles) {
   const path = resolve(root, fileName);
   let html = await readFile(path, 'utf8');
   const original = html;
+
+  html = html
+    .replace(/(<title>[^<]*) · FutolNative Structures(<\/title>)/g, '$1 · Native Structures$2')
+    .replace(/(<p class="eyebrow">)FutolNative Structures\s*·\s*/g, '$1TOOLS · Native Structures · ')
+    .replaceAll('FutolNative Structures', 'Native Structures');
 
   if (html.includes('printReport.css')) {
     html = html.replace(/<link\s+rel="stylesheet"\s+href="\.\/src\/printReport\.css\?v=[^"]+"\s*\/>/, printCss.trim());
@@ -38,4 +43,4 @@ for (const fileName of htmlFiles) {
   }
 }
 
-console.log(`Print support checked on ${htmlFiles.length} HTML pages; ${changedCount} file(s) updated to ${version}.`);
+console.log(`Branding and print support checked on ${htmlFiles.length} HTML pages; ${changedCount} file(s) updated to ${version}.`);
