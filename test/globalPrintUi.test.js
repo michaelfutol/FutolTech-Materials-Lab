@@ -21,11 +21,18 @@ test('every public HTML page loads the shared print report controls', async () =
   }
 });
 
-test('shared print report uses a clean A4 browser-print workflow', () => {
+test('shared print report uses branded A4 letterhead, running furniture and compact tables', () => {
   assert.match(printCss, /@page\s*\{[\s\S]*size:\s*A4 portrait/);
+  assert.match(printCss, /@page wide-report[\s\S]*A4 landscape/);
   assert.match(printCss, /Microsoft Sans Serif/);
-  assert.match(printCss, /thead\s*\{[\s\S]*table-header-group/);
+  assert.match(printCss, /\.print-letterhead/);
+  assert.match(printCss, /\.print-running-header/);
+  assert.match(printCss, /\.print-running-footer/);
+  assert.match(printCss, /thead\s*\{\s*display:\s*table-header-group/);
   assert.match(printCss, /overflow:\s*visible\s*!important/);
+  assert.match(printScript, /FutolTech Engineering Tools/);
+  assert.match(printScript, /Michael D Futol, RCE, RMP/);
   assert.match(printScript, /Print \/ Save PDF/);
   assert.match(printScript, /window\.print\(\)/);
+  assert.match(printScript, /comparisonLimit\.js/);
 });
