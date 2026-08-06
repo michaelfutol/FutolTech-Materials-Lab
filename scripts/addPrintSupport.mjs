@@ -2,8 +2,9 @@ import { readdir, readFile, writeFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 
 const root = resolve(import.meta.dirname, '..');
-const printCss = '    <link rel="stylesheet" href="./src/printReport.css?v=20260806-global1" />';
-const printScript = '    <script type="module" src="./src/printReport.js?v=20260806-global1"></script>';
+const version = '20260806-report2';
+const printCss = `    <link rel="stylesheet" href="./src/printReport.css?v=${version}" />`;
+const printScript = `    <script type="module" src="./src/printReport.js?v=${version}"></script>`;
 
 const entries = await readdir(root, { withFileTypes: true });
 const htmlFiles = entries
@@ -17,12 +18,16 @@ for (const fileName of htmlFiles) {
   let html = await readFile(path, 'utf8');
   const original = html;
 
-  if (!html.includes('printReport.css')) {
+  if (html.includes('printReport.css')) {
+    html = html.replace(/<link\s+rel="stylesheet"\s+href="\.\/src\/printReport\.css\?v=[^"]+"\s*\/>/, printCss.trim());
+  } else {
     if (!html.includes('</head>')) throw new Error(`${fileName} has no closing head tag.`);
     html = html.replace('</head>', `${printCss}\n  </head>`);
   }
 
-  if (!html.includes('printReport.js')) {
+  if (html.includes('printReport.js')) {
+    html = html.replace(/<script\s+type="module"\s+src="\.\/src\/printReport\.js\?v=[^"]+"><\/script>/, printScript.trim());
+  } else {
     if (!html.includes('</body>')) throw new Error(`${fileName} has no closing body tag.`);
     html = html.replace('</body>', `${printScript}\n  </body>`);
   }
@@ -33,4 +38,4 @@ for (const fileName of htmlFiles) {
   }
 }
 
-console.log(`Print support checked on ${htmlFiles.length} HTML pages; ${changedCount} file(s) updated.`);
+console.log(`Print support checked on ${htmlFiles.length} HTML pages; ${changedCount} file(s) updated to ${version}.`);
