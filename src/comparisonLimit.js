@@ -39,6 +39,12 @@ function loadInputValue(loadKN, unit) {
   return loadKN;
 }
 
+function floorForInput(value, unit) {
+  const decimals = unit === 'kgf' ? 2 : unit === 'tf' ? 4 : 3;
+  const factor = 10 ** decimals;
+  return Math.floor(value * factor) / factor;
+}
+
 function passCountFromSummary() {
   const text = document.getElementById('compareSummary')?.textContent ?? '';
   const match = text.match(/(\d+)\s+of\s+(\d+)/i);
@@ -46,10 +52,11 @@ function passCountFromSummary() {
   return Number(match[1]);
 }
 
-function dispatchLoad(loadKN) {
+function dispatchLoad(loadKN, { tidy = false } = {}) {
   const input = document.getElementById('compareLoadInput');
   const unit = document.getElementById('compareLoadUnitSelect')?.value ?? 'kN';
-  input.value = String(loadInputValue(loadKN, unit));
+  const raw = loadInputValue(loadKN, unit);
+  input.value = String(tidy ? floorForInput(raw, unit) : raw);
   input.dispatchEvent(new Event('input', { bubbles: true }));
 }
 
@@ -71,16 +78,48 @@ function survivorLabels() {
     });
 }
 
+function ensureStyles() {
+  if (document.getElementById('comparisonLimitStyles')) return;
+  const style = document.createElement('style');
+  style.id = 'comparisonLimitStyles';
+  style.textContent = `
+    .compare-limit-controls {
+      display: grid;
+      gap: 9px;
+      margin: 12px 0 16px;
+      padding: 14px;
+      border: 1px solid rgba(100, 244, 207, 0.42);
+      border-radius: 14px;
+      background: rgba(50, 160, 135, 0.08);
+    }
+    .compare-limit-controls .button { justify-self: start; }
+    .compare-limit-note { margin: 0; color: var(--muted); line-height: 1.45; }
+    .compare-limit-note strong { color: var(--text); }
+    @media print {
+      .compare-limit-controls {
+        margin: 2mm 0 3mm !important;
+        padding: 2mm !important;
+        border: 0.25mm solid #888 !important;
+        border-radius: 0 !important;
+        background: #fff !important;
+      }
+      .compare-limit-note { color: #111 !important; }
+    }
+  `;
+  document.head.appendChild(style);
+}
+
 export function mountComparisonLimitFinder() {
   if (document.getElementById('compareLimitButton')) return;
   const loadCard = document.getElementById('compareLoadEquivalent');
   if (!loadCard) return;
+  ensureStyles();
 
   const controls = document.createElement('div');
   controls.className = 'compare-limit-controls';
   controls.innerHTML = `
     <button id="compareLimitButton" class="button" type="button" title="Automatically find the highest load at which at least one selected member still passes the current checks.">Find last passing load</button>
-    <p id="compareLimitNote" class="compare-limit-note">One touch: raises the load until only the final passing range remains. This is a comparison threshold, not an allowable design load or price decision.</p>`;
+    <p id="compareLimitNote" class="compare-limit-note">One touch: raises the load until the final passing range is found. This is a comparison threshold, not an allowable design load or price decision.</p>`;
   loadCard.insertAdjacentElement('afterend', controls);
 
   const button = controls.querySelector('#compareLimitButton');
@@ -99,9 +138,10 @@ export function mountComparisonLimitFinder() {
           return passCountFromSummary();
         }
       });
-      dispatchLoad(result.passingLoadKN);
+      const displayedLoadKN = result.passingLoadKN * 0.999999;
+      dispatchLoad(displayedLoadKN, { tidy: true });
       const survivors = survivorLabels();
-      note.innerHTML = `<strong>Last passing comparison load: ${formatLoadEquivalents(result.passingLoadKN)}</strong><br>${survivors.length ? `Still below the current checks: ${survivors.join('; ')}.` : 'No surviving member could be identified.'} The next tiny load increase enters the all-fail range.`;
+      note.innerHTML = `<strong>Last passing comparison load: ${formatLoadEquivalents(displayedLoadKN)}</strong><br>${survivors.length ? `Still below the current checks: ${survivors.join('; ')}.` : 'No surviving member could be identified.'} A slightly higher load enters the all-fail range.`;
     } catch (error) {
       note.textContent = error instanceof Error ? error.message : String(error);
     } finally {
