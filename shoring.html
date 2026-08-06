@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="Concrete slab shoring load-path calculator with plywood, joists, bearers, vertical shores and variable lateral bracing." />
     <title>Concrete Slab Shoring · FutolNative Structures</title>
-    <link rel="stylesheet" href="./src/styles.css?v=20260806-sh2" />
-    <link rel="stylesheet" href="./src/shoring.css?v=20260806-sh2" />
+    <link rel="stylesheet" href="./src/styles.css?v=20260806-sh3" />
+    <link rel="stylesheet" href="./src/shoring.css?v=20260806-sh3" />
   </head>
   <body>
     <header class="topbar">
@@ -21,7 +21,7 @@
         <a class="status-pill status-link" href="./library.html">Section Library</a>
         <span class="status-pill">Plan + elevation · active</span>
         <span class="status-pill status-pill--warning">Engineering screening only</span>
-        <span class="status-pill">Build 2026-08-06.SH2</span>
+        <span class="status-pill">Build 2026-08-06.SH3</span>
       </div>
     </header>
 
@@ -104,7 +104,10 @@
       </section>
 
       <section class="panel shoring-results" aria-label="Shoring results">
-        <div class="panel-heading"><div><p class="eyebrow">Calculated temporary load path</p><h2>Grid, loads and checks</h2></div></div>
+        <div class="panel-heading">
+          <div><p class="eyebrow">Calculated temporary load path</p><h2>Grid, loads and checks</h2></div>
+          <button class="button print-action" type="button" title="Open the browser print dialog for an A4 report or PDF." onclick="window.print()">Print / Save PDF</button>
+        </div>
         <div id="shoringErrorBanner" class="error-banner is-hidden" role="alert"></div>
         <div id="shoringStatusBanner" class="shoring-status" aria-live="polite"></div>
         <div id="shoringResultCards" class="result-grid"></div>
@@ -130,6 +133,6 @@
     </main>
 
     <footer><strong>Engineering notice:</strong> SH-001 is a preliminary screening and layout tool—not a release-for-pour design. A qualified engineer must verify the full formwork/shoring system, drawings, actual materials, connections, bracing, foundations and construction sequence.</footer>
-    <script type="module" src="./src/shoringApp.js?v=20260806-sh2"></script>
+    <script type="module" src="./src/shoringApp.js?v=20260806-sh3"></script>
   </body>
 </html>
