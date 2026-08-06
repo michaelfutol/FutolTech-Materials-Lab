@@ -117,7 +117,8 @@ function evaluateCompressionCandidate({
   lengthM,
   axialLoadKN,
   eccentricityMm,
-  boundary
+  boundary,
+  intermediateBracePoints
 }) {
   const material = selection.material;
   const section = selectedSection(selection);
@@ -142,11 +143,14 @@ function evaluateCompressionCandidate({
     ...columnSupports(boundary),
     axialLoadKN,
     eccentricityMm,
-    compressionStrengthMPa
+    compressionStrengthMPa,
+    materialFamily: material.family,
+    yieldStrengthMPa: material.yieldStrengthMPa,
+    intermediateBracePoints
   });
 
-  const capacityRatio = result.predictedCapacityKN > 0
-    ? axialLoadKN / result.predictedCapacityKN
+  const capacityRatio = result.comparisonCapacityKN > 0
+    ? axialLoadKN / result.comparisonCapacityKN
     : Number.POSITIVE_INFINITY;
   const stressRatio = Number.isFinite(result.maxCompressionStressMPa)
     ? result.maxCompressionStressMPa / compressionStrengthMPa
@@ -164,12 +168,19 @@ function evaluateCompressionCandidate({
   const capacityPass = capacityRatio <= 1;
   const stressPass = stressRatio <= 1;
   const pass = stockPass && capacityPass && stressPass;
+  const screeningOnly = result.screeningOnly;
+  const statusLabel = pass
+    ? screeningOnly ? 'SCREENING' : 'PRELIM PASS'
+    : 'FAIL';
   const reasons = [];
   if (!stockPass) reasons.push(`splice required above ${stockBoundaryM.toFixed(2)} m stock boundary`);
   if (!Number.isFinite(totalMassKg)) reasons.push('mass comparison unavailable until density is verified');
   if (!capacityPass) reasons.push(`${result.governingMode.toLowerCase()} capacity exceeded`);
   if (!stressPass) reasons.push('amplified compression-stress reference exceeded');
-  if (pass) reasons.push('passes current idealised compression checks');
+  if (screeningOnly) reasons.push('natural-material result is a screening ceiling, not a code-rated column capacity');
+  if (pass && !screeningOnly) reasons.push('passes preliminary steel ASD global-buckling and stress checks');
+  if (pass && screeningOnly) reasons.push('below current research screening thresholds; verification still required');
+  if (intermediateBracePoints > 0) reasons.push(result.braceAssumption);
 
   return {
     ...comparisonIdentity(selection, index),
@@ -188,7 +199,10 @@ function evaluateCompressionCandidate({
     capacityRatio,
     stressRatio,
     governingRatio,
-    physicalThresholdLoadKN: result.predictedCapacityKN,
+    physicalThresholdLoadKN: result.comparisonCapacityKN,
+    capacityLabel: screeningOnly ? 'Research screening capacity' : 'Preliminary ASD available capacity',
+    screeningOnly,
+    statusLabel,
     massPerM,
     totalMassKg,
     massVerified: Number.isFinite(totalMassKg),
@@ -206,12 +220,16 @@ export function compareCompressionCandidates({
   lengthM,
   axialLoadKN,
   eccentricityMm = 0,
-  boundary = 'pinned-pinned'
+  boundary = 'pinned-pinned',
+  intermediateBracePoints = 0
 }) {
   validateSelections(selections);
   if (!Number.isFinite(lengthM) || lengthM <= 0) throw new Error('Member length must be greater than zero.');
   if (!Number.isFinite(axialLoadKN) || axialLoadKN <= 0) throw new Error('Axial compression load must be greater than zero.');
   if (!Number.isFinite(eccentricityMm) || eccentricityMm < 0) throw new Error('Eccentricity cannot be negative.');
+  if (!Number.isInteger(intermediateBracePoints) || intermediateBracePoints < 0 || intermediateBracePoints > 6) {
+    throw new Error('Intermediate brace points must be a whole number from 0 to 6.');
+  }
 
   const records = selections.map((selection, index) => evaluateCompressionCandidate({
     selection,
@@ -219,14 +237,15 @@ export function compareCompressionCandidates({
     lengthM,
     axialLoadKN,
     eccentricityMm,
-    boundary
+    boundary,
+    intermediateBracePoints
   }));
   const passing = records.filter((record) => record.pass);
   const winners = {
     lightestPassing: finiteMin(passing, (record) => record.totalMassKg)?.comparisonId ?? null,
     leastShortening: finiteMin(records, (record) => record.result.shorteningMm)?.comparisonId ?? null,
     lowestCompressionUse: finiteMin(records, (record) => record.governingRatio)?.comparisonId ?? null,
-    highestCompressionCapacity: finiteMax(records, (record) => record.result.predictedCapacityKN)?.comparisonId ?? null
+    highestCompressionCapacity: finiteMax(records, (record) => record.result.comparisonCapacityKN)?.comparisonId ?? null
   };
 
   return {
@@ -238,6 +257,7 @@ export function compareCompressionCandidates({
       )
     })),
     passingCount: passing.length,
+    screeningCount: records.filter((record) => record.screeningOnly && record.pass).length,
     winners
   };
 }
