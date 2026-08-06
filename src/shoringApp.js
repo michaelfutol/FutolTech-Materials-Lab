@@ -50,7 +50,7 @@ const roles = {
 
 function materialOptions() {
   return ['wood', 'steel'].map((family) => {
-    const label = family === 'wood' ? 'Wood datasets' : 'Steel datasets';
+    const label = family === 'wood' ? 'Wood' : 'Steel';
     const options = ACTIVE_MATERIALS.filter((material) => material.family === family)
       .map((material) => `<option value="${esc(material.id)}">${esc(material.name)}</option>`).join('');
     return `<optgroup label="${label}">${options}</optgroup>`;
@@ -72,6 +72,8 @@ function syncRole(roleName, resetSection = false) {
   const preset = presetById(material, elements[role.section].value);
   elements[role.orientation].disabled = !canRotate(preset);
   if (!canRotate(preset)) elements[role.orientation].value = 'listed';
+  elements[role.material].title = `${material.name}. ${material.source?.label ?? 'Source not assigned'}. ${material.source?.note ?? ''}`;
+  elements[role.section].title = `${preset.label}. Measure or verify the actual delivered size.`;
   elements[role.preview].innerHTML = sectionSketchSvg(preset, material.family);
 }
 
@@ -130,13 +132,13 @@ function renderPlan(record) {
       fill: ratio > .9 ? '#ff7c80' : ratio > .65 ? '#f0bc5d' : '#58dcb7',
       stroke: '#07131d', 'stroke-width': 2
     });
-    addTitle(circle, `${shore.id} · ${shore.locationType} · tributary ${shore.tributaryAreaM2.toFixed(3)} m² · ${formatLoadEquivalents(shore.loadKN)}`);
+    addTitle(circle, `${shore.id} · ${shore.locationType} · geometric area ${shore.tributaryAreaM2.toFixed(3)} m² · ${formatLoadEquivalents(shore.loadKN)}`);
     svg.appendChild(circle);
   });
 
   svgText(svg, left, 28, `Slab ${slabWidth.toFixed(2)} m × ${slabLength.toFixed(2)} m`, { 'font-size': 16, 'font-weight': 700 });
-  svgText(svg, left, 584, `Blue = joists @ ${Math.round(record.grids.joist.actualSpacingM * 1000)} mm actual · Gold = bearers @ ${Math.round(record.grids.bearer.actualSpacingM * 1000)} mm actual`, { 'font-size': 12 });
-  svgText(svg, left, 604, `${record.counts.shores} shores · shore spacing along bearers ${Math.round(record.grids.shore.actualSpacingM * 1000)} mm actual · hover circles for load`, { 'font-size': 12, fill: '#8eb3c7' });
+  svgText(svg, left, 584, `Blue joists @ ${Math.round(record.grids.joist.actualSpacingM * 1000)} mm · Gold bearers @ ${Math.round(record.grids.bearer.actualSpacingM * 1000)} mm`, { 'font-size': 12 });
+  svgText(svg, left, 604, `${record.counts.shores} shores · ${Math.round(record.grids.shore.actualSpacingM * 1000)} mm along bearers · hover a circle for its reaction`, { 'font-size': 12, fill: '#8eb3c7' });
 }
 
 function renderElevation(record) {
@@ -152,7 +154,7 @@ function renderElevation(record) {
   svgText(svg, right - 5, top + 30, `Plywood ${numeric('plywoodThicknessInput').toFixed(1)} mm`, { 'text-anchor': 'end', 'font-size': 11 });
   for (let x = left + 30; x < right; x += 55) svg.appendChild(svgNode('rect', { x, y: top + 16, width: 10, height: 25, fill: '#4f849e' }));
   svg.appendChild(svgNode('rect', { x: left + 8, y: top + 44, width: right - left - 16, height: 18, fill: '#f0bc5d' }));
-  svgText(svg, right - 5, top + 78, 'Joists over bearer / stringer', { 'text-anchor': 'end', 'font-size': 11 });
+  svgText(svg, right - 5, top + 78, 'Joists over bearer', { 'text-anchor': 'end', 'font-size': 11 });
 
   const shoreXs = [left + 70, (left + right) / 2, right - 70];
   shoreXs.forEach((x) => {
@@ -168,15 +170,17 @@ function renderElevation(record) {
     svg.appendChild(svgNode('line', { x1: shoreXs[1], y1: y, x2: shoreXs[2], y2: lowerY, stroke: '#ff9f68', 'stroke-width': 3 }));
     svgText(svg, right - 4, y - 7, `${elevationM.toFixed(2)} m`, { 'text-anchor': 'end', fill: '#f0bc5d', 'font-size': 11 });
   });
-  const lastBraceY = record.braceElevationsM.length ? mapY(record.braceElevationsM.at(-1)) : baseY;
   if (record.braceElevationsM.length) {
+    const lastBraceY = mapY(record.braceElevationsM.at(-1));
     svg.appendChild(svgNode('line', { x1: shoreXs[0], y1: lastBraceY, x2: shoreXs[1], y2: top + 62, stroke: '#ff9f68', 'stroke-width': 3 }));
     svg.appendChild(svgNode('line', { x1: shoreXs[1], y1: top + 62, x2: shoreXs[2], y2: lastBraceY, stroke: '#ff9f68', 'stroke-width': 3 }));
   }
 
-  svgText(svg, left, 28, `Shore height ${heightM.toFixed(2)} m · ${record.braceElevationsM.length} brace level(s)`, { 'font-size': 16, 'font-weight': 700 });
-  svgText(svg, left, 584, `Longest unbraced segment: ${record.shoreAssessment.brace.longestUnbracedM.toFixed(2)} m`, { 'font-size': 13, fill: '#f0bc5d' });
-  svgText(svg, left, 605, 'Gold ledgers + orange diagonals are required assumptions, not designed brace members.', { 'font-size': 11, fill: '#8eb3c7' });
+  svgText(svg, left, 28, `Shore height ${heightM.toFixed(2)} m · ${record.braceElevationsM.length} intermediate level(s)`, { 'font-size': 16, 'font-weight': 700 });
+  svgText(svg, left, 584, `Longest screened segment: ${record.shoreAssessment.brace.longestUnbracedM.toFixed(2)} m`, { 'font-size': 13, fill: '#f0bc5d' });
+  svgText(svg, left, 605, record.braceElevationsM.length
+    ? 'Shown ledgers/diagonals are assumptions only; their members and joints are not designed.'
+    : 'No intermediate point needed by the column screen; full field bracing is still required.', { 'font-size': 11, fill: '#8eb3c7' });
 }
 
 function renderLoadComponents(record) {
@@ -184,21 +188,21 @@ function renderLoadComponents(record) {
     ['Fresh concrete', record.areaLoad.freshConcreteKNM2],
     ['Plywood self-weight', record.areaLoad.plywoodKNM2],
     ['Rebar allowance', record.areaLoad.rebarKNM2],
-    ['Construction live load', record.areaLoad.constructionKNM2],
-    ['Miscellaneous allowance', record.areaLoad.miscellaneousKNM2],
+    ['Construction load', record.areaLoad.constructionKNM2],
+    ['Other allowance', record.areaLoad.miscellaneousKNM2],
     ['TOTAL AREA LOAD', record.areaLoad.totalKNM2]
   ];
   elements.loadComponentBody.innerHTML = components.map(([label, value]) => `<tr><td>${esc(label)}</td><td>${format(value, 3)}</td><td>${format(value / KGF_TO_KN, 1)}</td></tr>`).join('');
 }
 
 function flexuralRow(label, member) {
-  return `<tr title="${esc(member.reference.label)}"><td>${esc(label)}</td><td>${esc(member.status)}</td><td>${format(member.strengthRatio * 100, 1)}%</td><td>${format(member.deflectionRatio * 100, 1)}%</td><td>${format(member.governingSpanM, 2)} m</td></tr>`;
+  return `<tr title="${esc(member.reference.label)}; continuous over all shown supports"><td>${esc(label)}</td><td>${esc(member.status)}</td><td>${format(member.strengthRatio * 100, 1)}%</td><td>${format(member.deflectionRatio * 100, 1)}%</td><td>${format(member.governingSpanM, 2)} m</td></tr>`;
 }
 function renderMemberChecks(record) {
   elements.memberCheckBody.innerHTML = [
-    flexuralRow('Representative joist', record.joist),
-    flexuralRow('Governing bearer', record.bearerGoverning.member),
-    `<tr title="${esc(record.shoreAssessment.result.capacityBasis)}"><td>Maximum-loaded shore</td><td>${esc(record.shoreAssessment.status)}</td><td>${format(record.shoreAssessment.utilization * 100, 1)}% capacity</td><td>${format(record.shoreAssessment.stressUtilization * 100, 1)}% stress</td><td>${format(record.shoreAssessment.brace.longestUnbracedM, 2)} m unbraced</td></tr>`
+    flexuralRow(`Joist ${record.joistGoverning.id}`, record.joist),
+    flexuralRow(`Bearer ${record.bearerGoverning.id}`, record.bearerGoverning.member),
+    `<tr title="${esc(record.shoreAssessment.result.capacityBasis)}; global column screening only"><td>Maximum-loaded shore</td><td>${esc(record.shoreAssessment.status)}</td><td>${format(record.shoreAssessment.utilization * 100, 1)}% capacity</td><td>${format(record.shoreAssessment.stressUtilization * 100, 1)}% stress</td><td>${format(record.shoreAssessment.brace.longestUnbracedM, 2)} m</td></tr>`
   ].join('');
 }
 
@@ -209,20 +213,29 @@ function renderShoreSchedule(record) {
     .map((shore) => `<tr><td>${esc(shore.id)}</td><td>${esc(shore.locationType)}</td><td>${format(shore.xM, 2)}, ${format(shore.yM, 2)} m</td><td>${format(shore.tributaryAreaM2, 3)} m²</td><td>${formatLoadEquivalents(shore.loadKN)}</td><td>${format(shore.loadKN / max * 100, 1)}%</td></tr>`).join('');
 }
 
+function braceText(record) {
+  const levels = record.braceElevationsM.length
+    ? `${record.braceElevationsM.map((value) => value.toFixed(2)).join(', ')} m`
+    : 'none';
+  if (record.braceMode === 'manual') return `Manual intermediate levels: ${levels}`;
+  if (record.braceSuggestion.recommended.count === 0) {
+    return 'No intermediate level needed by the individual-shore buckling screen';
+  }
+  return `Buckling screen: ${record.braceSuggestion.recommended.count} level(s) at ${levels}${record.braceSuggestion.targetMet ? '' : ' · target not reached'}`;
+}
+
 function renderRecord(record) {
-  const statusClass = record.status === 'FAIL' ? 'is-fail' : record.status === 'SCREENING' ? 'is-screening' : '';
-  const suggestionText = record.braceMode === 'auto'
-    ? `${record.braceSuggestion.recommended.count} level(s): ${record.braceElevationsM.length ? record.braceElevationsM.map((value) => value.toFixed(2)).join(', ') + ' m' : 'none'}${record.braceSuggestion.targetMet ? '' : ' · target not reached within maximum levels'}`
-    : `${record.braceElevationsM.length ? record.braceElevationsM.map((value) => value.toFixed(2)).join(', ') + ' m' : 'none'}`;
+  const statusClass = record.status === 'FAIL' ? 'is-fail' : 'is-screening';
+  const suggestionText = braceText(record);
   elements.shoringStatusBanner.className = `shoring-status ${statusClass}`;
-  elements.shoringStatusBanner.innerHTML = `<p class="eyebrow">Current system state</p><h3>${esc(record.status)}</h3><p>${record.counts.joists} joists · ${record.counts.bearers} bearers · ${record.counts.shores} shores. Brace layout: ${esc(suggestionText)}.</p>`;
+  elements.shoringStatusBanner.innerHTML = `<p class="eyebrow">Current result</p><h3>${esc(record.status)}</h3><p>${record.counts.joists} joists · ${record.counts.bearers} bearers · ${record.counts.shores} shores. ${esc(suggestionText)}. Full lateral bracing is still required and not designed here.</p>`;
   elements.shoringResultCards.innerHTML = [
-    ['Total slab/formwork area load', `${format(record.areaLoad.totalKNM2, 3)} kN/m²`, `≈ ${format(record.areaLoad.totalKgfM2, 1)} kgf/m²`],
-    ['Total vertical load represented', formatLoadEquivalents(record.totalVerticalLoadKN), `reaction balance error ${format(record.reactionErrorRatio * 100, 3)}%`],
-    ['Maximum shore reaction', formatLoadEquivalents(record.maximumShoreLoadKN), `${format(record.shoreAssessment.utilization * 100, 1)}% of current comparison capacity`],
-    ['Shore count', String(record.counts.shores), `${record.counts.bearers} bearer lines × ${record.grids.shore.positionsM.length} shores/line`],
+    ['Total area load', `${format(record.areaLoad.totalKNM2, 3)} kN/m²`, `≈ ${format(record.areaLoad.totalKgfM2, 1)} kgf/m²`],
+    ['Total vertical load', formatLoadEquivalents(record.totalVerticalLoadKN), `reaction balance error ${format(record.reactionErrorRatio * 100, 4)}%`],
+    ['Maximum shore reaction', formatLoadEquivalents(record.maximumShoreLoadKN), `${format(record.shoreAssessment.utilization * 100, 1)}% of screening capacity`],
+    ['Shore count', String(record.counts.shores), `${record.counts.bearers} bearer lines × ${record.grids.shore.positionsM.length} shores`],
     ['Actual grid', `${Math.round(record.grids.bearer.actualSpacingM * 1000)} × ${Math.round(record.grids.shore.actualSpacingM * 1000)} mm`, 'bearer spacing × shore spacing'],
-    ['Brace recommendation', suggestionText, `longest unbraced ${format(record.shoreAssessment.brace.longestUnbracedM, 2)} m`]
+    ['Intermediate buckling screen', suggestionText, `longest segment ${format(record.shoreAssessment.brace.longestUnbracedM, 2)} m`]
   ].map(([label, value, note]) => `<article class="result-card" title="${esc(note)}"><p>${esc(label)}</p><strong>${value}</strong><small>${esc(note)}</small></article>`).join('');
   renderPlan(record);
   renderElevation(record);
@@ -318,8 +331,8 @@ Object.entries(roles).forEach(([roleName, role]) => {
   elements[role.orientation].addEventListener('change', render);
 });
 Object.values(elements).forEach((element) => {
-  if (!element || ['BUTTON', 'SELECT'].includes(element.tagName)) return;
-  element.addEventListener('input', render);
+  if (!element) return;
+  if (element.tagName === 'INPUT') element.addEventListener('input', render);
 });
 elements.braceModeSelect.addEventListener('change', render);
 elements.deflectionSelect.addEventListener('change', render);
