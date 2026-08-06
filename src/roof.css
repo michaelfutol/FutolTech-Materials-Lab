@@ -1,0 +1,155 @@
+.roof-shell {
+  display: grid;
+  grid-template-columns: minmax(330px, 0.86fr) minmax(0, 1.7fr);
+  gap: 1px;
+  background: var(--border);
+}
+
+.roof-controls,
+.roof-results {
+  min-width: 0;
+}
+
+.roof-support-fieldset {
+  margin: 18px 0 0;
+  padding: 16px;
+  border: 1px solid rgba(91, 224, 191, 0.34);
+  border-radius: 14px;
+}
+
+.roof-support-fieldset legend {
+  padding: 0 8px;
+  color: var(--accent);
+  font-weight: 800;
+}
+
+.roof-warning {
+  margin: 14px 0 0;
+  padding: 12px 14px;
+  border-left: 4px solid #f0bc5d;
+  border-radius: 10px;
+  background: rgba(240, 188, 93, 0.08);
+}
+
+.roof-section-preview {
+  min-height: 150px;
+  display: grid;
+  place-items: center;
+  margin-top: 14px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: radial-gradient(circle at 50% 45%, rgba(82, 214, 181, 0.12), transparent 62%), #0d1a24;
+}
+
+.roof-section-preview svg {
+  width: 130px;
+  height: 130px;
+}
+
+.section-sketch__solid {
+  fill: rgba(82, 214, 181, 0.72);
+  stroke: #b8f5e5;
+  stroke-width: 1.4;
+}
+
+.section-sketch__solid.is-bamboo {
+  fill: rgba(221, 189, 114, 0.7);
+  stroke: #ffe0a1;
+}
+
+.section-sketch__void {
+  fill: #0b1720;
+  stroke: rgba(255, 255, 255, 0.25);
+  stroke-width: 1;
+}
+
+.section-sketch__catalog {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 8;
+}
+
+.section-sketch__node {
+  stroke: rgba(116, 71, 26, 0.8);
+  stroke-width: 4;
+  stroke-dasharray: 3 3;
+}
+
+.section-sketch__node-dot {
+  fill: #70491d;
+}
+
+.roof-status {
+  margin-bottom: 16px;
+  padding: 16px 18px;
+  border: 1px solid var(--border);
+  border-left: 5px solid var(--accent);
+  border-radius: 14px;
+  background: rgba(50, 160, 135, 0.08);
+}
+
+.roof-status.is-fail {
+  border-left-color: #ff7c80;
+  background: rgba(255, 124, 128, 0.08);
+}
+
+.roof-status.is-screening {
+  border-left-color: #f0bc5d;
+  background: rgba(240, 188, 93, 0.08);
+}
+
+.roof-diagram-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: #08151f;
+}
+
+#roofLoadDiagram {
+  width: 100%;
+  min-width: 760px;
+  height: auto;
+}
+
+.roof-table-grid {
+  display: grid;
+  grid-template-columns: minmax(260px, 0.65fr) minmax(0, 1.35fr);
+  gap: 16px;
+  margin-top: 18px;
+}
+
+.roof-table-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+
+.roof-table-wrap table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.roof-table-wrap th,
+.roof-table-wrap td {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+  white-space: nowrap;
+}
+
+.roof-table-wrap th {
+  color: var(--muted);
+  background: rgba(9, 29, 40, 0.96);
+}
+
+.roof-load-table {
+  max-height: 430px;
+  overflow: auto;
+}
+
+@media (max-width: 1120px) {
+  .roof-shell,
+  .roof-table-grid {
+    grid-template-columns: 1fr;
+  }
+}
