@@ -5,23 +5,23 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="Concrete slab shoring load-path calculator with plywood, joists, bearers, vertical shores and variable lateral bracing." />
     <title>Concrete Slab Shoring · FutolNative Structures</title>
-    <link rel="stylesheet" href="./src/styles.css?v=20260806-sh1" />
-    <link rel="stylesheet" href="./src/shoring.css?v=20260806-sh1" />
+    <link rel="stylesheet" href="./src/styles.css?v=20260806-sh2" />
+    <link rel="stylesheet" href="./src/shoring.css?v=20260806-sh2" />
   </head>
   <body>
     <header class="topbar">
       <div>
         <p class="eyebrow">FutolNative Structures · SH-001</p>
         <h1>Concrete Slab Shoring Calculator</h1>
-        <p class="subtitle">Fresh concrete and construction loads → plywood → joists → bearers → vertical shores.</p>
+        <p class="subtitle">Fresh concrete and construction loads → plywood → joists → bearers → shores.</p>
       </div>
       <div class="status-cluster">
         <a class="status-pill status-link" href="./index.html">← Materials Lab</a>
         <a class="status-pill status-link" href="./compare.html">Direct Compare</a>
         <a class="status-pill status-link" href="./library.html">Section Library</a>
-        <span class="status-pill">Plan + elevation figures · active</span>
-        <span class="status-pill status-pill--warning">Temporary-works preliminary screening</span>
-        <span class="status-pill">Build 2026-08-06.SH1</span>
+        <span class="status-pill">Plan + elevation · active</span>
+        <span class="status-pill status-pill--warning">Engineering screening only</span>
+        <span class="status-pill">Build 2026-08-06.SH2</span>
       </div>
     </header>
 
@@ -35,79 +35,101 @@
         <fieldset>
           <legend>Slab and pour loads</legend>
           <div class="control-grid">
-            <label title="Overall slab dimension across the joist-span direction."><span>Slab width, m ⓘ</span><input id="slabWidthInput" type="number" min="0.5" max="30" step="0.1" value="5" /></label>
-            <label title="Overall slab dimension along the joist-spacing and bearer-span direction."><span>Slab length, m ⓘ</span><input id="slabLengthInput" type="number" min="0.5" max="30" step="0.1" value="5" /></label>
-            <label title="Thickness of fresh concrete used to calculate wet concrete weight."><span>Slab thickness, mm ⓘ</span><input id="slabThicknessInput" type="number" min="50" max="1000" step="5" value="125" /></label>
-            <label title="Editable unit weight of fresh concrete. Confirm the project mix and applicable temporary-works basis."><span>Concrete unit weight, kN/m³ ⓘ</span><input id="concreteUnitWeightInput" type="number" min="10" max="35" step="0.1" value="24" /></label>
-            <label title="Actual plywood thickness. The first release includes its self-weight but does not yet check panel bending or punching."><span>Plywood thickness, mm ⓘ</span><input id="plywoodThicknessInput" type="number" min="3" max="40" step="0.1" value="12.7" /></label>
-            <label title="Editable density assumption used only for plywood self-weight. Replace with supplier data when available."><span>Plywood density, kg/m³ ⓘ</span><input id="plywoodDensityInput" type="number" min="200" max="1200" step="10" value="600" /></label>
-            <label title="Editable reinforcement and embedded-item allowance expressed as familiar kilogram-force per square metre."><span>Rebar allowance, kgf/m² ⓘ</span><input id="rebarAllowanceInput" type="number" min="0" max="1000" step="5" value="20" /></label>
-            <label title="Workers, tools, concrete placement activity and temporary local accumulation represented as an editable area load. This is not a code-prescribed default."><span>Construction live load, kgf/m² ⓘ</span><input id="constructionLoadInput" type="number" min="0" max="2000" step="10" value="250" /></label>
-            <label title="Optional additional distributed allowance for hoses, equipment or project-specific temporary loads not entered elsewhere."><span>Miscellaneous load, kgf/m² ⓘ</span><input id="miscLoadInput" type="number" min="0" max="2000" step="10" value="0" /></label>
-            <label title="Preliminary elastic limit for joists and bearers. Formwork surface tolerances and project requirements may govern instead."><span>Deflection criterion ⓘ</span><select id="deflectionSelect"><option value="360">L/360 — stricter preliminary</option><option value="270">L/270 — intermediate</option><option value="240">L/240 — less strict</option></select></label>
+            <label title="Overall slab dimension across the joist span."><span>Slab width, m ⓘ</span><input id="slabWidthInput" type="number" min="0.5" max="30" step="0.1" value="5" /></label>
+            <label title="Overall slab dimension along the joist spacing and bearer span."><span>Slab length, m ⓘ</span><input id="slabLengthInput" type="number" min="0.5" max="30" step="0.1" value="5" /></label>
+            <label title="Fresh concrete thickness used to calculate wet weight."><span>Slab thickness, mm ⓘ</span><input id="slabThicknessInput" type="number" min="50" max="1000" step="5" value="125" /></label>
+            <label title="Editable fresh-concrete unit weight. Confirm the actual project mix."><span>Concrete unit weight, kN/m³ ⓘ</span><input id="concreteUnitWeightInput" type="number" min="10" max="35" step="0.1" value="24" /></label>
+            <label title="Actual plywood thickness. SH-001 includes its weight but does not yet check plywood bending or punching."><span>Plywood thickness, mm ⓘ</span><input id="plywoodThicknessInput" type="number" min="3" max="40" step="0.1" value="12.7" /></label>
+            <label title="Density used only for plywood self-weight. Replace with supplier data when available."><span>Plywood density, kg/m³ ⓘ</span><input id="plywoodDensityInput" type="number" min="200" max="1200" step="10" value="600" /></label>
+            <label title="Editable reinforcement and embedded-item allowance."><span>Rebar allowance, kgf/m² ⓘ</span><input id="rebarAllowanceInput" type="number" min="0" max="1000" step="5" value="20" /></label>
+            <label title="Workers, tools and concrete-placement activity represented as an area load. The 250 kgf/m² default is a working benchmark, not automatic project approval."><span>Construction load, kgf/m² ⓘ</span><input id="constructionLoadInput" type="number" min="0" max="2000" step="10" value="250" /></label>
+            <label title="Extra distributed allowance for hoses, equipment or other temporary loads not entered elsewhere."><span>Other load, kgf/m² ⓘ</span><input id="miscLoadInput" type="number" min="0" max="2000" step="10" value="0" /></label>
+            <label title="Elastic deflection screen for joists and bearers. Project formwork tolerances may be more specific."><span>Deflection screen ⓘ</span><select id="deflectionSelect"><option value="360">L/360 — tighter</option><option value="270">L/270 — middle</option><option value="240">L/240 — looser</option></select></label>
           </div>
         </fieldset>
 
         <fieldset>
-          <legend>Grid and self-weight inputs</legend>
+          <legend>Spacing and member weight</legend>
           <div class="control-grid">
-            <label title="Maximum requested joist spacing. The app divides the slab evenly without exceeding this value."><span>Joist target spacing, mm ⓘ</span><input id="joistSpacingInput" type="number" min="100" max="1200" step="10" value="300" /></label>
-            <label title="Maximum requested spacing between bearer lines across the slab. Actual equal spacing may be slightly smaller."><span>Bearer target spacing, mm ⓘ</span><input id="bearerSpacingInput" type="number" min="200" max="2400" step="10" value="800" /></label>
-            <label title="Maximum requested spacing of shores along each bearer. Actual equal spacing may be slightly smaller."><span>Shore target spacing, mm ⓘ</span><input id="shoreSpacingInput" type="number" min="200" max="2400" step="10" value="800" /></label>
-            <label title="Optional self-weight of one joist per metre. Leave zero when unknown; the member check remains incomplete until verified."><span>Joist self-weight, kg/m ⓘ</span><input id="joistSelfWeightInput" type="number" min="0" max="100" step="0.1" value="0" /></label>
-            <label title="Optional self-weight of one bearer per metre. Leave zero when unknown; the member check remains incomplete until verified."><span>Bearer self-weight, kg/m ⓘ</span><input id="bearerSelfWeightInput" type="number" min="0" max="200" step="0.1" value="0" /></label>
+            <label title="Maximum requested joist spacing. The app divides the slab evenly without exceeding it."><span>Joist spacing, mm ⓘ</span><input id="joistSpacingInput" type="number" min="100" max="1200" step="10" value="300" /></label>
+            <label title="Maximum requested spacing between bearer lines. Actual equal spacing may be slightly smaller."><span>Bearer spacing, mm ⓘ</span><input id="bearerSpacingInput" type="number" min="200" max="2400" step="10" value="800" /></label>
+            <label title="Maximum requested shore spacing along each bearer. Actual equal spacing may be slightly smaller."><span>Shore spacing, mm ⓘ</span><input id="shoreSpacingInput" type="number" min="200" max="2400" step="10" value="800" /></label>
+            <label title="Weight of one joist per metre. Zero means this part of the load is not yet included."><span>Joist weight, kg/m ⓘ</span><input id="joistSelfWeightInput" type="number" min="0" max="100" step="0.1" value="0" /></label>
+            <label title="Weight of one bearer per metre. Zero means this part of the load is not yet included."><span>Bearer weight, kg/m ⓘ</span><input id="bearerSelfWeightInput" type="number" min="0" max="200" step="0.1" value="0" /></label>
           </div>
         </fieldset>
 
         <fieldset>
-          <legend>Joist, bearer and shore members</legend>
+          <legend>Joist, bearer and shore</legend>
           <div class="member-selector-grid">
-            <section class="member-selector"><h3 title="Secondary framing directly below plywood.">Joist ⓘ</h3><label><span>Material</span><select id="joistMaterialSelect"></select></label><label><span>Section</span><select id="joistSectionSelect"></select></label><label><span>Orientation</span><select id="joistOrientationSelect"><option value="listed">As listed</option><option value="rotated">Rotate 90°</option></select></label><div id="joistPreview" class="member-preview"></div></section>
-            <section class="member-selector"><h3 title="Primary horizontal member receiving the joist reactions and supported by shores.">Bearer / stringer ⓘ</h3><label><span>Material</span><select id="bearerMaterialSelect"></select></label><label><span>Section</span><select id="bearerSectionSelect"></select></label><label><span>Orientation</span><select id="bearerOrientationSelect"><option value="listed">As listed</option><option value="rotated">Rotate 90°</option></select></label><div id="bearerPreview" class="member-preview"></div></section>
-            <section class="member-selector"><h3 title="Vertical temporary support carrying each bearer reaction.">Vertical shore ⓘ</h3><label><span>Material</span><select id="shoreMaterialSelect"></select></label><label><span>Section</span><select id="shoreSectionSelect"></select></label><label><span>Orientation</span><select id="shoreOrientationSelect"><option value="listed">As listed</option><option value="rotated">Rotate 90°</option></select></label><div id="shorePreview" class="member-preview"></div></section>
+            <section class="member-selector">
+              <h3 title="Secondary member directly under the plywood.">Joist ⓘ</h3>
+              <label title="Choose the material-property set. Full source details remain in the Library."><span>Material</span><select id="joistMaterialSelect"></select></label>
+              <label title="Choose the actual or measured section. Nominal sizes are only presets."><span>Section</span><select id="joistSectionSelect"></select></label>
+              <label title="Rotation swaps the strong and weak directions of rectangular sections."><span>Orientation</span><select id="joistOrientationSelect"><option value="listed">As listed</option><option value="rotated">Rotate 90°</option></select></label>
+              <small class="member-help">Measure the actual size. The calculation assumes the member is continuous over every shown bearer.</small>
+              <div id="joistPreview" class="member-preview"></div>
+            </section>
+            <section class="member-selector">
+              <h3 title="Primary horizontal member carrying the joist reactions.">Bearer ⓘ</h3>
+              <label title="Choose the material-property set. Full source details remain in the Library."><span>Material</span><select id="bearerMaterialSelect"></select></label>
+              <label title="Choose the actual or measured section. Nominal sizes are only presets."><span>Section</span><select id="bearerSectionSelect"></select></label>
+              <label title="Rotation swaps the strong and weak directions of rectangular sections."><span>Orientation</span><select id="bearerOrientationSelect"><option value="listed">As listed</option><option value="rotated">Rotate 90°</option></select></label>
+              <small class="member-help">Actual joist reactions are applied one by one. The bearer is assumed continuous over the shores.</small>
+              <div id="bearerPreview" class="member-preview"></div>
+            </section>
+            <section class="member-selector">
+              <h3 title="Vertical temporary member carrying one bearer reaction.">Shore ⓘ</h3>
+              <label title="Choose the material-property set. Full source details remain in the Library."><span>Material</span><select id="shoreMaterialSelect"></select></label>
+              <label title="Choose the actual or measured shore section. Nominal sizes are only presets."><span>Section</span><select id="shoreSectionSelect"></select></label>
+              <label title="For rectangular shores, orientation changes the weak buckling axis."><span>Orientation</span><select id="shoreOrientationSelect"><option value="listed">As listed</option><option value="rotated">Rotate 90°</option></select></label>
+              <small class="member-help">Compression and global buckling are screened. Heads, bases, bearing, damage and connections are not yet checked.</small>
+              <div id="shorePreview" class="member-preview"></div>
+            </section>
           </div>
         </fieldset>
 
         <fieldset>
-          <legend>Shore height and lateral bracing</legend>
+          <legend>Shore height and bracing</legend>
           <div class="control-grid">
-            <label title="Clear vertical height of the shore from base bearing to the supported bearer/head."><span>Shore height, m ⓘ</span><input id="shoreHeightInput" type="number" min="0.5" max="12" step="0.05" value="3" /></label>
-            <label title="Initial crookedness, uneven bearing and off-centre loading are represented by an editable eccentricity."><span>Load eccentricity, mm ⓘ</span><input id="shoreEccentricityInput" type="number" min="0" max="200" step="1" value="10" /></label>
-            <label title="Auto-Suggest tries equally spaced brace levels. Manual accepts comma-separated actual elevations from the base."><span>Brace layout mode ⓘ</span><select id="braceModeSelect"><option value="auto">Auto-Suggest preliminary levels</option><option value="manual">Manual elevations</option></select></label>
-            <label id="manualBraceLabel" class="is-hidden" title="Comma-separated elevations strictly between base and top, for example 1.0, 2.0."><span>Manual brace elevations, m ⓘ</span><input id="manualBraceInput" type="text" value="1.0, 2.0" /></label>
-            <label title="Auto-Suggest seeks the fewest equally spaced levels that keep the current preliminary capacity utilization below this target."><span>Target shore utilization, % ⓘ</span><input id="targetUtilizationInput" type="number" min="10" max="100" step="5" value="80" /></label>
-            <label title="Maximum number of levels Auto-Suggest may try. More levels reduce the longest unbraced segment but require a real ledger-and-diagonal system."><span>Maximum suggested brace levels ⓘ</span><input id="maximumBraceLevelsInput" type="number" min="0" max="8" step="1" value="4" /></label>
+            <label title="Clear shore height from base bearing to the supported bearer or head."><span>Shore height, m ⓘ</span><input id="shoreHeightInput" type="number" min="0.5" max="12" step="0.05" value="3" /></label>
+            <label title="Simple allowance for crookedness, uneven bearing and off-centre loading."><span>Eccentricity, mm ⓘ</span><input id="shoreEccentricityInput" type="number" min="0" max="200" step="1" value="10" /></label>
+            <label title="Auto checks equally spaced intermediate levels for individual-shore buckling only. It does not design the full lateral system."><span>Brace mode ⓘ</span><select id="braceModeSelect"><option value="auto">Auto — buckling screen</option><option value="manual">Manual levels</option></select></label>
+            <label id="manualBraceLabel" class="is-hidden" title="Comma-separated elevations measured from the base, for example 1.0, 2.0."><span>Brace elevations, m ⓘ</span><input id="manualBraceInput" type="text" value="1.0, 2.0" /></label>
+            <label title="Auto seeks the fewest equal levels that keep both capacity and stress use below this target."><span>Target utilization, % ⓘ</span><input id="targetUtilizationInput" type="number" min="10" max="100" step="5" value="80" /></label>
+            <label title="Maximum intermediate levels that Auto may test."><span>Maximum levels ⓘ</span><input id="maximumBraceLevelsInput" type="number" min="0" max="8" step="1" value="4" /></label>
           </div>
-          <p class="shoring-warning"><strong>Brace assumption:</strong> every shown level represents adequately connected horizontal ledgers plus diagonal bracing in both plan directions, with anchorage and a complete load path. A loose horizontal member is not credited as an effective brace.</p>
+          <p class="shoring-warning"><strong>Important:</strong> “0 levels” only means the individual shore did not need an intermediate point for this buckling screen. The complete shoring field still needs ledgers, diagonal bracing in both directions, anchorage and verified connections for lateral stability.</p>
         </fieldset>
       </section>
 
       <section class="panel shoring-results" aria-label="Shoring results">
-        <div class="panel-heading"><div><p class="eyebrow">Calculated temporary load path</p><h2>Grid, tributary loads and member checks</h2></div></div>
+        <div class="panel-heading"><div><p class="eyebrow">Calculated temporary load path</p><h2>Grid, loads and checks</h2></div></div>
         <div id="shoringErrorBanner" class="error-banner is-hidden" role="alert"></div>
         <div id="shoringStatusBanner" class="shoring-status" aria-live="polite"></div>
         <div id="shoringResultCards" class="result-grid"></div>
 
         <div class="figure-grid">
-          <section><h3 title="Top view of bearers, joists and every shore intersection. Hover a shore for its load and tributary area.">Plan view ⓘ</h3><div class="figure-wrap"><svg id="shoringPlanDiagram" viewBox="0 0 760 620" role="img" aria-label="Shoring plan with joists, bearers and shores"></svg></div></section>
-          <section><h3 title="Schematic load-path elevation with the suggested or manual brace levels and longest unbraced segment.">Section / elevation ⓘ</h3><div class="figure-wrap"><svg id="shoringElevationDiagram" viewBox="0 0 760 620" role="img" aria-label="Shoring elevation with slab, plywood, joists, bearers, shores and braces"></svg></div></section>
+          <section><h3 title="Top view of every joist, bearer and shore. Hover a shore to see its reaction and geometric tributary area.">Plan ⓘ</h3><div class="figure-wrap"><svg id="shoringPlanDiagram" viewBox="0 0 760 620" role="img" aria-label="Shoring plan with joists, bearers and shores"></svg></div></section>
+          <section><h3 title="Schematic elevation showing the selected intermediate brace levels and longest unbraced shore segment.">Elevation ⓘ</h3><div class="figure-wrap"><svg id="shoringElevationDiagram" viewBox="0 0 760 620" role="img" aria-label="Shoring elevation with slab, plywood, joists, bearers, shores and braces"></svg></div></section>
         </div>
 
         <div class="table-grid">
-          <section><h3>Load components</h3><div class="table-wrap"><table><thead><tr><th title="Load source included in the distributed area load.">Component</th><th>kN/m²</th><th>kgf/m²</th></tr></thead><tbody id="loadComponentBody"></tbody></table></div></section>
-          <section><h3>Member checks</h3><div class="table-wrap"><table><thead><tr><th>Member</th><th>Status</th><th>Strength use</th><th>Deflection use</th><th>Governing span</th></tr></thead><tbody id="memberCheckBody"></tbody></table></div></section>
+          <section><h3 title="Distributed load components included before framing self-weight.">Load components ⓘ</h3><div class="table-wrap"><table><thead><tr><th>Component</th><th>kN/m²</th><th>kgf/m²</th></tr></thead><tbody id="loadComponentBody"></tbody></table></div></section>
+          <section><h3 title="Elastic member screens. Hover each row for the property/reference basis.">Member checks ⓘ</h3><div class="table-wrap"><table><thead><tr><th>Member</th><th>Status</th><th>Strength use</th><th>Deflection/stress use</th><th>Span / unbraced</th></tr></thead><tbody id="memberCheckBody"></tbody></table></div></section>
         </div>
 
-        <section><h3>Shore schedule</h3><div class="table-wrap shore-table"><table><thead><tr><th>ID</th><th>Location</th><th>Coordinates</th><th>Tributary area</th><th>Calculated reaction</th><th>% of max</th></tr></thead><tbody id="shoreScheduleBody"></tbody></table></div></section>
+        <section><h3 title="Calculated reaction at every shore location. Reactions can differ from q × tributary area because joists and bearers are analysed as continuous members.">Shore schedule ⓘ</h3><div class="table-wrap shore-table"><table><thead><tr><th>ID</th><th>Location</th><th>Coordinates</th><th>Geometric tributary area</th><th>Calculated reaction</th><th>% of max</th></tr></thead><tbody id="shoreScheduleBody"></tbody></table></div></section>
 
         <section class="engineering-boundary">
-          <h3>Current engineering boundary</h3>
-          <p>SH-001 checks an idealized slab-to-joist-to-bearer-to-shore load path. It includes fresh concrete, editable rebar and construction allowances, plywood self-weight, optional framing self-weight, continuous joist/bearer elastic analysis, shore reactions, global flexural buckling screening and variable brace levels. It does not yet verify plywood panel bending, local concrete heaping or pump impact, joist/bearer bearing, nails/clamps/wedges/U-heads/base plates, shore settlement, damaged or reused members, brace strength/stiffness, soil/supporting-slab capacity, pour sequence, stripping, reshoring or multilevel load distribution.</p>
+          <h3>What this version can and cannot do</h3>
+          <p><strong>Useful now:</strong> distributed load build-up, equal grid generation, actual continuous-joist reactions into bearers, bearer reactions into shores, reaction balance, spacing sensitivity, elastic joist/bearer comparison, and individual-shore compression/global-buckling screening.</p>
+          <p><strong>Not construction-ready:</strong> plywood capacity, local concrete piles and pump impact, simple-span/splice alternatives, shear and bearing, nails/clamps/wedges/U-heads/base plates, steel local buckling, timber grading and defects, shore settlement, brace strength/stiffness, soil or supporting-slab capacity, pour sequence, stripping, reshoring and multilevel construction-load distribution.</p>
         </section>
       </section>
     </main>
 
-    <footer><strong>Engineering notice:</strong> Temporary works are safety-critical. This module is for preliminary comparison and layout study only. A qualified engineer must verify the complete shoring/formwork system, construction sequence, actual materials, connections, foundations and governing requirements before use.</footer>
-    <script type="module" src="./src/shoringApp.js?v=20260806-sh1"></script>
+    <footer><strong>Engineering notice:</strong> SH-001 is a preliminary screening and layout tool—not a release-for-pour design. A qualified engineer must verify the full formwork/shoring system, drawings, actual materials, connections, bracing, foundations and construction sequence.</footer>
+    <script type="module" src="./src/shoringApp.js?v=20260806-sh2"></script>
   </body>
 </html>
