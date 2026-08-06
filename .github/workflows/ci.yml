@@ -17,6 +17,7 @@ jobs:
         with:
           node-version: 22
       - name: Run engineering verification
+        id: verify
         shell: bash
         run: |
           set +e
@@ -32,3 +33,11 @@ jobs:
             } >> "$GITHUB_STEP_SUMMARY"
           fi
           exit "$status"
+      - name: Upload verification log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: engineering-verification-log
+          path: verify.log
+          if-no-files-found: warn
+          retention-days: 7
