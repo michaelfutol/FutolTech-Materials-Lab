@@ -4,9 +4,20 @@
   cursor: pointer;
 }
 
+.print-letterhead,
+.print-running-header,
+.print-running-footer {
+  display: none;
+}
+
 @page {
   size: A4 portrait;
-  margin: 11mm 10mm 14mm;
+  margin: 17mm 8mm 14mm;
+}
+
+@page wide-report {
+  size: A4 landscape;
+  margin: 17mm 8mm 14mm;
 }
 
 @media print {
@@ -14,6 +25,10 @@
     box-sizing: border-box;
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
+  }
+
+  body[data-print-orientation="landscape"] {
+    page: wide-report;
   }
 
   html,
@@ -26,72 +41,125 @@
     background: #fff !important;
     color: #111 !important;
     font-family: "Microsoft Sans Serif", Arial, sans-serif !important;
-    font-size: 9.5pt !important;
-    line-height: 1.35 !important;
+    font-size: 8.7pt !important;
+    line-height: 1.28 !important;
   }
 
   .print-report-button,
   .no-print,
   button:not([data-print-keep]),
-  .topbar a.status-link,
-  nav {
+  nav,
+  body > footer:not(.print-running-footer),
+  .topbar,
+  header.topbar {
     display: none !important;
   }
 
-  .topbar,
-  header.topbar {
-    display: block !important;
-    margin: 0 0 5mm !important;
+  .print-letterhead {
+    display: grid !important;
+    grid-template-columns: 15mm minmax(55mm, 1fr) minmax(58mm, 0.9fr);
+    gap: 4mm;
+    align-items: center;
+    margin: 0 0 4mm !important;
     padding: 0 0 3mm !important;
-    background: #fff !important;
     color: #111 !important;
-    border: 0 !important;
-    border-bottom: 0.35mm solid #222 !important;
-    box-shadow: none !important;
+    border-bottom: 0.65mm solid #111;
+    break-inside: avoid;
+    page-break-inside: avoid;
   }
 
-  .topbar h1 {
-    margin: 0 0 1.5mm !important;
-    color: #111 !important;
-    font-size: 16pt !important;
-    line-height: 1.15 !important;
+  .print-brand-mark {
+    display: grid;
+    place-items: center;
+    width: 14mm;
+    height: 14mm;
+    border: 0.6mm solid #111;
+    font-size: 16pt;
+    font-weight: 800;
+    letter-spacing: -0.8pt;
   }
 
-  .topbar .subtitle,
-  .topbar .eyebrow,
-  .subtitle,
-  .eyebrow {
-    color: #333 !important;
+  .print-brand-copy,
+  .print-report-meta {
+    display: grid;
+    gap: 0.5mm;
   }
 
-  .status-cluster {
+  .print-brand-copy strong {
+    font-size: 13pt;
+    line-height: 1.05;
+  }
+
+  .print-brand-copy span {
+    font-size: 10pt;
+    font-weight: 700;
+  }
+
+  .print-brand-copy small,
+  .print-report-meta span {
+    color: #444 !important;
+    font-size: 7.4pt;
+  }
+
+  .print-report-meta {
+    justify-items: end;
+    text-align: right;
+  }
+
+  .print-report-meta > strong {
+    max-width: 88mm;
+    font-size: 11pt;
+    line-height: 1.08;
+  }
+
+  .print-running-header,
+  .print-running-footer {
+    position: fixed;
+    left: 0;
+    right: 0;
+    z-index: 9999;
     display: flex !important;
-    flex-wrap: wrap !important;
-    gap: 1.5mm !important;
-    margin-top: 2mm !important;
+    justify-content: space-between;
+    gap: 6mm;
+    color: #333 !important;
+    font-size: 6.8pt;
+    line-height: 1.1;
   }
 
-  .status-pill {
-    padding: 0.8mm 1.8mm !important;
-    background: #fff !important;
-    color: #222 !important;
-    border: 0.2mm solid #888 !important;
-    border-radius: 1.5mm !important;
-    font-size: 7.5pt !important;
+  .print-running-header {
+    top: -12.5mm;
+    padding-bottom: 1.3mm;
+    border-bottom: 0.2mm solid #999;
+  }
+
+  .print-running-header span {
+    max-width: 65%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .print-running-footer {
+    bottom: -10.5mm;
+    padding-top: 1.3mm;
+    border-top: 0.2mm solid #999;
   }
 
   main,
   [class*="shell"],
   [class*="workspace"],
   [class*="layout"] {
-    display: block !important;
     width: 100% !important;
     min-width: 0 !important;
     max-width: none !important;
     margin: 0 !important;
     padding: 0 !important;
-    gap: 0 !important;
     background: #fff !important;
+  }
+
+  main,
+  [class*="shell"] {
+    display: block !important;
   }
 
   .panel,
@@ -103,36 +171,48 @@
   [class*="boundary"] {
     color: #111 !important;
     background: #fff !important;
-    border-color: #999 !important;
+    border-color: #aaa !important;
     box-shadow: none !important;
   }
 
   .panel,
-  fieldset,
-  [class*="-card"] {
-    margin: 0 0 3mm !important;
-    padding: 3mm !important;
-    break-inside: avoid;
-    page-break-inside: avoid;
+  fieldset {
+    margin: 0 0 2.5mm !important;
+    padding: 2.4mm !important;
+    border-radius: 0 !important;
   }
 
   fieldset {
-    border: 0.25mm solid #999 !important;
-    border-radius: 0 !important;
+    border: 0.25mm solid #aaa !important;
+  }
+
+  .source-card,
+  .support-help,
+  .recommend-note,
+  .compare-summary,
+  .compare-result-card,
+  .compare-selector-card,
+  .figure-wrap,
+  svg,
+  canvas,
+  img {
+    break-inside: avoid;
+    page-break-inside: avoid;
   }
 
   legend,
   h2,
   h3,
   h4 {
+    margin-top: 0 !important;
     color: #111 !important;
     break-after: avoid;
     page-break-after: avoid;
   }
 
-  h2 { font-size: 13pt !important; }
-  h3 { font-size: 10.5pt !important; }
-  h4 { font-size: 9.5pt !important; }
+  h2 { font-size: 12pt !important; }
+  h3 { font-size: 9.8pt !important; }
+  h4 { font-size: 8.8pt !important; }
 
   label,
   small,
@@ -145,12 +225,18 @@
     color: #111 !important;
   }
 
+  p {
+    margin-top: 1mm !important;
+    margin-bottom: 1.5mm !important;
+  }
+
   input,
   select,
   textarea,
   output {
+    min-width: 0 !important;
     min-height: 0 !important;
-    padding: 0.8mm 0 !important;
+    padding: 0.55mm 0 !important;
     background: #fff !important;
     color: #111 !important;
     border: 0 !important;
@@ -163,6 +249,42 @@
   select {
     appearance: none !important;
     -webkit-appearance: none !important;
+  }
+
+  .control-grid {
+    display: grid !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: 2mm 3mm !important;
+  }
+
+  body[data-print-orientation="portrait"] .control-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  .compare-selector-grid,
+  .compare-card-grid {
+    display: grid !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: 2.5mm !important;
+  }
+
+  .compare-selector-card,
+  .compare-result-card {
+    min-width: 0 !important;
+    margin: 0 !important;
+    padding: 2mm !important;
+  }
+
+  .compare-selector-visual,
+  .compare-result-card__visual {
+    max-height: 28mm !important;
+    overflow: hidden !important;
+  }
+
+  .compare-mini-metrics {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 1mm 2mm !important;
   }
 
   .table-wrap,
@@ -185,16 +307,11 @@
     min-width: 0 !important;
     max-width: none !important;
     border-collapse: collapse !important;
-    font-size: 8pt !important;
+    font-size: 7.2pt !important;
   }
 
-  thead {
-    display: table-header-group;
-  }
-
-  tfoot {
-    display: table-footer-group;
-  }
+  thead { display: table-header-group; }
+  tfoot { display: table-footer-group; }
 
   tr {
     break-inside: avoid;
@@ -204,7 +321,7 @@
   th,
   td {
     position: static !important;
-    padding: 1.2mm 1.5mm !important;
+    padding: 0.9mm 1.1mm !important;
     background: #fff !important;
     color: #111 !important;
     border: 0.2mm solid #aaa !important;
@@ -212,34 +329,19 @@
     overflow-wrap: anywhere !important;
   }
 
-  th {
-    font-weight: 700 !important;
-  }
+  th { font-weight: 700 !important; }
 
   svg,
   canvas,
   img {
     max-width: 100% !important;
     height: auto !important;
-    break-inside: avoid;
-    page-break-inside: avoid;
   }
 
-  .figure-wrap svg {
-    min-width: 0 !important;
-  }
+  .figure-wrap svg { min-width: 0 !important; }
 
   a {
     color: #111 !important;
     text-decoration: none !important;
-  }
-
-  footer {
-    margin-top: 5mm !important;
-    padding-top: 2.5mm !important;
-    background: #fff !important;
-    color: #222 !important;
-    border-top: 0.25mm solid #777 !important;
-    font-size: 7.5pt !important;
   }
 }
