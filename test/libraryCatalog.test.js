@@ -14,15 +14,8 @@ test('PNS 26 records are classified and labelled as GI pipes', () => {
   assert.equal(pipe.productCategory, 'steel-pipe');
   assert.match(pipe.label, /^GI pipe/);
   assert.doesNotMatch(pipe.label, /BI/i);
-
   const material = MATERIALS.find((item) => item.id === 'steel-generic-250');
-  const candidate = evaluateMemberCandidate({
-    material,
-    preset: pipe,
-    lengthM: 3,
-    loadKN: 1,
-    loadPositionM: 1.5
-  });
+  const candidate = evaluateMemberCandidate({ material, preset: pipe, lengthM: 3, loadKN: 1, loadPositionM: 1.5 });
   assert.equal(candidate.productCategoryLabel, 'GI pipe');
   assert.match(candidate.displayMaterialName, /^GI pipe/);
   assert.doesNotMatch(candidate.displayMaterialName, /BI|tube/i);
@@ -49,13 +42,7 @@ test('Library page uses the curated hardwood build and visible build id', async 
 test('SHS remains a structural hollow section rather than a pipe', () => {
   const shs = SECTION_PRESETS.steel.find((section) => section.id === 'shs-50-15');
   const material = MATERIALS.find((item) => item.id === 'steel-generic-250');
-  const candidate = evaluateMemberCandidate({
-    material,
-    preset: shs,
-    lengthM: 3,
-    loadKN: 1,
-    loadPositionM: 1.5
-  });
+  const candidate = evaluateMemberCandidate({ material, preset: shs, lengthM: 3, loadKN: 1, loadPositionM: 1.5 });
   assert.equal(candidate.productCategory, 'shs');
   assert.match(candidate.displayMaterialName, /hollow section/i);
 });
@@ -80,12 +67,10 @@ test('section sketches distinguish pipe and H-section geometry', () => {
 
 test('primary wood selector is curated around common Philippine construction timbers', () => {
   const names = MATERIALS.filter((record) => record.family === 'wood').map((record) => record.name).join(' | ');
-  for (const expected of ['Coconut', 'Yakal', 'Guijo', 'Molave', 'Narra', 'Apitong', 'Red Lauan', 'White Lauan', 'Tanguile', 'Mahogany']) {
+  for (const expected of ['Coco lumber', 'Yakal', 'Guijo', 'Molave', 'Narra', 'Apitong', 'Red Lauan', 'White Lauan', 'Tanguile', 'Mahogany']) {
     assert.match(names, new RegExp(expected, 'i'));
   }
-  for (const hiddenResearchName of ['Bagalunga', 'Falcata', 'Gmelina', 'Kalumpit']) {
-    assert.doesNotMatch(names, new RegExp(hiddenResearchName, 'i'));
-  }
+  for (const hiddenResearchName of ['Bagalunga', 'Falcata', 'Gmelina', 'Kalumpit']) assert.doesNotMatch(names, new RegExp(hiddenResearchName, 'i'));
 });
 
 test('curated common hardwood baselines retain provisional source warnings and no invented density', () => {
