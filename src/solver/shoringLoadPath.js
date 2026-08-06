@@ -3,6 +3,7 @@ import { solveBeam } from './beamFem.js';
 import { solveColumn } from './column.js';
 
 export const KGF_TO_KN = 0.00980665;
+const REACTION_TOLERANCE_KN = 1e-7;
 
 function finitePositive(value, label) {
   if (!Number.isFinite(value) || value <= 0) throw new Error(`${label} must be greater than zero.`);
@@ -41,7 +42,8 @@ export function calculateShoringAreaLoad({
   finitePositive(concreteUnitWeightKNM3, 'Concrete unit weight');
   finitePositive(plywoodThicknessMm, 'Plywood thickness');
   finitePositive(plywoodDensityKgM3, 'Plywood density');
-  if (![rebarAllowanceKgfM2, constructionLiveLoadKgfM2, miscellaneousLoadKgfM2].every((value) => Number.isFinite(value) && value >= 0)) {
+  if (![rebarAllowanceKgfM2, constructionLiveLoadKgfM2, miscellaneousLoadKgfM2]
+    .every((value) => Number.isFinite(value) && value >= 0)) {
     throw new Error('Area-load allowances must be finite and non-negative.');
   }
 
@@ -86,16 +88,14 @@ function selectedSection(preset, orientation) {
 }
 
 function materialBendingReference(material) {
-  if (material.family === 'steel') {
-    return {
-      valueMPa: material.yieldStrengthMPa,
-      label: 'first-yield reference',
-      screeningOnly: material.source?.status === 'assumed'
-    };
-  }
+  const valueMPa = material.family === 'steel'
+    ? material.yieldStrengthMPa
+    : material.bendingReferenceMPa ?? material.allowableBendingMPa;
   return {
-    valueMPa: material.bendingReferenceMPa ?? material.allowableBendingMPa,
-    label: material.strengthReferenceLabel ?? 'selected natural-material bending reference',
+    valueMPa,
+    label: material.family === 'steel'
+      ? 'first-yield screening reference'
+      : material.strengthReferenceLabel ?? 'selected natural-material bending reference',
     screeningOnly: true
   };
 }
@@ -111,7 +111,9 @@ function distributedPointLoads(lengthM, lineLoadKNM, targetSegmentM = 0.1) {
 
 function maximumGap(positionsM) {
   let maximum = 0;
-  for (let index = 1; index < positionsM.length; index += 1) maximum = Math.max(maximum, positionsM[index] - positionsM[index - 1]);
+  for (let index = 1; index < positionsM.length; index += 1) {
+    maximum = Math.max(maximum, positionsM[index] - positionsM[index - 1]);
+  }
   return maximum;
 }
 
@@ -157,8 +159,24 @@ function evaluateFlexuralMember({
     deflectionLimitMm,
     deflectionRatio,
     pass,
-    status: pass ? (reference.screeningOnly ? 'SCREENING' : 'PRELIM PASS') : 'FAIL'
+    status: pass ? 'SCREENING' : 'FAIL'
   };
+}
+
+function ensureCompressionOnlyReactions(reactions, memberLabel) {
+  const negative = reactions.find((reaction) => reaction.reactionKN < -REACTION_TOLERANCE_KN);
+  if (negative) {
+    throw new Error(`${memberLabel} develops uplift/contact loss at ${negative.xM.toFixed(2)} m. `
+      + 'The current contact-only shoring model cannot redistribute that load safely.');
+  }
+  return reactions.map((reaction) => ({ ...reaction, reactionKN: Math.max(0, reaction.reactionKN) }));
+}
+
+function governingRecord(records, ratioSelector) {
+  return records.reduce((governing, candidate) => {
+    const ratio = ratioSelector(candidate);
+    return !governing || ratio > governing.ratio ? { ...candidate, ratio } : governing;
+  }, null);
 }
 
 export function normaliseBraceElevations(heightM, elevationsM = []) {
@@ -231,7 +249,7 @@ function evaluateShoreColumn({
     utilization,
     stressUtilization,
     pass,
-    status: pass ? (material.family === 'steel' ? 'PRELIM PASS' : 'SCREENING') : 'FAIL'
+    status: pass ? 'SCREENING' : 'FAIL'
   };
 }
 
@@ -258,11 +276,11 @@ export function suggestBraceElevations({
       material, preset, orientation, heightM, axialLoadKN, eccentricityMm, braceElevationsM: elevationsM
     });
     trials.push({ count, elevationsM, assessment });
-    if (assessment.utilization <= targetUtilization && assessment.stressUtilization <= 1) {
-      return { recommended: trials.at(-1), trials, targetMet: true };
+    if (assessment.utilization <= targetUtilization && assessment.stressUtilization <= targetUtilization) {
+      return { recommended: trials.at(-1), trials, targetMet: true, basis: 'individual-shore buckling screen only' };
     }
   }
-  return { recommended: trials.at(-1), trials, targetMet: false };
+  return { recommended: trials.at(-1), trials, targetMet: false, basis: 'individual-shore buckling screen only' };
 }
 
 export function evaluateShoringSystem({
@@ -322,23 +340,28 @@ export function evaluateShoringSystem({
   const bearerTributaryWidthsM = tributaryWidths(bearerGrid.positionsM, slabWidthM);
   const shoreTributaryWidthsM = tributaryWidths(shoreGrid.positionsM, slabLengthM);
 
-  const representativeJoistLineLoadKNM = areaLoad.totalKNM2 * Math.max(...joistTributaryWidthsM) + joistSelfWeightKNM;
-  const joist = evaluateFlexuralMember({
-    material: joistMaterial,
-    preset: joistPreset,
-    orientation: joistOrientation,
-    lengthM: slabWidthM,
-    supportPositionsM: bearerGrid.positionsM,
-    pointLoads: distributedPointLoads(slabWidthM, representativeJoistLineLoadKNM),
-    deflectionDivisor
+  const joists = joistGrid.positionsM.map((yM, joistIndex) => {
+    const tributaryWidthM = joistTributaryWidthsM[joistIndex];
+    const lineLoadKNM = areaLoad.totalKNM2 * tributaryWidthM + joistSelfWeightKNM;
+    const member = evaluateFlexuralMember({
+      material: joistMaterial,
+      preset: joistPreset,
+      orientation: joistOrientation,
+      lengthM: slabWidthM,
+      supportPositionsM: bearerGrid.positionsM,
+      pointLoads: distributedPointLoads(slabWidthM, lineLoadKNM),
+      deflectionDivisor
+    });
+    const supportReactionsKN = ensureCompressionOnlyReactions(member.result.supportReactionsKN, `Joist J${joistIndex + 1}`);
+    return { id: `J${joistIndex + 1}`, joistIndex, yM, tributaryWidthM, lineLoadKNM, member, supportReactionsKN };
   });
+  const joistGoverning = governingRecord(joists, (candidate) => Math.max(candidate.member.strengthRatio, candidate.member.deflectionRatio));
 
   const bearers = bearerGrid.positionsM.map((xM, bearerIndex) => {
     const tributaryWidthM = bearerTributaryWidthsM[bearerIndex];
-    const pointLoads = joistGrid.positionsM.map((yM, joistIndex) => ({
-      xM: yM,
-      forceKN: areaLoad.totalKNM2 * tributaryWidthM * joistTributaryWidthsM[joistIndex]
-        + joistSelfWeightKNM * tributaryWidthM
+    const pointLoads = joists.map((joist, joistIndex) => ({
+      xM: joist.yM,
+      forceKN: joist.supportReactionsKN[bearerIndex].reactionKN
         + bearerSelfWeightKNM * joistTributaryWidthsM[joistIndex]
     }));
     const member = evaluateFlexuralMember({
@@ -350,19 +373,21 @@ export function evaluateShoringSystem({
       pointLoads,
       deflectionDivisor
     });
-    return { xM, bearerIndex, tributaryWidthM, pointLoads, member };
+    const supportReactionsKN = ensureCompressionOnlyReactions(member.result.supportReactionsKN, `Bearer B${bearerIndex + 1}`);
+    return { id: `B${bearerIndex + 1}`, xM, bearerIndex, tributaryWidthM, pointLoads, member, supportReactionsKN };
   });
+  const bearerGoverning = governingRecord(bearers, (candidate) => Math.max(candidate.member.strengthRatio, candidate.member.deflectionRatio));
 
   const shores = [];
   for (const bearer of bearers) {
-    bearer.member.result.supportReactionsKN.forEach((support, shoreIndex) => {
+    bearer.supportReactionsKN.forEach((support, shoreIndex) => {
       shores.push({
         id: `B${bearer.bearerIndex + 1}-S${shoreIndex + 1}`,
         bearerIndex: bearer.bearerIndex,
         shoreIndex,
         xM: bearer.xM,
         yM: support.xM,
-        loadKN: Math.max(0, support.reactionKN),
+        loadKN: support.reactionKN,
         tributaryAreaM2: bearer.tributaryWidthM * shoreTributaryWidthsM[shoreIndex],
         locationType: (bearer.bearerIndex === 0 || bearer.bearerIndex === bearerGrid.positionsM.length - 1)
           && (shoreIndex === 0 || shoreIndex === shoreGrid.positionsM.length - 1)
@@ -372,6 +397,7 @@ export function evaluateShoringSystem({
       });
     });
   }
+
   const maximumShoreLoadKN = Math.max(...shores.map((shore) => shore.loadKN));
   let braceSuggestion = null;
   let braceElevationsM;
@@ -404,11 +430,9 @@ export function evaluateShoringSystem({
     + joistSelfWeightKNM * slabWidthM * joistGrid.positionsM.length
     + bearerSelfWeightKNM * slabLengthM * bearerGrid.positionsM.length;
   const totalShoreReactionKN = shores.reduce((sum, shore) => sum + shore.loadKN, 0);
-  const reactionErrorRatio = totalVerticalLoadKN > 0 ? Math.abs(totalShoreReactionKN - totalVerticalLoadKN) / totalVerticalLoadKN : 0;
-  const bearerGoverning = bearers.reduce((governing, candidate) => {
-    const ratio = Math.max(candidate.member.strengthRatio, candidate.member.deflectionRatio);
-    return !governing || ratio > governing.ratio ? { ...candidate, ratio } : governing;
-  }, null);
+  const reactionErrorRatio = totalVerticalLoadKN > 0
+    ? Math.abs(totalShoreReactionKN - totalVerticalLoadKN) / totalVerticalLoadKN
+    : 0;
 
   return {
     areaLoad,
@@ -417,8 +441,11 @@ export function evaluateShoringSystem({
       bearer: { ...bearerGrid, tributaryWidthsM: bearerTributaryWidthsM },
       shore: { ...shoreGrid, tributaryWidthsM: shoreTributaryWidthsM }
     },
-    joist,
-    representativeJoistLineLoadKNM,
+    framingAssumption: 'joists and bearers continuous over all shown supports',
+    joists,
+    joist: joistGoverning.member,
+    joistGoverning,
+    representativeJoistLineLoadKNM: joistGoverning.lineLoadKNM,
     bearers,
     bearerGoverning,
     shores,
@@ -435,10 +462,8 @@ export function evaluateShoringSystem({
       bearers: bearerGrid.positionsM.length,
       shores: shores.length
     },
-    status: !joist.pass || !bearerGoverning.member.pass || !shoreAssessment.pass
+    status: !joistGoverning.member.pass || !bearerGoverning.member.pass || !shoreAssessment.pass
       ? 'FAIL'
-      : (joist.status === 'SCREENING' || bearerGoverning.member.status === 'SCREENING' || shoreAssessment.status === 'SCREENING')
-        ? 'SCREENING'
-        : 'PRELIM PASS'
+      : 'SCREENING'
   };
 }
