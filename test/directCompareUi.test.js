@@ -4,12 +4,16 @@ import { readFile } from 'node:fs/promises';
 
 const compareHtml = await readFile(new URL('../compare.html', import.meta.url), 'utf8');
 const compareCss = await readFile(new URL('../src/compare.css', import.meta.url), 'utf8');
+const compareApp = await readFile(new URL('../src/compareApp.js', import.meta.url), 'utf8');
+const tooltipApp = await readFile(new URL('../src/components/tooltips.js', import.meta.url), 'utf8');
 
-test('direct comparison page exposes beam and column modes', () => {
+test('direct comparison page exposes bending, compression and intermediate bracing controls', () => {
   assert.match(compareHtml, /id="compareBeamModeButton"/);
   assert.match(compareHtml, /id="compareColumnModeButton"/);
   assert.match(compareHtml, /id="compareColumnBoundarySelect"/);
   assert.match(compareHtml, /id="compareEccentricityInput"/);
+  assert.match(compareHtml, /id="compareBracePointsSelect"/);
+  assert.match(compareApp, /intermediateBracePoints/);
 });
 
 test('direct comparison defines explicit SVG solid and void fills', () => {
@@ -19,9 +23,17 @@ test('direct comparison defines explicit SVG solid and void fills', () => {
   assert.match(compareCss, /section-sketch__void[\s\S]*fill:/);
 });
 
-test('direct comparison assets are cache-busted for curated hardwood acceptance', () => {
-  assert.match(compareHtml, /compare\.css\?v=20260802-1/);
-  assert.match(compareHtml, /compareApp\.js\?v=20260802-1/);
-  assert.match(compareHtml, /Build 2026-08-02\.1/);
-  assert.match(compareHtml, /common Philippine hardwoods/i);
+test('hover and keyboard-focus explanations are wired to controls and generated metrics', () => {
+  assert.match(compareHtml, /data-help=/);
+  assert.match(compareApp, /helpLabel/);
+  assert.match(compareCss, /\.app-tooltip/);
+  assert.match(tooltipApp, /focusin/);
+  assert.match(tooltipApp, /pointerover/);
+});
+
+test('direct comparison assets are cache-busted for compression acceptance', () => {
+  assert.match(compareHtml, /compare\.css\?v=20260806-1/);
+  assert.match(compareHtml, /compareApp\.js\?v=20260806-1/);
+  assert.match(compareHtml, /tooltips\.js\?v=20260806-1/);
+  assert.match(compareHtml, /Build 2026-08-06\.1/);
 });
