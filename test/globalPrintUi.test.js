@@ -12,12 +12,13 @@ const htmlFiles = (await readdir(root, { withFileTypes: true }))
 const printCss = await readFile(new URL('../src/printReport.css', import.meta.url), 'utf8');
 const printScript = await readFile(new URL('../src/printReport.js', import.meta.url), 'utf8');
 
-test('every public HTML page loads the shared print report controls', async () => {
+test('every public HTML page loads print support and uses the simplified public identity', async () => {
   assert.ok(htmlFiles.length >= 8, 'Expected the complete Materials Lab page set.');
   for (const fileName of htmlFiles) {
     const html = await readFile(new URL(`../${fileName}`, import.meta.url), 'utf8');
     assert.match(html, /printReport\.css/, `${fileName} is missing the shared print stylesheet.`);
     assert.match(html, /printReport\.js/, `${fileName} is missing the shared print button script.`);
+    assert.doesNotMatch(html, /FutolNative Structures/, `${fileName} still exposes the retired repetitive product name.`);
   }
 });
 
