@@ -21,7 +21,7 @@ test('every public HTML page loads the shared print report controls', async () =
   }
 });
 
-test('shared print report uses branded A4 letterhead without fixed overlays', () => {
+test('shared print report uses restrained Tools / Native Structures branding without fixed overlays', () => {
   assert.match(printCss, /@page\s*\{[\s\S]*size:\s*A4 portrait/);
   assert.match(printCss, /@page wide-report[\s\S]*A4 landscape/);
   assert.match(printCss, /Microsoft Sans Serif/);
@@ -32,7 +32,12 @@ test('shared print report uses branded A4 letterhead without fixed overlays', ()
   assert.match(printCss, /\.compare-table-wrap[\s\S]*break-before:\s*page/);
   assert.match(printCss, /thead\s*\{\s*display:\s*table-header-group/);
   assert.match(printCss, /overflow:\s*visible\s*!important/);
-  assert.match(printScript, /FutolTech Engineering Tools/);
+  assert.match(printScript, />TOOLS</);
+  assert.match(printScript, />Native Structures</);
+  assert.match(printScript, /FutolTech Engineering and Project Systems/);
+  assert.match(printScript, /TOOLS \| Native Structures/);
+  assert.doesNotMatch(printScript, /FutolTech Engineering Tools/);
+  assert.doesNotMatch(printScript, /FutolNative Structures/);
   assert.match(printScript, /Michael D Futol, RCE, RMP/);
   assert.match(printScript, /removeLegacyFixedFurniture/);
   assert.match(printScript, /Print \/ Save PDF/);
