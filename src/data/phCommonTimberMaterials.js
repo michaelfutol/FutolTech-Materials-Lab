@@ -17,7 +17,7 @@ function commonTimber({
 }) {
   return {
     id,
-    name: `${name} — provisional PH structural working-stress baseline`,
+    name,
     aliases,
     family: 'wood',
     maxLengthM: 3.6,
@@ -88,7 +88,7 @@ export const PH_COMMON_TIMBER_MATERIALS = [
   }),
   commonTimber({
     id: 'timber-red-lauan-ph-80-provisional',
-    name: 'Red Lauan / Red Lawaan',
+    name: 'Red Lauan',
     aliases: ['red lauan', 'red lawaan', 'red lauwan'],
     elasticModulusMPa: 5_830,
     bendingReferenceMPa: 13.9,
@@ -97,7 +97,7 @@ export const PH_COMMON_TIMBER_MATERIALS = [
   }),
   commonTimber({
     id: 'timber-white-lauan-ph-80-provisional',
-    name: 'White Lauan / White Lawaan',
+    name: 'White Lauan',
     aliases: ['white lauan', 'white lawaan', 'white lauwan'],
     elasticModulusMPa: 5_830,
     bendingReferenceMPa: 13.9,
@@ -106,7 +106,7 @@ export const PH_COMMON_TIMBER_MATERIALS = [
   }),
   commonTimber({
     id: 'timber-tanguile-ph-80-provisional',
-    name: 'Tanguile / Tangile',
+    name: 'Tanguile',
     aliases: ['tanguile', 'tangile', 'Shorea polysperma'],
     elasticModulusMPa: 5_830,
     bendingReferenceMPa: 13.9,
@@ -115,7 +115,7 @@ export const PH_COMMON_TIMBER_MATERIALS = [
   }),
   commonTimber({
     id: 'timber-mahogany-ph-80-provisional',
-    name: 'Big-leaf Mahogany',
+    name: 'Mahogany',
     aliases: ['mahogany', 'Swietenia macrophylla'],
     elasticModulusMPa: 4_660,
     bendingReferenceMPa: 16.5,
