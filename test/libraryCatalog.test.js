@@ -80,7 +80,7 @@ test('section sketches distinguish pipe and H-section geometry', () => {
 
 test('primary wood selector is curated around common Philippine construction timbers', () => {
   const names = MATERIALS.filter((record) => record.family === 'wood').map((record) => record.name).join(' | ');
-  for (const expected of ['Coconut', 'Yakal', 'Guijo', 'Molave', 'Narra', 'Apitong', 'Red Lauan', 'White Lauan', 'Tanguile', 'Mahogany']) {
+  for (const expected of ['Coco lumber', 'Yakal', 'Guijo', 'Molave', 'Narra', 'Apitong', 'Red Lauan', 'White Lauan', 'Tanguile', 'Mahogany']) {
     assert.match(names, new RegExp(expected, 'i'));
   }
   for (const hiddenResearchName of ['Bagalunga', 'Falcata', 'Gmelina', 'Kalumpit']) {
