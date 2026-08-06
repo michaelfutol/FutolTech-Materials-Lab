@@ -25,6 +25,10 @@ function uniqueSorted(values, tolerance = 1e-8) {
     .filter((value, index, array) => index === 0 || Math.abs(value - array[index - 1]) > tolerance);
 }
 
+function matchingNodeIndex(nodePositionsM, xM) {
+  return nodePositionsM.findIndex((position) => Math.abs(position - xM) < 1e-8);
+}
+
 export function solveBeam({
   lengthM,
   elasticModulusMPa,
@@ -32,7 +36,8 @@ export function solveBeam({
   sectionModulusMm3,
   leftSupport,
   rightSupport,
-  pointLoads,
+  pointLoads = [],
+  intermediateSupportsM = [],
   targetElementLengthM = 0.1
 }) {
   if (lengthM <= 0) throw new Error('Member length must be greater than zero.');
@@ -41,13 +46,30 @@ export function solveBeam({
   }
 
   const validLoads = pointLoads.map((load) => {
-    if (load.xM < 0 || load.xM > lengthM) throw new Error('A point load lies outside the member length.');
+    if (!Number.isFinite(load.xM) || load.xM < 0 || load.xM > lengthM) {
+      throw new Error('A point load lies outside the member length.');
+    }
+    if (!Number.isFinite(load.forceKN) || load.forceKN < 0) {
+      throw new Error('Point-load magnitudes must be non-negative.');
+    }
     return load;
   });
+  const validIntermediateSupports = uniqueSorted(intermediateSupportsM.map((xM) => {
+    if (!Number.isFinite(xM) || xM <= 0 || xM >= lengthM) {
+      throw new Error('Intermediate support positions must lie strictly inside the member.');
+    }
+    return xM;
+  }));
 
   const segmentCount = Math.max(4, Math.ceil(lengthM / targetElementLengthM));
   const regularNodes = Array.from({ length: segmentCount + 1 }, (_, index) => (lengthM * index) / segmentCount);
-  const nodePositionsM = uniqueSorted([0, lengthM, ...regularNodes, ...validLoads.map((load) => load.xM)]);
+  const nodePositionsM = uniqueSorted([
+    0,
+    lengthM,
+    ...regularNodes,
+    ...validLoads.map((load) => load.xM),
+    ...validIntermediateSupports
+  ]);
   const dofCount = nodePositionsM.length * 2;
   const globalK = zeros(dofCount);
   const forceVectorN = Array(dofCount).fill(0);
@@ -69,7 +91,7 @@ export function solveBeam({
   }
 
   for (const load of validLoads) {
-    const nodeIndex = nodePositionsM.findIndex((position) => Math.abs(position - load.xM) < 1e-8);
+    const nodeIndex = matchingNodeIndex(nodePositionsM, load.xM);
     forceVectorN[2 * nodeIndex] -= load.forceKN * 1000;
   }
 
@@ -77,6 +99,11 @@ export function solveBeam({
     ...restrainedDofs(0, leftSupport),
     ...restrainedDofs(nodePositionsM.length - 1, rightSupport)
   ]);
+  for (const supportXM of validIntermediateSupports) {
+    const nodeIndex = matchingNodeIndex(nodePositionsM, supportXM);
+    constrained.add(2 * nodeIndex);
+  }
+
   const freeDofs = Array.from({ length: dofCount }, (_, index) => index).filter((index) => !constrained.has(index));
   if (freeDofs.length === 0) throw new Error('All degrees of freedom are restrained.');
 
@@ -103,6 +130,11 @@ export function solveBeam({
   }));
   const maxDeflectionMm = Math.max(...deflectionSeries.map((point) => Math.abs(point.displacementMm)));
   const maxBendingStressMPa = maxMomentNmm / sectionModulusMm3;
+  const supportPositionsM = uniqueSorted([0, ...validIntermediateSupports, lengthM]);
+  const supportReactionsKN = supportPositionsM.map((xM) => {
+    const nodeIndex = matchingNodeIndex(nodePositionsM, xM);
+    return { xM, reactionKN: reactions[2 * nodeIndex] / 1000 };
+  });
 
   return {
     nodePositionsM,
@@ -112,6 +144,7 @@ export function solveBeam({
     maxMomentKNm: maxMomentNmm / 1_000_000,
     maxBendingStressMPa,
     leftReactionKN: reactions[0] / 1000,
-    rightReactionKN: reactions[2 * (nodePositionsM.length - 1)] / 1000
+    rightReactionKN: reactions[2 * (nodePositionsM.length - 1)] / 1000,
+    supportReactionsKN
   };
 }
