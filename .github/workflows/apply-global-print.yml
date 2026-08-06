@@ -1,0 +1,33 @@
+name: Apply global print support
+
+on:
+  push:
+    branches:
+      - feature/global-print-reports
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Add print support to every HTML page
+        run: node scripts/addPrintSupport.mjs
+      - name: Commit generated page updates
+        shell: bash
+        run: |
+          if git diff --quiet; then
+            echo "All pages already include print support."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add '*.html'
+          git commit -m "Add print option to every Materials Lab page"
+          git push origin HEAD:${GITHUB_REF_NAME}
