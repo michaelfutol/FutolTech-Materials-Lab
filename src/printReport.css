@@ -5,6 +5,7 @@
 }
 
 .print-letterhead,
+.print-document-footer,
 .print-running-header,
 .print-running-footer {
   display: none;
@@ -12,12 +13,12 @@
 
 @page {
   size: A4 portrait;
-  margin: 17mm 8mm 14mm;
+  margin: 8mm;
 }
 
 @page wide-report {
   size: A4 landscape;
-  margin: 17mm 8mm 14mm;
+  margin: 7mm 8mm 8mm;
 }
 
 @media print {
@@ -41,27 +42,37 @@
     background: #fff !important;
     color: #111 !important;
     font-family: "Microsoft Sans Serif", Arial, sans-serif !important;
-    font-size: 8.7pt !important;
-    line-height: 1.28 !important;
+    font-size: 8.4pt !important;
+    line-height: 1.25 !important;
   }
 
   .print-report-button,
   .no-print,
   button:not([data-print-keep]),
   nav,
-  body > footer:not(.print-running-footer),
+  body > footer:not(.print-document-footer),
   .topbar,
-  header.topbar {
+  header.topbar,
+  .print-running-header,
+  .print-running-footer,
+  .help-icon,
+  .app-tooltip {
     display: none !important;
+  }
+
+  .help-term {
+    display: inline !important;
+    border: 0 !important;
+    cursor: default !important;
   }
 
   .print-letterhead {
     display: grid !important;
-    grid-template-columns: 15mm minmax(55mm, 1fr) minmax(58mm, 0.9fr);
-    gap: 4mm;
+    grid-template-columns: 14mm minmax(58mm, 1fr) minmax(62mm, 0.9fr);
+    gap: 3.5mm;
     align-items: center;
-    margin: 0 0 4mm !important;
-    padding: 0 0 3mm !important;
+    margin: 0 0 3.5mm !important;
+    padding: 0 0 2.7mm !important;
     color: #111 !important;
     border-bottom: 0.65mm solid #111;
     break-inside: avoid;
@@ -71,10 +82,10 @@
   .print-brand-mark {
     display: grid;
     place-items: center;
-    width: 14mm;
-    height: 14mm;
-    border: 0.6mm solid #111;
-    font-size: 16pt;
+    width: 13mm;
+    height: 13mm;
+    border: 0.55mm solid #111;
+    font-size: 15pt;
     font-weight: 800;
     letter-spacing: -0.8pt;
   }
@@ -82,23 +93,23 @@
   .print-brand-copy,
   .print-report-meta {
     display: grid;
-    gap: 0.5mm;
+    gap: 0.35mm;
   }
 
   .print-brand-copy strong {
-    font-size: 13pt;
-    line-height: 1.05;
+    font-size: 12.5pt;
+    line-height: 1.03;
   }
 
   .print-brand-copy span {
-    font-size: 10pt;
+    font-size: 9.5pt;
     font-weight: 700;
   }
 
   .print-brand-copy small,
   .print-report-meta span {
     color: #444 !important;
-    font-size: 7.4pt;
+    font-size: 7.1pt;
   }
 
   .print-report-meta {
@@ -107,42 +118,40 @@
   }
 
   .print-report-meta > strong {
-    max-width: 88mm;
-    font-size: 11pt;
-    line-height: 1.08;
+    max-width: 90mm;
+    font-size: 10.5pt;
+    line-height: 1.06;
   }
 
-  .print-running-header,
-  .print-running-footer {
-    position: fixed;
-    left: 0;
-    right: 0;
-    z-index: 9999;
-    display: flex !important;
-    justify-content: space-between;
-    gap: 6mm;
+  .print-document-footer {
+    display: grid !important;
+    grid-template-columns: minmax(42mm, 0.8fr) minmax(80mm, 1.6fr) minmax(48mm, 0.9fr);
+    gap: 4mm;
+    align-items: end;
+    margin: 5mm 0 0 !important;
+    padding: 2.2mm 0 0 !important;
     color: #333 !important;
-    font-size: 6.8pt;
-    line-height: 1.1;
+    border-top: 0.25mm solid #777;
+    font-size: 6.9pt !important;
+    line-height: 1.25 !important;
+    break-inside: avoid;
+    page-break-inside: avoid;
   }
 
-  .print-running-header {
-    top: -12.5mm;
-    padding-bottom: 1.3mm;
-    border-bottom: 0.2mm solid #999;
+  .print-document-footer > div,
+  .print-document-footer__meta {
+    display: grid;
+    gap: 0.4mm;
   }
 
-  .print-running-header span {
-    max-width: 65%;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+  .print-document-footer p {
+    margin: 0 !important;
+    text-align: center;
   }
 
-  .print-running-footer {
-    bottom: -10.5mm;
-    padding-top: 1.3mm;
-    border-top: 0.2mm solid #999;
+  .print-document-footer__meta {
+    justify-items: end;
+    text-align: right;
   }
 
   main,
@@ -177,8 +186,8 @@
 
   .panel,
   fieldset {
-    margin: 0 0 2.5mm !important;
-    padding: 2.4mm !important;
+    margin: 0 0 2.2mm !important;
+    padding: 2.2mm !important;
     border-radius: 0 !important;
   }
 
@@ -210,9 +219,9 @@
     page-break-after: avoid;
   }
 
-  h2 { font-size: 12pt !important; }
-  h3 { font-size: 9.8pt !important; }
-  h4 { font-size: 8.8pt !important; }
+  h2 { font-size: 11.5pt !important; }
+  h3 { font-size: 9.5pt !important; }
+  h4 { font-size: 8.5pt !important; }
 
   label,
   small,
@@ -226,8 +235,8 @@
   }
 
   p {
-    margin-top: 1mm !important;
-    margin-bottom: 1.5mm !important;
+    margin-top: 0.8mm !important;
+    margin-bottom: 1.2mm !important;
   }
 
   input,
@@ -236,7 +245,7 @@
   output {
     min-width: 0 !important;
     min-height: 0 !important;
-    padding: 0.55mm 0 !important;
+    padding: 0.45mm 0 !important;
     background: #fff !important;
     color: #111 !important;
     border: 0 !important;
@@ -251,10 +260,24 @@
     -webkit-appearance: none !important;
   }
 
+  input[type="checkbox"] {
+    display: none !important;
+  }
+
+  .compare-enable {
+    font-size: 0 !important;
+  }
+
+  .compare-enable::after {
+    content: "Included";
+    font-size: 7pt;
+    color: #444;
+  }
+
   .control-grid {
     display: grid !important;
     grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
-    gap: 2mm 3mm !important;
+    gap: 1.6mm 3mm !important;
   }
 
   body[data-print-orientation="portrait"] .control-grid {
@@ -266,6 +289,7 @@
     display: grid !important;
     grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
     gap: 2.5mm !important;
+    align-items: stretch !important;
   }
 
   .compare-selector-card,
@@ -273,18 +297,72 @@
     min-width: 0 !important;
     margin: 0 !important;
     padding: 2mm !important;
+    border-radius: 2.5mm !important;
+  }
+
+  .compare-selector-card__heading,
+  .compare-result-card__status {
+    align-items: start !important;
+    gap: 1.5mm !important;
+  }
+
+  .compare-selector-card select {
+    font-size: 7.4pt !important;
   }
 
   .compare-selector-visual,
   .compare-result-card__visual {
-    max-height: 28mm !important;
+    min-height: 0 !important;
+    height: 24mm !important;
+    max-height: 24mm !important;
+    margin: 1.5mm 0 2mm !important;
     overflow: hidden !important;
+    background: #fff !important;
+    border: 0.2mm solid #ccc !important;
+    border-radius: 1.5mm !important;
+  }
+
+  .compare-selector-visual svg,
+  .compare-result-card__visual svg {
+    width: auto !important;
+    height: 21mm !important;
+    max-height: 21mm !important;
+  }
+
+  .section-sketch__solid,
+  .section-sketch__solid.is-bamboo {
+    fill: #e6e6e6 !important;
+    stroke: #111 !important;
+  }
+
+  .section-sketch__void {
+    fill: #fff !important;
+    stroke: #111 !important;
+  }
+
+  .section-sketch__catalog {
+    stroke: #111 !important;
   }
 
   .compare-mini-metrics {
     display: grid !important;
     grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
     gap: 1mm 2mm !important;
+  }
+
+  .compare-mini-metrics div {
+    padding: 1.8mm !important;
+    border-radius: 1.7mm !important;
+  }
+
+  body[data-print-orientation="landscape"] .compare-card-grid {
+    break-before: page;
+    page-break-before: always;
+  }
+
+  body[data-print-orientation="landscape"] .compare-table-wrap {
+    break-before: page;
+    page-break-before: always;
   }
 
   .table-wrap,
@@ -307,7 +385,7 @@
     min-width: 0 !important;
     max-width: none !important;
     border-collapse: collapse !important;
-    font-size: 7.2pt !important;
+    font-size: 7pt !important;
   }
 
   thead { display: table-header-group; }
@@ -321,7 +399,7 @@
   th,
   td {
     position: static !important;
-    padding: 0.9mm 1.1mm !important;
+    padding: 0.75mm 1mm !important;
     background: #fff !important;
     color: #111 !important;
     border: 0.2mm solid #aaa !important;
