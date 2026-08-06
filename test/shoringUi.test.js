@@ -26,8 +26,8 @@ test('member cards use responsive contained controls rather than fixed overflowi
 });
 
 test('common timber labels remain plain local names in active selectors', () => {
-  for (const name of ['Apitong', 'Yakal', 'Narra', 'Red Lauan / Red Lawaan', 'White Lauan / White Lawaan']) {
-    assert.match(timber, new RegExp(`name: '${name.replaceAll('/', '\\/')}'`));
+  for (const name of ['Apitong', 'Yakal', 'Narra', 'Red Lauan', 'White Lauan']) {
+    assert.match(timber, new RegExp(`name: '${name}'`));
   }
   assert.doesNotMatch(timber, /name:\s*`\$\{name\}\s+—\s+provisional/);
 });
