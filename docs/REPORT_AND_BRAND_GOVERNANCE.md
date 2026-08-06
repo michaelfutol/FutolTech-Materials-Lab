@@ -71,7 +71,7 @@ If a complete table or figure does not fit cleanly, move it to the next page rat
 The current direction is:
 
 ```text
-Futol Ethical Technology Ecosystem
+Futol Ethical Technology Ecosystems
 └── FutolTech Engineering and Project Systems
     └── Futol Tools
         └── FutolNative Structures
@@ -87,7 +87,7 @@ Futol Ethical Technology Ecosystem
 
 ### Roles
 
-- **Futol Ethical Technology Ecosystem** — the main ethical-technology entity and umbrella vision.
+- **Futol Ethical Technology Ecosystems** — the main ethical-technology entity and umbrella vision.
 - **FutolTech Engineering and Project Systems** — the governing engineering and project-systems platform responsible for technical standards, validation, traceability and project workflow.
 - **Futol Tools** — the family of practical software tools and calculators used by engineers, builders and project teams.
 - **FutolNative Structures** — the structural-materials and native-structures product within Futol Tools.
@@ -103,7 +103,7 @@ Preferred visual order:
 FUTOL TOOLS
 FutolNative Structures
 Governed by FutolTech Engineering and Project Systems
-Part of the Futol Ethical Technology Ecosystem
+Part of Futol Ethical Technology Ecosystems
 ```
 
 The full hierarchy may appear in the opening letterhead or footer. Running furniture should remain minimal and must never overlap calculations.
