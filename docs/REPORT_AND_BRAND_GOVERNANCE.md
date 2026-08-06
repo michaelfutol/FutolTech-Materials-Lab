@@ -4,7 +4,7 @@ Status: adopted project direction, August 2026
 
 ## 1. Readability-first report doctrine
 
-Futol Tools reports must use the paper efficiently, but **paper utilization is subordinate to readability, continuity and engineering clarity**.
+Tools reports must use the paper efficiently, but **paper utilization is subordinate to readability, continuity and engineering clarity**.
 
 Do not force content onto a page merely to eliminate blank space. Blank space is acceptable when it:
 
@@ -66,47 +66,53 @@ The exact page count may change with the amount of data. The following is a pref
 
 If a complete table or figure does not fit cleanly, move it to the next page rather than compressing or splitting it badly.
 
-## 4. Brand and governance hierarchy
+## 4. Product and governance hierarchy
 
-The current direction is:
+The public-facing hierarchy is deliberately simple:
 
 ```text
-Futol Ethical Technology Ecosystems
-└── FutolTech Engineering and Project Systems
-    └── Futol Tools
-        └── FutolNative Structures
-            ├── Materials Lab
-            ├── Direct Compare
-            ├── Load Recommender
-            ├── Section Library
-            ├── Steel Yield Lab
-            ├── Bamboo Culm Lab
-            ├── Stock and Splice
-            └── Concrete Slab Shoring
+FutolTech Engineering and Project Systems
+└── Tools
+    └── Native Structures
+        ├── Materials Lab
+        ├── Direct Compare
+        ├── Load Recommender
+        ├── Section Library
+        ├── Steel Yield Lab
+        ├── Bamboo Culm Lab
+        ├── Stock and Splice
+        └── Concrete Slab Shoring
 ```
 
 ### Roles
 
-- **Futol Ethical Technology Ecosystems** — the main ethical-technology entity and umbrella vision.
 - **FutolTech Engineering and Project Systems** — the governing engineering and project-systems platform responsible for technical standards, validation, traceability and project workflow.
-- **Futol Tools** — the family of practical software tools and calculators used by engineers, builders and project teams.
-- **FutolNative Structures** — the structural-materials and native-structures product within Futol Tools.
-- **Materials Lab and related modules** — individual applications or simulations within FutolNative Structures.
+- **Tools** — the practical software-tool family.
+- **Native Structures** — the structural-materials and native-structures product within Tools.
+- **Materials Lab and related modules** — individual applications or simulations within Native Structures.
+
+The broader Futol Ethical Technology Ecosystems identity remains the umbrella entity, but it should appear only where organizational context is useful. It does not need to be repeated in ordinary calculator screens or every report page.
 
 ## 5. Report identity direction
 
-Future report letterheads should reflect the hierarchy without becoming crowded.
+Future report letterheads should be restrained and avoid repeated Futol naming.
 
 Preferred visual order:
 
 ```text
-FUTOL TOOLS
-FutolNative Structures
-Governed by FutolTech Engineering and Project Systems
-Part of Futol Ethical Technology Ecosystems
+TOOLS
+Native Structures
+FutolTech Engineering and Project Systems
 ```
 
-The full hierarchy may appear in the opening letterhead or footer. Running furniture should remain minimal and must never overlap calculations.
+A lighter alternative is:
+
+```text
+TOOLS | Native Structures
+by FutolTech Engineering and Project Systems
+```
+
+The broader ecosystem identity may appear in a website About page, legal footer, governance document or formal corporate material—not as recurring report furniture.
 
 ## 6. Engineering boundary
 
