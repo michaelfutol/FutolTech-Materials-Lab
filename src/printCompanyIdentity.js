@@ -38,7 +38,7 @@ function mountExplicitComparisonPrint() {
   );
   ensureStylesheet(
     'link[data-ft-cs-print-fix]',
-    './src/comparePrintDocumentFix.css?v=20260807-ftcs01b',
+    './src/comparePrintDocumentFix.css?v=20260808-ftcs01e',
     'ftCsPrintFix'
   );
   ensureStylesheet(
