@@ -37,6 +37,8 @@ test('direct comparison exposes the old-school engineering print build', () => {
   assert.match(compareHtml, /tooltips\.js\?v=20260806-1/);
   assert.match(compareHtml, /printReport\.css\?v=20260807-oldschool1/);
   assert.match(compareHtml, /printReport\.js\?v=20260807-oldschool1/);
-  assert.match(compareHtml, /Build 2026-08-07\.1/);
+  assert.match(compareHtml, /printLetterhead\.css\?v=20260807-letterhead1/);
+  assert.match(compareHtml, /printCompanyIdentity\.js\?v=20260807-letterhead1/);
+  assert.match(compareHtml, /Build 2026-08-07\.2/);
   assert.match(compareHtml, /Structural Member Comparison/);
 });
