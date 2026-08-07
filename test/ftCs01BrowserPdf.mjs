@@ -5,6 +5,7 @@ import { spawn, spawnSync } from 'node:child_process';
 import { extname, join, normalize } from 'node:path';
 import { tmpdir } from 'node:os';
 
+const EXPECTED_PAGES = 5;
 const root = process.cwd();
 const mime = new Map([
   ['.html', 'text/html; charset=utf-8'],
@@ -82,11 +83,11 @@ try {
   const pdf = await readFile(pdfPath);
   const ascii = pdf.toString('latin1');
   const pages = ascii.match(/\/Type\s*\/Page\b/g)?.length || 0;
-  if (pages !== 4) {
+  if (pages !== EXPECTED_PAGES) {
     printPageDiagnostics(pdfPath, pages);
-    throw new Error(`FT-CS-01 browser PDF rendered ${pages} physical pages; expected exactly 4.`);
+    throw new Error(`FT-CS-01 browser PDF rendered ${pages} physical pages; expected exactly ${EXPECTED_PAGES}.`);
   }
-  console.log(`FT-CS-01 browser PDF regression: ${pages} physical pages.`);
+  console.log(`FT-CS-01 browser PDF regression: ${pages} physical pages, matching ${EXPECTED_PAGES} intentional report pages.`);
 } finally {
   server.close();
   await rm(work, { recursive: true, force: true });
