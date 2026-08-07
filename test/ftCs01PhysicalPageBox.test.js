@@ -11,16 +11,19 @@ test('FT-CS-01 owns a unique zero-margin physical page box', () => {
   assert.match(pageBox, /height:\s*208mm\s*!important/);
 });
 
-test('FT-CS-01 paginates by breaking before the next explicit page, not after the current page', () => {
-  assert.match(pageBox, /\.ft-print-page \+ \.ft-print-page[\s\S]*break-before:\s*page\s*!important/);
-  assert.match(pageBox, /\.ft-print-page \{[\s\S]*break-after:\s*auto\s*!important/);
+test('FT-CS-01 relies on page height instead of forced inter-page breaks', () => {
+  assert.match(pageBox, /\.ft-print-page \{[\s\S]*break-before:\s*auto\s*!important/);
+  assert.match(pageBox, /break-after:\s*auto\s*!important/);
+  assert.match(pageBox, /page-break-before:\s*auto\s*!important/);
   assert.match(pageBox, /page-break-after:\s*auto\s*!important/);
+  assert.doesNotMatch(pageBox, /\.ft-print-page \+ \.ft-print-page[\s\S]*break-before:\s*page/);
+  assert.doesNotMatch(pageBox, /page-break-before:\s*always/);
 });
 
 test('page-box override loads after prior FT-CS-01 styles', () => {
   const base = loader.indexOf('comparePrintDocument.css?v=20260807-ftcs01');
   const fix = loader.indexOf('comparePrintDocumentFix.css?v=20260807-ftcs01b');
-  const box = loader.indexOf('comparePrintPageBox.css?v=20260807-ftcs01c');
+  const box = loader.indexOf('comparePrintPageBox.css?v=20260807-ftcs01d');
   assert.ok(base >= 0);
   assert.ok(fix > base);
   assert.ok(box > fix);

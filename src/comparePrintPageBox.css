@@ -11,25 +11,22 @@
   }
 
   /*
-   * One FT-CS-01 container must equal one physical PDF sheet.
-   * Use the next explicit page to trigger the page break instead of forcing a
-   * break after a nearly full-height page box, which produced blank even pages
-   * in Chromium/PDF-XChange output.
+   * One FT-CS-01 container should occupy one physical A4 landscape sheet.
+   * The container height itself is enough to move the next 208 mm page to the
+   * following sheet. Do NOT add break-before/break-after between these pages:
+   * Chromium treats that as an additional sheet break and produces blank even
+   * pages (2, 4, 6, 8).
    */
   body[data-print-orientation="landscape"] .ft-print-document .ft-print-page {
     width: 296mm !important;
     height: 208mm !important;
     max-height: 208mm !important;
+    margin: 0 auto !important;
     break-before: auto !important;
     page-break-before: auto !important;
     break-after: auto !important;
     page-break-after: auto !important;
     break-inside: avoid !important;
     page-break-inside: avoid !important;
-  }
-
-  body[data-print-orientation="landscape"] .ft-print-document .ft-print-page + .ft-print-page {
-    break-before: page !important;
-    page-break-before: always !important;
   }
 }
