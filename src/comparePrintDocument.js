@@ -2,7 +2,7 @@ const COMPANY = 'FUTOLTECH ENGINEERING AND PROJECT SYSTEMS';
 const ENGINEER = 'MICHAEL D FUTOL, RCE, RMP';
 const DOCUMENT_CODE = 'CMP-003';
 const REVISION = 'Rev 0';
-const PAGE_COUNT = 4;
+const PAGE_COUNT = 5;
 
 function generatedStamp() {
   return new Intl.DateTimeFormat('en-PH', {
@@ -197,9 +197,6 @@ function buildPrintDocument() {
   p2.body.appendChild(responseSection);
   output.appendChild(p2.page);
 
-  const rows = [...document.querySelectorAll('#compareTableBody > tr')];
-  const splitAt = Math.min(4, Math.max(1, rows.length - 1));
-
   const p3 = createPage(3, true);
   const cardsSection = document.createElement('section');
   cardsSection.className = 'ft-print-section';
@@ -207,37 +204,43 @@ function buildPrintDocument() {
   const cards = resultCardsClone();
   if (cards) cardsSection.appendChild(cards);
   p3.body.appendChild(cardsSection);
+  output.appendChild(p3.page);
+
+  const rows = [...document.querySelectorAll('#compareTableBody > tr')];
+  const splitAt = Math.max(1, Math.ceil(rows.length / 2));
+
+  const p4 = createPage(4, true);
   const tableOne = document.createElement('section');
   tableOne.className = 'ft-print-section';
   tableOne.appendChild(sectionHeading('Comparison schedule', 'Calculated metrics', `Rows 1–${splitAt}`));
   const firstTable = tablePart(0, splitAt);
   if (firstTable) tableOne.appendChild(firstTable);
-  p3.body.appendChild(tableOne);
-  output.appendChild(p3.page);
+  p4.body.appendChild(tableOne);
+  output.appendChild(p4.page);
 
-  const p4 = createPage(4, true);
+  const p5 = createPage(5, true);
   const tableTwo = document.createElement('section');
   tableTwo.className = 'ft-print-section';
   tableTwo.appendChild(sectionHeading('Comparison schedule', 'Calculated metrics — continued', `Rows ${splitAt + 1}–${rows.length}`));
   const secondTable = tablePart(splitAt, rows.length);
   if (secondTable) tableTwo.appendChild(secondTable);
-  p4.body.appendChild(tableTwo);
+  p5.body.appendChild(tableTwo);
 
   const fairRule = document.querySelector('#compareFairRule')?.textContent?.trim();
   const fairRuleNote = finalNote('Fair-comparison rule', fairRule);
-  if (fairRuleNote) p4.body.appendChild(fairRuleNote);
+  if (fairRuleNote) p5.body.appendChild(fairRuleNote);
 
   const boundary = document.getElementById('compareBoundaryNote')?.textContent?.trim();
   const boundaryNote = finalNote('Comparison boundary', boundary);
-  if (boundaryNote) p4.body.appendChild(boundaryNote);
+  if (boundaryNote) p5.body.appendChild(boundaryNote);
 
   const engineeringNotice = document.querySelector('body > footer')?.textContent?.replace(/^Engineering notice:\s*/i, '').trim();
   const verification = finalNote(
     'Preliminary engineering output — verification required',
     engineeringNotice || 'Verify delivered dimensions, actual material properties, supports, connections, workmanship, loads and governing design requirements before use.'
   );
-  if (verification) p4.body.appendChild(verification);
-  output.appendChild(p4.page);
+  if (verification) p5.body.appendChild(verification);
+  output.appendChild(p5.page);
 
   document.body.appendChild(output);
 }
