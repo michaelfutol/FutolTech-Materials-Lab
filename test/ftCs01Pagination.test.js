@@ -14,7 +14,7 @@ test('FT-CS-01 browser stylesheet neutralizes legacy content breaks', () => {
 
 test('comparison print loader uses one browser pagination layer after the base print stylesheet', () => {
   const baseIndex = loader.indexOf('comparePrintDocument.css?v=20260807-ftcs01');
-  const browserIndex = loader.indexOf('comparePrintBrowser.css?v=20260808-ftcs01f');
+  const browserIndex = loader.indexOf('comparePrintBrowser.css?v=20260808-ftcs01g');
   assert.ok(baseIndex >= 0);
   assert.ok(browserIndex > baseIndex);
   assert.doesNotMatch(loader, /comparePrintDocumentFix\.css/);
