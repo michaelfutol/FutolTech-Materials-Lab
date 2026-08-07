@@ -2,29 +2,19 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 
-const pageBox = await readFile(new URL('../src/comparePrintPageBox.css', import.meta.url), 'utf8');
-const loader = await readFile(new URL('../src/printCompanyIdentity.js', import.meta.url), 'utf8');
+const browser = await readFile(new URL('../src/comparePrintBrowser.css', import.meta.url), 'utf8');
 
-test('FT-CS-01 owns a unique zero-margin physical page box', () => {
-  assert.match(pageBox, /@page\s+ft-cs-01[\s\S]*size:\s*A4 landscape[\s\S]*margin:\s*0/);
-  assert.match(pageBox, /\.ft-print-page[\s\S]*page:\s*ft-cs-01\s*!important/);
-  assert.match(pageBox, /height:\s*208mm\s*!important/);
+test('FT-CS-01 lets @page own the physical A4 landscape sheet', () => {
+  assert.match(browser, /@page\s*\{[\s\S]*size:\s*A4 landscape[\s\S]*margin:\s*10mm 14mm 10mm 16mm/);
+  assert.match(browser, /height:\s*auto\s*!important/);
+  assert.match(browser, /min-height:\s*180mm\s*!important/);
+  assert.doesNotMatch(browser, /height:\s*20[89]mm\s*!important/);
+  assert.doesNotMatch(browser, /page:\s*ft-cs-01/);
 });
 
-test('FT-CS-01 relies on page height instead of forced inter-page breaks', () => {
-  assert.match(pageBox, /\.ft-print-page \{[\s\S]*break-before:\s*auto\s*!important/);
-  assert.match(pageBox, /break-after:\s*auto\s*!important/);
-  assert.match(pageBox, /page-break-before:\s*auto\s*!important/);
-  assert.match(pageBox, /page-break-after:\s*auto\s*!important/);
-  assert.doesNotMatch(pageBox, /\.ft-print-page \+ \.ft-print-page[\s\S]*break-before:\s*page/);
-  assert.doesNotMatch(pageBox, /page-break-before:\s*always/);
-});
-
-test('page-box override loads after corrected FT-CS-01 compatibility styles', () => {
-  const base = loader.indexOf('comparePrintDocument.css?v=20260807-ftcs01');
-  const fix = loader.indexOf('comparePrintDocumentFix.css?v=20260808-ftcs01e');
-  const box = loader.indexOf('comparePrintPageBox.css?v=20260807-ftcs01d');
-  assert.ok(base >= 0);
-  assert.ok(fix > base);
-  assert.ok(box > fix);
+test('FT-CS-01 deliberately advances after a content-sized report section, not a full-sheet box', () => {
+  assert.match(browser, /break-after:\s*page\s*!important/);
+  assert.match(browser, /page-break-after:\s*always\s*!important/);
+  assert.match(browser, /\.ft-print-page:last-child[\s\S]*break-after:\s*auto\s*!important/);
+  assert.match(browser, /overflow:\s*visible\s*!important/);
 });
