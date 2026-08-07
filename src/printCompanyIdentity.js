@@ -19,15 +19,29 @@ function applyCompanyPrintIdentity() {
   }
 }
 
+function ensureStylesheet(selector, href, datasetKey) {
+  if (document.querySelector(selector)) return;
+  const link = document.createElement('link');
+  link.rel = 'stylesheet';
+  link.href = href;
+  link.dataset[datasetKey] = 'true';
+  document.head.appendChild(link);
+}
+
 function mountExplicitComparisonPrint() {
   if (!document.querySelector('.compare-shell')) return;
-  if (!document.querySelector('link[data-ft-cs-print]')) {
-    const link = document.createElement('link');
-    link.rel = 'stylesheet';
-    link.href = './src/comparePrintDocument.css?v=20260807-ftcs01';
-    link.dataset.ftCsPrint = 'true';
-    document.head.appendChild(link);
-  }
+
+  ensureStylesheet(
+    'link[data-ft-cs-print]',
+    './src/comparePrintDocument.css?v=20260807-ftcs01',
+    'ftCsPrint'
+  );
+  ensureStylesheet(
+    'link[data-ft-cs-print-fix]',
+    './src/comparePrintDocumentFix.css?v=20260807-ftcs01b',
+    'ftCsPrintFix'
+  );
+
   import('./comparePrintDocument.js?v=20260807-ftcs01');
 }
 
