@@ -2,7 +2,7 @@ const COMPANY = 'FUTOLTECH ENGINEERING AND PROJECT SYSTEMS';
 const ENGINEER = 'MICHAEL D FUTOL, RCE, RMP';
 const DOCUMENT_CODE = 'CMP-003';
 const REVISION = 'Rev 0';
-const PAGE_COUNT = 5;
+const PAGE_COUNT = 6;
 
 function generatedStamp() {
   return new Intl.DateTimeFormat('en-PH', {
@@ -162,6 +162,7 @@ function buildPrintDocument() {
   output.className = 'ft-print-document';
   output.setAttribute('aria-hidden', 'true');
 
+  // Page 1 — restrained report opening and test arrangement only.
   const p1 = createPage(1, false);
   p1.body.appendChild(reportIntro());
   const arrangement = arrangementClone();
@@ -171,14 +172,23 @@ function buildPrintDocument() {
     arrangementSection.appendChild(arrangement);
     p1.body.appendChild(arrangementSection);
   }
-  const conditions = cleanPanelClone('.compare-inputs');
-  if (conditions) {
-    conditions.classList.add('ft-print-section');
-    p1.body.appendChild(conditions);
-  }
   output.appendChild(p1.page);
 
+  // Page 2 — common loading and boundary-condition basis.
   const p2 = createPage(2, true);
+  const conditionsSection = document.createElement('section');
+  conditionsSection.className = 'ft-print-section';
+  conditionsSection.appendChild(sectionHeading('Test basis', 'Common test conditions', 'Applied identically to all compared members'));
+  const conditions = cleanPanelClone('.compare-inputs');
+  if (conditions) {
+    conditions.querySelector('.panel-heading')?.remove();
+    conditionsSection.appendChild(conditions);
+  }
+  p2.body.appendChild(conditionsSection);
+  output.appendChild(p2.page);
+
+  // Page 3 — selected alternatives and concise engineering response.
+  const p3 = createPage(3, true);
   const membersSection = document.createElement('section');
   membersSection.className = 'ft-print-section';
   membersSection.appendChild(sectionHeading('Comparison basis', 'Selected alternatives', 'Same test conditions for each member'));
@@ -187,60 +197,63 @@ function buildPrintDocument() {
     members.querySelector('.panel-heading')?.remove();
     membersSection.appendChild(members);
   }
-  p2.body.appendChild(membersSection);
+  p3.body.appendChild(membersSection);
 
   const responseSection = document.createElement('section');
   responseSection.className = 'ft-print-section';
   responseSection.appendChild(sectionHeading('Engineering response', document.getElementById('compareResultsTitle')?.textContent?.trim() || 'Direct results'));
   const summary = summaryClone();
   if (summary) responseSection.appendChild(summary);
-  p2.body.appendChild(responseSection);
-  output.appendChild(p2.page);
+  p3.body.appendChild(responseSection);
+  output.appendChild(p3.page);
 
-  const p3 = createPage(3, true);
+  // Page 4 — visual member result cards.
+  const p4 = createPage(4, true);
   const cardsSection = document.createElement('section');
   cardsSection.className = 'ft-print-section';
   cardsSection.appendChild(sectionHeading('Member response', 'Side-by-side member results'));
   const cards = resultCardsClone();
   if (cards) cardsSection.appendChild(cards);
-  p3.body.appendChild(cardsSection);
-  output.appendChild(p3.page);
+  p4.body.appendChild(cardsSection);
+  output.appendChild(p4.page);
 
   const rows = [...document.querySelectorAll('#compareTableBody > tr')];
   const splitAt = Math.max(1, Math.ceil(rows.length / 2));
 
-  const p4 = createPage(4, true);
+  // Page 5 — first half of detailed calculation schedule.
+  const p5 = createPage(5, true);
   const tableOne = document.createElement('section');
   tableOne.className = 'ft-print-section';
   tableOne.appendChild(sectionHeading('Comparison schedule', 'Calculated metrics', `Rows 1–${splitAt}`));
   const firstTable = tablePart(0, splitAt);
   if (firstTable) tableOne.appendChild(firstTable);
-  p4.body.appendChild(tableOne);
-  output.appendChild(p4.page);
+  p5.body.appendChild(tableOne);
+  output.appendChild(p5.page);
 
-  const p5 = createPage(5, true);
+  // Page 6 — remaining metrics and verification notes.
+  const p6 = createPage(6, true);
   const tableTwo = document.createElement('section');
   tableTwo.className = 'ft-print-section';
   tableTwo.appendChild(sectionHeading('Comparison schedule', 'Calculated metrics — continued', `Rows ${splitAt + 1}–${rows.length}`));
   const secondTable = tablePart(splitAt, rows.length);
   if (secondTable) tableTwo.appendChild(secondTable);
-  p5.body.appendChild(tableTwo);
+  p6.body.appendChild(tableTwo);
 
   const fairRule = document.querySelector('#compareFairRule')?.textContent?.trim();
   const fairRuleNote = finalNote('Fair-comparison rule', fairRule);
-  if (fairRuleNote) p5.body.appendChild(fairRuleNote);
+  if (fairRuleNote) p6.body.appendChild(fairRuleNote);
 
   const boundary = document.getElementById('compareBoundaryNote')?.textContent?.trim();
   const boundaryNote = finalNote('Comparison boundary', boundary);
-  if (boundaryNote) p5.body.appendChild(boundaryNote);
+  if (boundaryNote) p6.body.appendChild(boundaryNote);
 
   const engineeringNotice = document.querySelector('body > footer')?.textContent?.replace(/^Engineering notice:\s*/i, '').trim();
   const verification = finalNote(
     'Preliminary engineering output — verification required',
     engineeringNotice || 'Verify delivered dimensions, actual material properties, supports, connections, workmanship, loads and governing design requirements before use.'
   );
-  if (verification) p5.body.appendChild(verification);
-  output.appendChild(p5.page);
+  if (verification) p6.body.appendChild(verification);
+  output.appendChild(p6.page);
 
   document.body.appendChild(output);
 }
