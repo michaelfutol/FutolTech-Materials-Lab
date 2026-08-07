@@ -1,9 +1,9 @@
 @media print {
   /*
-   * FT-CS-01 owns pagination explicitly with .ft-print-page containers.
-   * Neutralize legacy print rules from printReport.css that force result grids
-   * to start on a fresh browser page and can create a blank sheet between the
-   * explicit calculation pages.
+   * FT-CS-01 pages are already sized as physical A4 landscape sheets.
+   * This compatibility layer only neutralizes legacy forced breaks on content
+   * blocks inherited from printReport.css. Do not force pagination on
+   * .ft-print-page itself; doing so doubles the PDF into blank even pages.
    */
   body[data-print-orientation="landscape"] .ft-print-document .compare-card-grid,
   body[data-print-orientation="landscape"] .ft-print-document .compare-selector-grid,
@@ -11,21 +11,6 @@
   body[data-print-orientation="landscape"] .ft-print-document .print-test-arrangement {
     break-before: auto !important;
     page-break-before: auto !important;
-    break-after: auto !important;
-    page-break-after: auto !important;
-  }
-
-  body[data-print-orientation="landscape"] .ft-print-document .ft-print-page {
-    break-before: auto !important;
-    page-break-before: auto !important;
-  }
-
-  body[data-print-orientation="landscape"] .ft-print-document .ft-print-page:not(:last-child) {
-    break-after: page !important;
-    page-break-after: always !important;
-  }
-
-  body[data-print-orientation="landscape"] .ft-print-document .ft-print-page:last-child {
     break-after: auto !important;
     page-break-after: auto !important;
   }
