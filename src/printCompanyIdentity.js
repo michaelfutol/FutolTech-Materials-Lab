@@ -41,6 +41,11 @@ function mountExplicitComparisonPrint() {
     './src/comparePrintDocumentFix.css?v=20260807-ftcs01b',
     'ftCsPrintFix'
   );
+  ensureStylesheet(
+    'link[data-ft-cs-page-box]',
+    './src/comparePrintPageBox.css?v=20260807-ftcs01c',
+    'ftCsPageBox'
+  );
 
   import('./comparePrintDocument.js?v=20260807-ftcs01');
 }
