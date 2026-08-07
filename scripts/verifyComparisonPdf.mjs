@@ -202,9 +202,10 @@ try {
 
   const measured = await cdp.send('Runtime.evaluate', {
     expression: `(() => {
+      const printDocument = document.querySelector('.ft-print-document');
       const probe = document.createElement('div');
       probe.style.cssText = 'position:absolute;visibility:hidden;height:190mm;width:1px;';
-      document.body.appendChild(probe);
+      printDocument.appendChild(probe);
       const printableHeightPx = probe.getBoundingClientRect().height;
       probe.remove();
       return {
