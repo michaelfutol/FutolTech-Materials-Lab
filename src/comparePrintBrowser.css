@@ -1,0 +1,81 @@
+@page {
+  size: A4 landscape;
+  margin: 10mm 14mm 10mm 16mm;
+}
+
+@media print {
+  /*
+   * Browser-owned pagination for FT-CS-01.
+   * The physical A4 sheet belongs to @page. Logical report pages remain
+   * content-sized and are checked against the real printable height in CI.
+   */
+  body[data-print-orientation="landscape"] .ft-print-document {
+    width: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  body[data-print-orientation="landscape"] .ft-print-document > .ft-print-page {
+    page: auto !important;
+    box-sizing: border-box !important;
+    display: flex !important;
+    flex-direction: column !important;
+    width: auto !important;
+    height: auto !important;
+    min-height: 180mm !important;
+    max-height: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: visible !important;
+    break-before: auto !important;
+    page-break-before: auto !important;
+    break-inside: avoid-page !important;
+    page-break-inside: avoid !important;
+    break-after: page !important;
+    page-break-after: always !important;
+  }
+
+  body[data-print-orientation="landscape"] .ft-print-document > .ft-print-page:last-child {
+    break-after: auto !important;
+    page-break-after: auto !important;
+  }
+
+  body[data-print-orientation="landscape"] .ft-print-document .ft-page-body {
+    min-height: 0 !important;
+    overflow: visible !important;
+    padding-top: 4mm !important;
+  }
+
+  /* Selected alternatives + response is the densest continuation page. */
+  body[data-print-orientation="landscape"] .ft-print-document > .ft-print-page[data-page="3"] .ft-page-body {
+    padding-top: 2mm !important;
+  }
+
+  body[data-print-orientation="landscape"] .ft-print-document > .ft-print-page[data-page="3"] .ft-print-section + .ft-print-section {
+    margin-top: 2.5mm !important;
+  }
+
+  body[data-print-orientation="landscape"] .ft-print-document .ft-page-footer {
+    margin-top: auto !important;
+  }
+
+  /* Keep legacy content-level break rules from fragmenting an explicit page. */
+  body[data-print-orientation="landscape"] .ft-print-document .compare-card-grid,
+  body[data-print-orientation="landscape"] .ft-print-document .compare-selector-grid,
+  body[data-print-orientation="landscape"] .ft-print-document .ft-print-table-wrap,
+  body[data-print-orientation="landscape"] .ft-print-document .print-test-arrangement {
+    break-before: auto !important;
+    page-break-before: auto !important;
+    break-after: auto !important;
+    page-break-after: auto !important;
+  }
+
+  body[data-print-orientation="landscape"] .ft-print-document .ft-final-note {
+    margin-top: 3mm !important;
+    padding: 2.4mm 3mm !important;
+  }
+
+  body[data-print-orientation="landscape"] .ft-print-document .ft-print-table-wrap {
+    margin-top: 2.6mm !important;
+  }
+}
