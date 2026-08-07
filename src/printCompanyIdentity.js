@@ -19,10 +19,26 @@ function applyCompanyPrintIdentity() {
   }
 }
 
+function mountExplicitComparisonPrint() {
+  if (!document.querySelector('.compare-shell')) return;
+  if (!document.querySelector('link[data-ft-cs-print]')) {
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = './src/comparePrintDocument.css?v=20260807-ftcs01';
+    link.dataset.ftCsPrint = 'true';
+    document.head.appendChild(link);
+  }
+  import('./comparePrintDocument.js?v=20260807-ftcs01');
+}
+
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', applyCompanyPrintIdentity, { once: true });
+  document.addEventListener('DOMContentLoaded', () => {
+    applyCompanyPrintIdentity();
+    mountExplicitComparisonPrint();
+  }, { once: true });
 } else {
   applyCompanyPrintIdentity();
+  mountExplicitComparisonPrint();
 }
 
 window.addEventListener('beforeprint', applyCompanyPrintIdentity);
