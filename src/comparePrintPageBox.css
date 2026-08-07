@@ -1,0 +1,35 @@
+@page ft-cs-01 {
+  size: A4 landscape;
+  margin: 0;
+}
+
+@media print {
+  body[data-print-orientation="landscape"],
+  body[data-print-orientation="landscape"] .ft-print-document,
+  body[data-print-orientation="landscape"] .ft-print-page {
+    page: ft-cs-01 !important;
+  }
+
+  /*
+   * One FT-CS-01 container must equal one physical PDF sheet.
+   * Use the next explicit page to trigger the page break instead of forcing a
+   * break after a nearly full-height page box, which produced blank even pages
+   * in Chromium/PDF-XChange output.
+   */
+  body[data-print-orientation="landscape"] .ft-print-document .ft-print-page {
+    width: 296mm !important;
+    height: 208mm !important;
+    max-height: 208mm !important;
+    break-before: auto !important;
+    page-break-before: auto !important;
+    break-after: auto !important;
+    page-break-after: auto !important;
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+  }
+
+  body[data-print-orientation="landscape"] .ft-print-document .ft-print-page + .ft-print-page {
+    break-before: page !important;
+    page-break-before: always !important;
+  }
+}
