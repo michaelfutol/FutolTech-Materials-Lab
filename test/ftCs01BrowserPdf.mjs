@@ -15,12 +15,29 @@ const mime = new Map([
   ['.svg', 'image/svg+xml']
 ]);
 
-function findChrome() {
-  for (const candidate of ['google-chrome', 'google-chrome-stable', 'chromium', 'chromium-browser']) {
+function findCommand(candidates) {
+  for (const candidate of candidates) {
     const result = spawnSync('which', [candidate], { encoding: 'utf8' });
     if (result.status === 0 && result.stdout.trim()) return result.stdout.trim();
   }
+  return null;
+}
+
+function findChrome() {
+  const chrome = findCommand(['google-chrome', 'google-chrome-stable', 'chromium', 'chromium-browser']);
+  if (chrome) return chrome;
   throw new Error('Headless Chromium/Chrome is required for the FT-CS-01 PDF regression test.');
+}
+
+function printPageDiagnostics(pdfPath, pages) {
+  const pdftotext = findCommand(['pdftotext']);
+  if (!pdftotext) return;
+  for (let page = 1; page <= pages; page += 1) {
+    const result = spawnSync(pdftotext, ['-f', String(page), '-l', String(page), '-layout', pdfPath, '-'], { encoding: 'utf8' });
+    const text = (result.stdout || '').replace(/\f/g, '').trim();
+    const preview = text.replace(/\s+/g, ' ').slice(0, 180);
+    console.error(`FT-CS-01 PDF page ${page}: ${text.length} text chars${preview ? ` — ${preview}` : ' — BLANK'}`);
+  }
 }
 
 const server = createServer((req, res) => {
@@ -66,6 +83,7 @@ try {
   const ascii = pdf.toString('latin1');
   const pages = ascii.match(/\/Type\s*\/Page\b/g)?.length || 0;
   if (pages !== 4) {
+    printPageDiagnostics(pdfPath, pages);
     throw new Error(`FT-CS-01 browser PDF rendered ${pages} physical pages; expected exactly 4.`);
   }
   console.log(`FT-CS-01 browser PDF regression: ${pages} physical pages.`);
