@@ -64,12 +64,35 @@ function reportPdfText(pdfPath, pages) {
   }
 }
 
+async function waitForDevToolsPort(profileDir, process, stderrRef) {
+  const activePortFile = join(profileDir, 'DevToolsActivePort');
+  for (let attempt = 0; attempt < 200; attempt += 1) {
+    if (process.exitCode !== null) {
+      throw new Error(`Chromium exited before DevTools became ready (exit ${process.exitCode}). ${stderrRef.value}`);
+    }
+    try {
+      const text = await readFile(activePortFile, 'utf8');
+      const [portText] = text.trim().split(/\r?\n/);
+      const port = Number(portText);
+      if (Number.isInteger(port) && port > 0) return port;
+    } catch {
+      // Chrome creates DevToolsActivePort once remote debugging is ready.
+    }
+    await sleep(50);
+  }
+  throw new Error(`Timed out waiting for Chromium DevToolsActivePort. ${stderrRef.value}`);
+}
+
 async function waitForPageTarget(debugHttp) {
   for (let attempt = 0; attempt < 100; attempt += 1) {
-    const response = await fetch(`${debugHttp}/json/list`);
-    const targets = await response.json();
-    const page = targets.find((target) => target.type === 'page' && target.webSocketDebuggerUrl);
-    if (page) return page;
+    try {
+      const response = await fetch(`${debugHttp}/json/list`);
+      const targets = await response.json();
+      const page = targets.find((target) => target.type === 'page' && target.webSocketDebuggerUrl);
+      if (page) return page;
+    } catch {
+      // DevTools HTTP endpoint can appear a few milliseconds after the port file.
+    }
     await sleep(50);
   }
   throw new Error('Chromium page target did not appear.');
@@ -134,6 +157,7 @@ await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
 const { port } = server.address();
 const work = await mkdtemp(join(tmpdir(), 'ft-cs-01-'));
 const pdfPath = join(work, 'comparison.pdf');
+const profileDir = join(work, 'chrome-profile');
 let chromeProcess;
 let cdp;
 
@@ -146,29 +170,14 @@ try {
     '--no-sandbox',
     '--disable-dev-shm-usage',
     '--remote-debugging-port=0',
-    `--user-data-dir=${join(work, 'chrome-profile')}`,
+    `--user-data-dir=${profileDir}`,
     url
   ], { stdio: ['ignore', 'ignore', 'pipe'] });
 
-  let stderr = '';
-  const devtoolsWs = await new Promise((resolve, reject) => {
-    const timeout = setTimeout(() => reject(new Error(`Timed out waiting for Chromium DevTools endpoint. ${stderr}`)), 10000);
-    chromeProcess.stderr.on('data', (chunk) => {
-      stderr += chunk.toString();
-      const match = stderr.match(/DevTools listening on (ws:\/\/[^\s]+)/);
-      if (match) {
-        clearTimeout(timeout);
-        resolve(match[1]);
-      }
-    });
-    chromeProcess.once('exit', (code) => {
-      clearTimeout(timeout);
-      reject(new Error(`Chromium exited before DevTools became ready (exit ${code}). ${stderr}`));
-    });
-  });
-
-  const debugUrl = new URL(devtoolsWs);
-  const target = await waitForPageTarget(`http://${debugUrl.host}`);
+  const stderrRef = { value: '' };
+  chromeProcess.stderr.on('data', (chunk) => { stderrRef.value += chunk.toString(); });
+  const debugPort = await waitForDevToolsPort(profileDir, chromeProcess, stderrRef);
+  const target = await waitForPageTarget(`http://127.0.0.1:${debugPort}`);
   cdp = await openCdp(target.webSocketDebuggerUrl);
   await cdp.send('Page.enable');
   await cdp.send('Runtime.enable');
