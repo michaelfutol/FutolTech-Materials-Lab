@@ -15,6 +15,7 @@ const mime = new Map([
   ['.json', 'application/json; charset=utf-8'],
   ['.svg', 'image/svg+xml']
 ]);
+let printMetrics = null;
 
 function findCommand(candidates) {
   for (const candidate of candidates) {
@@ -32,23 +33,84 @@ function findChrome() {
 
 function printPageDiagnostics(pdfPath, pages) {
   const pdftotext = findCommand(['pdftotext']);
-  if (!pdftotext) return;
-  for (let page = 1; page <= pages; page += 1) {
-    const result = spawnSync(pdftotext, ['-f', String(page), '-l', String(page), '-layout', pdfPath, '-'], { encoding: 'utf8' });
-    const text = (result.stdout || '').replace(/\f/g, '').trim();
-    const preview = text.replace(/\s+/g, ' ').slice(0, 180);
-    console.error(`FT-CS-01 PDF page ${page}: ${text.length} text chars${preview ? ` — ${preview}` : ' — BLANK'}`);
+  if (pdftotext) {
+    for (let page = 1; page <= pages; page += 1) {
+      const result = spawnSync(pdftotext, ['-f', String(page), '-l', String(page), '-layout', pdfPath, '-'], { encoding: 'utf8' });
+      const text = (result.stdout || '').replace(/\f/g, '').trim();
+      const preview = text.replace(/\s+/g, ' ').slice(0, 180);
+      console.error(`FT-CS-01 PDF page ${page}: ${text.length} text chars${preview ? ` — ${preview}` : ' — BLANK'}`);
+    }
+  }
+  if (printMetrics) {
+    console.error('FT-CS-01 print-media section metrics:');
+    for (const metric of printMetrics.pages || []) {
+      console.error(`  logical page ${metric.page}: box=${metric.heightPx.toFixed(1)}px, scroll=${metric.scrollHeightPx}px, body=${metric.bodyHeightPx.toFixed(1)}px, bodyScroll=${metric.bodyScrollHeightPx}px`);
+    }
+    console.error(`  viewport=${printMetrics.viewportWidth}x${printMetrics.viewportHeight}px, printMedia=${printMetrics.printMedia}`);
+  } else {
+    console.error('FT-CS-01 print-media section metrics were not received.');
   }
 }
 
-const server = createServer((req, res) => {
+const metricsScript = `
+<script>
+window.addEventListener('beforeprint', () => {
+  queueMicrotask(() => {
+    const pages = [...document.querySelectorAll('.ft-print-page')].map((page) => {
+      const body = page.querySelector('.ft-page-body');
+      const pageRect = page.getBoundingClientRect();
+      const bodyRect = body ? body.getBoundingClientRect() : { height: 0 };
+      return {
+        page: page.dataset.page || '?',
+        heightPx: pageRect.height,
+        scrollHeightPx: page.scrollHeight,
+        bodyHeightPx: bodyRect.height,
+        bodyScrollHeightPx: body ? body.scrollHeight : 0
+      };
+    });
+    const payload = JSON.stringify({
+      printMedia: window.matchMedia('print').matches,
+      viewportWidth: window.innerWidth,
+      viewportHeight: window.innerHeight,
+      pages
+    });
+    navigator.sendBeacon('/__print_metrics', payload);
+  });
+});
+</script>`;
+
+const server = createServer(async (req, res) => {
   const rawPath = decodeURIComponent((req.url || '/').split('?')[0]);
+  if (rawPath === '/__print_metrics' && req.method === 'POST') {
+    let body = '';
+    req.setEncoding('utf8');
+    req.on('data', (chunk) => { body += chunk; });
+    req.on('end', () => {
+      try { printMetrics = JSON.parse(body); } catch { printMetrics = { parseError: true, raw: body }; }
+      res.writeHead(204).end();
+    });
+    return;
+  }
+
   const relative = rawPath === '/' ? '/index.html' : rawPath;
   const filePath = normalize(join(root, relative));
   if (!filePath.startsWith(root)) {
     res.writeHead(403).end('Forbidden');
     return;
   }
+
+  if (rawPath === '/compare.html') {
+    try {
+      let html = await readFile(filePath, 'utf8');
+      html = html.replace('</body>', `${metricsScript}</body>`);
+      res.setHeader('Content-Type', 'text/html; charset=utf-8');
+      res.end(html);
+    } catch {
+      res.writeHead(404).end('Not found');
+    }
+    return;
+  }
+
   const stream = createReadStream(filePath);
   stream.on('error', () => res.writeHead(404).end('Not found'));
   res.setHeader('Content-Type', mime.get(extname(filePath)) || 'application/octet-stream');
@@ -80,6 +142,7 @@ try {
   const exitCode = await new Promise((resolve) => child.on('close', resolve));
   if (exitCode !== 0) throw new Error(`Chrome PDF render failed with exit ${exitCode}: ${stderr}`);
 
+  await new Promise((resolve) => setTimeout(resolve, 200));
   const pdf = await readFile(pdfPath);
   const ascii = pdf.toString('latin1');
   const pages = ascii.match(/\/Type\s*\/Page\b/g)?.length || 0;
