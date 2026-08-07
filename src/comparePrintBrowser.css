@@ -6,10 +6,8 @@
 @media print {
   /*
    * Browser-owned pagination for FT-CS-01.
-   * Do not size report sections to a physical 209/210 mm sheet. A nearly
-   * full-height unbreakable element can consume one sheet and leave Chromium
-   * to advance through another blank sheet before the next explicit section.
-   * The physical A4 sheet belongs to @page; these are ordinary report sections.
+   * The physical A4 sheet belongs to @page. Logical report pages remain
+   * content-sized and are checked against the real printable height in CI.
    */
   body[data-print-orientation="landscape"] .ft-print-document {
     width: auto !important;
@@ -48,6 +46,15 @@
     padding-top: 4mm !important;
   }
 
+  /* Selected alternatives + response is the densest continuation page. */
+  body[data-print-orientation="landscape"] .ft-print-document > .ft-print-page[data-page="3"] .ft-page-body {
+    padding-top: 2mm !important;
+  }
+
+  body[data-print-orientation="landscape"] .ft-print-document > .ft-print-page[data-page="3"] .ft-print-section + .ft-print-section {
+    margin-top: 2.5mm !important;
+  }
+
   body[data-print-orientation="landscape"] .ft-print-document .ft-page-footer {
     margin-top: auto !important;
   }
@@ -63,7 +70,6 @@
     page-break-after: auto !important;
   }
 
-  /* Page 3 carries cards plus a short table; Page 4 carries the balance. */
   body[data-print-orientation="landscape"] .ft-print-document .ft-final-note {
     margin-top: 3mm !important;
     padding: 2.4mm 3mm !important;
