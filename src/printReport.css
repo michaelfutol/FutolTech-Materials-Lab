@@ -7,18 +7,19 @@
 .print-letterhead,
 .print-document-footer,
 .print-running-header,
-.print-running-footer {
+.print-running-footer,
+.print-test-arrangement {
   display: none;
 }
 
 @page {
   size: A4 portrait;
-  margin: 8mm;
+  margin: 11mm 12mm 12mm;
 }
 
 @page wide-report {
   size: A4 landscape;
-  margin: 7mm 8mm 8mm;
+  margin: 10mm 12mm 11mm;
 }
 
 @media print {
@@ -28,9 +29,7 @@
     print-color-adjust: exact;
   }
 
-  body[data-print-orientation="landscape"] {
-    page: wide-report;
-  }
+  body[data-print-orientation="landscape"] { page: wide-report; }
 
   html,
   body {
@@ -42,8 +41,8 @@
     background: #fff !important;
     color: #111 !important;
     font-family: "Microsoft Sans Serif", Arial, sans-serif !important;
-    font-size: 8.4pt !important;
-    line-height: 1.25 !important;
+    font-size: 8.5pt !important;
+    line-height: 1.28 !important;
   }
 
   .print-report-button,
@@ -56,7 +55,8 @@
   .print-running-header,
   .print-running-footer,
   .help-icon,
-  .app-tooltip {
+  .app-tooltip,
+  .compare-limit-controls {
     display: none !important;
   }
 
@@ -68,71 +68,145 @@
 
   .print-letterhead {
     display: grid !important;
-    grid-template-columns: 14mm minmax(58mm, 1fr) minmax(62mm, 0.9fr);
-    gap: 3.5mm;
-    align-items: center;
-    margin: 0 0 3.5mm !important;
-    padding: 0 0 2.7mm !important;
+    grid-template-columns: minmax(0, 1fr) minmax(52mm, 70mm);
+    column-gap: 7mm;
+    align-items: end;
+    width: 100%;
+    margin: 0 0 4mm !important;
+    padding: 0 0 2.8mm !important;
     color: #111 !important;
-    border-bottom: 0.65mm solid #111;
+    border-bottom: 0.55mm solid #111;
     break-inside: avoid;
     page-break-inside: avoid;
   }
 
-  .print-brand-mark {
-    display: grid;
-    place-items: center;
-    width: 13mm;
-    height: 13mm;
-    border: 0.55mm solid #111;
-    font-size: 15pt;
-    font-weight: 800;
-    letter-spacing: -0.8pt;
-  }
-
   .print-brand-copy,
   .print-report-meta {
+    min-width: 0;
     display: grid;
-    gap: 0.35mm;
+    gap: 0.45mm;
   }
 
   .print-brand-copy strong {
-    font-size: 12.5pt;
-    line-height: 1.03;
+    font-size: 15pt;
+    line-height: 1;
+    letter-spacing: 0.2pt;
   }
 
   .print-brand-copy span {
-    font-size: 9.5pt;
+    font-size: 9.2pt;
     font-weight: 700;
   }
 
   .print-brand-copy small,
   .print-report-meta span {
     color: #444 !important;
-    font-size: 7.1pt;
+    font-size: 7pt;
   }
 
   .print-report-meta {
     justify-items: end;
     text-align: right;
+    overflow-wrap: anywhere;
   }
 
   .print-report-meta > strong {
-    max-width: 90mm;
-    font-size: 10.5pt;
-    line-height: 1.06;
+    max-width: 68mm;
+    font-size: 10pt;
+    line-height: 1.08;
+  }
+
+  .print-test-arrangement {
+    display: block !important;
+    width: 100%;
+    margin: 0 0 4mm !important;
+    padding: 2.5mm 3mm 2.8mm !important;
+    border: 0.25mm solid #777;
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .print-test-arrangement__head {
+    display: flex;
+    justify-content: space-between;
+    gap: 5mm;
+    align-items: baseline;
+    margin-bottom: 1.5mm;
+    padding-bottom: 1mm;
+    border-bottom: 0.2mm solid #aaa;
+  }
+
+  .print-test-arrangement__head strong {
+    font-size: 9.2pt;
+    letter-spacing: 0.5pt;
+  }
+
+  .print-test-arrangement__head span {
+    font-size: 7.2pt;
+    color: #444 !important;
+    text-align: right;
+  }
+
+  .print-test-arrangement svg {
+    display: block;
+    width: 100% !important;
+    height: 47mm !important;
+    max-height: 47mm !important;
+  }
+
+  .print-test-arrangement__sections {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 3mm;
+    margin-top: 1.5mm;
+  }
+
+  .print-test-section {
+    display: grid;
+    grid-template-columns: 18mm minmax(0, 1fr);
+    gap: 2mm;
+    align-items: center;
+    min-width: 0;
+    padding-top: 1.5mm;
+    border-top: 0.2mm solid #bbb;
+  }
+
+  .print-test-section__sketch {
+    display: grid;
+    place-items: center;
+    width: 18mm;
+    height: 14mm;
+  }
+
+  .print-test-section__sketch svg {
+    width: 17mm !important;
+    height: 13mm !important;
+    max-height: 13mm !important;
+  }
+
+  .print-test-section__label {
+    min-width: 0;
+    font-size: 6.9pt;
+    line-height: 1.2;
+    overflow-wrap: anywhere;
+  }
+
+  .print-test-section__label strong {
+    display: block;
+    font-size: 7.4pt;
   }
 
   .print-document-footer {
     display: grid !important;
-    grid-template-columns: minmax(42mm, 0.8fr) minmax(80mm, 1.6fr) minmax(48mm, 0.9fr);
+    grid-template-columns: minmax(36mm, 0.8fr) minmax(72mm, 1.45fr) minmax(45mm, 0.9fr);
     gap: 4mm;
     align-items: end;
+    width: 100%;
     margin: 5mm 0 0 !important;
     padding: 2.2mm 0 0 !important;
     color: #333 !important;
     border-top: 0.25mm solid #777;
-    font-size: 6.9pt !important;
+    font-size: 6.7pt !important;
     line-height: 1.25 !important;
     break-inside: avoid;
     page-break-inside: avoid;
@@ -140,11 +214,14 @@
 
   .print-document-footer > div,
   .print-document-footer__meta {
+    min-width: 0;
     display: grid;
     gap: 0.4mm;
+    overflow-wrap: anywhere;
   }
 
   .print-document-footer p {
+    min-width: 0;
     margin: 0 !important;
     text-align: center;
   }
@@ -167,9 +244,7 @@
   }
 
   main,
-  [class*="shell"] {
-    display: block !important;
-  }
+  [class*="shell"] { display: block !important; }
 
   .panel,
   fieldset,
@@ -180,20 +255,18 @@
   [class*="boundary"] {
     color: #111 !important;
     background: #fff !important;
-    border-color: #aaa !important;
+    border-color: #999 !important;
     box-shadow: none !important;
   }
 
   .panel,
   fieldset {
-    margin: 0 0 2.2mm !important;
+    margin: 0 0 2.5mm !important;
     padding: 2.2mm !important;
     border-radius: 0 !important;
   }
 
-  fieldset {
-    border: 0.25mm solid #aaa !important;
-  }
+  fieldset { border: 0.25mm solid #999 !important; }
 
   .source-card,
   .support-help,
@@ -230,9 +303,7 @@
   dt,
   dd,
   strong,
-  span {
-    color: #111 !important;
-  }
+  span { color: #111 !important; }
 
   p {
     margin-top: 0.8mm !important;
@@ -249,7 +320,7 @@
     background: #fff !important;
     color: #111 !important;
     border: 0 !important;
-    border-bottom: 0.2mm solid #aaa !important;
+    border-bottom: 0.2mm solid #999 !important;
     border-radius: 0 !important;
     box-shadow: none !important;
     font: inherit !important;
@@ -260,14 +331,8 @@
     -webkit-appearance: none !important;
   }
 
-  input[type="checkbox"] {
-    display: none !important;
-  }
-
-  .compare-enable {
-    font-size: 0 !important;
-  }
-
+  input[type="checkbox"] { display: none !important; }
+  .compare-enable { font-size: 0 !important; }
   .compare-enable::after {
     content: "Included";
     font-size: 7pt;
@@ -277,7 +342,7 @@
   .control-grid {
     display: grid !important;
     grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
-    gap: 1.6mm 3mm !important;
+    gap: 1.7mm 3.2mm !important;
   }
 
   body[data-print-orientation="portrait"] .control-grid {
@@ -288,7 +353,7 @@
   .compare-card-grid {
     display: grid !important;
     grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
-    gap: 2.5mm !important;
+    gap: 2.8mm !important;
     align-items: stretch !important;
   }
 
@@ -297,7 +362,8 @@
     min-width: 0 !important;
     margin: 0 !important;
     padding: 2mm !important;
-    border-radius: 2.5mm !important;
+    border: 0.25mm solid #999 !important;
+    border-radius: 0 !important;
   }
 
   .compare-selector-card__heading,
@@ -306,27 +372,25 @@
     gap: 1.5mm !important;
   }
 
-  .compare-selector-card select {
-    font-size: 7.4pt !important;
-  }
+  .compare-selector-card select { font-size: 7.4pt !important; }
 
   .compare-selector-visual,
   .compare-result-card__visual {
     min-height: 0 !important;
-    height: 24mm !important;
-    max-height: 24mm !important;
+    height: 23mm !important;
+    max-height: 23mm !important;
     margin: 1.5mm 0 2mm !important;
     overflow: hidden !important;
     background: #fff !important;
-    border: 0.2mm solid #ccc !important;
-    border-radius: 1.5mm !important;
+    border: 0.2mm solid #bbb !important;
+    border-radius: 0 !important;
   }
 
   .compare-selector-visual svg,
   .compare-result-card__visual svg {
     width: auto !important;
-    height: 21mm !important;
-    max-height: 21mm !important;
+    height: 20mm !important;
+    max-height: 20mm !important;
   }
 
   .section-sketch__solid,
@@ -335,14 +399,8 @@
     stroke: #111 !important;
   }
 
-  .section-sketch__void {
-    fill: #fff !important;
-    stroke: #111 !important;
-  }
-
-  .section-sketch__catalog {
-    stroke: #111 !important;
-  }
+  .section-sketch__void { fill: #fff !important; stroke: #111 !important; }
+  .section-sketch__catalog { stroke: #111 !important; }
 
   .compare-mini-metrics {
     display: grid !important;
@@ -351,8 +409,9 @@
   }
 
   .compare-mini-metrics div {
-    padding: 1.8mm !important;
-    border-radius: 1.7mm !important;
+    padding: 1.6mm !important;
+    border: 0.2mm solid #999 !important;
+    border-radius: 0 !important;
   }
 
   body[data-print-orientation="landscape"] .compare-card-grid {
@@ -399,10 +458,10 @@
   th,
   td {
     position: static !important;
-    padding: 0.75mm 1mm !important;
+    padding: 0.8mm 1mm !important;
     background: #fff !important;
     color: #111 !important;
-    border: 0.2mm solid #aaa !important;
+    border: 0.2mm solid #888 !important;
     white-space: normal !important;
     overflow-wrap: anywhere !important;
   }
