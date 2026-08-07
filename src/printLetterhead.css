@@ -1,0 +1,193 @@
+@page wide-report {
+  size: A4 landscape;
+  margin: 25mm 16mm 20mm;
+}
+
+@media print {
+  body[data-print-orientation="landscape"] {
+    font-size: 11pt !important;
+    line-height: 1.34 !important;
+  }
+
+  /*
+   * Reserve the page margins above and below for repeated document furniture.
+   * Keeping the header/footer inside those reserved bands prevents the overlap
+   * that occurred when fixed elements were used with shallow page margins.
+   */
+  body[data-print-orientation="landscape"] .print-letterhead {
+    display: grid !important;
+    position: fixed !important;
+    top: -20mm;
+    right: 0;
+    left: 0;
+    z-index: 20;
+    width: auto !important;
+    min-width: 0 !important;
+    height: 15mm;
+    margin: 0 !important;
+    padding: 0 0 2.5mm !important;
+    align-items: end;
+    grid-template-columns: minmax(0, 1fr) minmax(50mm, 64mm);
+    column-gap: 8mm;
+    overflow: hidden;
+    background: #fff !important;
+    border-bottom: 0.45mm solid #111;
+  }
+
+  body[data-print-orientation="landscape"] .print-brand-copy,
+  body[data-print-orientation="landscape"] .print-report-meta {
+    min-width: 0 !important;
+    max-width: 100% !important;
+    overflow: hidden;
+  }
+
+  body[data-print-orientation="landscape"] .print-brand-copy strong {
+    font-size: 12.5pt !important;
+    line-height: 1.02 !important;
+    letter-spacing: 0.15pt;
+  }
+
+  body[data-print-orientation="landscape"] .print-brand-copy span {
+    font-size: 9pt !important;
+    line-height: 1.1 !important;
+  }
+
+  body[data-print-orientation="landscape"] .print-brand-copy small,
+  body[data-print-orientation="landscape"] .print-report-meta span {
+    font-size: 8pt !important;
+    line-height: 1.1 !important;
+  }
+
+  body[data-print-orientation="landscape"] .print-report-meta {
+    justify-items: end;
+    text-align: right;
+    overflow-wrap: anywhere;
+  }
+
+  body[data-print-orientation="landscape"] .print-report-meta > strong {
+    width: 100%;
+    max-width: 64mm;
+    font-size: 10pt !important;
+    line-height: 1.08 !important;
+    overflow-wrap: anywhere;
+  }
+
+  body[data-print-orientation="landscape"] .print-document-footer {
+    display: grid !important;
+    position: fixed !important;
+    right: 0;
+    bottom: -15.5mm;
+    left: 0;
+    z-index: 20;
+    width: auto !important;
+    min-width: 0 !important;
+    height: 11.5mm;
+    margin: 0 !important;
+    padding: 2mm 0 0 !important;
+    grid-template-columns: minmax(43mm, 0.9fr) minmax(82mm, 1.45fr) minmax(48mm, 0.9fr);
+    gap: 5mm;
+    align-items: start;
+    overflow: hidden;
+    background: #fff !important;
+    border-top: 0.22mm solid #777;
+    font-size: 8pt !important;
+    line-height: 1.18 !important;
+  }
+
+  body[data-print-orientation="landscape"] .print-document-footer > div,
+  body[data-print-orientation="landscape"] .print-document-footer__meta,
+  body[data-print-orientation="landscape"] .print-document-footer p {
+    min-width: 0 !important;
+    max-width: 100% !important;
+    overflow-wrap: anywhere !important;
+  }
+
+  body[data-print-orientation="landscape"] .print-document-footer p {
+    margin: 0 !important;
+    text-align: center;
+  }
+
+  body[data-print-orientation="landscape"] .print-document-footer__meta {
+    justify-items: end;
+    text-align: right;
+  }
+
+  body[data-print-orientation="landscape"] .print-document-footer strong {
+    font-size: 8.5pt !important;
+    line-height: 1.12 !important;
+  }
+
+  /* 11 pt is the normal reading baseline. Headings are larger by hierarchy;
+     only the repeated page furniture remains smaller so it cannot clip. */
+  body[data-print-orientation="landscape"] .panel,
+  body[data-print-orientation="landscape"] fieldset,
+  body[data-print-orientation="landscape"] p,
+  body[data-print-orientation="landscape"] li,
+  body[data-print-orientation="landscape"] dt,
+  body[data-print-orientation="landscape"] dd,
+  body[data-print-orientation="landscape"] label,
+  body[data-print-orientation="landscape"] input,
+  body[data-print-orientation="landscape"] select,
+  body[data-print-orientation="landscape"] textarea,
+  body[data-print-orientation="landscape"] output {
+    font-size: 11pt !important;
+  }
+
+  body[data-print-orientation="landscape"] h2 {
+    font-size: 14pt !important;
+  }
+
+  body[data-print-orientation="landscape"] h3 {
+    font-size: 12pt !important;
+  }
+
+  body[data-print-orientation="landscape"] h4 {
+    font-size: 11pt !important;
+  }
+
+  body[data-print-orientation="landscape"] table {
+    font-size: 10.5pt !important;
+    line-height: 1.25 !important;
+  }
+
+  body[data-print-orientation="landscape"] th,
+  body[data-print-orientation="landscape"] td {
+    padding: 1.05mm 1.3mm !important;
+  }
+
+  body[data-print-orientation="landscape"] .print-test-arrangement__head strong {
+    font-size: 11pt !important;
+  }
+
+  body[data-print-orientation="landscape"] .print-test-arrangement__head span,
+  body[data-print-orientation="landscape"] .print-test-section__label,
+  body[data-print-orientation="landscape"] .print-test-section__label strong {
+    font-size: 9.5pt !important;
+  }
+
+  body[data-print-orientation="landscape"] .compare-selector-card select,
+  body[data-print-orientation="landscape"] .compare-enable::after {
+    font-size: 10pt !important;
+  }
+
+  /* Let the comparison table use remaining paper rather than forcing another
+     fresh sheet solely because of the old print layout. */
+  body[data-print-orientation="landscape"] .compare-table-wrap {
+    break-before: auto !important;
+    page-break-before: auto !important;
+    margin-top: 4mm !important;
+  }
+
+  body[data-print-orientation="landscape"] .compare-card-grid {
+    break-before: auto !important;
+    page-break-before: auto !important;
+  }
+
+  body[data-print-orientation="landscape"] main,
+  body[data-print-orientation="landscape"] .compare-shell,
+  body[data-print-orientation="landscape"] .compare-table-wrap,
+  body[data-print-orientation="landscape"] .compare-table,
+  body[data-print-orientation="landscape"] .print-test-arrangement {
+    max-width: 100% !important;
+  }
+}
