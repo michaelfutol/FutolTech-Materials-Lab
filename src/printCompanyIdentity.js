@@ -37,17 +37,12 @@ function mountExplicitComparisonPrint() {
     'ftCsPrint'
   );
   ensureStylesheet(
-    'link[data-ft-cs-print-fix]',
-    './src/comparePrintDocumentFix.css?v=20260808-ftcs01e',
-    'ftCsPrintFix'
-  );
-  ensureStylesheet(
-    'link[data-ft-cs-page-box]',
-    './src/comparePrintPageBox.css?v=20260807-ftcs01d',
-    'ftCsPageBox'
+    'link[data-ft-cs-browser]',
+    './src/comparePrintBrowser.css?v=20260808-ftcs01f',
+    'ftCsBrowser'
   );
 
-  import('./comparePrintDocument.js?v=20260807-ftcs01');
+  import('./comparePrintDocument.js?v=20260808-ftcs01f');
 }
 
 if (document.readyState === 'loading') {
