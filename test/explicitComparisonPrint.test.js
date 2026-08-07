@@ -4,19 +4,19 @@ import { readFile } from 'node:fs/promises';
 
 const root = new URL('../', import.meta.url);
 const css = await readFile(new URL('../src/comparePrintDocument.css', import.meta.url), 'utf8');
+const browserCss = await readFile(new URL('../src/comparePrintBrowser.css', import.meta.url), 'utf8');
 const script = await readFile(new URL('../src/comparePrintDocument.js', import.meta.url), 'utf8');
 const loader = await readFile(new URL('../src/printCompanyIdentity.js', import.meta.url), 'utf8');
 
-test('FT-CS-01 comparison print uses explicit A4 landscape pages instead of fixed overlays', () => {
-  assert.match(css, /@page wide-report[\s\S]*margin:\s*0/);
-  assert.match(css, /\.ft-print-page[\s\S]*width:\s*296mm/);
-  assert.match(css, /height:\s*209mm/);
+test('FT-CS-01 comparison print remains in-flow and browser-paginated', () => {
   assert.doesNotMatch(css, /position:\s*fixed/);
-  assert.match(css, /grid-template-rows:\s*auto minmax\(0, 1fr\) auto/);
   assert.match(css, /font-size:\s*10\.5pt/);
+  assert.match(browserCss, /@page\s*\{[\s\S]*size:\s*A4 landscape/);
+  assert.match(browserCss, /height:\s*auto\s*!important/);
+  assert.match(browserCss, /min-height:\s*180mm\s*!important/);
 });
 
-test('FT-CS-01 renders four in-flow pages with formal FutolTech identity', () => {
+test('FT-CS-01 renders four report sections with formal FutolTech identity', () => {
   assert.match(script, /FUTOLTECH ENGINEERING AND PROJECT SYSTEMS/);
   assert.match(script, /MICHAEL D FUTOL, RCE, RMP/);
   assert.match(script, /const PAGE_COUNT = 4/);
@@ -27,8 +27,9 @@ test('FT-CS-01 renders four in-flow pages with formal FutolTech identity', () =>
   assert.match(script, /Preliminary engineering output — verification required/);
 });
 
-test('comparison print loader cache-busts and mounts the explicit print document', () => {
+test('comparison print loader cache-busts and mounts the browser-pagination build', () => {
   assert.match(loader, /comparePrintDocument\.css\?v=20260807-ftcs01/);
-  assert.match(loader, /comparePrintDocument\.js\?v=20260807-ftcs01/);
+  assert.match(loader, /comparePrintBrowser\.css\?v=20260808-ftcs01f/);
+  assert.match(loader, /comparePrintDocument\.js\?v=20260808-ftcs01f/);
   assert.match(loader, /mountExplicitComparisonPrint/);
 });
