@@ -31,9 +31,12 @@ test('hover and keyboard-focus explanations are wired to controls and generated 
   assert.match(tooltipApp, /pointerover/);
 });
 
-test('direct comparison assets are cache-busted for compression acceptance', () => {
+test('direct comparison exposes the old-school engineering print build', () => {
   assert.match(compareHtml, /compare\.css\?v=20260806-1/);
   assert.match(compareHtml, /compareApp\.js\?v=20260806-1/);
   assert.match(compareHtml, /tooltips\.js\?v=20260806-1/);
-  assert.match(compareHtml, /Build 2026-08-06\.1/);
+  assert.match(compareHtml, /printReport\.css\?v=20260807-oldschool1/);
+  assert.match(compareHtml, /printReport\.js\?v=20260807-oldschool1/);
+  assert.match(compareHtml, /Build 2026-08-07\.1/);
+  assert.match(compareHtml, /Structural Member Comparison/);
 });
