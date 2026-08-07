@@ -147,6 +147,14 @@ function tablePart(start, end) {
   return wrap;
 }
 
+function finalNote(title, text) {
+  if (!text) return null;
+  const note = document.createElement('div');
+  note.className = 'ft-final-note';
+  note.innerHTML = `<h3>${title}</h3><p>${text}</p>`;
+  return note;
+}
+
 function buildPrintDocument() {
   document.querySelector('.ft-print-document')?.remove();
 
@@ -186,18 +194,11 @@ function buildPrintDocument() {
   responseSection.appendChild(sectionHeading('Engineering response', document.getElementById('compareResultsTitle')?.textContent?.trim() || 'Direct results'));
   const summary = summaryClone();
   if (summary) responseSection.appendChild(summary);
-  const fairRule = document.querySelector('#compareFairRule')?.textContent?.trim();
-  if (fairRule) {
-    const note = document.createElement('div');
-    note.className = 'ft-final-note';
-    note.innerHTML = `<h3>Fair-comparison rule</h3><p>${fairRule}</p>`;
-    responseSection.appendChild(note);
-  }
   p2.body.appendChild(responseSection);
   output.appendChild(p2.page);
 
   const rows = [...document.querySelectorAll('#compareTableBody > tr')];
-  const splitAt = Math.max(1, Math.ceil(rows.length / 2));
+  const splitAt = Math.min(4, Math.max(1, rows.length - 1));
 
   const p3 = createPage(3, true);
   const cardsSection = document.createElement('section');
@@ -222,21 +223,20 @@ function buildPrintDocument() {
   if (secondTable) tableTwo.appendChild(secondTable);
   p4.body.appendChild(tableTwo);
 
+  const fairRule = document.querySelector('#compareFairRule')?.textContent?.trim();
+  const fairRuleNote = finalNote('Fair-comparison rule', fairRule);
+  if (fairRuleNote) p4.body.appendChild(fairRuleNote);
+
   const boundary = document.getElementById('compareBoundaryNote')?.textContent?.trim();
-  if (boundary) {
-    const boundaryNote = document.createElement('div');
-    boundaryNote.className = 'ft-final-note';
-    boundaryNote.innerHTML = `<h3>Comparison boundary</h3><p>${boundary}</p>`;
-    p4.body.appendChild(boundaryNote);
-  }
+  const boundaryNote = finalNote('Comparison boundary', boundary);
+  if (boundaryNote) p4.body.appendChild(boundaryNote);
 
   const engineeringNotice = document.querySelector('body > footer')?.textContent?.replace(/^Engineering notice:\s*/i, '').trim();
-  const verification = document.createElement('div');
-  verification.className = 'ft-final-note';
-  verification.innerHTML = `
-    <h3>Preliminary engineering output — verification required</h3>
-    <p>${engineeringNotice || 'Verify delivered dimensions, actual material properties, supports, connections, workmanship, loads and governing design requirements before use.'}</p>`;
-  p4.body.appendChild(verification);
+  const verification = finalNote(
+    'Preliminary engineering output — verification required',
+    engineeringNotice || 'Verify delivered dimensions, actual material properties, supports, connections, workmanship, loads and governing design requirements before use.'
+  );
+  if (verification) p4.body.appendChild(verification);
   output.appendChild(p4.page);
 
   document.body.appendChild(output);
