@@ -16,14 +16,15 @@ test('FT-CS-01 comparison print remains in-flow and browser-paginated', () => {
   assert.match(browserCss, /min-height:\s*180mm\s*!important/);
 });
 
-test('FT-CS-01 renders four report sections with formal FutolTech identity', () => {
+test('FT-CS-01 renders five content-safe report sections with formal FutolTech identity', () => {
   assert.match(script, /FUTOLTECH ENGINEERING AND PROJECT SYSTEMS/);
   assert.match(script, /MICHAEL D FUTOL, RCE, RMP/);
-  assert.match(script, /const PAGE_COUNT = 4/);
+  assert.match(script, /const PAGE_COUNT = 5/);
   assert.match(script, /createPage\(1, false\)/);
   assert.match(script, /createPage\(2, true\)/);
   assert.match(script, /createPage\(3, true\)/);
   assert.match(script, /createPage\(4, true\)/);
+  assert.match(script, /createPage\(5, true\)/);
   assert.match(script, /Preliminary engineering output — verification required/);
 });
 
