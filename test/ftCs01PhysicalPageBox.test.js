@@ -20,9 +20,9 @@ test('FT-CS-01 relies on page height instead of forced inter-page breaks', () =>
   assert.doesNotMatch(pageBox, /page-break-before:\s*always/);
 });
 
-test('page-box override loads after prior FT-CS-01 styles', () => {
+test('page-box override loads after corrected FT-CS-01 compatibility styles', () => {
   const base = loader.indexOf('comparePrintDocument.css?v=20260807-ftcs01');
-  const fix = loader.indexOf('comparePrintDocumentFix.css?v=20260807-ftcs01b');
+  const fix = loader.indexOf('comparePrintDocumentFix.css?v=20260808-ftcs01e');
   const box = loader.indexOf('comparePrintPageBox.css?v=20260807-ftcs01d');
   assert.ok(base >= 0);
   assert.ok(fix > base);
