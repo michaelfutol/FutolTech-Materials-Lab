@@ -1,6 +1,6 @@
 import { createServer } from 'node:http';
 import { createReadStream } from 'node:fs';
-import { readFile, mkdtemp, rm } from 'node:fs/promises';
+import { readFile, writeFile, mkdtemp, rm } from 'node:fs/promises';
 import { spawn, spawnSync } from 'node:child_process';
 import { extname, join, normalize } from 'node:path';
 import { tmpdir } from 'node:os';
@@ -15,7 +15,10 @@ const mime = new Map([
   ['.json', 'application/json; charset=utf-8'],
   ['.svg', 'image/svg+xml']
 ]);
-let printMetrics = null;
+
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
 
 function findCommand(candidates) {
   for (const candidate of candidates) {
@@ -31,86 +34,81 @@ function findChrome() {
   throw new Error('Headless Chromium/Chrome is required for the FT-CS-01 PDF regression test.');
 }
 
-function printPageDiagnostics(pdfPath, pages) {
-  const pdftotext = findCommand(['pdftotext']);
-  if (pdftotext) {
-    for (let page = 1; page <= pages; page += 1) {
-      const result = spawnSync(pdftotext, ['-f', String(page), '-l', String(page), '-layout', pdfPath, '-'], { encoding: 'utf8' });
-      const text = (result.stdout || '').replace(/\f/g, '').trim();
-      const preview = text.replace(/\s+/g, ' ').slice(0, 180);
-      console.error(`FT-CS-01 PDF page ${page}: ${text.length} text chars${preview ? ` — ${preview}` : ' — BLANK'}`);
-    }
-  }
-  if (printMetrics) {
-    console.error('FT-CS-01 print-media section metrics:');
-    for (const metric of printMetrics.pages || []) {
-      console.error(`  logical page ${metric.page}: box=${metric.heightPx.toFixed(1)}px, scroll=${metric.scrollHeightPx}px, body=${metric.bodyHeightPx.toFixed(1)}px, bodyScroll=${metric.bodyScrollHeightPx}px`);
-    }
-    console.error(`  viewport=${printMetrics.viewportWidth}x${printMetrics.viewportHeight}px, printMedia=${printMetrics.printMedia}`);
-  } else {
-    console.error('FT-CS-01 print-media section metrics were not received.');
+function countPdfPages(pdf) {
+  return pdf.toString('latin1').match(/\/Type\s*\/Page\b/g)?.length || 0;
+}
+
+function printMetrics(metrics) {
+  if (!metrics) return;
+  console.error(`FT-CS-01 printMedia=${metrics.printMedia}, viewport=${metrics.viewportWidth}x${metrics.viewportHeight}px`);
+  for (const page of metrics.pages || []) {
+    console.error(
+      `  logical page ${page.page}: display=${page.display}, box=${page.heightPx.toFixed(1)}px, `
+      + `scroll=${page.scrollHeightPx}px, body=${page.bodyHeightPx.toFixed(1)}px, bodyScroll=${page.bodyScrollHeightPx}px`
+    );
   }
 }
 
-const metricsScript = `
-<script>
-window.addEventListener('beforeprint', () => {
-  queueMicrotask(() => {
-    const pages = [...document.querySelectorAll('.ft-print-page')].map((page) => {
-      const body = page.querySelector('.ft-page-body');
-      const pageRect = page.getBoundingClientRect();
-      const bodyRect = body ? body.getBoundingClientRect() : { height: 0 };
-      return {
-        page: page.dataset.page || '?',
-        heightPx: pageRect.height,
-        scrollHeightPx: page.scrollHeight,
-        bodyHeightPx: bodyRect.height,
-        bodyScrollHeightPx: body ? body.scrollHeight : 0
-      };
-    });
-    const payload = JSON.stringify({
-      printMedia: window.matchMedia('print').matches,
-      viewportWidth: window.innerWidth,
-      viewportHeight: window.innerHeight,
-      pages
-    });
-    navigator.sendBeacon('/__print_metrics', payload);
-  });
-});
-</script>`;
+function printPdfTextDiagnostics(pdfPath, pages) {
+  const pdftotext = findCommand(['pdftotext']);
+  if (!pdftotext) return;
+  for (let page = 1; page <= pages; page += 1) {
+    const result = spawnSync(pdftotext, ['-f', String(page), '-l', String(page), '-layout', pdfPath, '-'], { encoding: 'utf8' });
+    const text = (result.stdout || '').replace(/\f/g, '').trim();
+    const preview = text.replace(/\s+/g, ' ').slice(0, 180);
+    console.error(`FT-CS-01 PDF page ${page}: ${text.length} text chars${preview ? ` — ${preview}` : ' — BLANK'}`);
+  }
+}
 
-const server = createServer(async (req, res) => {
-  const rawPath = decodeURIComponent((req.url || '/').split('?')[0]);
-  if (rawPath === '/__print_metrics' && req.method === 'POST') {
-    let body = '';
-    req.setEncoding('utf8');
-    req.on('data', (chunk) => { body += chunk; });
-    req.on('end', () => {
-      try { printMetrics = JSON.parse(body); } catch { printMetrics = { parseError: true, raw: body }; }
-      res.writeHead(204).end();
+async function waitForPageTarget(debugHttp) {
+  for (let attempt = 0; attempt < 100; attempt += 1) {
+    const response = await fetch(`${debugHttp}/json/list`);
+    const targets = await response.json();
+    const page = targets.find((target) => target.type === 'page' && target.webSocketDebuggerUrl);
+    if (page) return page;
+    await sleep(50);
+  }
+  throw new Error('Chromium page target did not appear.');
+}
+
+async function openCdp(webSocketDebuggerUrl) {
+  const socket = new WebSocket(webSocketDebuggerUrl);
+  await new Promise((resolve, reject) => {
+    socket.addEventListener('open', resolve, { once: true });
+    socket.addEventListener('error', reject, { once: true });
+  });
+
+  let sequence = 0;
+  const pending = new Map();
+  socket.addEventListener('message', (event) => {
+    const message = JSON.parse(String(event.data));
+    if (!message.id) return;
+    const request = pending.get(message.id);
+    if (!request) return;
+    pending.delete(message.id);
+    if (message.error) request.reject(new Error(`${request.method}: ${message.error.message}`));
+    else request.resolve(message.result || {});
+  });
+
+  function send(method, params = {}) {
+    const id = ++sequence;
+    return new Promise((resolve, reject) => {
+      pending.set(id, { resolve, reject, method });
+      socket.send(JSON.stringify({ id, method, params }));
     });
-    return;
   }
 
+  return { socket, send };
+}
+
+const server = createServer((req, res) => {
+  const rawPath = decodeURIComponent((req.url || '/').split('?')[0]);
   const relative = rawPath === '/' ? '/index.html' : rawPath;
   const filePath = normalize(join(root, relative));
   if (!filePath.startsWith(root)) {
     res.writeHead(403).end('Forbidden');
     return;
   }
-
-  if (rawPath === '/compare.html') {
-    try {
-      let html = await readFile(filePath, 'utf8');
-      html = html.replace('</body>', `${metricsScript}</body>`);
-      res.setHeader('Content-Type', 'text/html; charset=utf-8');
-      res.end(html);
-    } catch {
-      res.writeHead(404).end('Not found');
-    }
-    return;
-  }
-
   const stream = createReadStream(filePath);
   stream.on('error', () => res.writeHead(404).end('Not found'));
   res.setHeader('Content-Type', mime.get(extname(filePath)) || 'application/octet-stream');
@@ -121,37 +119,109 @@ await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
 const { port } = server.address();
 const work = await mkdtemp(join(tmpdir(), 'ft-cs-01-'));
 const pdfPath = join(work, 'comparison.pdf');
+let chromeProcess;
+let cdp;
 
 try {
   const chrome = findChrome();
-  const url = `http://127.0.0.1:${port}/compare.html?build=ci-browser-pdf`;
-  const child = spawn(chrome, [
+  const url = `http://127.0.0.1:${port}/compare.html?build=ci-cdp-pdf`;
+  chromeProcess = spawn(chrome, [
     '--headless=new',
     '--disable-gpu',
     '--no-sandbox',
     '--disable-dev-shm-usage',
-    '--run-all-compositor-stages-before-draw',
-    '--virtual-time-budget=5000',
-    '--no-pdf-header-footer',
-    `--print-to-pdf=${pdfPath}`,
+    '--remote-debugging-port=0',
+    `--user-data-dir=${join(work, 'chrome-profile')}`,
     url
-  ], { stdio: ['ignore', 'pipe', 'pipe'] });
+  ], { stdio: ['ignore', 'ignore', 'pipe'] });
 
   let stderr = '';
-  child.stderr.on('data', (chunk) => { stderr += chunk; });
-  const exitCode = await new Promise((resolve) => child.on('close', resolve));
-  if (exitCode !== 0) throw new Error(`Chrome PDF render failed with exit ${exitCode}: ${stderr}`);
+  const devtoolsWs = await new Promise((resolve, reject) => {
+    const timeout = setTimeout(() => reject(new Error(`Timed out waiting for Chromium DevTools endpoint. ${stderr}`)), 10000);
+    chromeProcess.stderr.on('data', (chunk) => {
+      stderr += chunk.toString();
+      const match = stderr.match(/DevTools listening on (ws:\/\/[^\s]+)/);
+      if (match) {
+        clearTimeout(timeout);
+        resolve(match[1]);
+      }
+    });
+    chromeProcess.once('exit', (code) => {
+      clearTimeout(timeout);
+      reject(new Error(`Chromium exited before DevTools became ready (exit ${code}). ${stderr}`));
+    });
+  });
 
-  await new Promise((resolve) => setTimeout(resolve, 200));
-  const pdf = await readFile(pdfPath);
-  const ascii = pdf.toString('latin1');
-  const pages = ascii.match(/\/Type\s*\/Page\b/g)?.length || 0;
-  if (pages !== EXPECTED_PAGES) {
-    printPageDiagnostics(pdfPath, pages);
-    throw new Error(`FT-CS-01 browser PDF rendered ${pages} physical pages; expected exactly ${EXPECTED_PAGES}.`);
+  const debugUrl = new URL(devtoolsWs);
+  const debugHttp = `http://${debugUrl.host}`;
+  const target = await waitForPageTarget(debugHttp);
+  cdp = await openCdp(target.webSocketDebuggerUrl);
+
+  await cdp.send('Page.enable');
+  await cdp.send('Runtime.enable');
+
+  let ready = false;
+  for (let attempt = 0; attempt < 100; attempt += 1) {
+    const state = await cdp.send('Runtime.evaluate', {
+      expression: `({readyState: document.readyState, pages: document.querySelectorAll('.ft-print-page').length})`,
+      returnByValue: true
+    });
+    const value = state.result?.value;
+    if (value?.readyState === 'complete' && value?.pages === EXPECTED_PAGES) {
+      ready = true;
+      break;
+    }
+    await sleep(100);
   }
-  console.log(`FT-CS-01 browser PDF regression: ${pages} physical pages, matching ${EXPECTED_PAGES} intentional report pages.`);
+  if (!ready) throw new Error('FT-CS-01 logical print document did not become ready in Chromium.');
+
+  await cdp.send('Emulation.setEmulatedMedia', { media: 'print' });
+  await sleep(150);
+
+  const measured = await cdp.send('Runtime.evaluate', {
+    expression: `(() => ({
+      printMedia: window.matchMedia('print').matches,
+      viewportWidth: window.innerWidth,
+      viewportHeight: window.innerHeight,
+      pages: [...document.querySelectorAll('.ft-print-page')].map((page) => {
+        const body = page.querySelector('.ft-page-body');
+        const pageRect = page.getBoundingClientRect();
+        const bodyRect = body?.getBoundingClientRect() || { height: 0 };
+        return {
+          page: page.dataset.page || '?',
+          display: getComputedStyle(page).display,
+          heightPx: pageRect.height,
+          scrollHeightPx: page.scrollHeight,
+          bodyHeightPx: bodyRect.height,
+          bodyScrollHeightPx: body?.scrollHeight || 0
+        };
+      })
+    }))()`,
+    returnByValue: true
+  });
+  const metrics = measured.result?.value;
+
+  const printed = await cdp.send('Page.printToPDF', {
+    landscape: true,
+    displayHeaderFooter: false,
+    printBackground: true,
+    preferCSSPageSize: true
+  });
+  const pdf = Buffer.from(printed.data, 'base64');
+  await writeFile(pdfPath, pdf);
+  const pages = countPdfPages(pdf);
+
+  if (pages !== EXPECTED_PAGES) {
+    printMetrics(metrics);
+    printPdfTextDiagnostics(pdfPath, pages);
+    throw new Error(`FT-CS-01 Chromium DevTools PDF rendered ${pages} physical pages; expected exactly ${EXPECTED_PAGES}.`);
+  }
+
+  printMetrics(metrics);
+  console.log(`FT-CS-01 Chromium DevTools PDF regression: ${pages} physical pages, matching ${EXPECTED_PAGES} intentional report pages.`);
 } finally {
+  try { cdp?.socket.close(); } catch {}
+  try { chromeProcess?.kill('SIGTERM'); } catch {}
   server.close();
   await rm(work, { recursive: true, force: true });
 }
