@@ -43,7 +43,7 @@ function mountExplicitComparisonPrint() {
   );
   ensureStylesheet(
     'link[data-ft-cs-page-box]',
-    './src/comparePrintPageBox.css?v=20260807-ftcs01c',
+    './src/comparePrintPageBox.css?v=20260807-ftcs01d',
     'ftCsPageBox'
   );
 
