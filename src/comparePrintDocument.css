@@ -1,0 +1,534 @@
+.ft-print-document { display: none; }
+
+@page wide-report {
+  size: A4 landscape;
+  margin: 0;
+}
+
+@media print {
+  html,
+  body {
+    width: 100% !important;
+    min-width: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: #fff !important;
+  }
+
+  body[data-print-orientation="landscape"] > *:not(.ft-print-document):not(script) {
+    display: none !important;
+  }
+
+  body[data-print-orientation="landscape"] .ft-print-document {
+    display: block !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    color: #17212b !important;
+    background: #fff !important;
+    font-family: Arial, Helvetica, sans-serif !important;
+    font-size: 10.5pt !important;
+    line-height: 1.32 !important;
+  }
+
+  .ft-print-page {
+    --ft-navy: #17324d;
+    --ft-ink: #17212b;
+    --ft-muted: #5f6b76;
+    --ft-line: #bac3cb;
+    --ft-soft: #f4f6f8;
+    box-sizing: border-box;
+    display: grid !important;
+    grid-template-rows: auto minmax(0, 1fr) auto;
+    width: 296mm;
+    height: 209mm;
+    margin: 0 auto !important;
+    padding: 11mm 15mm 9mm 18mm !important;
+    overflow: hidden;
+    background: #fff !important;
+    color: var(--ft-ink) !important;
+    break-after: page;
+    page-break-after: always;
+  }
+
+  .ft-print-page:last-child {
+    break-after: auto;
+    page-break-after: auto;
+  }
+
+  .ft-page-header {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 12mm;
+    align-items: end;
+    padding-bottom: 3.2mm;
+    border-bottom: 0.55mm solid var(--ft-navy);
+  }
+
+  .ft-page-header__brand {
+    min-width: 0;
+  }
+
+  .ft-page-header__brand strong {
+    display: block;
+    margin: 0;
+    color: var(--ft-navy) !important;
+    font-size: 13.5pt !important;
+    line-height: 1.05 !important;
+    letter-spacing: 0.12pt;
+  }
+
+  .ft-page-header__brand span {
+    display: block;
+    margin-top: 1mm;
+    color: var(--ft-muted) !important;
+    font-size: 8.5pt !important;
+    letter-spacing: 0.6pt;
+    text-transform: uppercase;
+  }
+
+  .ft-page-header__meta {
+    display: grid;
+    min-width: 60mm;
+    justify-items: end;
+    text-align: right;
+    gap: 0.5mm;
+  }
+
+  .ft-page-header__meta strong {
+    color: var(--ft-ink) !important;
+    font-size: 11pt !important;
+  }
+
+  .ft-page-header__meta span {
+    color: var(--ft-muted) !important;
+    font-size: 8.5pt !important;
+  }
+
+  .ft-page-header--continuation {
+    padding-bottom: 2.2mm;
+  }
+
+  .ft-page-header--continuation .ft-page-header__brand strong {
+    font-size: 10.5pt !important;
+  }
+
+  .ft-page-header--continuation .ft-page-header__brand span {
+    margin-top: 0.4mm;
+    font-size: 7.8pt !important;
+  }
+
+  .ft-page-body {
+    min-height: 0;
+    overflow: hidden;
+    padding-top: 4.5mm;
+  }
+
+  .ft-page-footer {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 10mm;
+    align-items: end;
+    padding-top: 2.5mm;
+    border-top: 0.22mm solid var(--ft-line);
+    color: var(--ft-muted) !important;
+    font-size: 7.8pt !important;
+    line-height: 1.2 !important;
+  }
+
+  .ft-page-footer strong {
+    display: block;
+    color: var(--ft-ink) !important;
+    font-size: 8.3pt !important;
+  }
+
+  .ft-page-footer__right {
+    text-align: right;
+    white-space: nowrap;
+  }
+
+  .ft-report-intro {
+    display: grid;
+    grid-template-columns: minmax(0, 1.3fr) minmax(62mm, 0.7fr);
+    gap: 10mm;
+    align-items: end;
+    margin-bottom: 4mm;
+  }
+
+  .ft-report-intro .eyebrow,
+  .ft-section-kicker {
+    margin: 0 0 1mm !important;
+    color: var(--ft-navy) !important;
+    font-size: 8pt !important;
+    font-weight: 700 !important;
+    letter-spacing: 1.15pt;
+    text-transform: uppercase;
+  }
+
+  .ft-report-intro h1 {
+    margin: 0 !important;
+    color: var(--ft-ink) !important;
+    font-size: 20pt !important;
+    line-height: 1.02 !important;
+    letter-spacing: -0.2pt;
+  }
+
+  .ft-report-intro p {
+    margin: 1.8mm 0 0 !important;
+    color: var(--ft-muted) !important;
+    font-size: 9.5pt !important;
+  }
+
+  .ft-report-intro__badge {
+    padding: 3mm 3.5mm;
+    border-left: 1.2mm solid var(--ft-navy);
+    background: var(--ft-soft) !important;
+  }
+
+  .ft-report-intro__badge strong {
+    display: block;
+    color: var(--ft-navy) !important;
+    font-size: 10pt !important;
+  }
+
+  .ft-report-intro__badge span {
+    display: block;
+    margin-top: 0.7mm;
+    color: var(--ft-muted) !important;
+    font-size: 8.5pt !important;
+  }
+
+  .ft-print-section {
+    margin: 0 0 4mm !important;
+  }
+
+  .ft-print-section:last-child {
+    margin-bottom: 0 !important;
+  }
+
+  .ft-section-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 8mm;
+    margin-bottom: 2.4mm;
+  }
+
+  .ft-section-head h2,
+  .ft-print-section h2 {
+    margin: 0 !important;
+    color: var(--ft-ink) !important;
+    font-size: 13pt !important;
+    line-height: 1.08 !important;
+  }
+
+  .ft-section-head span {
+    color: var(--ft-muted) !important;
+    font-size: 8.5pt !important;
+  }
+
+  .ft-print-document .panel,
+  .ft-print-document .compare-selector-card,
+  .ft-print-document .compare-result-card,
+  .ft-print-document .source-card,
+  .ft-print-document .support-help,
+  .ft-print-document .recommend-note,
+  .ft-print-document .compare-summary {
+    box-shadow: none !important;
+    border-radius: 0 !important;
+  }
+
+  .ft-print-document .panel {
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+    background: #fff !important;
+  }
+
+  .ft-print-document .panel-heading {
+    margin-bottom: 2.5mm !important;
+  }
+
+  .ft-print-document .panel-heading .eyebrow {
+    color: var(--ft-navy) !important;
+    font-size: 8pt !important;
+    letter-spacing: 1.05pt;
+  }
+
+  .ft-print-document .panel-heading h2 {
+    margin: 0.6mm 0 0 !important;
+    font-size: 13pt !important;
+  }
+
+  .ft-print-document button,
+  .ft-print-document .compare-mode-switch,
+  .ft-print-document .help-icon,
+  .ft-print-document .app-tooltip,
+  .ft-print-document .compare-limit-controls {
+    display: none !important;
+  }
+
+  .ft-print-document .control-grid {
+    display: grid !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: 2.2mm 5mm !important;
+  }
+
+  .ft-print-document label {
+    display: grid !important;
+    gap: 0.8mm !important;
+    min-width: 0;
+    color: var(--ft-muted) !important;
+    font-size: 8.5pt !important;
+  }
+
+  .ft-print-value {
+    display: block;
+    min-height: 5mm;
+    padding: 0 0 1mm;
+    color: var(--ft-ink) !important;
+    font-size: 10.5pt !important;
+    font-weight: 600;
+    border-bottom: 0.2mm solid var(--ft-line);
+  }
+
+  .ft-print-document .source-card,
+  .ft-print-document .support-help,
+  .ft-print-document .compare-summary,
+  .ft-print-document .recommend-note {
+    margin: 2.8mm 0 0 !important;
+    padding: 2.5mm 3mm !important;
+    border: 0.22mm solid var(--ft-line) !important;
+    background: var(--ft-soft) !important;
+    color: var(--ft-ink) !important;
+  }
+
+  .ft-print-document .source-card strong,
+  .ft-print-document .support-help strong,
+  .ft-print-document .compare-summary strong {
+    color: var(--ft-navy) !important;
+  }
+
+  .ft-print-document p {
+    margin: 0.8mm 0 1.4mm !important;
+    font-size: 10.5pt !important;
+  }
+
+  .ft-print-document small,
+  .ft-print-document .candidate-source {
+    color: var(--ft-muted) !important;
+    font-size: 8.2pt !important;
+  }
+
+  .ft-print-document .print-test-arrangement {
+    display: block !important;
+    margin: 0 !important;
+    padding: 2.5mm 3mm 2.8mm !important;
+    border: 0.22mm solid var(--ft-line) !important;
+    background: #fff !important;
+  }
+
+  .ft-print-document .print-test-arrangement__head {
+    display: flex;
+    justify-content: space-between;
+    gap: 6mm;
+    align-items: baseline;
+    margin-bottom: 1.6mm;
+    padding-bottom: 1.2mm;
+    border-bottom: 0.2mm solid var(--ft-line);
+  }
+
+  .ft-print-document .print-test-arrangement__head strong {
+    color: var(--ft-navy) !important;
+    font-size: 9.5pt !important;
+    letter-spacing: 0.8pt;
+  }
+
+  .ft-print-document .print-test-arrangement__head span {
+    color: var(--ft-muted) !important;
+    font-size: 8.2pt !important;
+  }
+
+  .ft-print-document .print-test-arrangement > svg {
+    display: block;
+    width: 100% !important;
+    height: 34mm !important;
+    max-height: 34mm !important;
+  }
+
+  .ft-print-document .print-test-arrangement__sections {
+    display: grid !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: 3mm !important;
+    margin-top: 1.8mm !important;
+  }
+
+  .ft-print-document .print-test-section {
+    display: grid !important;
+    grid-template-columns: 15mm minmax(0, 1fr) !important;
+    gap: 2mm !important;
+    align-items: center;
+    padding-top: 1.4mm !important;
+    border-top: 0.18mm solid var(--ft-line);
+  }
+
+  .ft-print-document .print-test-section__sketch,
+  .ft-print-document .print-test-section__sketch svg {
+    width: 14mm !important;
+    height: 11mm !important;
+  }
+
+  .ft-print-document .print-test-section__label,
+  .ft-print-document .print-test-section__label strong {
+    font-size: 8.2pt !important;
+    line-height: 1.18 !important;
+  }
+
+  .ft-print-document .compare-selector-grid,
+  .ft-print-document .compare-card-grid {
+    display: grid !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: 3.5mm !important;
+    align-items: stretch !important;
+  }
+
+  .ft-print-document .compare-selector-card,
+  .ft-print-document .compare-result-card {
+    min-width: 0 !important;
+    margin: 0 !important;
+    padding: 3mm !important;
+    border: 0.22mm solid var(--ft-line) !important;
+    background: #fff !important;
+  }
+
+  .ft-print-document .compare-selector-card__heading,
+  .ft-print-document .compare-result-card__status {
+    align-items: start !important;
+    gap: 1.5mm !important;
+  }
+
+  .ft-print-document .compare-selector-card__heading h3,
+  .ft-print-document .compare-result-card h3 {
+    margin: 0.5mm 0 1mm !important;
+    font-size: 11pt !important;
+    line-height: 1.1 !important;
+  }
+
+  .ft-print-document .compare-selector-visual,
+  .ft-print-document .compare-result-card__visual {
+    display: grid !important;
+    place-items: center !important;
+    min-height: 0 !important;
+    height: 19mm !important;
+    margin: 1.8mm 0 2.4mm !important;
+    overflow: hidden !important;
+    background: var(--ft-soft) !important;
+    border: 0.18mm solid #d4dae0 !important;
+  }
+
+  .ft-print-document .compare-selector-visual svg,
+  .ft-print-document .compare-result-card__visual svg {
+    width: auto !important;
+    height: 16mm !important;
+    max-height: 16mm !important;
+  }
+
+  .ft-print-document .compare-enable,
+  .ft-print-document .compare-required {
+    color: var(--ft-muted) !important;
+    font-size: 7.8pt !important;
+  }
+
+  .ft-print-document .compare-mini-metrics {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 1.6mm !important;
+    margin: 2mm 0 !important;
+  }
+
+  .ft-print-document .compare-mini-metrics div {
+    padding: 1.6mm 1.8mm !important;
+    border: 0.18mm solid var(--ft-line) !important;
+    background: #fff !important;
+  }
+
+  .ft-print-document .compare-mini-metrics dt {
+    color: var(--ft-muted) !important;
+    font-size: 8pt !important;
+  }
+
+  .ft-print-document .compare-mini-metrics dd {
+    margin: 0.5mm 0 0 !important;
+    color: var(--ft-ink) !important;
+    font-size: 10pt !important;
+    font-weight: 700;
+  }
+
+  .ft-print-document .recommend-badge,
+  .ft-print-document .compare-winner-chip {
+    border-radius: 999px !important;
+    padding: 0.55mm 1.4mm !important;
+    font-size: 7.3pt !important;
+  }
+
+  .ft-print-table-wrap {
+    width: 100%;
+    margin-top: 3.5mm;
+  }
+
+  .ft-print-document table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+    table-layout: fixed !important;
+    font-size: 9.3pt !important;
+    line-height: 1.2 !important;
+  }
+
+  .ft-print-document th,
+  .ft-print-document td {
+    padding: 1.25mm 1.6mm !important;
+    vertical-align: top !important;
+    border: 0.18mm solid #9ba6b0 !important;
+    background: #fff !important;
+    color: var(--ft-ink) !important;
+    overflow-wrap: anywhere !important;
+  }
+
+  .ft-print-document th {
+    color: var(--ft-navy) !important;
+    font-weight: 700 !important;
+    background: var(--ft-soft) !important;
+  }
+
+  .ft-print-document td small {
+    display: block;
+    margin-top: 0.5mm;
+  }
+
+  .ft-print-document .is-metric-winner {
+    font-weight: 700 !important;
+  }
+
+  .ft-final-note {
+    margin-top: 4mm;
+    padding: 3mm 3.5mm;
+    border-left: 1mm solid var(--ft-navy);
+    background: var(--ft-soft) !important;
+  }
+
+  .ft-final-note h3 {
+    margin: 0 0 1mm !important;
+    color: var(--ft-navy) !important;
+    font-size: 10.5pt !important;
+  }
+
+  .ft-final-note p {
+    margin: 0 !important;
+    font-size: 9.5pt !important;
+  }
+
+  .ft-print-document .is-hidden,
+  .ft-print-document .is-hidden-column {
+    display: none !important;
+  }
+}
