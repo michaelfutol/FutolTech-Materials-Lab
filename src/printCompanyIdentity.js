@@ -38,11 +38,11 @@ function mountExplicitComparisonPrint() {
   );
   ensureStylesheet(
     'link[data-ft-cs-browser]',
-    './src/comparePrintBrowser.css?v=20260808-ftcs01g',
+    './src/comparePrintBrowser.css?v=20260808-ftcs01h',
     'ftCsBrowser'
   );
 
-  import('./comparePrintDocument.js?v=20260808-ftcs01g');
+  import('./comparePrintDocument.js?v=20260808-ftcs01h');
 }
 
 if (document.readyState === 'loading') {
