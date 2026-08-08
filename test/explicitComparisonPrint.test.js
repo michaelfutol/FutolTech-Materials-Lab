@@ -30,7 +30,7 @@ test('FT-CS-01 renders six content-safe report sections with formal FutolTech id
 
 test('comparison print loader cache-busts and mounts the six-page browser build', () => {
   assert.match(loader, /comparePrintDocument\.css\?v=20260807-ftcs01/);
-  assert.match(loader, /comparePrintBrowser\.css\?v=20260808-ftcs01g/);
-  assert.match(loader, /comparePrintDocument\.js\?v=20260808-ftcs01g/);
+  assert.match(loader, /comparePrintBrowser\.css\?v=20260808-ftcs01h/);
+  assert.match(loader, /comparePrintDocument\.js\?v=20260808-ftcs01h/);
   assert.match(loader, /mountExplicitComparisonPrint/);
 });
