@@ -66,7 +66,7 @@ function reportPdfText(pdfPath, pages) {
 
 async function waitForDevToolsPort(profileDir, process, stderrRef) {
   const activePortFile = join(profileDir, 'DevToolsActivePort');
-  for (let attempt = 0; attempt < 200; attempt += 1) {
+  for (let attempt = 0; attempt < 600; attempt += 1) {
     if (process.exitCode !== null) {
       throw new Error(`Chromium exited before DevTools became ready (exit ${process.exitCode}). ${stderrRef.value}`);
     }
@@ -76,15 +76,15 @@ async function waitForDevToolsPort(profileDir, process, stderrRef) {
       const port = Number(portText);
       if (Number.isInteger(port) && port > 0) return port;
     } catch {
-      // Chrome creates DevToolsActivePort once remote debugging is ready.
+      // Hosted Pages runners occasionally start Chromium more slowly than CI.
     }
     await sleep(50);
   }
-  throw new Error(`Timed out waiting for Chromium DevToolsActivePort. ${stderrRef.value}`);
+  throw new Error(`Timed out waiting for Chromium DevToolsActivePort after 30 seconds. ${stderrRef.value}`);
 }
 
 async function waitForPageTarget(debugHttp) {
-  for (let attempt = 0; attempt < 100; attempt += 1) {
+  for (let attempt = 0; attempt < 300; attempt += 1) {
     try {
       const response = await fetch(`${debugHttp}/json/list`);
       const targets = await response.json();
@@ -95,7 +95,7 @@ async function waitForPageTarget(debugHttp) {
     }
     await sleep(50);
   }
-  throw new Error('Chromium page target did not appear.');
+  throw new Error('Chromium page target did not appear within 15 seconds.');
 }
 
 async function openCdp(webSocketDebuggerUrl) {
