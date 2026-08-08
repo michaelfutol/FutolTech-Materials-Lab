@@ -46,6 +46,77 @@
     padding-top: 4mm !important;
   }
 
+  /* Keep the right-hand running metadata inside the printable page box. */
+  body[data-print-orientation="landscape"] .ft-print-document .ft-page-header {
+    grid-template-columns: minmax(0, 1fr) 68mm !important;
+    gap: 6mm !important;
+  }
+
+  body[data-print-orientation="landscape"] .ft-print-document .ft-page-header__meta {
+    min-width: 0 !important;
+    width: 100% !important;
+    max-width: 68mm !important;
+    overflow: visible !important;
+  }
+
+  body[data-print-orientation="landscape"] .ft-print-document .ft-page-header__meta strong,
+  body[data-print-orientation="landscape"] .ft-print-document .ft-page-header__meta span {
+    max-width: 100% !important;
+    white-space: normal !important;
+    overflow-wrap: anywhere !important;
+    word-break: normal !important;
+  }
+
+  body[data-print-orientation="landscape"] .ft-print-document .ft-page-header--continuation .ft-page-header__meta strong {
+    font-size: 10.2pt !important;
+    line-height: 1.08 !important;
+  }
+
+  /* The applied load must read immediately as a structural load arrow. */
+  body[data-print-orientation="landscape"] .ft-print-document .print-test-arrangement svg line[marker-end="url(#arrowB)"],
+  body[data-print-orientation="landscape"] .ft-print-document .print-test-arrangement svg line[marker-end="url(#arrowC)"] {
+    stroke: #111 !important;
+    stroke-width: 4.8 !important;
+  }
+
+  body[data-print-orientation="landscape"] .ft-print-document .print-test-arrangement svg marker#arrowB path,
+  body[data-print-orientation="landscape"] .ft-print-document .print-test-arrangement svg marker#arrowC path {
+    fill: #111 !important;
+    stroke: #111 !important;
+    stroke-width: 1.4 !important;
+  }
+
+  /* PASS / FAIL is a primary engineering decision signal, not secondary metadata. */
+  body[data-print-orientation="landscape"] .ft-print-document .compare-result-card__status > .recommend-badge {
+    flex: 0 0 auto !important;
+    padding: 1.05mm 2.4mm !important;
+    border-width: 0.5mm !important;
+    border-style: solid !important;
+    border-radius: 2mm !important;
+    background: #fff !important;
+    font-size: 13pt !important;
+    font-weight: 900 !important;
+    line-height: 1 !important;
+    letter-spacing: 0.55pt !important;
+    text-transform: uppercase !important;
+  }
+
+  body[data-print-orientation="landscape"] .ft-print-document .compare-result-card__status > .recommend-badge--fail {
+    color: #b42318 !important;
+    border-color: #b42318 !important;
+  }
+
+  body[data-print-orientation="landscape"] .ft-print-document .compare-result-card__status > .recommend-badge--pass {
+    color: #137333 !important;
+    border-color: #137333 !important;
+  }
+
+  body[data-print-orientation="landscape"] .ft-print-document .compare-result-card__status > .recommend-badge--screening {
+    color: #8a4b08 !important;
+    border-color: #8a4b08 !important;
+    font-size: 11pt !important;
+  }
+
   /* Selected alternatives + response is the densest continuation page. */
   body[data-print-orientation="landscape"] .ft-print-document > .ft-print-page[data-page="3"] .ft-page-body {
     padding-top: 2mm !important;
