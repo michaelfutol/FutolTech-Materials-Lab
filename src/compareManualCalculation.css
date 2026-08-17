@@ -122,18 +122,9 @@
     font-size: 8pt !important;
   }
 
-  .ft-manual-calc + .ft-final-note,
-  .ft-manual-calc .ft-final-note {
-    margin-top: 2.4mm !important;
-  }
-
-  .ft-manual-calc .ft-final-note h3 {
-    margin-bottom: 0.8mm !important;
-  }
-
-  .ft-manual-calc .ft-final-note p {
-    margin: 0 !important;
-    font-size: 7.8pt !important;
-    line-height: 1.25 !important;
+  /* Page 9 carries the formal boundary and verification notes. Keep Page 8
+     focused on the derivation so equations remain readable at normal scale. */
+  .ft-calc-response-grid + .ft-final-note {
+    display: none !important;
   }
 }
