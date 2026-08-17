@@ -1,8 +1,10 @@
+import { buildManualCalculationTrace } from './manualCalculationTrace.js';
+
 const COMPANY = 'FUTOLTECH ENGINEERING AND PROJECT SYSTEMS';
 const ENGINEER = 'MICHAEL D FUTOL, RCE, RMP';
 const DOCUMENT_CODE = 'CMP-003';
 const REVISION = 'Rev 0';
-const PAGE_COUNT = 6;
+const PAGE_COUNT = 8;
 
 function generatedStamp() {
   return new Intl.DateTimeFormat('en-PH', {
@@ -230,7 +232,7 @@ function buildPrintDocument() {
   p5.body.appendChild(tableOne);
   output.appendChild(p5.page);
 
-  // Page 6 — remaining metrics and verification notes.
+  // Page 6 — remaining detailed calculation schedule.
   const p6 = createPage(6, true);
   const tableTwo = document.createElement('section');
   tableTwo.className = 'ft-print-section';
@@ -238,22 +240,32 @@ function buildPrintDocument() {
   const secondTable = tablePart(splitAt, rows.length);
   if (secondTable) tableTwo.appendChild(secondTable);
   p6.body.appendChild(tableTwo);
+  output.appendChild(p6.page);
+
+  // Pages 7–8 — auditable manual calculation trace using the same geometry and solver basis.
+  const trace = buildManualCalculationTrace();
+  const p7 = createPage(7, true);
+  p7.body.appendChild(trace.propertiesSection);
+  output.appendChild(p7.page);
+
+  const p8 = createPage(8, true);
+  p8.body.appendChild(trace.responseSection);
 
   const fairRule = document.querySelector('#compareFairRule')?.textContent?.trim();
   const fairRuleNote = finalNote('Fair-comparison rule', fairRule);
-  if (fairRuleNote) p6.body.appendChild(fairRuleNote);
+  if (fairRuleNote) p8.body.appendChild(fairRuleNote);
 
   const boundary = document.getElementById('compareBoundaryNote')?.textContent?.trim();
   const boundaryNote = finalNote('Comparison boundary', boundary);
-  if (boundaryNote) p6.body.appendChild(boundaryNote);
+  if (boundaryNote) p8.body.appendChild(boundaryNote);
 
   const engineeringNotice = document.querySelector('body > footer')?.textContent?.replace(/^Engineering notice:\s*/i, '').trim();
   const verification = finalNote(
     'Preliminary engineering output — verification required',
     engineeringNotice || 'Verify delivered dimensions, actual material properties, supports, connections, workmanship, loads and governing design requirements before use.'
   );
-  if (verification) p6.body.appendChild(verification);
-  output.appendChild(p6.page);
+  if (verification) p8.body.appendChild(verification);
+  output.appendChild(p8.page);
 
   document.body.appendChild(output);
 }
