@@ -19,15 +19,15 @@ function applySelectorLabels() {
 
     const listed = orientationSelect.querySelector('option[value="listed"]');
     const rotated = orientationSelect.querySelector('option[value="rotated"]');
-    if (listed) listed.textContent = 'PATAYO · web vertical · strong-axis screening';
-    if (rotated) rotated.textContent = 'PATAOB 90° · web horizontal · weak-axis screening';
+    if (listed) listed.textContent = 'Orientation 0° · web vertical · major-axis screening';
+    if (rotated) rotated.textContent = 'Orientation 90° · web horizontal · minor-axis screening';
 
     const note = existingNote ?? document.createElement('p');
     note.dataset.cPurlinOrientationNote = 'true';
     note.className = 'candidate-source';
     note.textContent = orientationSelect.value === 'rotated'
-      ? 'PATAOB 90° selected: the same C-section is bending about its weak axis. Compare I, Z, stress and deflection directly against PATAYO.'
-      : 'PATAYO selected: web depth is vertical so the roof load is screened about the section major/strong axis.';
+      ? 'Orientation 90° selected: the same C-section is bending about its minor/weak gross axis. Compare I, Z, stress and deflection directly against Orientation 0°.'
+      : 'Orientation 0° selected: the web depth is vertical so the roof load is screened about the section major/strong gross axis.';
     if (!existingNote) orientationSelect.closest('label')?.insertAdjacentElement('afterend', note);
   }
 }

@@ -16,7 +16,7 @@ const cPurlinTypeOption = [...elements.sectionTypeSelect.options]
 const sourceLookup = new Map(Object.values(PH_C_PURLIN_SOURCES).map((source) => [source.id, source]));
 
 let active = false;
-let rotated = false;
+let orientationDeg = 0;
 let internalMaterialChange = false;
 let preRotatePresetId = 'custom';
 
@@ -91,23 +91,32 @@ function grossProperties() {
   });
 }
 
+function weakAxisOrientation() {
+  return orientationDeg % 180 === 90;
+}
+
+function orientationDescription() {
+  if (orientationDeg === 0) return 'Orientation 0° · web vertical · opening right · major-axis gross screening';
+  if (orientationDeg === 90) return 'Orientation 90° · web horizontal · opening down · minor-axis gross screening';
+  if (orientationDeg === 180) return 'Orientation 180° · web vertical · opening left · major-axis gross screening';
+  return 'Orientation 270° · web horizontal · opening up · minor-axis gross screening';
+}
+
 function writeGrossProperties({ analyseAfter = true } = {}) {
   if (!active) return;
   const properties = grossProperties();
+  const weak = weakAxisOrientation();
   elements.areaInput.value = properties.areaMm2.toFixed(3);
-  elements.ixInput.value = (rotated ? properties.iyMm4 : properties.ixMm4).toFixed(3);
-  elements.iyInput.value = (rotated ? properties.ixMm4 : properties.iyMm4).toFixed(3);
-  elements.zxInput.value = (rotated ? properties.zyMm3 : properties.zxMm3).toFixed(3);
-  elements.zyInput.value = (rotated ? properties.zxMm3 : properties.zyMm3).toFixed(3);
+  elements.ixInput.value = (weak ? properties.iyMm4 : properties.ixMm4).toFixed(3);
+  elements.iyInput.value = (weak ? properties.ixMm4 : properties.iyMm4).toFixed(3);
+  elements.zxInput.value = (weak ? properties.zyMm3 : properties.zxMm3).toFixed(3);
+  elements.zyInput.value = (weak ? properties.zxMm3 : properties.zyMm3).toFixed(3);
   refreshCPurlinUi();
   if (analyseAfter) elements.loadInput.dispatchEvent(new Event('input', { bubbles: true }));
 }
 
 function summaryMarkup() {
-  const orientation = rotated
-    ? '<strong>PATAOB 90°</strong> · web horizontal · weak-axis gross screening'
-    : '<strong>PATAYO</strong> · web vertical · major-axis gross screening';
-  return `<strong>Solver uses:</strong> C-purlin H${format(Number(elements.depthInput.value), 1)} × B${format(Number(elements.widthInput.value), 1)} × A${format(Number(elements.lipInput.value), 1)} × t${format(Number(elements.thicknessInput.value), 2)} mm · ${orientation}`;
+  return `<strong>Solver uses:</strong> C-purlin H${format(Number(elements.depthInput.value), 1)} × B${format(Number(elements.widthInput.value), 1)} × A${format(Number(elements.lipInput.value), 1)} × t${format(Number(elements.thicknessInput.value), 2)} mm · <strong>${orientationDescription()}</strong>`;
 }
 
 function sourceNoteMarkup() {
@@ -118,7 +127,7 @@ function sourceNoteMarkup() {
     : '<p><strong>Custom measured C-purlin:</strong> verify delivered H, B, A, t, steel grade/coating and bend radii.</p>';
   return `
     <strong>C-purlin orientation screening</strong>
-    <p>This page compares gross elastic response only. PATAYO and PATAOB are the same physical lipped-C section rotated 90°. This is not yet a cold-formed design capacity.</p>
+    <p>The same physical lipped-C section can be viewed at 0°, 90°, 180° and 270°. Gross elastic bending properties are the same for 0°/180° and for 90°/270°, while the opening direction remains important for installation, restraint, connection and uplift detailing.</p>
     ${sourceLine}
     <p>Effective width, local/distortional buckling, lateral-torsional buckling, roof-sheet restraint, bridging/sag rods, connection eccentricity, wind uplift and governing load combinations remain outside this screening.</p>
   `;
@@ -133,7 +142,7 @@ function refreshCPurlinUi() {
   elements.lipLabel.classList.remove('is-hidden');
   elements.customPropertyFields.classList.add('is-hidden');
   elements.rotateSectionButton.disabled = false;
-  elements.rotateSectionButton.textContent = rotated ? 'Return → PATAYO' : 'Rotate 90° → PATAOB';
+  elements.rotateSectionButton.textContent = `Rotate +90° · orientation ${orientationDeg}°`;
   elements.columnModeButton.disabled = true;
   elements.columnModeButton.title = 'C-purlin mode is currently limited to beam-bending orientation screening.';
   elements.cPurlinBoundaryNote.classList.remove('is-hidden');
@@ -144,7 +153,7 @@ function refreshCPurlinUi() {
 
 function applyPreset(preset) {
   if (!preset) return;
-  rotated = false;
+  orientationDeg = 0;
   elements.widthInput.value = String(preset.purlinFlangeMm ?? preset.widthMm);
   elements.depthInput.value = String(preset.purlinDepthMm ?? preset.depthMm);
   elements.lipInput.value = String(preset.lipMm ?? 15);
@@ -155,7 +164,7 @@ function applyPreset(preset) {
 function activateCPurlinMode({ preferredPresetId = null, chooseDefault = false } = {}) {
   ensureSteelMaterial();
   active = true;
-  rotated = false;
+  orientationDeg = 0;
   cPurlinTypeOption.selected = true;
 
   if (elements.columnModeButton.classList.contains('is-active')) elements.beamModeButton.click();
@@ -176,21 +185,18 @@ function activateCPurlinMode({ preferredPresetId = null, chooseDefault = false }
 function exitCPurlinMode({ restorePresets = true } = {}) {
   if (!active) return;
   active = false;
-  rotated = false;
+  orientationDeg = 0;
   elements.lipLabel.classList.add('is-hidden');
   elements.cPurlinBoundaryNote.classList.add('is-hidden');
   elements.columnModeButton.disabled = false;
   elements.columnModeButton.removeAttribute('title');
-  elements.rotateSectionButton.textContent = 'Rotate section 90°';
+  elements.rotateSectionButton.textContent = 'Rotate +90°';
   if (restorePresets) restoreFullPresetList('custom');
 }
 
 elements.sectionTypeSelect.addEventListener('change', () => {
-  if (cPurlinOptionSelected()) {
-    activateCPurlinMode({ chooseDefault: true });
-  } else if (active) {
-    exitCPurlinMode({ restorePresets: true });
-  }
+  if (cPurlinOptionSelected()) activateCPurlinMode({ chooseDefault: true });
+  else if (active) exitCPurlinMode({ restorePresets: true });
 });
 
 elements.sectionPresetSelect.addEventListener('change', () => {
@@ -198,6 +204,7 @@ elements.sectionPresetSelect.addEventListener('change', () => {
   if (preset?.productCategory === 'c-purlin') {
     if (!active) {
       active = true;
+      orientationDeg = 0;
       cPurlinTypeOption.selected = true;
       if (elements.columnModeButton.classList.contains('is-active')) elements.beamModeButton.click();
       populateCPurlinPresets(preset.id);
@@ -210,16 +217,13 @@ elements.sectionPresetSelect.addEventListener('change', () => {
 
 for (const input of [elements.widthInput, elements.depthInput, elements.thicknessInput]) {
   input.addEventListener('input', () => {
-    if (!active) return;
-    writeGrossProperties();
+    if (active) writeGrossProperties();
   });
 }
 
 elements.lipInput.addEventListener('input', () => {
   if (!active) return;
-  if ([...elements.sectionPresetSelect.options].some((option) => option.value === 'custom')) {
-    elements.sectionPresetSelect.value = 'custom';
-  }
+  if ([...elements.sectionPresetSelect.options].some((option) => option.value === 'custom')) elements.sectionPresetSelect.value = 'custom';
   writeGrossProperties();
 });
 
@@ -232,10 +236,8 @@ elements.rotateSectionButton.addEventListener('click', () => {
   const widthAfterAppRotation = elements.widthInput.value;
   elements.widthInput.value = elements.depthInput.value;
   elements.depthInput.value = widthAfterAppRotation;
-  rotated = !rotated;
-  if ([...elements.sectionPresetSelect.options].some((option) => option.value === preRotatePresetId)) {
-    elements.sectionPresetSelect.value = preRotatePresetId;
-  }
+  orientationDeg = (orientationDeg + 90) % 360;
+  if ([...elements.sectionPresetSelect.options].some((option) => option.value === preRotatePresetId)) elements.sectionPresetSelect.value = preRotatePresetId;
   writeGrossProperties();
 });
 
@@ -253,8 +255,7 @@ elements.materialSelect.addEventListener('change', () => {
 });
 
 elements.resetButton.addEventListener('click', () => {
-  if (!active) return;
-  exitCPurlinMode({ restorePresets: false });
+  if (active) exitCPurlinMode({ restorePresets: false });
 });
 
 new MutationObserver(() => {
