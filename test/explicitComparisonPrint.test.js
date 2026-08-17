@@ -27,7 +27,7 @@ test('FT-CS-01 renders eight content-safe report sections with formal FutolTech 
   assert.match(script, /createPage\(6, true\)/);
   assert.match(script, /createPage\(7, true\)/);
   assert.match(script, /createPage\(8, true\)/);
-  assert.match(script, /Manual calculation/);
+  assert.match(script, /buildManualCalculationTrace/);
   assert.match(script, /Preliminary engineering output — verification required/);
 });
 
