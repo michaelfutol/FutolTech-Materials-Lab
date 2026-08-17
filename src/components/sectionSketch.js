@@ -69,7 +69,11 @@ function cMarkup(preset) {
   const tPx = clamp(thickness * scale, 3, 6);
   const x = 60 - w / 2;
   const y = 58 - h / 2;
-  const rotation = Number(preset.displayRotationDeg ?? 0) % 180;
+  const rotatedBySolver = Number.isFinite(preset.purlinDepthMm)
+    && Number.isFinite(preset.purlinFlangeMm)
+    && Math.abs((preset.depthMm ?? preset.purlinDepthMm) - preset.purlinFlangeMm) < 1e-9
+    && Math.abs((preset.widthMm ?? preset.purlinFlangeMm) - preset.purlinDepthMm) < 1e-9;
+  const rotation = Number(preset.displayRotationDeg ?? (rotatedBySolver ? 90 : 0)) % 180;
   return `<g transform="rotate(${rotation} 60 58)">
     <rect x="${x}" y="${y}" width="${tPx}" height="${h}" class="section-sketch__solid" />
     <rect x="${x}" y="${y}" width="${w}" height="${tPx}" class="section-sketch__solid" />
