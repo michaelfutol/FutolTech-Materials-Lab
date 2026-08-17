@@ -1,6 +1,7 @@
 import { PH_BAMBOO_CULM_PRESETS } from './phBambooMaterials.js';
 import { PH_PIPE_SECTIONS } from './phSteelCatalog.js?v=20260801-1545';
 import { PH_JIS_H_SECTIONS } from './phRolledSteelCatalog.js';
+import { PH_C_PURLIN_SECTIONS } from './phCPurlinCatalog.js';
 
 const woodPreset = (id, label, widthMm, depthMm) => ({
   id, label, type: 'rectangle', productCategory: 'sawn-wood', productLabel: 'Sawn wood', widthMm, depthMm
@@ -40,6 +41,7 @@ export const SECTION_PRESETS = {
     tubePreset('rhs-100-50-20', 'RHS 100×50×2.0 mm', 50, 100, 2),
     ...PH_PIPE_SECTIONS,
     ...PH_JIS_H_SECTIONS,
+    ...PH_C_PURLIN_SECTIONS,
     { id: 'custom', label: 'Custom measured / catalog steel section' }
   ]
 };
