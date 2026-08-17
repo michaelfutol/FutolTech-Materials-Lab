@@ -57,6 +57,32 @@ function hMarkup(preset) {
   `;
 }
 
+function cMarkup(preset) {
+  const depth = preset.purlinDepthMm ?? preset.depthMm ?? 100;
+  const flange = preset.purlinFlangeMm ?? preset.widthMm ?? 50;
+  const lip = preset.lipMm ?? 15;
+  const thickness = preset.thicknessMm ?? 1.2;
+  const scale = Math.min(72 / flange, 86 / depth);
+  const w = clamp(flange * scale, 28, 72);
+  const h = clamp(depth * scale, 38, 86);
+  const lipPx = clamp(lip * scale, 7, h / 3);
+  const tPx = clamp(thickness * scale, 3, 6);
+  const x = 60 - w / 2;
+  const y = 58 - h / 2;
+  const rotatedBySolver = Number.isFinite(preset.purlinDepthMm)
+    && Number.isFinite(preset.purlinFlangeMm)
+    && Math.abs((preset.depthMm ?? preset.purlinDepthMm) - preset.purlinFlangeMm) < 1e-9
+    && Math.abs((preset.widthMm ?? preset.purlinFlangeMm) - preset.purlinDepthMm) < 1e-9;
+  const rotation = Number(preset.displayRotationDeg ?? (rotatedBySolver ? 90 : 0)) % 180;
+  return `<g transform="rotate(${rotation} 60 58)">
+    <rect x="${x}" y="${y}" width="${tPx}" height="${h}" class="section-sketch__solid" />
+    <rect x="${x}" y="${y}" width="${w}" height="${tPx}" class="section-sketch__solid" />
+    <rect x="${x}" y="${y + h - tPx}" width="${w}" height="${tPx}" class="section-sketch__solid" />
+    <rect x="${x + w - tPx}" y="${y}" width="${tPx}" height="${lipPx}" class="section-sketch__solid" />
+    <rect x="${x + w - tPx}" y="${y + h - lipPx}" width="${tPx}" height="${lipPx}" class="section-sketch__solid" />
+  </g>`;
+}
+
 export function sectionSketchSvg(preset, family, { title = preset?.label ?? 'Section sketch' } = {}) {
   const kind = sectionShapeKind(preset, family);
   let shape = '';
@@ -65,6 +91,7 @@ export function sectionSketchSvg(preset, family, { title = preset?.label ?? 'Sec
   else if (kind === 'pipe-ring') shape = ringMarkup(preset, false);
   else if (kind === 'bamboo-ring') shape = ringMarkup(preset, true);
   else if (kind === 'h-section') shape = hMarkup(preset);
+  else if (kind === 'lipped-c') shape = cMarkup(preset);
   else shape = '<path d="M28 90 L28 26 L92 26 L92 90" class="section-sketch__catalog"/><text x="60" y="63" text-anchor="middle" class="section-sketch__question">A,I,Z</text>';
 
   return `<svg class="section-sketch" viewBox="0 0 120 118" role="img" aria-label="${esc(title)}"><title>${esc(title)}</title>${shape}</svg>`;
