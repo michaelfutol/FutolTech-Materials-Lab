@@ -51,11 +51,12 @@ test('direct comparison exposes coordinated four-way C-purlin installation orien
   assert.match(compareHtml, /90° and 270° use the same gross minor-axis screening properties/);
   assert.doesNotMatch(compareHtml, /PATAOB|PATAYO/i);
 
-  for (const degrees of [0, 90, 180, 270]) {
-    assert.match(cPurlinOrientationUi, new RegExp(`Orientation \\${degrees}°|Orientation ${degrees}°`));
-  }
-  assert.match(cPurlinOrientationUi, /data-orientation-deg="180"/);
-  assert.match(cPurlinOrientationUi, /data-orientation-deg="270"/);
+  assert.match(cPurlinOrientationUi, /Orientation 0°/);
+  assert.match(cPurlinOrientationUi, /Orientation 90°/);
+  assert.match(cPurlinOrientationUi, /Orientation 180°/);
+  assert.match(cPurlinOrientationUi, /Orientation 270°/);
+  assert.match(cPurlinOrientationUi, /option180\.dataset\.orientationDeg = '180'/);
+  assert.match(cPurlinOrientationUi, /option270\.dataset\.orientationDeg = '270'/);
   assert.match(cPurlinOrientationUi, /setSelectorFigureAngle/);
   assert.match(cPurlinOrientationUi, /extraDisplayRotation/);
   assert.match(cPurlinOrientationUi, /Orientation \$\{degrees\}°/);
