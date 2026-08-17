@@ -52,12 +52,13 @@ function ensureFourOrientationOptions(select) {
   }
 }
 
-function setSelectorFigureAngle(card, degrees) {
-  const svg = card.querySelector('.compare-selector-visual .section-sketch');
-  if (!svg) return;
-  const nextTransform = `rotate(${degrees}deg)`;
-  if (svg.style.transform !== nextTransform) svg.style.transform = nextTransform;
-  if (svg.style.transformOrigin !== 'center') svg.style.transformOrigin = 'center';
+function setSectionSketchAngle(root, selector, degrees) {
+  const group = root.querySelector(`${selector} .section-sketch > g`);
+  if (!group) return;
+  const nextTransform = `rotate(${degrees} 60 58)`;
+  if (group.getAttribute('transform') !== nextTransform) {
+    group.setAttribute('transform', nextTransform);
+  }
 }
 
 function applySelectorLabels() {
@@ -73,8 +74,6 @@ function applySelectorLabels() {
     const existingNote = card.querySelector('[data-c-purlin-orientation-note]');
     if (!isCPurlinPreset(presetSelect)) {
       existingNote?.remove();
-      const svg = card.querySelector('.compare-selector-visual .section-sketch');
-      if (svg?.style.transform) svg.style.transform = '';
       continue;
     }
 
@@ -83,7 +82,10 @@ function applySelectorLabels() {
     const targetOption = [...orientationSelect.options]
       .find((option) => Number(option.dataset.orientationDeg) === degrees);
     if (targetOption && !targetOption.selected) targetOption.selected = true;
-    setSelectorFigureAngle(card, degrees);
+
+    // Rotate the actual C-section SVG group, not the outer SVG element. This makes
+    // the opening direction visibly change at 180°/270° and avoids CSS-transform lag.
+    setSectionSketchAngle(card, '.compare-selector-visual', degrees);
 
     const note = existingNote ?? document.createElement('p');
     note.dataset.cPurlinOrientationNote = 'true';
@@ -110,14 +112,10 @@ function applyResultOrientationVisuals() {
     if (!presetSelect || !isCPurlinPreset(presetSelect)) return;
 
     const degrees = orientationDegreesBySlot[slotIndex] ?? 0;
-    const solverBaseAngle = degrees % 180;
-    const extraDisplayRotation = degrees - solverBaseAngle;
-    const svg = resultCard.querySelector('.compare-result-card__visual .section-sketch');
-    if (svg) {
-      const nextTransform = extraDisplayRotation ? `rotate(${extraDisplayRotation}deg)` : '';
-      if (svg.style.transform !== nextTransform) svg.style.transform = nextTransform;
-      if (svg.style.transformOrigin !== 'center') svg.style.transformOrigin = 'center';
-    }
+
+    // The solver still uses the same gross-axis pair (0/180 major, 90/270 minor),
+    // while the drawing is forced to the exact installation angle selected.
+    setSectionSketchAngle(resultCard, '.compare-result-card__visual', degrees);
 
     const description = resultCard.querySelector('.compare-result-card__body h3 + p');
     const strong = description?.querySelector('strong');
