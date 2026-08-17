@@ -1,8 +1,10 @@
+import { buildManualCalculationTrace } from './manualCalculationTrace.js';
+
 const COMPANY = 'FUTOLTECH ENGINEERING AND PROJECT SYSTEMS';
 const ENGINEER = 'MICHAEL D FUTOL, RCE, RMP';
 const DOCUMENT_CODE = 'CMP-003';
 const REVISION = 'Rev 0';
-const PAGE_COUNT = 6;
+const PAGE_COUNT = 9;
 
 function generatedStamp() {
   return new Intl.DateTimeFormat('en-PH', {
@@ -162,7 +164,6 @@ function buildPrintDocument() {
   output.className = 'ft-print-document';
   output.setAttribute('aria-hidden', 'true');
 
-  // Page 1 — restrained report opening and test arrangement only.
   const p1 = createPage(1, false);
   p1.body.appendChild(reportIntro());
   const arrangement = arrangementClone();
@@ -174,7 +175,6 @@ function buildPrintDocument() {
   }
   output.appendChild(p1.page);
 
-  // Page 2 — common loading and boundary-condition basis.
   const p2 = createPage(2, true);
   const conditionsSection = document.createElement('section');
   conditionsSection.className = 'ft-print-section';
@@ -187,7 +187,6 @@ function buildPrintDocument() {
   p2.body.appendChild(conditionsSection);
   output.appendChild(p2.page);
 
-  // Page 3 — selected alternatives and concise engineering response.
   const p3 = createPage(3, true);
   const membersSection = document.createElement('section');
   membersSection.className = 'ft-print-section';
@@ -207,7 +206,6 @@ function buildPrintDocument() {
   p3.body.appendChild(responseSection);
   output.appendChild(p3.page);
 
-  // Page 4 — visual member result cards.
   const p4 = createPage(4, true);
   const cardsSection = document.createElement('section');
   cardsSection.className = 'ft-print-section';
@@ -220,7 +218,6 @@ function buildPrintDocument() {
   const rows = [...document.querySelectorAll('#compareTableBody > tr')];
   const splitAt = Math.max(1, Math.ceil(rows.length / 2));
 
-  // Page 5 — first half of detailed calculation schedule.
   const p5 = createPage(5, true);
   const tableOne = document.createElement('section');
   tableOne.className = 'ft-print-section';
@@ -230,7 +227,6 @@ function buildPrintDocument() {
   p5.body.appendChild(tableOne);
   output.appendChild(p5.page);
 
-  // Page 6 — remaining metrics and verification notes.
   const p6 = createPage(6, true);
   const tableTwo = document.createElement('section');
   tableTwo.className = 'ft-print-section';
@@ -238,22 +234,40 @@ function buildPrintDocument() {
   const secondTable = tablePart(splitAt, rows.length);
   if (secondTable) tableTwo.appendChild(secondTable);
   p6.body.appendChild(tableTwo);
+  output.appendChild(p6.page);
+
+  // Pages 7–8 — auditable manual calculation trace using the same geometry and solver basis.
+  const trace = buildManualCalculationTrace();
+  const p7 = createPage(7, true);
+  p7.body.appendChild(trace.propertiesSection);
+  output.appendChild(p7.page);
+
+  const p8 = createPage(8, true);
+  p8.body.appendChild(trace.responseSection);
+  output.appendChild(p8.page);
+
+  // Page 9 — calculation boundaries and required verification, intentionally separated from the derivation.
+  const p9 = createPage(9, true);
+  const notesSection = document.createElement('section');
+  notesSection.className = 'ft-print-section';
+  notesSection.appendChild(sectionHeading('Engineering notes', 'Calculation boundary & verification', 'Read with the manual trace and comparison schedule'));
 
   const fairRule = document.querySelector('#compareFairRule')?.textContent?.trim();
   const fairRuleNote = finalNote('Fair-comparison rule', fairRule);
-  if (fairRuleNote) p6.body.appendChild(fairRuleNote);
+  if (fairRuleNote) notesSection.appendChild(fairRuleNote);
 
   const boundary = document.getElementById('compareBoundaryNote')?.textContent?.trim();
   const boundaryNote = finalNote('Comparison boundary', boundary);
-  if (boundaryNote) p6.body.appendChild(boundaryNote);
+  if (boundaryNote) notesSection.appendChild(boundaryNote);
 
   const engineeringNotice = document.querySelector('body > footer')?.textContent?.replace(/^Engineering notice:\s*/i, '').trim();
   const verification = finalNote(
     'Preliminary engineering output — verification required',
     engineeringNotice || 'Verify delivered dimensions, actual material properties, supports, connections, workmanship, loads and governing design requirements before use.'
   );
-  if (verification) p6.body.appendChild(verification);
-  output.appendChild(p6.page);
+  if (verification) notesSection.appendChild(verification);
+  p9.body.appendChild(notesSection);
+  output.appendChild(p9.page);
 
   document.body.appendChild(output);
 }
