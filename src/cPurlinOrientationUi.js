@@ -1,3 +1,6 @@
+import { presetsForFamily } from './data/sectionPresets.js';
+import { sectionSketchSvg } from './components/sectionSketch.js';
+
 const orientationDegreesBySlot = [0, 0, 0];
 
 function isCPurlinPreset(select) {
@@ -15,15 +18,15 @@ function orientationLabel(degrees) {
 
 function orientationNote(degrees) {
   if (degrees === 0) {
-    return 'Orientation 0° selected: web depth is vertical, so roof load is screened about the section major/strong gross axis.';
+    return 'Orientation 0° selected: web depth is vertical, opening right, and roof load is screened about the section major/strong gross axis.';
   }
   if (degrees === 90) {
-    return 'Orientation 90° selected: web is horizontal, so the same C-section is screened about its minor/weak gross axis.';
+    return 'Orientation 90° selected: web is horizontal, opening down, and the same C-section is screened about its minor/weak gross axis.';
   }
   if (degrees === 180) {
-    return 'Orientation 180° selected: web is vertical with the C opening reversed. Gross major-axis properties are equivalent to Orientation 0°, while installation direction remains explicit.';
+    return 'Orientation 180° selected: web is vertical with the opening left. Gross major-axis properties are equivalent to Orientation 0°, while installation direction remains explicit.';
   }
-  return 'Orientation 270° selected: web is horizontal with the C opening reversed. Gross minor-axis properties are equivalent to Orientation 90°, while installation direction remains explicit.';
+  return 'Orientation 270° selected: web is horizontal with the opening up. Gross minor-axis properties are equivalent to Orientation 90°, while installation direction remains explicit.';
 }
 
 function ensureFourOrientationOptions(select) {
@@ -52,13 +55,23 @@ function ensureFourOrientationOptions(select) {
   }
 }
 
-function setSectionSketchAngle(root, selector, degrees) {
-  const group = root.querySelector(`${selector} .section-sketch > g`);
-  if (!group) return;
-  const nextTransform = `rotate(${degrees} 60 58)`;
-  if (group.getAttribute('transform') !== nextTransform) {
-    group.setAttribute('transform', nextTransform);
-  }
+function cPurlinPresetById(id) {
+  return presetsForFamily('steel').find((preset) => preset.id === id) ?? null;
+}
+
+function renderCPurlinFigure(container, presetId, degrees, titlePrefix = 'C-purlin') {
+  if (!container) return;
+  const preset = cPurlinPresetById(presetId);
+  if (!preset) return;
+  const normalizedDegrees = ((Number(degrees) % 360) + 360) % 360;
+  const key = `${preset.id}:${normalizedDegrees}`;
+  if (container.dataset.orientationFigureKey === key) return;
+
+  const orientedPreset = { ...preset, displayRotationDeg: normalizedDegrees };
+  container.innerHTML = sectionSketchSvg(orientedPreset, 'steel', {
+    title: `${titlePrefix} · Orientation ${normalizedDegrees}°`
+  });
+  container.dataset.orientationFigureKey = key;
 }
 
 function applySelectorLabels() {
@@ -74,6 +87,7 @@ function applySelectorLabels() {
     const existingNote = card.querySelector('[data-c-purlin-orientation-note]');
     if (!isCPurlinPreset(presetSelect)) {
       existingNote?.remove();
+      card.querySelector('.compare-selector-visual')?.removeAttribute('data-orientation-figure-key');
       continue;
     }
 
@@ -83,9 +97,14 @@ function applySelectorLabels() {
       .find((option) => Number(option.dataset.orientationDeg) === degrees);
     if (targetOption && !targetOption.selected) targetOption.selected = true;
 
-    // Rotate the actual C-section SVG group, not the outer SVG element. This makes
-    // the opening direction visibly change at 180°/270° and avoids CSS-transform lag.
-    setSectionSketchAngle(card, '.compare-selector-visual', degrees);
+    // Rebuild the SVG from the exact installation orientation instead of mutating
+    // an already-rendered transform. This mirrors the reliable solo-lab approach.
+    renderCPurlinFigure(
+      card.querySelector('.compare-selector-visual'),
+      presetSelect.value,
+      degrees,
+      card.querySelector('h3')?.textContent?.trim() || 'C-purlin'
+    );
 
     const note = existingNote ?? document.createElement('p');
     note.dataset.cPurlinOrientationNote = 'true';
@@ -112,10 +131,12 @@ function applyResultOrientationVisuals() {
     if (!presetSelect || !isCPurlinPreset(presetSelect)) return;
 
     const degrees = orientationDegreesBySlot[slotIndex] ?? 0;
-
-    // The solver still uses the same gross-axis pair (0/180 major, 90/270 minor),
-    // while the drawing is forced to the exact installation angle selected.
-    setSectionSketchAngle(resultCard, '.compare-result-card__visual', degrees);
+    renderCPurlinFigure(
+      resultCard.querySelector('.compare-result-card__visual'),
+      presetSelect.value,
+      degrees,
+      selectorCard.querySelector('h3')?.textContent?.trim() || 'C-purlin'
+    );
 
     const description = resultCard.querySelector('.compare-result-card__body h3 + p');
     const strong = description?.querySelector('strong');
