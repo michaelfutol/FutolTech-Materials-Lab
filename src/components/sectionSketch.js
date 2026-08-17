@@ -73,7 +73,8 @@ function cMarkup(preset) {
     && Number.isFinite(preset.purlinFlangeMm)
     && Math.abs((preset.depthMm ?? preset.purlinDepthMm) - preset.purlinFlangeMm) < 1e-9
     && Math.abs((preset.widthMm ?? preset.purlinFlangeMm) - preset.purlinDepthMm) < 1e-9;
-  const rotation = Number(preset.displayRotationDeg ?? (rotatedBySolver ? 90 : 0)) % 180;
+  const rawRotation = Number(preset.displayRotationDeg ?? (rotatedBySolver ? 90 : 0));
+  const rotation = ((rawRotation % 360) + 360) % 360;
   return `<g transform="rotate(${rotation} 60 58)">
     <rect x="${x}" y="${y}" width="${tPx}" height="${h}" class="section-sketch__solid" />
     <rect x="${x}" y="${y}" width="${w}" height="${tPx}" class="section-sketch__solid" />
