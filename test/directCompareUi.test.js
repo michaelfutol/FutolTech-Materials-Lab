@@ -56,3 +56,12 @@ test('direct comparison uses formal C-purlin orientation language', () => {
   assert.match(cPurlinOrientationUi, /SCREENING/);
   assert.match(cPurlinOrientationUi, /ph-cp-/);
 });
+
+test('C-purlin enhancement observer is idempotent and batched to prevent a DOM feedback loop', () => {
+  assert.match(cPurlinOrientationUi, /function setTextIfChanged/);
+  assert.match(cPurlinOrientationUi, /node\.textContent !== nextText/);
+  assert.match(cPurlinOrientationUi, /let enhancementQueued = false/);
+  assert.match(cPurlinOrientationUi, /new MutationObserver\(scheduleEnhancements\)/);
+  assert.match(cPurlinOrientationUi, /queueMicrotask/);
+  assert.doesNotMatch(cPurlinOrientationUi, /new MutationObserver\(applyEnhancements\)/);
+});
