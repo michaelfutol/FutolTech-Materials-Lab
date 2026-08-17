@@ -41,8 +41,13 @@ function mountExplicitComparisonPrint() {
     './src/comparePrintBrowser.css?v=20260808-ftcs01h',
     'ftCsBrowser'
   );
+  ensureStylesheet(
+    'link[data-ft-cs-manual]',
+    './src/compareManualCalculation.css?v=20260818-manual1',
+    'ftCsManual'
+  );
 
-  import('./comparePrintDocument.js?v=20260808-ftcs01h');
+  import('./comparePrintDocument.js?v=20260818-manual1');
 }
 
 if (document.readyState === 'loading') {
