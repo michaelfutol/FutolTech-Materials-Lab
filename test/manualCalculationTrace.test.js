@@ -24,11 +24,13 @@ test('manual calculation trace independently checks beam moment stress and defle
   assert.match(trace, /Serviceability limit = L\//);
 });
 
-test('FT-CS-01 now includes two dedicated manual calculation pages', () => {
-  assert.match(printScript, /const PAGE_COUNT = 8/);
+test('FT-CS-01 includes two dedicated calculation pages followed by a verification-notes page', () => {
+  assert.match(printScript, /const PAGE_COUNT = 9/);
   assert.match(printScript, /createPage\(7, true\)/);
   assert.match(printScript, /createPage\(8, true\)/);
+  assert.match(printScript, /createPage\(9, true\)/);
   assert.match(printScript, /buildManualCalculationTrace/);
+  assert.match(printScript, /Calculation boundary & verification/);
   assert.match(loader, /compareManualCalculation\.css\?v=20260818-manual1/);
   assert.match(loader, /comparePrintDocument\.js\?v=20260818-manual1/);
   assert.match(manualCss, /\.ft-calc-grid/);
