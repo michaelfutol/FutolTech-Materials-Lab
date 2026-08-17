@@ -15,22 +15,26 @@ test('FT-CS-01 comparison print remains in-flow and browser-paginated', () => {
   assert.match(browserCss, /min-height:\s*180mm\s*!important/);
 });
 
-test('FT-CS-01 renders six content-safe report sections with formal FutolTech identity', () => {
+test('FT-CS-01 renders eight content-safe report sections with formal FutolTech identity', () => {
   assert.match(script, /FUTOLTECH ENGINEERING AND PROJECT SYSTEMS/);
   assert.match(script, /MICHAEL D FUTOL, RCE, RMP/);
-  assert.match(script, /const PAGE_COUNT = 6/);
+  assert.match(script, /const PAGE_COUNT = 8/);
   assert.match(script, /createPage\(1, false\)/);
   assert.match(script, /createPage\(2, true\)/);
   assert.match(script, /createPage\(3, true\)/);
   assert.match(script, /createPage\(4, true\)/);
   assert.match(script, /createPage\(5, true\)/);
   assert.match(script, /createPage\(6, true\)/);
+  assert.match(script, /createPage\(7, true\)/);
+  assert.match(script, /createPage\(8, true\)/);
+  assert.match(script, /Manual calculation/);
   assert.match(script, /Preliminary engineering output — verification required/);
 });
 
-test('comparison print loader cache-busts and mounts the six-page browser build', () => {
+test('comparison print loader cache-busts and mounts the eight-page calculation-trace build', () => {
   assert.match(loader, /comparePrintDocument\.css\?v=20260807-ftcs01/);
   assert.match(loader, /comparePrintBrowser\.css\?v=20260808-ftcs01h/);
-  assert.match(loader, /comparePrintDocument\.js\?v=20260808-ftcs01h/);
+  assert.match(loader, /compareManualCalculation\.css\?v=20260818-manual1/);
+  assert.match(loader, /comparePrintDocument\.js\?v=20260818-manual1/);
   assert.match(loader, /mountExplicitComparisonPrint/);
 });
