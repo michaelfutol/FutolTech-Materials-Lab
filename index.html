@@ -21,7 +21,7 @@
         <a class="status-pill" style="text-decoration: none" href="./recommend.html">Load Recommender · experimental</a>
         <a class="status-pill" style="text-decoration: none" href="./splice.html">Stock & Splice · active</a>
         <a class="status-pill" style="text-decoration: none" href="./yield.html">Steel Yield · experimental</a>
-        <span class="status-pill">Build 2026-08-06.SH1</span>
+        <span class="status-pill">Build 2026-08-17.CP2</span>
         <span class="status-pill status-pill--warning">Connections · next</span><span class="status-pill status-pill--warning">Frames · next</span><span class="status-pill status-pill--warning">Optimizer · expanding</span>
       </div>
     </header>
@@ -32,7 +32,7 @@
         <div class="mode-switch" role="group" aria-label="Test mode"><button id="beamModeButton" class="mode-button is-active" type="button">Beam bending</button><button id="columnModeButton" class="mode-button" type="button">Column compression</button></div>
         <div class="control-grid">
           <label><span>Material dataset</span><select id="materialSelect"></select></label>
-          <label><span>Section geometry</span><select id="sectionTypeSelect"><option value="rectangle">Solid rectangle</option><option value="rhs">RHS / SHS tube</option><option value="chs">CHS / pipe</option><option value="round">Solid round</option><option value="custom">Catalog / user-defined properties</option></select></label>
+          <label><span>Section geometry</span><select id="sectionTypeSelect"><option value="rectangle">Solid rectangle</option><option value="rhs">RHS / SHS tube</option><option value="chs">CHS / pipe</option><option value="round">Solid round</option><option value="custom">Catalog / user-defined properties</option><option value="custom" data-section-kind="c-purlin">C-purlin / lipped channel (PH catalog)</option></select></label>
           <label><span>Length, m</span><input id="lengthInput" type="number" min="0.6" max="6" step="0.1" value="3" /><small id="lengthHelp">Wood range: 0.60–3.60 m</small></label>
           <label><span>Applied load, kN</span><input id="loadInput" type="number" min="0" step="0.1" value="1" /><small>Solver input remains kN; the familiar kgf equivalent is shown below.</small></label>
           <label class="beam-control"><span>Point-load position, m from left</span><input id="loadPositionInput" type="number" min="0" max="3" step="0.05" value="1.5" /></label>
@@ -48,9 +48,11 @@
             <label id="widthLabel"><span id="widthLabelText">Actual width b, mm</span><input id="widthInput" type="number" min="0.1" step="0.1" value="50" /></label>
             <label id="depthLabel"><span id="depthLabelText">Actual vertical depth h, mm</span><input id="depthInput" type="number" min="0.1" step="0.1" value="100" /></label>
             <label id="thicknessLabel" class="is-hidden"><span id="thicknessLabelText">Actual wall thickness t, mm</span><input id="thicknessInput" type="number" min="0.1" step="0.1" value="1.5" /></label>
+            <label id="lipLabel" class="is-hidden"><span id="lipLabelText">Return lip A, mm</span><input id="lipInput" type="number" min="0.1" step="0.1" value="15" /></label>
           </div>
           <div id="customPropertyFields" class="custom-properties is-hidden"><p><strong>For I/H, channel, angle, built-up, or any catalog section:</strong> enter verified gross section properties about the analysis axes.</p><div class="control-grid control-grid--properties"><label><span>Area A, mm²</span><input id="areaInput" type="number" min="0.1" step="0.1" value="5000" /></label><label><span>Iₓ, mm⁴</span><input id="ixInput" type="number" min="0.1" step="1" value="4166667" /></label><label><span>Iᵧ, mm⁴</span><input id="iyInput" type="number" min="0.1" step="1" value="1041667" /></label><label><span>Zₓ, mm³</span><input id="zxInput" type="number" min="0.1" step="1" value="83333" /></label><label><span>Zᵧ, mm³</span><input id="zyInput" type="number" min="0.1" step="1" value="41667" /></label></div></div>
           <div class="section-action-row"><button id="rotateSectionButton" class="button" type="button">Rotate section 90°</button><output id="sectionSummary" class="section-summary" aria-live="polite"></output></div>
+          <div id="cPurlinBoundaryNote" class="support-help is-hidden" aria-live="polite"></div>
         </fieldset>
         <div class="source-card" id="sourceCard" aria-live="polite"></div>
       </section>
@@ -64,6 +66,7 @@
     </main>
     <footer><strong>Engineering notice:</strong> Common Philippine hardwoods use provisional working-stress references pending reconciliation against the project timber book. Verify exact species, visual grade, legal origin, dimensions, moisture, treatment, defects, connections, loads and governing codes before design use.</footer>
     <script type="module" src="./src/app.js?v=20260802-1"></script>
+    <script type="module" src="./src/mainLabCPurlinUi.js?v=20260817-cp2"></script>
     <script type="module" src="./src/components/capacityWarnings.js?v=20260802-1"></script>
     <script type="module" src="./src/components/physicalThresholdCard.js?v=20260802-1"></script>
     <script type="module" src="./src/components/loadEquivalentDisplay.js?v=20260802-1"></script>
