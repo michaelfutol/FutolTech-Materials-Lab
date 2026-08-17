@@ -5,7 +5,7 @@ import { spawn, spawnSync } from 'node:child_process';
 import { extname, join, normalize } from 'node:path';
 import { tmpdir } from 'node:os';
 
-const EXPECTED_PAGES = 8;
+const EXPECTED_PAGES = 9;
 const PAGE_TOLERANCE_PX = 1.5;
 const root = process.cwd();
 const mime = new Map([
@@ -163,7 +163,7 @@ let cdp;
 
 try {
   const chrome = findChrome();
-  const url = `http://127.0.0.1:${port}/compare.html?build=ci-cdp-pdf-8-manual`;
+  const url = `http://127.0.0.1:${port}/compare.html?build=ci-cdp-pdf-9-manual`;
   chromeProcess = spawn(chrome, [
     '--headless=new',
     '--disable-gpu',
