@@ -40,12 +40,12 @@ test('direct comparison exposes the old-school engineering print build', () => {
   assert.match(compareHtml, /printReport\.js\?v=20260807-oldschool1/);
   assert.match(compareHtml, /printLetterhead\.css\?v=20260807-letterhead1/);
   assert.match(compareHtml, /printCompanyIdentity\.js\?v=20260807-letterhead1/);
-  assert.match(compareHtml, /Build 2026-08-17\.4/);
+  assert.match(compareHtml, /Build 2026-08-17\.5/);
   assert.match(compareHtml, /Structural Member Comparison/);
 });
 
 test('direct comparison exposes coordinated four-way C-purlin installation orientations', () => {
-  assert.match(compareHtml, /cPurlinOrientationUi\.js\?v=20260817-4/);
+  assert.match(compareHtml, /cPurlinOrientationUi\.js\?v=20260817-5/);
   assert.match(compareHtml, /Orientation 0° \/ 90° \/ 180° \/ 270°/);
   assert.match(compareHtml, /0° and 180° use the same gross major-axis screening properties/);
   assert.match(compareHtml, /90° and 270° use the same gross minor-axis screening properties/);
@@ -57,10 +57,12 @@ test('direct comparison exposes coordinated four-way C-purlin installation orien
   assert.match(cPurlinOrientationUi, /Orientation 270°/);
   assert.match(cPurlinOrientationUi, /option180\.dataset\.orientationDeg = '180'/);
   assert.match(cPurlinOrientationUi, /option270\.dataset\.orientationDeg = '270'/);
-  assert.match(cPurlinOrientationUi, /function setSectionSketchAngle/);
-  assert.match(cPurlinOrientationUi, /section-sketch > g/);
-  assert.match(cPurlinOrientationUi, /group\.setAttribute\('transform', nextTransform\)/);
-  assert.match(cPurlinOrientationUi, /rotate\(\$\{degrees\} 60 58\)/);
+  assert.match(cPurlinOrientationUi, /import \{ presetsForFamily \}/);
+  assert.match(cPurlinOrientationUi, /import \{ sectionSketchSvg \}/);
+  assert.match(cPurlinOrientationUi, /function renderCPurlinFigure/);
+  assert.match(cPurlinOrientationUi, /displayRotationDeg: normalizedDegrees/);
+  assert.match(cPurlinOrientationUi, /container\.innerHTML = sectionSketchSvg/);
+  assert.doesNotMatch(cPurlinOrientationUi, /function setSectionSketchAngle/);
   assert.match(cPurlinOrientationUi, /Orientation \$\{degrees\}°/);
   assert.match(cPurlinOrientationUi, /SCREENING/);
   assert.match(cPurlinOrientationUi, /ph-cp-/);
