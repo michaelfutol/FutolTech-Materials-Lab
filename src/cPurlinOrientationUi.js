@@ -1,9 +1,63 @@
+const orientationDegreesBySlot = [0, 0, 0];
+
 function isCPurlinPreset(select) {
   return String(select?.value ?? '').startsWith('ph-cp-');
 }
 
 function setTextIfChanged(node, nextText) {
   if (node && node.textContent !== nextText) node.textContent = nextText;
+}
+
+function orientationLabel(degrees) {
+  const axis = degrees % 180 === 0 ? 'web vertical · major-axis screening' : 'web horizontal · minor-axis screening';
+  return `Orientation ${degrees}° · ${axis}`;
+}
+
+function orientationNote(degrees) {
+  if (degrees === 0) {
+    return 'Orientation 0° selected: web depth is vertical, so roof load is screened about the section major/strong gross axis.';
+  }
+  if (degrees === 90) {
+    return 'Orientation 90° selected: web is horizontal, so the same C-section is screened about its minor/weak gross axis.';
+  }
+  if (degrees === 180) {
+    return 'Orientation 180° selected: web is vertical with the C opening reversed. Gross major-axis properties are equivalent to Orientation 0°, while installation direction remains explicit.';
+  }
+  return 'Orientation 270° selected: web is horizontal with the C opening reversed. Gross minor-axis properties are equivalent to Orientation 90°, while installation direction remains explicit.';
+}
+
+function ensureFourOrientationOptions(select) {
+  const listed = select.querySelector('option[value="listed"]');
+  const rotated = select.querySelector('option[value="rotated"]');
+  if (!listed || !rotated) return;
+
+  listed.dataset.orientationDeg = '0';
+  rotated.dataset.orientationDeg = '90';
+  setTextIfChanged(listed, orientationLabel(0));
+  setTextIfChanged(rotated, orientationLabel(90));
+
+  if (!select.querySelector('option[data-orientation-deg="180"]')) {
+    const option180 = document.createElement('option');
+    option180.value = 'listed';
+    option180.dataset.orientationDeg = '180';
+    option180.textContent = orientationLabel(180);
+    select.append(option180);
+  }
+  if (!select.querySelector('option[data-orientation-deg="270"]')) {
+    const option270 = document.createElement('option');
+    option270.value = 'rotated';
+    option270.dataset.orientationDeg = '270';
+    option270.textContent = orientationLabel(270);
+    select.append(option270);
+  }
+}
+
+function setSelectorFigureAngle(card, degrees) {
+  const svg = card.querySelector('.compare-selector-visual .section-sketch');
+  if (!svg) return;
+  const nextTransform = `rotate(${degrees}deg)`;
+  if (svg.style.transform !== nextTransform) svg.style.transform = nextTransform;
+  if (svg.style.transformOrigin !== 'center') svg.style.transformOrigin = 'center';
 }
 
 function applySelectorLabels() {
@@ -15,26 +69,69 @@ function applySelectorLabels() {
     const orientationSelect = card.querySelector('[data-slot-orientation]');
     if (!presetSelect || !orientationSelect) continue;
 
+    const index = Number(presetSelect.dataset.slotPreset);
     const existingNote = card.querySelector('[data-c-purlin-orientation-note]');
     if (!isCPurlinPreset(presetSelect)) {
       existingNote?.remove();
+      const svg = card.querySelector('.compare-selector-visual .section-sketch');
+      if (svg?.style.transform) svg.style.transform = '';
       continue;
     }
 
-    const listed = orientationSelect.querySelector('option[value="listed"]');
-    const rotated = orientationSelect.querySelector('option[value="rotated"]');
-    setTextIfChanged(listed, 'Orientation 0° · web vertical · major-axis screening');
-    setTextIfChanged(rotated, 'Orientation 90° · web horizontal · minor-axis screening');
+    ensureFourOrientationOptions(orientationSelect);
+    const degrees = orientationDegreesBySlot[index] ?? 0;
+    const targetOption = [...orientationSelect.options]
+      .find((option) => Number(option.dataset.orientationDeg) === degrees);
+    if (targetOption && !targetOption.selected) targetOption.selected = true;
+    setSelectorFigureAngle(card, degrees);
 
     const note = existingNote ?? document.createElement('p');
     note.dataset.cPurlinOrientationNote = 'true';
     note.className = 'candidate-source';
-    const nextNote = orientationSelect.value === 'rotated'
-      ? 'Orientation 90° selected: the same C-section is bending about its minor/weak gross axis. Compare I, Z, stress and deflection directly against Orientation 0°.'
-      : 'Orientation 0° selected: the web depth is vertical so the roof load is screened about the section major/strong gross axis.';
-    setTextIfChanged(note, nextNote);
+    setTextIfChanged(note, orientationNote(degrees));
     if (!existingNote) orientationSelect.closest('label')?.insertAdjacentElement('afterend', note);
   }
+}
+
+function applyResultOrientationVisuals() {
+  const selectorRoot = document.getElementById('compareSelectors');
+  const resultRoot = document.getElementById('compareResultCards');
+  if (!selectorRoot || !resultRoot) return;
+
+  const activeSelectors = [...selectorRoot.querySelectorAll('.compare-selector-card')]
+    .filter((card) => !card.classList.contains('is-disabled'));
+  const resultCards = [...resultRoot.querySelectorAll('.compare-result-card')];
+
+  resultCards.forEach((resultCard, resultIndex) => {
+    const selectorCard = activeSelectors[resultIndex];
+    if (!selectorCard) return;
+    const presetSelect = selectorCard.querySelector('[data-slot-preset]');
+    const slotIndex = Number(presetSelect?.dataset.slotPreset);
+    if (!presetSelect || !isCPurlinPreset(presetSelect)) return;
+
+    const degrees = orientationDegreesBySlot[slotIndex] ?? 0;
+    const solverBaseAngle = degrees % 180;
+    const extraDisplayRotation = degrees - solverBaseAngle;
+    const svg = resultCard.querySelector('.compare-result-card__visual .section-sketch');
+    if (svg) {
+      const nextTransform = extraDisplayRotation ? `rotate(${extraDisplayRotation}deg)` : '';
+      if (svg.style.transform !== nextTransform) svg.style.transform = nextTransform;
+      if (svg.style.transformOrigin !== 'center') svg.style.transformOrigin = 'center';
+    }
+
+    const description = resultCard.querySelector('.compare-result-card__body h3 + p');
+    const strong = description?.querySelector('strong');
+    if (!description || !strong) return;
+    let orientationTextNode = [...description.childNodes]
+      .find((node) => node.nodeType === Node.TEXT_NODE && node !== strong);
+    const nextText = ` · Orientation ${degrees}°`;
+    if (!orientationTextNode) {
+      orientationTextNode = document.createTextNode(nextText);
+      description.append(orientationTextNode);
+    } else if (orientationTextNode.nodeValue !== nextText) {
+      orientationTextNode.nodeValue = nextText;
+    }
+  });
 }
 
 function applyScreeningBadges() {
@@ -53,6 +150,7 @@ function applyScreeningBadges() {
 
 function applyEnhancements() {
   applySelectorLabels();
+  applyResultOrientationVisuals();
   applyScreeningBadges();
 }
 
@@ -71,5 +169,21 @@ const results = document.getElementById('compareResultCards');
 const observer = new MutationObserver(scheduleEnhancements);
 if (selectors) observer.observe(selectors, { childList: true, subtree: true });
 if (results) observer.observe(results, { childList: true, subtree: true });
-selectors?.addEventListener('change', scheduleEnhancements);
+selectors?.addEventListener('change', (event) => {
+  const target = event.target;
+  if (!(target instanceof HTMLSelectElement)) {
+    scheduleEnhancements();
+    return;
+  }
+
+  if (target.matches('[data-slot-material], [data-slot-preset]')) {
+    const index = Number(target.dataset.slotMaterial ?? target.dataset.slotPreset);
+    if (Number.isInteger(index)) orientationDegreesBySlot[index] = 0;
+  } else if (target.matches('[data-slot-orientation]')) {
+    const index = Number(target.dataset.slotOrientation);
+    const degrees = Number(target.selectedOptions[0]?.dataset.orientationDeg);
+    if (Number.isInteger(index) && Number.isFinite(degrees)) orientationDegreesBySlot[index] = degrees;
+  }
+  scheduleEnhancements();
+});
 scheduleEnhancements();
