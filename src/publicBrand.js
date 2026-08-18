@@ -96,6 +96,12 @@ applyPublicBrand();
 const observer = new MutationObserver(queueBrandSync);
 observer.observe(document.documentElement, { childList: true, subtree: true });
 
-if (location.pathname.endsWith('/compare.html') || location.pathname.endsWith('compare.html')) {
+function loadComparisonPlayback() {
+  if (document.querySelector('[data-comparison-playback]')) return;
   import('./comparisonPlaybackUi.js');
+}
+
+if (location.pathname.endsWith('/compare.html') || location.pathname.endsWith('compare.html')) {
+  if (document.readyState === 'complete') loadComparisonPlayback();
+  else window.addEventListener('load', loadComparisonPlayback, { once: true });
 }
