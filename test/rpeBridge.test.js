@@ -17,8 +17,9 @@ test('steel first-yield timeline exports to RPE without inventing post-yield deg
     currentStressMPa: 50, yieldStrengthMPa: 250, screeningOnly: false
   });
   const failureLaw = buildFailureLawFromTimeline({ id: 'failure:B1', timeline, evidenceStatus: 'provisional', provenance });
-  assert.equal(failureLaw.data.events.at(-1).id, 'first-yield');
-  assert.equal(failureLaw.data.events.at(-1).terminal, true);
+  const terminal = failureLaw.data.events.find((event) => event.terminal);
+  assert.equal(terminal.id, 'first-yield');
+  assert.equal(terminal.type, 'yield');
   assert.equal(failureLaw.data.residualLaw.status, 'UNAVAILABLE');
   assert.match(failureLaw.data.residualLaw.reason, /does not define validated post-threshold degradation/i);
 });
