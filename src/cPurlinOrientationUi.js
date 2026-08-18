@@ -1,10 +1,26 @@
 import { presetsForFamily } from './data/sectionPresets.js';
 import { sectionSketchSvg } from './components/sectionSketch.js';
 
+// Direct Compare's structural solver still needs only two gross bending-axis
+// states: listed (major axis) and rotated (minor axis). Installation direction,
+// however, has four distinct views. Keep those concerns separate: this module
+// owns the exact 0/90/180/270 display state and bridges it to the solver's
+// existing listed/rotated select instead of trying to put duplicate values in
+// one HTML select.
 const orientationDegreesBySlot = [0, 0, 0];
 
 function isCPurlinPreset(select) {
   return String(select?.value ?? '').startsWith('ph-cp-');
+}
+
+function normalizeDegrees(value) {
+  const degrees = Number(value);
+  if (![0, 90, 180, 270].includes(degrees)) return 0;
+  return degrees;
+}
+
+function solverOrientation(degrees) {
+  return normalizeDegrees(degrees) % 180 === 90 ? 'rotated' : 'listed';
 }
 
 function setTextIfChanged(node, nextText) {
@@ -12,8 +28,10 @@ function setTextIfChanged(node, nextText) {
 }
 
 function orientationLabel(degrees) {
-  const axis = degrees % 180 === 0 ? 'web vertical · major-axis screening' : 'web horizontal · minor-axis screening';
-  return `Orientation ${degrees}° · ${axis}`;
+  if (degrees === 0) return 'Orientation 0° · web vertical · opening right · major-axis screening';
+  if (degrees === 90) return 'Orientation 90° · web horizontal · opening down · minor-axis screening';
+  if (degrees === 180) return 'Orientation 180° · web vertical · opening left · major-axis screening';
+  return 'Orientation 270° · web horizontal · opening up · minor-axis screening';
 }
 
 function orientationNote(degrees) {
@@ -29,32 +47,6 @@ function orientationNote(degrees) {
   return 'Orientation 270° selected: web is horizontal with the opening up. Gross minor-axis properties are equivalent to Orientation 90°, while installation direction remains explicit.';
 }
 
-function ensureFourOrientationOptions(select) {
-  const listed = select.querySelector('option[value="listed"]');
-  const rotated = select.querySelector('option[value="rotated"]');
-  if (!listed || !rotated) return;
-
-  listed.dataset.orientationDeg = '0';
-  rotated.dataset.orientationDeg = '90';
-  setTextIfChanged(listed, orientationLabel(0));
-  setTextIfChanged(rotated, orientationLabel(90));
-
-  if (!select.querySelector('option[data-orientation-deg="180"]')) {
-    const option180 = document.createElement('option');
-    option180.value = 'listed';
-    option180.dataset.orientationDeg = '180';
-    option180.textContent = orientationLabel(180);
-    select.append(option180);
-  }
-  if (!select.querySelector('option[data-orientation-deg="270"]')) {
-    const option270 = document.createElement('option');
-    option270.value = 'rotated';
-    option270.dataset.orientationDeg = '270';
-    option270.textContent = orientationLabel(270);
-    select.append(option270);
-  }
-}
-
 function cPurlinPresetById(id) {
   return presetsForFamily('steel').find((preset) => preset.id === id) ?? null;
 }
@@ -63,7 +55,7 @@ function renderCPurlinFigure(container, presetId, degrees, titlePrefix = 'C-purl
   if (!container) return;
   const preset = cPurlinPresetById(presetId);
   if (!preset) return;
-  const normalizedDegrees = ((Number(degrees) % 360) + 360) % 360;
+  const normalizedDegrees = normalizeDegrees(degrees);
   const key = `${preset.id}:${normalizedDegrees}`;
   if (container.dataset.orientationFigureKey === key) return;
 
@@ -74,31 +66,91 @@ function renderCPurlinFigure(container, presetId, degrees, titlePrefix = 'C-purl
   container.dataset.orientationFigureKey = key;
 }
 
-function applySelectorLabels() {
+function setCoreOrientation(coreSelect, degrees, { dispatch = false } = {}) {
+  if (!coreSelect) return;
+  const normalizedDegrees = normalizeDegrees(degrees);
+  const solverValue = solverOrientation(normalizedDegrees);
+  coreSelect.value = solverValue;
+
+  // The manual-calculation trace reads this data attribute from the solver
+  // selector, so preserve the exact installation angle even though the solver
+  // itself only receives major/minor-axis state.
+  const selected = coreSelect.selectedOptions?.[0];
+  if (selected) selected.dataset.orientationDeg = String(normalizedDegrees);
+
+  if (dispatch) coreSelect.dispatchEvent(new Event('change', { bubbles: true }));
+}
+
+function ensureDisplayOrientationSelect(card, coreSelect, slotIndex) {
+  const label = coreSelect.closest('label');
+  if (!label) return null;
+
+  // Keep the core binary select in the DOM for compareApp and print trace, but
+  // do not expose it as the user control. A second select has four unique values.
+  coreSelect.hidden = true;
+  coreSelect.dataset.cPurlinSolverOrientation = 'true';
+  const listed = coreSelect.querySelector('option[value="listed"]');
+  const rotated = coreSelect.querySelector('option[value="rotated"]');
+  if (listed && !listed.dataset.orientationDeg) listed.dataset.orientationDeg = '0';
+  if (rotated && !rotated.dataset.orientationDeg) rotated.dataset.orientationDeg = '90';
+
+  let displaySelect = label.querySelector('[data-c-purlin-orientation-display]');
+  if (!displaySelect) {
+    displaySelect = document.createElement('select');
+    displaySelect.dataset.cPurlinOrientationDisplay = String(slotIndex);
+    displaySelect.setAttribute('aria-label', `Member ${String.fromCharCode(65 + slotIndex)} C-purlin orientation`);
+    displaySelect.innerHTML = [0, 90, 180, 270]
+      .map((degrees) => `<option value="${degrees}">${orientationLabel(degrees)}</option>`)
+      .join('');
+    coreSelect.insertAdjacentElement('afterend', displaySelect);
+
+    displaySelect.addEventListener('change', () => {
+      const degrees = normalizeDegrees(displaySelect.value);
+      orientationDegreesBySlot[slotIndex] = degrees;
+      setCoreOrientation(coreSelect, degrees, { dispatch: true });
+      scheduleEnhancements();
+    });
+  }
+
+  const degrees = orientationDegreesBySlot[slotIndex] ?? 0;
+  if (displaySelect.value !== String(degrees)) displaySelect.value = String(degrees);
+  displaySelect.disabled = coreSelect.disabled;
+  setCoreOrientation(coreSelect, degrees);
+  return displaySelect;
+}
+
+function removeDisplayOrientationSelect(card, coreSelect) {
+  card.querySelector('[data-c-purlin-orientation-display]')?.remove();
+  if (coreSelect) {
+    coreSelect.hidden = false;
+    delete coreSelect.dataset.cPurlinSolverOrientation;
+    const listed = coreSelect.querySelector('option[value="listed"]');
+    const rotated = coreSelect.querySelector('option[value="rotated"]');
+    if (listed) delete listed.dataset.orientationDeg;
+    if (rotated) delete rotated.dataset.orientationDeg;
+  }
+}
+
+function applySelectorControls() {
   const root = document.getElementById('compareSelectors');
   if (!root) return;
 
   for (const card of root.querySelectorAll('.compare-selector-card')) {
     const presetSelect = card.querySelector('[data-slot-preset]');
-    const orientationSelect = card.querySelector('[data-slot-orientation]');
-    if (!presetSelect || !orientationSelect) continue;
+    const coreSelect = card.querySelector('[data-slot-orientation]');
+    if (!presetSelect || !coreSelect) continue;
 
     const index = Number(presetSelect.dataset.slotPreset);
     const existingNote = card.querySelector('[data-c-purlin-orientation-note]');
     if (!isCPurlinPreset(presetSelect)) {
       existingNote?.remove();
+      removeDisplayOrientationSelect(card, coreSelect);
       card.querySelector('.compare-selector-visual')?.removeAttribute('data-orientation-figure-key');
       continue;
     }
 
-    ensureFourOrientationOptions(orientationSelect);
     const degrees = orientationDegreesBySlot[index] ?? 0;
-    const targetOption = [...orientationSelect.options]
-      .find((option) => Number(option.dataset.orientationDeg) === degrees);
-    if (targetOption && !targetOption.selected) targetOption.selected = true;
-
-    // Rebuild the SVG from the exact installation orientation instead of mutating
-    // an already-rendered transform. This mirrors the reliable solo-lab approach.
+    ensureDisplayOrientationSelect(card, coreSelect, index);
     renderCPurlinFigure(
       card.querySelector('.compare-selector-visual'),
       presetSelect.value,
@@ -110,7 +162,7 @@ function applySelectorLabels() {
     note.dataset.cPurlinOrientationNote = 'true';
     note.className = 'candidate-source';
     setTextIfChanged(note, orientationNote(degrees));
-    if (!existingNote) orientationSelect.closest('label')?.insertAdjacentElement('afterend', note);
+    if (!existingNote) coreSelect.closest('label')?.insertAdjacentElement('afterend', note);
   }
 }
 
@@ -145,8 +197,7 @@ function applyResultOrientationVisuals() {
       .find((node) => node.nodeType === Node.TEXT_NODE && node !== strong);
     const nextText = ` · Orientation ${degrees}°`;
     if (!orientationTextNode) {
-      orientationTextNode = document.createTextNode(nextText);
-      description.append(orientationTextNode);
+      description.append(document.createTextNode(nextText));
     } else if (orientationTextNode.nodeValue !== nextText) {
       orientationTextNode.nodeValue = nextText;
     }
@@ -168,7 +219,7 @@ function applyScreeningBadges() {
 }
 
 function applyEnhancements() {
-  applySelectorLabels();
+  applySelectorControls();
   applyResultOrientationVisuals();
   applyScreeningBadges();
 }
@@ -188,6 +239,7 @@ const results = document.getElementById('compareResultCards');
 const observer = new MutationObserver(scheduleEnhancements);
 if (selectors) observer.observe(selectors, { childList: true, subtree: true });
 if (results) observer.observe(results, { childList: true, subtree: true });
+
 selectors?.addEventListener('change', (event) => {
   const target = event.target;
   if (!(target instanceof HTMLSelectElement)) {
@@ -199,10 +251,13 @@ selectors?.addEventListener('change', (event) => {
     const index = Number(target.dataset.slotMaterial ?? target.dataset.slotPreset);
     if (Number.isInteger(index)) orientationDegreesBySlot[index] = 0;
   } else if (target.matches('[data-slot-orientation]')) {
+    // This is the hidden solver bridge. It can also be driven by automated QA.
     const index = Number(target.dataset.slotOrientation);
-    const degrees = Number(target.selectedOptions[0]?.dataset.orientationDeg);
-    if (Number.isInteger(index) && Number.isFinite(degrees)) orientationDegreesBySlot[index] = degrees;
+    const degrees = normalizeDegrees(target.selectedOptions?.[0]?.dataset.orientationDeg
+      ?? (target.value === 'rotated' ? 90 : 0));
+    if (Number.isInteger(index)) orientationDegreesBySlot[index] = degrees;
   }
   scheduleEnhancements();
 });
+
 scheduleEnhancements();
