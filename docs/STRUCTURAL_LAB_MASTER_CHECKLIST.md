@@ -31,8 +31,8 @@
 6. [x] **Design Explorer v2** — reverse member query + stock/splice planning + connection completeness + evidence-bounded Pareto alternatives.
 7. [x] **Failure Physics v1** — event-linked interpretation and visuals for supported serviceability/reference/yield/ultimate/global-column threshold events, with real Chromium QA.
 8. [x] **Physical-Test Calibration v1** — evidence-preserving CSV intake, measured-vs-predicted response, sample statistics and versioned calibration packages.
-9. [ ] **Frame Analyzer / NF-001 — NEXT ACTIVE** — 2D connected frame with spring connections and redistribution.
-10. [ ] **FutolStructure / RPE interchange** — reusable component and failure-law objects.
+9. [x] **Frame Analyzer / NF-001** — connected 2D frame, explicit spring/release states, elastic P–Δ, piecewise redistribution/mechanism detection and brace sensitivity.
+10. [ ] **FutolStructure / RPE interchange — NEXT ACTIVE** — reusable component, demand and failure-law objects.
 
 # Protected foundation
 
@@ -58,6 +58,12 @@
 - [x] Failure Physics low-load column view remains straight until a stored instability event is actually crossed.
 - [x] CAL-001 preserves original CSV and parsed raw fields in every versioned calibration package.
 - [x] CAL-001 reports paired bias/MAE/RMSE plus specimen peak/failure scatter without silently mutating source properties.
+- [x] NF-001 deterministic 2D frame solver reproduces a closed-form cantilever benchmark and distinguishes rigid, finite-spring and pin/release behavior.
+- [x] NF-001 elastic P–Δ geometric-stiffness iteration reports convergence/amplification without claiming corotational, plastic-hinge or post-buckling response.
+- [x] NF-001 piecewise-elastic connection redistribution uses only explicit moment thresholds/residual stiffness and surfaces singular mechanisms.
+- [x] NF-001 Brace Adviser reports elastic drift sensitivity and brace axial demand only; brace capacity remains **UNRATED**.
+- [x] Frame/brace semi-rigid properties are explicit user/research/CAL inputs and are never inferred from nail or bolt count.
+- [x] Engineering CI exposes syntax, deterministic, each Chromium lab and PDF gates as separately auditable steps.
 - [x] FT-CS-01 branded Direct Compare report with manual section-property and bending-response trace.
 - [x] Chromium PDF gate: logical report pages = physical pages; no blank/overflow sheets.
 - [x] Assembly Lab ASSY-001 bounded elastic composite-action model with independent/full-composite stiffness bounds and explicit η evidence status.
@@ -207,20 +213,25 @@
 - [ ] Optional privacy-aware GPS/timestamp.
 - [ ] Push verified specimen into project inventory.
 
-# 11 — Frames and System-Level Bridge — NEXT ACTIVE
+# 11 — Frames and System-Level Bridge — v1 COMPLETE / deeper nonlinear connection physics pending
 
-- [ ] 2D connected frame solver.
-- [ ] P–Δ / geometric nonlinearity.
-- [ ] Connection Lab spring joints.
-- [ ] Progressive local release/redistribution and mechanism detection.
-- [ ] Brace adviser.
-- [ ] **NF-001:** 3 m × 3 m coconut-lumber wall-frame integrated benchmark.
+- [x] 2D connected frame solver with axial + Euler-Bernoulli bending DOFs and independent closed-form cantilever regression.
+- [x] Rigid, true pin/moment-release and finite rotational-spring member ends.
+- [x] Elastic P–Δ geometric-stiffness iteration with convergence and displacement-amplification reporting.
+- [~] Connection-spring bridge accepts explicit kθ and optional thresholds from user/research/CAL evidence; Connection Lab does not yet generate a calibrated force–rotation law automatically.
+- [~] Progressive connection release/redistribution and mechanism detection exist as a first-order piecewise-elastic threshold/degradation path; plastic rotation, hysteresis and nonlinear damage laws remain pending.
+- [~] Brace Adviser v1 evaluates explicit diagonal E/A stiffness sensitivity and axial demand; brace/connection/gusset capacity remains **UNRATED**.
+- [x] **NF-001:** 3 m × 3 m coconut-lumber wall-frame/portal integrated benchmark.
+- [x] Fully released zero-energy joint-core rotation coordinates are treated as inactive DOFs when unloaded; a loaded disconnected DOF or actual singular structural state still fails visibly.
+- [x] Real Chromium gates independently verify rigid, brace, semi-rigid, P–Δ and redistribution states in fresh browser sessions.
 
-# 12 — FutolTech Ecosystem Integration
+# 12 — FutolTech Ecosystem Integration — NEXT ACTIVE
 
 - [ ] **Structural Lab → FutolStructure:** validated material/member/connection/assembly objects and alternatives.
 - [ ] **FutolStructure → Structural Lab:** demand envelopes and critical specimens for deeper testing.
 - [ ] **Structural Lab/FutolStructure → RPE:** component failure/degradation/residual laws for resilience simulations.
+- [ ] Versioned interchange schema with source system, evidence/provenance, units, analysis boundary and unsupported-field handling.
+- [ ] Deterministic import/export/round-trip validation; unsupported schema/object types fail visibly.
 - [ ] **CODA:** governing-code compliance/citations remain a separate compliance layer.
 - [ ] **SARA:** non-code standards/best-practice layer.
 - [x] External specialist solvers may verify/extend physics but never become the source of material/product truth.
@@ -254,3 +265,7 @@
 - 2026-08-18 — Design Explorer v2 separates a structurally feasible member from a complete structural solution. Stock/splice and connection dependencies are explicit, and missing price/carbon evidence remains unavailable rather than estimated.
 - 2026-08-18 — Failure Physics v1 visual state is driven only by crossed stored solver events. Steel Fy is yield onset, published timber ultimate is a reference rather than a predicted crack, and a column remains visually straight before an implemented instability threshold is crossed.
 - 2026-08-18 — CAL-001 preserves raw test evidence, separates source-marked failure from ordinary peaks, reports transparent statistics, and exports additive versioned packages instead of silently rewriting canonical engineering properties.
+- 2026-08-18 — NF-001 semi-rigid connection stiffness/capacity is never inferred from fastener count. Rigid/pin are explicit idealizations; finite kθ/thresholds are user/research/CAL inputs with evidence status.
+- 2026-08-18 — NF-001 redistribution is piecewise elastic and may surface a mechanism; it does not invent plastic rotation, hysteresis or post-failure response.
+- 2026-08-18 — Brace Adviser v1 is a system-stiffness/axial-demand sensitivity tool only. Brace capacity, buckling and gusset/connection design remain UNRATED.
+- 2026-08-18 — A fully released, unloaded joint-core rotation may be an inactive zero-energy coordinate rather than a physical mechanism; loaded disconnected DOFs and actual singular structural systems still fail visibly.
