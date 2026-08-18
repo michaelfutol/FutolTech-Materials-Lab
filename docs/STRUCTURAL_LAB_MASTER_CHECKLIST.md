@@ -30,8 +30,8 @@
 5. [x] **Assembly Lab v1** — 2–3 ply coco/timber bounded composite-action screening with explicit η, manual trace and real Chromium QA.
 6. [x] **Design Explorer v2** — reverse member query + stock/splice planning + connection completeness + evidence-bounded Pareto alternatives.
 7. [x] **Failure Physics v1** — event-linked interpretation and visuals for supported serviceability/reference/yield/ultimate/global-column threshold events, with real Chromium QA.
-8. [ ] **Physical-Test Calibration v1 — NEXT ACTIVE** — CSV/raw-test import, predicted-vs-measured, bias/scatter.
-9. [ ] **Frame Analyzer / NF-001** — 2D connected frame with spring connections and redistribution.
+8. [x] **Physical-Test Calibration v1** — evidence-preserving CSV intake, measured-vs-predicted response, sample statistics and versioned calibration packages.
+9. [ ] **Frame Analyzer / NF-001 — NEXT ACTIVE** — 2D connected frame with spring connections and redistribution.
 10. [ ] **FutolStructure / RPE interchange** — reusable component and failure-law objects.
 
 # Protected foundation
@@ -56,6 +56,8 @@
 - [x] Design Explorer Pareto view uses only available numeric metrics; price/carbon remain explicitly unavailable until verified data exists.
 - [x] Failure Physics v1 interprets only stored governing-limit events; it does not infer unimplemented local or post-failure mechanisms.
 - [x] Failure Physics low-load column view remains straight until a stored instability event is actually crossed.
+- [x] CAL-001 preserves original CSV and parsed raw fields in every versioned calibration package.
+- [x] CAL-001 reports paired bias/MAE/RMSE plus specimen peak/failure scatter without silently mutating source properties.
 - [x] FT-CS-01 branded Direct Compare report with manual section-property and bending-response trace.
 - [x] Chromium PDF gate: logical report pages = physical pages; no blank/overflow sheets.
 - [x] Assembly Lab ASSY-001 bounded elastic composite-action model with independent/full-composite stiffness bounds and explicit η evidence status.
@@ -65,9 +67,9 @@
 - [~] Material schemas already carry core E/strength/density/source fields, but are not yet fully unified.
 - [ ] Canonical schema for E, G, density, tension, compression, bending, shear, bearing, proportional/yield/ultimate references.
 - [ ] Moisture, temperature, corrosion/treatment and aging modifiers only when source-backed.
-- [ ] Lower/mean/upper envelopes, sample count, COV and confidence interval where evidence supports them.
+- [~] Lower/mean/upper envelopes, sample count, COV and confidence interval now exist for CAL-001 supplied test samples; canonical material-record integration remains pending.
 - [ ] Provenance ledger: citation, test standard, specimen basis, applicability boundary, date checked.
-- [ ] User-measured specimen records with instrument/calibration metadata.
+- [x] User-measured specimen/test records can be preserved with apparatus, instrument-calibration, operator and test-procedure metadata in CAL-001 packages.
 
 # 2 — Section & Product Digital Twin
 
@@ -179,13 +181,18 @@
 - [ ] Add availability confidence/evidence dimension without converting weak observations into engineering strength evidence.
 - [ ] Integrate design-capable Connection Lab capacities once implemented so a complete member+connection package can earn a higher status.
 
-# 8 — Physical-Test Calibration — NEXT ACTIVE
+# 8 — Physical-Test Calibration — v1 COMPLETE / parameter adoption bridge next
 
-- [ ] CSV/raw UTM or field-test importer.
-- [ ] Predicted vs measured load-displacement/failure comparison.
-- [ ] Sample count, bias, COV/scatter, confidence interval.
-- [ ] Preserve raw data and original published properties; calibration never silently overwrites them.
-- [ ] Version calibrated material/connection/composite-action models.
+- [x] CSV/raw UTM or field-test importer with canonical required columns and optional prediction/event fields.
+- [x] Measured-versus-predicted load–displacement overlay and paired bias/MAE/RMSE comparison.
+- [x] Explicit source-marked failure rows remain separate from ordinary specimen peak-load statistics.
+- [x] Sample count, sample SD, COV and 95% confidence interval where mathematically valid; Student-t is used for small samples.
+- [x] Raw CSV and parsed raw fields are preserved in exported calibration evidence packages.
+- [x] Metadata records target type/ID, procedure, laboratory, apparatus, instrument-calibration record, operator and notes.
+- [x] Versioned calibration packages can target material, connection or composite-action models and are labeled **USER DATA / UNVERIFIED**.
+- [x] Calibration output is additive and never silently overwrites published/source properties.
+- [x] Real Chromium gate verifies known statistics and confirms measured-only data never receives invented prediction traces.
+- [ ] Parameter fitting/adoption into canonical material/connection/assembly models requires a later explicit engineer-approved bridge.
 
 # 9 — Structural Forensics
 
@@ -200,7 +207,7 @@
 - [ ] Optional privacy-aware GPS/timestamp.
 - [ ] Push verified specimen into project inventory.
 
-# 11 — Frames and System-Level Bridge
+# 11 — Frames and System-Level Bridge — NEXT ACTIVE
 
 - [ ] 2D connected frame solver.
 - [ ] P–Δ / geometric nonlinearity.
@@ -246,3 +253,4 @@
 - 2026-08-18 — Side-by-side equal-depth plies do not gain major-axis EI from composite action in ASSY-001; stacked-through-depth plies provide the meaningful bounded composite-action case.
 - 2026-08-18 — Design Explorer v2 separates a structurally feasible member from a complete structural solution. Stock/splice and connection dependencies are explicit, and missing price/carbon evidence remains unavailable rather than estimated.
 - 2026-08-18 — Failure Physics v1 visual state is driven only by crossed stored solver events. Steel Fy is yield onset, published timber ultimate is a reference rather than a predicted crack, and a column remains visually straight before an implemented instability threshold is crossed.
+- 2026-08-18 — CAL-001 preserves raw test evidence, separates source-marked failure from ordinary peaks, reports transparent statistics, and exports additive versioned packages instead of silently rewriting canonical engineering properties.
