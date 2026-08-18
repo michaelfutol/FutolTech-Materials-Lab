@@ -22,6 +22,28 @@ function selectedText(select) {
   return select.selectedOptions?.[0]?.textContent?.trim() || select.value || '—';
 }
 
+function ensureSelectorPrintCompaction() {
+  if (document.getElementById('ft-selector-print-compaction')) return;
+  const style = document.createElement('style');
+  style.id = 'ft-selector-print-compaction';
+  style.textContent = `
+    @media print {
+      .ft-print-document .compare-selector-card {
+        padding: 2.4mm !important;
+      }
+      .ft-print-document .compare-selector-visual {
+        height: 15.5mm !important;
+        margin: 1.1mm 0 1.5mm !important;
+      }
+      .ft-print-document .compare-selector-visual svg {
+        height: 13.5mm !important;
+        max-height: 13.5mm !important;
+      }
+    }
+  `;
+  document.head.appendChild(style);
+}
+
 function cloneForPrint(source) {
   if (!source) return null;
   const clone = source.cloneNode(true);
@@ -31,6 +53,16 @@ function cloneForPrint(source) {
   originals.forEach((original, index) => {
     const copy = copies[index];
     if (!copy) return;
+
+    // Direct Compare keeps a hidden binary select as the solver bridge for
+    // C-purlins. The user-facing select already carries the exact 0/90/180/270
+    // installation orientation, so printing the hidden bridge would duplicate
+    // the orientation row and can overflow the selected-alternatives page.
+    if (original.matches('[data-c-purlin-solver-orientation]')) {
+      copy.remove();
+      return;
+    }
+
     const value = original.type === 'checkbox'
       ? (original.checked ? 'Included' : 'Not included')
       : original.tagName === 'SELECT'
@@ -121,6 +153,13 @@ function cleanPanelClone(selector) {
   const clone = cloneForPrint(source);
   if (!clone) return null;
   clone.querySelector('.compare-mode-switch')?.remove();
+  if (selector === '.compare-members') {
+    // Page 1 and Page 7 already carry the oriented section illustrations.
+    // On Page 3, keep the exact section/product/orientation text but omit the
+    // duplicate thumbnails so the selected-alternatives schedule remains
+    // comfortably inside the printable A4 body.
+    clone.querySelectorAll('.compare-selector-visual').forEach((node) => node.remove());
+  }
   return clone;
 }
 
@@ -158,6 +197,7 @@ function finalNote(title, text) {
 }
 
 function buildPrintDocument() {
+  ensureSelectorPrintCompaction();
   document.querySelector('.ft-print-document')?.remove();
 
   const output = document.createElement('div');
