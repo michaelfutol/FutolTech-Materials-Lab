@@ -34,11 +34,13 @@ function beamRecord(overrides = {}) {
 }
 
 test('steel event chronology reaches serviceability then first yield without calling yield fracture', () => {
-  const record = beamRecord({ deflectionRatio: 2, referenceThresholdLoadKN: 5, physicalThresholdLoadKN: 5 });
-  assert.equal(currentComparisonEvent(record, 0.5, 'beam').label, 'ELASTIC RESPONSE');
-  assert.equal(currentComparisonEvent(record, 1.2, 'beam').label, 'SERVICEABILITY LIMIT');
-  assert.equal(currentComparisonEvent(record, 5, 'beam').label, 'FIRST YIELD');
-  assert.doesNotMatch(currentComparisonEvent(record, 5, 'beam').label, /fracture|rupture/i);
+  const low = beamRecord({ deflectionRatio: 0.5, referenceThresholdLoadKN: 5, physicalThresholdLoadKN: 5 });
+  const service = beamRecord({ deflectionRatio: 1.2, referenceThresholdLoadKN: 5, physicalThresholdLoadKN: 5 });
+  const yieldState = beamRecord({ deflectionRatio: 5, referenceThresholdLoadKN: 5, physicalThresholdLoadKN: 5 });
+  assert.equal(currentComparisonEvent(low, 0.5, 'beam').label, 'ELASTIC RESPONSE');
+  assert.equal(currentComparisonEvent(service, 1.2, 'beam').label, 'SERVICEABILITY LIMIT');
+  assert.equal(currentComparisonEvent(yieldState, 5, 'beam').label, 'FIRST YIELD');
+  assert.doesNotMatch(currentComparisonEvent(yieldState, 5, 'beam').label, /fracture|rupture/i);
 });
 
 test('C-purlin terminal gross reference stays a screening event, not a cold-formed design pass', () => {
