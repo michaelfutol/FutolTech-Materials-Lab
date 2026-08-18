@@ -1,3 +1,5 @@
+import './mainLabAngleUi.js';
+
 const elements = Object.fromEntries([
   'sectionTypeSelect', 'sectionPresetSelect', 'materialSelect', 'widthInput', 'depthInput', 'thicknessInput', 'lipInput', 'rotateSectionButton', 'resetButton'
 ].map((id) => [id, document.getElementById(id)]));
@@ -50,6 +52,9 @@ function shapeMarkup(angle, compact = false) {
     const t = Math.max(line, thickness * scale);
     const l = Math.min(h * .32, Math.max(compact ? 5 : 9, lip * scale));
     shape = `<g fill="currentColor"><rect x="${x}" y="${y}" width="${t}" height="${h}"/><rect x="${x}" y="${y}" width="${w}" height="${t}"/><rect x="${x}" y="${y + h - t}" width="${w}" height="${t}"/><rect x="${x + w - t}" y="${y}" width="${t}" height="${l}"/><rect x="${x + w - t}" y="${y + h - l}" width="${t}" height="${l}"/></g>`;
+  } else if (kind === 'angle') {
+    const t = Math.min(Math.min(w, h) / 3, Math.max(line, thickness * scale));
+    shape = `<g fill="currentColor"><rect x="${x}" y="${y}" width="${t}" height="${h}"/><rect x="${x}" y="${y + h - t}" width="${w}" height="${t}"/></g>`;
   } else if (kind === 'rhs') {
     const inset = Math.max(3, Math.min(w, h) * .16);
     shape = `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="1" fill="none" stroke="currentColor" stroke-width="${line}"/><rect x="${x + inset}" y="${y + inset}" width="${Math.max(2, w - 2 * inset)}" height="${Math.max(2, h - 2 * inset)}" fill="none" stroke="currentColor" stroke-width="${line * .75}"/>`;
@@ -75,6 +80,7 @@ function orientationText(angle = orientationDeg) {
   }
   const kind = sectionKind();
   if (kind === 'chs' || kind === 'round') return `${angle}° · circular section; bending properties are unchanged by rotation`;
+  if (kind === 'angle') return `${angle}° angle-bar installation orientation · solver x/y leg axes rotate in 90° steps`;
   return `${angle}° section orientation${angle % 180 === 90 ? ' · alternate bending axis' : ' · original bending axis'}`;
 }
 
