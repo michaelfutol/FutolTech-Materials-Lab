@@ -40,7 +40,7 @@ test('direct comparison exposes the engineering print build', () => {
   assert.match(compareHtml, /printReport\.js\?v=20260807-oldschool1/);
   assert.match(compareHtml, /printLetterhead\.css\?v=20260807-letterhead1/);
   assert.match(compareHtml, /printCompanyIdentity\.js\?v=20260818-manual1/);
-  assert.match(compareHtml, /Build 2026-08-18\.2/);
+  assert.match(compareHtml, /Build 2026-08-18\.SL1/);
   assert.match(compareHtml, /Structural Member Comparison/);
 });
 
