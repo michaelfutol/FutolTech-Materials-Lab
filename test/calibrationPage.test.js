@@ -18,8 +18,8 @@ test('Calibration Lab exposes raw CSV schema metadata and additive calibration b
 test('Calibration implementation preserves raw input and does not synthesize missing prediction', () => {
   assert.match(solver, /rawCsv: text/);
   assert.match(solver, /immutableSource/);
+  assert.match(solver, /USER DATA \/ UNVERIFIED/);
   assert.match(solver, /never silently overwrite published or measured source properties/);
   assert.match(app, /predictedRows\.length > 1/);
-  assert.match(app, /USER DATA \/ UNVERIFIED/);
   assert.match(app, /Synthetic example for software verification\. Not physical-test evidence\./);
 });
