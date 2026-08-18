@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="FutolTech Structural Lab Connection Lab v1 for transparent nail and bolt research screening, spacing checks, steel side-plate concepts and demand comparison." />
+    <title>Connection Lab · FutolTech Structural Lab</title>
+    <link rel="stylesheet" href="./src/styles.css?v=20260802-1" />
+    <link rel="stylesheet" href="./src/connection.css?v=20260818-con1" />
+    <link rel="stylesheet" href="./src/printReport.css?v=20260806-brand1" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">TOOLS · FutolTech Structural Lab · CON-001</p>
+        <h1>Connection Lab</h1>
+        <p class="subtitle">Nails, bolts, timber joints and steel side plates — transparent research screening before code design.</p>
+      </div>
+      <div class="status-cluster">
+        <a class="status-pill status-link" href="./index.html">← Materials Lab</a>
+        <a class="status-pill status-link" href="./splice.html">Stock & Splice</a>
+        <a class="status-pill status-link" href="./library.html">Section Library</a>
+        <span class="status-pill">Research screening · active</span>
+        <span class="status-pill">Build 2026-08-18.CON1</span>
+      </div>
+    </header>
+
+    <main class="connection-shell">
+      <section class="panel connection-controls" aria-label="Connection inputs">
+        <div class="panel-heading">
+          <div><p class="eyebrow">Fastener and wood evidence</p><h2>Connection setup</h2></div>
+          <button id="connectionResetButton" class="button" type="button">Reset CON-001</button>
+        </div>
+
+        <div class="mode-switch" role="group" aria-label="Fastener mode">
+          <button id="nailModeButton" class="mode-button is-active" type="button">Nail</button>
+          <button id="boltModeButton" class="mode-button" type="button">Bolt / steel plate</button>
+        </div>
+
+        <div class="control-grid">
+          <label><span>Wood classification</span><select id="connectionWoodClassSelect"><option value="unclassified">Unclassified / coconut palm</option><option value="hardwood">Hardwood — only when justified</option><option value="softwood">Softwood — only when justified</option></select></label>
+          <label><span>Specific gravity G</span><input id="connectionSpecificGravityInput" type="number" min="0.1" max="1.5" step="0.01" value="0.55" /><small>Ovendry-weight basis used by the cited FPL equations. Enter verified specimen/species data.</small></label>
+          <label><span>Applied connection demand, kN</span><input id="connectionDemandInput" type="number" min="0" step="0.05" value="1" /></label>
+          <label><span>Fastener count</span><input id="connectionFastenerCountInput" type="number" min="1" max="100" step="1" value="4" /></label>
+        </div>
+
+        <fieldset id="nailFields">
+          <legend>Nail reference inputs</legend>
+          <div class="control-grid">
+            <label><span>Nail type</span><select id="nailTypeSelect"><option value="smooth">Bright smooth common wire nail</option><option value="annular">Annular threaded — maximum withdrawal only</option></select></label>
+            <label><span>Diameter D, mm</span><input id="nailDiameterInput" type="number" min="1" max="12" step="0.01" value="3.33" /></label>
+            <label><span>Penetration L, mm</span><input id="nailPenetrationInput" type="number" min="1" max="300" step="1" value="50" /></label>
+            <label><span>Withdrawal duration reference</span><select id="nailDurationSelect"><option value="long-term">Long-time handbook reference</option><option value="normal">Normal-duration handbook reference</option></select></label>
+          </div>
+        </fieldset>
+
+        <fieldset id="boltFields" class="is-hidden">
+          <legend>Bolt / side-plate research inputs</legend>
+          <div class="control-grid">
+            <label><span>Side member</span><select id="boltSideMemberSelect"><option value="wood">Wood side member</option><option value="steel">Steel plate / strap</option></select></label>
+            <label><span>Bolt diameter D, mm</span><input id="boltDiameterInput" type="number" min="4" max="64" step="0.01" value="12.7" /></label>
+            <label><span>Wood bearing thickness L, mm</span><input id="boltBearingThicknessInput" type="number" min="5" max="300" step="1" value="50" /></label>
+            <label><span>Load-to-grain angle θ</span><select id="boltLoadAngleSelect"><option value="0">0° · parallel</option><option value="45">45°</option><option value="90">90° · perpendicular</option></select></label>
+            <label><span>Connection force sense</span><select id="boltLoadCaseSelect"><option value="tension">Tension toward loaded end</option><option value="compression">Compression toward end</option></select></label>
+            <label><span>Spacing along grain, mm</span><input id="boltSpacingInput" type="number" min="1" step="1" value="80" /></label>
+            <label><span>Loaded end distance, mm</span><input id="boltEndDistanceInput" type="number" min="1" step="1" value="90" /></label>
+            <label><span>Edge distance, mm</span><input id="boltEdgeDistanceInput" type="number" min="1" step="1" value="25" /></label>
+            <label id="steelPlateThicknessLabel" class="is-hidden"><span>Steel plate / strap thickness, mm</span><input id="steelPlateThicknessInput" type="number" min="0.5" max="30" step="0.1" value="3" /><small>Recorded for detailing only in CON-001; steel plate bearing/net-section capacity is not yet calculated.</small></label>
+          </div>
+        </fieldset>
+
+        <div class="support-help">
+          <strong>Connection Lab v1 boundary</strong>
+          <p>CON-001 uses public USDA Forest Products Laboratory research equations and prescriptive spacing observations. It does <b>not</b> reproduce the complete current NDS dowel-yield design procedure. “SCREENING” means a reference component is below demand; it is not a code-rated connection pass.</p>
+        </div>
+      </section>
+
+      <section class="panel connection-results" aria-label="Connection screening results">
+        <div class="panel-heading">
+          <div><p class="eyebrow">Transparent component checks</p><h2 id="connectionResultTitle">Nail research screen</h2></div>
+          <button class="button print-action" type="button" onclick="window.print()">Print / Save PDF</button>
+        </div>
+        <div id="connectionStateBanner" class="connection-state" role="status" aria-live="assertive"></div>
+        <div class="connection-figure-wrap"><svg id="connectionDiagram" viewBox="0 0 900 300" role="img" aria-label="Connection layout diagram"></svg></div>
+        <div id="connectionResultCards" class="result-grid"></div>
+        <div class="details-grid">
+          <section><h3>Manual calculation trace</h3><div id="connectionCalculationTrace" class="calculation-trace"></div></section>
+          <section><h3>Geometry / detailing checks</h3><div id="connectionGeometryChecks" class="interpretation"></div></section>
+        </div>
+        <section class="source-card" id="connectionSourceCard"></section>
+      </section>
+    </main>
+
+    <footer><strong>Engineering notice:</strong> CON-001 is a research/reference screen. Verify fastener specification, wood species/grade/moisture, splitting, group action, steel plate/net section, corrosion, installation, governing code, and current NDS/AWC design values before structural use.</footer>
+    <script type="module" src="./src/publicBrand.js?v=20260818-sl1"></script>
+    <script type="module" src="./src/connectionApp.js?v=20260818-con1"></script>
+    <script type="module" src="./src/printReport.js?v=20260806-brand1"></script>
+  </body>
+</html>

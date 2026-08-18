@@ -9,6 +9,7 @@ const PUBLIC_PAGES = [
   'recommend.html',
   'bamboo.html',
   'splice.html',
+  'connections.html',
   'yield.html',
   'shoring.html'
 ];
@@ -28,10 +29,12 @@ test('all public pages use FutolTech Structural Lab and load the shared brand gu
   }
 });
 
-test('the shared brand module preserves company identity while protecting dynamic print furniture', () => {
+test('the shared brand module preserves company identity, dynamic print furniture, and Connection Lab navigation', () => {
   assert.match(brandModule, /PUBLIC_PRODUCT_NAME = 'FutolTech Structural Lab'/);
   assert.match(brandModule, /PUBLIC_PRODUCT_SUBTITLE = 'Virtual Materials, Members & Connection Testing'/);
   assert.match(brandModule, /COMPANY_NAME = 'FUTOLTECH ENGINEERING AND PROJECT SYSTEMS'/);
   assert.match(brandModule, /MutationObserver/);
   assert.match(brandModule, /applyPrintBrand/);
+  assert.match(brandModule, /ensureConnectionLabNav/);
+  assert.match(brandModule, /\.\/connections\.html/);
 });

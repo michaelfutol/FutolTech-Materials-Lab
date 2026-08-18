@@ -12,6 +12,18 @@ function setTextIfChanged(node, value) {
   if (node && node.textContent !== value) node.textContent = value;
 }
 
+function ensureConnectionLabNav() {
+  const cluster = document.querySelector('.status-cluster');
+  if (!cluster || cluster.querySelector('[data-structural-lab-connections]')) return;
+  const current = location.pathname.endsWith('/connections.html') || location.pathname.endsWith('connections.html');
+  const item = document.createElement(current ? 'span' : 'a');
+  item.dataset.structuralLabConnections = 'true';
+  item.className = 'status-pill status-link';
+  if (!current) item.href = './connections.html';
+  item.textContent = current ? 'Connection Lab · active' : 'Connection Lab';
+  cluster.insertBefore(item, cluster.firstChild);
+}
+
 function applyPrintBrand() {
   const brandName = document.querySelector('.print-brand-copy strong');
   const reportType = document.querySelector('.print-brand-copy span');
@@ -54,6 +66,7 @@ export function applyPublicBrand() {
     setTextIfChanged(topSubtitle, PUBLIC_PRODUCT_SUBTITLE);
   }
 
+  ensureConnectionLabNav();
   applyPrintBrand();
   document.documentElement.dataset.ftProduct = 'structural-lab';
 }
