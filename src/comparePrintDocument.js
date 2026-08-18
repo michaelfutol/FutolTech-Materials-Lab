@@ -153,6 +153,13 @@ function cleanPanelClone(selector) {
   const clone = cloneForPrint(source);
   if (!clone) return null;
   clone.querySelector('.compare-mode-switch')?.remove();
+  if (selector === '.compare-members') {
+    // Page 1 and Page 7 already carry the oriented section illustrations.
+    // On Page 3, keep the exact section/product/orientation text but omit the
+    // duplicate thumbnails so the selected-alternatives schedule remains
+    // comfortably inside the printable A4 body.
+    clone.querySelectorAll('.compare-selector-visual').forEach((node) => node.remove());
+  }
   return clone;
 }
 
