@@ -4,7 +4,7 @@ export const PH_STEEL_SOURCES = {
     organization: 'Supreme Steel Pipe Corporation',
     standard: 'PNS 26:2018',
     product: 'ERW galvanized steel light-gauge pipe',
-    catalogNote: 'The official manufacturer catalog also covers black steel pipe; FutolNative uses GI pipe as the local-market display name.',
+    catalogNote: 'The official manufacturer catalog also covers black steel pipe; FutolTech Structural Lab uses GI pipe as the local-market display name.',
     market: 'Philippines',
     sourceStatus: 'official manufacturer catalog',
     accessed: '2026-07-30'
@@ -14,7 +14,7 @@ export const PH_STEEL_SOURCES = {
     organization: 'Supreme Steel Pipe Corporation',
     standard: 'PNS 26:2018',
     product: 'ERW galvanized steel heavy-gauge / Schedule 40 pipe',
-    catalogNote: 'The official manufacturer catalog also covers black steel pipe; FutolNative uses GI pipe as the local-market display name.',
+    catalogNote: 'The official manufacturer catalog also covers black steel pipe; FutolTech Structural Lab uses GI pipe as the local-market display name.',
     market: 'Philippines',
     sourceStatus: 'official manufacturer catalog',
     accessed: '2026-07-30'
@@ -24,10 +24,22 @@ export const PH_STEEL_SOURCES = {
     organization: 'Supreme Steel Pipe Corporation',
     standard: 'ASTM A53/A53M-2018',
     product: 'ERW galvanized steel heavy-gauge pipe',
-    catalogNote: 'The official manufacturer catalog also covers black steel pipe; FutolNative uses GI pipe as the local-market display name.',
+    catalogNote: 'The official manufacturer catalog also covers black steel pipe; FutolTech Structural Lab uses GI pipe as the local-market display name.',
     market: 'Philippines',
     sourceStatus: 'official manufacturer catalog',
     accessed: '2026-07-30'
+  },
+  reganSquareTube2026: {
+    id: 'regan-square-tube-2026',
+    organization: 'Regan Industrial Sales, Inc.',
+    standard: 'ASTM A500 Grade B / Q235 product family stated by supplier',
+    product: 'Square structural steel tubes',
+    url: 'https://reganindustrial.com/pipe-tubings/square-tubes/',
+    handbookUrl: 'https://reganindustrial.com/wp-content/uploads/2026/07/2026-Product-Handbook.pdf',
+    catalogNote: 'Regan lists square tubes from 12.7×12.7 to 300×300 mm, wall thicknesses 0.70–12.00 mm and standard 6 m lengths. The 100×100×2.0 mm row is independently listed in the product handbook at 6.483 kg/m. Verify the delivered certificate/grade and actual wall thickness before design use.',
+    market: 'Philippines',
+    sourceStatus: 'official Philippine supplier page and 2026 product handbook',
+    accessed: '2026-08-18'
   }
 };
 
@@ -88,11 +100,11 @@ export const PH_PIPE_SECTIONS = [
     designation, diameterMm, thicknessMm, publishedMassKgM
   })),
   ...HEAVY.map(([designation, diameterMm, thicknessMm, publishedMassKgM]) => pipeRecord({
-    series: 'PNS26 Sch40', sourceId: PH_STEEL_SOURCES.supremePns26Heavy.id,
+    series: 'PNS26 heavy', sourceId: PH_STEEL_SOURCES.supremePns26Heavy.id,
     designation, diameterMm, thicknessMm, publishedMassKgM
   })),
   ...A53_HEAVY.map(([designation, diameterMm, thicknessMm, publishedMassKgM]) => pipeRecord({
-    series: 'A53 heavy', sourceId: PH_STEEL_SOURCES.supremeA53Heavy.id,
+    series: 'ASTM A53 heavy', sourceId: PH_STEEL_SOURCES.supremeA53Heavy.id,
     designation, diameterMm, thicknessMm, publishedMassKgM
   }))
 ];
