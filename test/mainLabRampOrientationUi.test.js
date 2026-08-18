@@ -4,20 +4,25 @@ import { readFile } from 'node:fs/promises';
 
 const indexHtml = await readFile(new URL('../index.html', import.meta.url), 'utf8');
 const rampUi = await readFile(new URL('../src/mainLabFailureRamp.js', import.meta.url), 'utf8');
+const failurePhysicsUi = await readFile(new URL('../src/failurePhysicsUi.js', import.meta.url), 'utf8');
 const timelineSolver = await readFile(new URL('../src/solver/governingLimitTimeline.js', import.meta.url), 'utf8');
 const orientationUi = await readFile(new URL('../src/mainLabOrientationUi.js', import.meta.url), 'utf8');
 const angleUi = await readFile(new URL('../src/mainLabAngleUi.js', import.meta.url), 'utf8');
 
-test('main Materials Lab loads the governing-limit module, angle catalog geometry, and four-way orientation modules', () => {
-  assert.match(indexHtml, /Build 2026-08-18\.SL2/);
+test('main Materials Lab loads governing-limit, event interpretation, angle geometry, and four-way orientation modules', () => {
+  assert.match(indexHtml, /Build 2026-08-18\.FP1/);
+  assert.match(indexHtml, /Failure Physics v1 · active/);
   assert.match(indexHtml, /option value="angle">Angle bar \/ L-section/);
   assert.match(indexHtml, /app\.js\?v=20260818-angle2/);
   assert.match(indexHtml, /mainLabOrientationUi\.js\?v=20260818-angle1/);
   assert.match(indexHtml, /mainLabFailureRamp\.js\?v=20260817-ramp1/);
+  assert.match(indexHtml, /failurePhysicsUi\.js\?v=20260818-fp1/);
   assert.match(indexHtml, /Rotate \+90°/);
   assert.match(orientationUi, /import '\.\/mainLabAngleUi\.js'/);
   assert.match(angleUi, /Angle-bar engineering boundary/);
   assert.match(angleUi, /Column compression is intentionally disabled for angle bars/);
+  assert.match(failurePhysicsUi, /What physical threshold has actually been reached/);
+  assert.match(failurePhysicsUi, /local buckling · pending/);
 });
 
 test('Run to Governing Limit exposes an event timeline with pause, step and stop controls', () => {
