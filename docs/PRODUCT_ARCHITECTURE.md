@@ -1,38 +1,60 @@
-# FutolNative Structures — Product Architecture
+# FutolTech Structural Lab — Product Architecture
 
 ## Purpose
 
-FutolNative Structures is a source-backed structural design, analysis and optimization platform for materials and construction systems that are poorly represented in mainstream structural software.
+**FutolTech Structural Lab** is the component-level structural physics and evidence layer of the FutolTech engineering ecosystem.
 
-Primary initial materials:
+Its job is to answer:
 
-- coconut lumber
-- bamboo and engineered bamboo
+> What can this material, member, connection or small assembly physically do, under what assumptions, evidence and uncertainty?
+
+The product began with native and locally available construction materials, but its scope now includes conventional and cold-formed steel products, temporary works, connections and future assemblies. Coconut lumber, bamboo and Philippine timber remain important specialties rather than the boundary of the software.
+
+Primary material/product families include:
+
+- coconut lumber and other verified timber datasets
+- bamboo and future engineered bamboo
 - locally available sawn timber
-- light-gauge and commercial steel sections
-- steel straps, plates and anchors
-- future abaca, coir and native-material composites when sufficient source data exists
+- GI pipe, CHS, RHS/SHS and rolled steel
+- C/Z purlins and other cold-formed products as the required design physics is implemented
+- angle bars
+- metal studs, tracks, furring and light-steel framing products
+- steel straps, plates, bolts, welds and anchors
+- future FRP, engineered wood and native-material composites when defensible source data exists
 
-The platform must not hide uncertainty. Every material, member and connection property carries its source, status, confidence, modifiers and limitations.
+The platform must not hide uncertainty. Every material, member and connection property should carry its source, evidence status, applicability boundary and unresolved verification needs.
+
+## Public and company identity
+
+- Public product: **FutolTech Structural Lab**
+- Product subtitle: **Virtual Materials, Members & Connection Testing**
+- Company/report identity: **FUTOLTECH ENGINEERING AND PROJECT SYSTEMS**
+- Repository/Pages path may remain `FutolTech-Materials-Lab` for continuity until an administrative rename is justified.
 
 ## Core engineering chain
 
 ```text
-Published tests and standards
-            ↓
-Materials Lab
-            ↓
-Member capacity and deformation
-            ↓
-Connection stiffness and capacity
-            ↓
-2D/3D frame analysis
-            ↓
-Progressive failure and redistribution
-            ↓
-Brace/member/connection optimization
-            ↓
-Engineer review and export
+Published tests / standards / manufacturer data / measured specimens
+                              ↓
+                       Material Intelligence
+                              ↓
+                    Section / Product Digital Twin
+                              ↓
+                         Materials Lab
+                              ↓
+                Member response and limit states
+                              ↓
+                      Connection Laboratory
+                              ↓
+                         Assembly Lab
+                              ↓
+                     Frame/System bridge
+                              ↓
+               Failure chronology / redistribution
+                              ↓
+                    Design Explorer / optimizer
+                              ↓
+                 Engineer review and export
 ```
 
 ## Module 1 — Materials Lab
@@ -42,28 +64,63 @@ Status: active foundation
 Responsibilities:
 
 - store source-labelled material datasets
-- calculate section geometry and properties
-- run beam, column, tension and shear member tests
+- calculate geometric and catalog section properties
+- run member bending and compression tests now, with tension/shear/torsion/bearing staged later
 - compare actual measured sections
-- support lower, mean and upper material envelopes
-- provide nonlinear constitutive laws and event timelines as they are validated
+- support orientation-sensitive response
+- support lower/mean/upper material envelopes where evidence exists
+- provide nonlinear constitutive laws and event timelines only as they are validated
 
-The Materials Lab is retained as a module rather than discarded during the platform conversion.
+Materials Lab remains a core module; the broader product name changes without discarding the tested foundation.
 
-## Module 2 — Connection Engine
+## Module 2 — Direct Compare
 
-Status: next major module
+Status: active
+
+Responsibilities:
+
+- compare two or three selected alternatives under one common boundary/load case
+- preserve product-specific geometry and evidence boundaries
+- search for the last load where at least one member remains within the implemented checks
+- expose orientation effects visually and numerically
+- produce auditable branded calculation reports with manual calculation traces
+
+## Module 3 — Section & Product Digital Twin
+
+Status: partial / expanding
+
+Target canonical object:
+
+```text
+material
++ actual geometry
++ orientation
++ source / product identity
++ stock length
++ measured condition
++ coating / treatment
++ defects / deterioration
++ evidence confidence
++ verified section properties when available
+```
+
+No missing fold, radius, grade or mass may be silently invented simply to activate a product in the solver.
+
+## Module 4 — Connection & Splice Laboratory
+
+Status: splice-demand foundation active; connection physics next
 
 Initial connection families:
 
 - timber-to-timber nails and screws
 - timber-to-timber bolts and dowels
 - steel strap-to-timber fasteners
-- steel plate-to-timber bolts
+- steel plate/fish-plate/gusset connections
+- welded and bolted steel splices
 - post bases, anchors and hold-downs
 - later bamboo bolts, confinement, internal plugs, lashings and grouted joints
 
-Required checks:
+Required checks include:
 
 - fastener lateral capacity
 - withdrawal and pull-through
@@ -76,123 +133,188 @@ Required checks:
 - joint slip, rotation and stiffness
 - brittle, ductile or degrading failure law
 
-The connection object must return both capacity and force–displacement behavior.
+A mature connection object must return both capacity and force–displacement behavior.
 
-## Module 3 — Frame Analyser
+## Module 5 — Assembly Lab
 
-Status: next major module
+Status: planned after Connection Lab v1
 
-Initial scope:
+Initial assemblies:
 
-- 2D posts, beams, rafters, rails and braces
-- common rigid joints, pinned joints and spring connections
-- gravity, point, distributed and horizontal wind loads
-- geometric nonlinearity and P–Δ
-- member and connection force recovery
-- support and anchorage capacity
-- load redistribution after a local release
-- instability/mechanism detection
+- built-up coco/timber beams and columns
+- double/triple timber members
+- back-to-back and boxed C-purlins
+- built-up light-gauge studs/channels
+- truss panel
+- shore + bearer + joist assembly
+- post + beam + brace assembly
 
-The frame solver must determine joint rotations from connectivity and stiffness. It must not assign every monolithic or connected joint as a literal fixed support.
+Fundamental rule:
 
-## Module 4 — Failure Engine
+> Adjacency alone never proves composite action. Physical fasteners, interface slip and connection stiffness determine whether pieces act together.
 
-Status: tracked in issue #5
+## Module 6 — Universal Virtual Test Machine
 
-State progression:
+Status: bending/compression and steel-yield foundations active
+
+Target tests:
+
+- tension
+- compression
+- bending
+- shear
+- torsion
+- bearing/crushing
+- combined axial + bending
+- local/global instability modes
+- cyclic/fatigue where source-backed
+- dynamic/impact only after validated physics exists
+
+Target controls:
+
+- Play
+- Pause
+- Step
+- Stop
+- Unload
+- Reload
+- Repeat Cycle
+
+The test timeline should record serviceability, first yield/damage/slip, instability, governing failure, residual state and any redistribution event supported by the model.
+
+## Module 7 — Failure Physics Lab
+
+Status: threshold/yield/rupture foundations exist; full failure library staged
+
+State progression target:
 
 ```text
 elastic
 → serviceability exceeded
-→ first yield/damage/slip
+→ first yield / damage / slip
 → stiffness degradation
 → local member or connection failure
-→ support release or member rupture
+→ support release / member rupture / instability
 → redistributed stable state or collapse
 → residual deformation after unloading
 ```
 
-Every visual failure event must correspond to a stored solver state and source-backed rule.
+Every visual failure event must correspond to a stored solver event. Decorative fake snapping, cracking or buckling is prohibited.
 
-## Module 5 — Brace Adviser and Optimizer
+## Module 8 — Design Explorer
 
-Status: planned after the first frame and connection models
+Status: recommender/optimization foundation active
 
-Candidate actions:
+Candidate actions include:
 
-- add one diagonal brace
-- add X-bracing
-- add knee braces
-- add steel strap bracing
-- increase member depth or thickness
-- rotate a rectangular member
-- strengthen only the connection
-- increase nail/screw count or diameter
-- increase bolt diameter, washer or plate
-- improve post base or hold-down
+- change member material/size/thickness
+- rotate a non-symmetric or rectangular member
+- add a splice using available stock
+- strengthen only the connection when it governs
+- add braces
+- alter fastener quantity/layout
+- alter anchor/base detail
+- compare repairable/sacrificial alternatives
 
-Optimization objectives:
+Objectives may include:
 
-- minimum cost
+- strength and serviceability
 - minimum mass
-- minimum number of braces
-- minimum number of different member sizes
-- maximum native-material content
-- minimum imported steel
+- minimum installed cost
+- local availability
+- minimum waste
 - minimum embodied carbon
-- maximum repairability
-- controlled sacrificial failure
+- repairability
+- controlled sacrificial behavior
 
-Constraints:
+Use deterministic structural physics as the verifier. Classical and optional QUBO/quantum search engines may explore candidates but do not replace the structural solver.
 
-- strength and stability limits
-- serviceability and drift limits
-- connection capacity and spacing
-- anchorage and load-path requirements
-- commercial lengths and available sections
-- constructability rules
+## Module 9 — Physical-Test Calibration
+
+Status: planned
+
+Requirements:
+
+- import UTM or field-test CSV data
+- preserve raw evidence
+- compare predicted vs measured load–displacement and failure points
+- calculate bias, scatter/COV and confidence intervals when sample size supports it
+- version calibrated models
+- never silently overwrite published property datasets
+
+## Module 10 — Structural Forensics / Field Mode
+
+Status: planned
+
+Field/forensics workflows may capture:
+
+- photos
+- actual geometry/thickness
+- supports and connection details
+- corrosion, defects, splits, holes and prior splices
+- candidate failure-sequence hypotheses with evidence/confidence
+
+These tools are engineering investigation aids, not automatic legal-causation opinions.
+
+## Module 11 — Frame Analyser
+
+Status: planned after connection/assembly foundations
+
+Initial scope:
+
+- 2D posts, beams, rafters, rails and braces
+- rigid, pinned and spring joints
+- gravity, point, distributed and horizontal loads
+- geometric nonlinearity / P–Δ
+- member and connection force recovery
+- support/anchorage limits
+- load redistribution after local release
+- mechanism/instability detection
+
+The solver determines joint behavior from connectivity/stiffness; it must not assign every connected joint as a literal fixed support.
 
 ## First integrated benchmark — NF-001
 
 ### 3 m × 3 m coconut-lumber wall frame
 
-Geometry:
+NF-001 remains the first staged frame benchmark after the required connection laws exist.
 
-- two posts
-- top and bottom rails
-- optional knee brace, single diagonal or X-brace
-
-Inputs:
-
-- actual member dimensions and orientation
-- material lower/mean/upper dataset
-- nail or bolt type, diameter, length and quantity
-- base anchorage
-- gravity and horizontal load
-
-Required outputs:
+Expected eventual outputs:
 
 - joint displacement and frame drift
-- member axial, shear and moment forces
+- member axial/shear/moment forces
 - connection force and slip
 - first governing limit state
 - progressive failure sequence
 - brace alternatives
-- lowest-cost compliant configuration
+- connection-aware optimization
 
-## Interoperability boundary
+## Ecosystem interoperability
 
-FutolNative Structures owns the canonical native-material model, source register and decision engine.
+### Structural Lab → FutolStructure
 
-External programs may later be used for:
+Validated component/material/connection objects and feasible alternatives.
 
-- benchmark verification
-- advanced shell/local-buckling analysis
-- general structural export
-- BIM and fabrication outputs
+### FutolStructure → Structural Lab
 
-External software is a verifier or service, not the source of truth for native-material properties and optimization decisions.
+Member demand envelopes and selected critical specimens for deeper testing.
+
+### Structural Lab / FutolStructure → RPE
+
+Source-backed component failure laws, degradation and residual behavior for resilience simulations.
+
+### CODA
+
+Governing-code compliance layer and citations; code logic must not be hidden inside raw material-property data.
+
+### SARA
+
+Standards and best-practice intelligence for non-code guidance.
+
+External specialist software may verify or extend advanced physics, but it does not become the source of truth for material/product evidence.
 
 ## Engineering boundary
 
-Until a material law, connection law or failure mode has a cited basis and benchmark, the interface may identify an exceeded reference but must not claim a specific physical fracture, local buckle or collapse animation.
+Until a material law, connection law or failure mode has a defensible source and benchmark, the interface may identify an exceeded reference but must not claim a specific physical fracture, local buckle, connection failure or collapse animation.
+
+The permanent implementation and definition-of-done checklist is maintained in `STRUCTURAL_LAB_MASTER_CHECKLIST.md`.

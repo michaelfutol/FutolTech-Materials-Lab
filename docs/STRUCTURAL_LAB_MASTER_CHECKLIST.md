@@ -13,14 +13,15 @@
 
 ## Product identity and non-negotiable doctrine
 
-- [ ] Rebrand public-facing **Native Structures** identity to **FutolTech Structural Lab**.
-- [ ] Adopt product subtitle: **Virtual Materials, Members & Connection Testing** (wording may be refined without narrowing scope).
+- [x] Rebrand public-facing **Native Structures** identity to **FutolTech Structural Lab**.
+- [x] Adopt product subtitle: **Virtual Materials, Members & Connection Testing**.
 - [x] Keep Materials Lab as a core module rather than discarding it.
 - [x] Preserve source provenance and explicit limitations for every material/product record.
 - [x] Never invent missing material strength, dimensions, fold geometry, mass, failure law, or connection capacity.
 - [x] Distinguish **PASS / PRELIM PASS / SCREENING / FAIL** according to what the implemented model actually proves.
 - [ ] Add a unified confidence/evidence badge: measured / manufacturer-published / standard / peer-reviewed / provisional / unknown.
-- [ ] Rename repository/package identifiers only after public naming migration is stable; avoid breaking URLs prematurely.
+- [x] Rename package identity to `futoltech-structural-lab` after the public naming migration.
+- [~] Keep the repository/Pages path `FutolTech-Materials-Lab` for URL continuity; administrative repository rename is intentionally deferred.
 
 ## NOW — Catalog Expansion 01
 
@@ -61,6 +62,7 @@
 - [x] Direct Compare for 2–3 members under common conditions.
 - [x] Philippine GI pipe catalog.
 - [x] SHS / RHS geometry.
+- [x] User-observed PH SHS 100×100×2.0 mm preset with explicit availability/grade verification boundary.
 - [x] JIS H-section starter catalog.
 - [x] Philippine C-purlin catalog and gross-property screening.
 - [x] Four-way C-purlin installation orientation in main lab and Direct Compare.
@@ -221,7 +223,7 @@ A checklist item is not “done” merely because it appears in a dropdown.
 
 # Immediate execution order after Catalog Expansion 01
 
-1. [ ] Public rebrand to **FutolTech Structural Lab** across screen, print and docs without breaking URLs.
+1. [x] Public rebrand to **FutolTech Structural Lab** across screen, print and docs without breaking URLs.
 2. [ ] Complete PH angle catalog import with exact verified section table.
 3. [ ] Connection Lab v1: nailed/bolted timber and simple steel plates/straps.
 4. [ ] Run-to-Governing-Limit event timeline.
@@ -238,3 +240,4 @@ A checklist item is not “done” merely because it appears in a dropdown.
 - 2026-08-18 — User requested the full ultimate roadmap, not a reduced subset.
 - 2026-08-18 — Angle bars are allowed into the solver from actual A×B×t geometry with an explicitly idealized sharp-corner gross-property model.
 - 2026-08-18 — Metal studs and double furring enter the library immediately, but independent section capacity remains blocked until complete folded geometry/design basis is verified. Missing folds are never invented.
+- 2026-08-18 — Public product identity migrated to **FutolTech Structural Lab** with the Structural Lab package name; repository/Pages URL retained as `FutolTech-Materials-Lab` for continuity.

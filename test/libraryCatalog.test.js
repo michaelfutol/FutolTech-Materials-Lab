@@ -33,7 +33,7 @@ test('generated Library section records never expose BI in active pipe labels', 
 
 test('Library page uses the curated hardwood build and visible build id', async () => {
   const html = await readFile(new URL('../library.html', import.meta.url), 'utf8');
-  assert.match(html, /Build 2026-08-02\.1/);
+  assert.match(html, /Build 2026-08-18\.SL1/);
   assert.match(html, /libraryApp\.js\?v=20260802-1/);
   assert.match(html, /Yakal[\s\S]*Narra[\s\S]*Apitong/);
   assert.doesNotMatch(html, /BI\/GI/);

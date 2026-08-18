@@ -11,7 +11,7 @@ const [html, css, timber] = await Promise.all([
 test('shoring page exposes one-click A4 print and PDF output', () => {
   assert.match(html, /Print \/ Save PDF/);
   assert.match(html, /window\.print\(\)/);
-  assert.match(html, /Build 2026-08-06\.SH3/);
+  assert.match(html, /Build 2026-08-18\.SL1/);
   assert.match(css, /@page\s*\{\s*size:\s*A4 portrait/);
   assert.match(css, /Microsoft Sans Serif/);
   assert.match(css, /@media print/);

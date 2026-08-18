@@ -3,8 +3,8 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Native Structures stock-length and member-splice demand planner." />
-    <title>Stock Length & Splice Designer · Native Structures</title>
+    <meta name="description" content="FutolTech Structural Lab stock-length and member-splice demand planner." />
+    <title>Stock Length & Splice Designer · FutolTech Structural Lab</title>
     <link rel="stylesheet" href="./src/styles.css" />
     <link rel="stylesheet" href="./src/splice.css" />
     <link rel="stylesheet" href="./src/splicePicker.css" />
@@ -12,7 +12,7 @@
   </head>
   <body>
     <header class="topbar">
-      <div><p class="eyebrow">TOOLS · Native Structures · SP-001</p><h1>Stock Length & Splice Designer</h1><p class="subtitle">Assemble longer coco-lumber or steel members from available stock, then check the actual force demand at the splice.</p></div>
+      <div><p class="eyebrow">TOOLS · FutolTech Structural Lab · SP-001</p><h1>Stock Length & Splice Designer</h1><p class="subtitle">Assemble longer coco-lumber or steel members from available stock, then check the actual force demand at the splice.</p></div>
       <div class="status-cluster"><a class="status-pill status-link" href="./index.html">← Materials Lab</a><a class="status-pill status-link" href="./library.html">Section & Materials Library</a><span class="status-pill">Splice demand · active</span><span class="status-pill status-pill--warning">Fastener/weld design · next</span></div>
     </header>
     <main class="app-shell splice-shell">
@@ -34,6 +34,7 @@
       <section class="panel workspace-panel" aria-label="Splice analysis workspace"><div class="panel-heading"><div><p class="eyebrow">Live assembled-member solver</p><h2>Stock, force demand, and splice utilisation</h2></div></div><div id="spliceErrorBanner" class="error-banner is-hidden" role="alert"></div><section id="spliceStateBanner" class="capacity-banner capacity-banner--safe" role="status" aria-live="assertive"></section><div class="diagram-wrap"><svg id="spliceDiagram" viewBox="0 0 900 360" role="img" aria-label="Beam assembly with stock-feasible zone, point load, and splice marker"></svg></div><div id="spliceResultCards" class="result-grid" aria-live="polite"></div><div class="details-grid splice-details-grid"><section><h3>Stock and cut plan</h3><dl id="stockPlanResults" class="definition-grid"></dl></section><section><h3>Splice force demand</h3><dl id="spliceDemandResults" class="definition-grid"></dl></section><section><h3>Engineering interpretation</h3><div id="spliceInterpretation" class="interpretation"></div></section></div></section>
     </main>
     <footer><strong>Engineering notice:</strong> SP-001 currently extracts beam force demand and checks it against user-entered splice capacities. It does not yet calculate nail, bolt, weld, sleeve, plate, splitting, local buckling, or nonlinear post-failure resistance.</footer>
+    <script type="module" src="./src/publicBrand.js?v=20260818-sl1"></script>
     <script type="module" src="./src/spliceApp.js"></script>
     <script type="module" src="./src/components/spliceVisualPicker.js"></script>
     <script type="module" src="./src/components/loadEquivalentDisplay.js"></script>

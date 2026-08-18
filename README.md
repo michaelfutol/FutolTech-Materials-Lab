@@ -1,126 +1,160 @@
-# FutolNative Structures
+# FutolTech Structural Lab
 
-A source-backed native-material structural design, analysis, failure-simulation and optimization platform.
+**Virtual Materials, Members & Connection Testing**
 
-The repository began as **FutolTech Materials Lab**. Materials Lab remains the verified member-analysis core and supplies material datasets, section properties, elastic tests and benchmarked calculations. The platform now expands that core into a visual section library, load-driven recommendations, bamboo-culm analysis, stock/splice planning, nonlinear steel-yield experiments, connections, frames, braces, progressive failure and optimization for coconut lumber, bamboo, Philippine timber, steel products and future native-material composites.
+FutolTech Structural Lab is a source-backed structural engineering laboratory for testing, comparing and understanding materials, individual members, connections and small assemblies before they are promoted into whole-structure models.
 
-The project remains intentionally separate from the FutolTech Resilience Physics Engine. FutolNative Structures focuses on materials, members, joints and structural framing; RPE focuses on complete assemblies and multi-hazard response.
+The project began as **FutolTech Materials Lab** and later expanded beyond the earlier **Native Structures / FutolNative Structures** scope. Materials Lab remains the verified member-analysis core, but the product now includes Philippine-market steel products, timber, bamboo, shoring, splice demand, nonlinear steel-yield experiments, optimization and a staged path toward connections, assemblies, failure physics and frame analysis.
+
+The public product name is **FutolTech Structural Lab**. The company/report identity remains **FUTOLTECH ENGINEERING AND PROJECT SYSTEMS**.
 
 ## Live development site
-
-The current site is deployed through GitHub Pages after engineering checks pass:
 
 https://michaelfutol.github.io/FutolTech-Materials-Lab/
 
 Deployment source: GitHub Actions  
 Default development branch: `main`
 
-The repository and Pages path still use the original Materials Lab name during the transition. GitHub repository renaming is a separate administrative step.
+The repository and Pages URL intentionally retain the original `FutolTech-Materials-Lab` path for continuity. Repository renaming is a separate administrative step and is not required for the public product rebrand.
 
-## Active and experimental modules
+## Product doctrine
+
+Structural Lab must remain auditable and conservative about what each model proves.
+
+- Never invent missing material strength, section dimensions, folded geometry, mass, connection capacity or failure laws.
+- Keep material-property evidence separate from local-market availability observations.
+- Distinguish **PASS / PRELIM PASS / SCREENING / FAIL** according to the implemented physics.
+- Every important result should be independently traceable by equations, source records or benchmark tests.
+- Stateful UI features require real-browser regression tests where practical.
+- Critical engineering reports must pass physical PDF pagination/overflow QA.
+- Whole-building analysis remains a different layer; Structural Lab specializes in materials, members, connections, assemblies and failure behavior.
+
+## Current modules
 
 ```text
-FutolNative Structures
+FutolTech Structural Lab
 ├── Materials Lab                    active
-│   ├── actual section dimensions and catalog properties
+│   ├── actual dimensions / catalog properties
 │   ├── elastic beam bending
-│   ├── column compression, eccentricity and Euler buckling
-│   └── calculation-driven limit warnings
+│   ├── column compression, eccentricity and Euler buckling screening
+│   ├── 0° / 90° / 180° / 270° section orientation
+│   └── one-touch load ramp to the strongest supported terminal reference
+├── Direct Compare                   active
+│   ├── 2–3 members under one common load/boundary case
+│   ├── bending and compression
+│   ├── animated last-passing-load search
+│   └── branded manual-calculation comparison report
 ├── Section & Materials Library      active
-│   ├── visual cross-section sketches
-│   ├── pipe / SHS / RHS / rolled-H classification
-│   ├── source and market-status records
-│   └── inactive Philippine timber research priorities
-├── Load-Driven Recommender          experimental
-│   ├── wood, round bamboo and steel candidate enumeration
-│   ├── strength, deflection, mass and stock checks
-│   └── lightest or lowest-utilisation ranking
+│   ├── source and market status
+│   ├── visual section sketches
+│   ├── GI pipe / SHS / RHS / H / C-purlin / angle records
+│   └── timber, bamboo, metal-stud and furring records
+├── Concrete Slab Shoring            experimental
 ├── Bamboo Culm Lab                  experimental
-│   ├── measured butt / middle / top geometry
-│   ├── tapered variable-EI beam analysis
-│   └── permissible and characteristic bending estimates
 ├── Stock Length & Splice Designer   active demand planner
-│   ├── stock-piece count and feasible splice zone
-│   ├── local shear and moment demand
-│   └── visual splice concepts
 ├── Steel Yield Lab                  experimental
-│   ├── first-yield detection
-│   ├── bilinear load–hold–unload cycle
-│   └── idealised residual deformation
-├── Connection Engine                next
-│   ├── nails, screws and bolts
-│   ├── plates, straps, welds and anchors
-│   ├── bearing, withdrawal, slip and splitting
-│   └── connection stiffness and progressive release
-├── Frame Analyser                   next
-│   ├── posts, beams, rafters and wall frames
-│   ├── knee braces, single diagonals and X-bracing
-│   ├── gravity, wind and combined actions
-│   └── load redistribution after local failure
-└── Optimizer                        expanding
-    ├── classical auditable enumeration
-    ├── future peso cost and embodied-carbon objectives
-    ├── future brace, splice and connection choices
-    └── later QUBO / BlueQubit candidate search with deterministic verification
+├── Load-Driven Recommender          experimental
+├── Connection Lab                   next major physics module
+├── Assembly Lab                     planned
+├── Failure Physics Lab              planned / partial foundations
+├── Frame Analyser                   planned
+└── Design Explorer                  expanding
 ```
 
-## Product naming rule
+## Current section/product coverage
 
-The software separates material properties from product geometry:
+### Solver-ready or screening-capable
 
-- **steel pipe** — round products listed under pipe standards such as PNS 26 or ASTM A53
-- **SHS / RHS structural hollow section** — square or rectangular structural tube products
-- **rolled H / wide-flange section** — catalog rolled shapes using verified gross properties
-- **GI** — galvanised coating only; it does not establish the base-steel grade
+- solid rectangle
+- solid round
+- CHS / GI pipe
+- RHS / SHS
+- user-defined catalog sections
+- JIS H-section starter catalog
+- Philippine C-purlin gross-section screening
+- angle bar / L-section using actual A × B × t with an idealized sharp-corner gross-property model
+- SHS 100×100×2.0 mm user-observed Philippine-market preset pending supplier/certificate verification
 
-The provisional 250 MPa and 345 MPa steel records are product-neutral sensitivity datasets. A result becomes product-specific only when paired with an actual pipe, hollow section or rolled section, and still requires the governing standard and certificate.
+### Library-only until adequate geometry/design basis exists
 
-## Current Materials Lab capabilities
+- selected Philippine metal studs
+- double metal furring
+- product records with incomplete fold geometry or unknown grade
 
-- elastic beam finite-element analysis with a point load at any position
-- independent fixed, pin, roller and free end restraints
-- column compression, eccentricity, idealised P–Δ amplification and Euler buckling
-- wood specimen lengths from 0.60 m to 3.60 m under the current coconut baseline
-- steel specimen lengths from 0.60 m to 6.00 m under the current baseline
-- solid rectangle, RHS/SHS, CHS/pipe, solid round and user-defined catalog sections
-- actual measured dimensions, section rotation and source-labelled material properties
-- solver-driven SVG deformation views
-- automated closed-form and solver regression benchmarks using the Node test runner
+Library-only status is intentional: visibility does not imply solver approval.
 
-The initial saved benchmark is a 3.0 m simply supported 50×100 mm coconut-wood member with a movable point load.
+## Materials and grade policy
 
-## Traditional Philippine timber policy
+Material properties and product geometry are separate objects.
 
-Apitong, Yakal, Guijo, Molave/Tugas, Ipil, Tanguile/Lauan, Narra and the ambiguous “Philippine mahogany” trade group are visible in the Library as research priorities, but they are **not active solver materials**.
+- **GI** describes galvanizing/coating; it is not a steel grade.
+- **steel pipe** and **SHS/RHS** are different product families even when geometrically similar.
+- provisional 250 MPa and 345 MPa steel records are sensitivity/baseline datasets until the delivered product grade is verified.
+- timber species, moisture, grade, defects and legal origin remain essential project inputs.
+- bamboo geometry and properties require specimen-specific verification.
 
-They remain inactive until each record has:
+## Manual calculation and report philosophy
 
-- exact botanical and trade identity
-- legal origin and current harvesting/transport documentation
-- moisture and grade basis
-- density and lower/mean stiffness values
-- bending, compression, shear and tension properties appropriate to structural lumber
-- actual dimensions and usable stock lengths
-- nail/bolt embedment, splitting and connection data
+Direct Compare produces the FT-CS-01 engineering report with intentional A4 landscape pages. The report includes:
 
-Historical construction reputation is context, not a design value. No pending timber record is allowed to borrow properties from another species or trade group.
+- test arrangement and selected alternatives
+- side-by-side engineering results
+- section-property derivation
+- C-purlin orientation trace where applicable
+- reactions, moment, stress and serviceability hand checks
+- comparison of closed-form checks against FEM output
+- explicit engineering boundaries and required verification
 
-## First full-structure benchmark
+The report letterhead uses **FUTOLTECH ENGINEERING AND PROJECT SYSTEMS** and the engineer identity configured in the print module.
 
-**NF-001 — 3 m × 3 m coconut-lumber wall frame**
+## Roadmap source of truth
 
-- two posts with top and bottom rails
-- selectable knee brace, single diagonal or X-brace
-- nailed or bolted joints
-- user-defined base anchorage
-- gravity plus horizontal wind loading
-- lower, mean and upper material-property envelopes
-- member, connection and support failure sequence
-- optimizer recommendations for brace layout, member orientation, fastener quantity and anchor requirement
+The permanent implementation checklist is:
+
+`docs/STRUCTURAL_LAB_MASTER_CHECKLIST.md`
+
+That file records the full roadmap, current status, engineering blockers and the definition-of-done gates for every new feature. Chat history is not the only project record.
+
+Major roadmap families:
+
+1. Material Intelligence
+2. Section & Product Digital Twins
+3. Universal Virtual Test Machine
+4. Failure Physics Lab
+5. Connection & Splice Laboratory
+6. Assembly Lab
+7. Design Explorer
+8. Physical-Test Calibration
+9. Structural Forensics Mode
+10. Field Mode
+11. Frames and system-level bridge
+12. FutolStructure / RPE / CODA / SARA integration
+
+## Ecosystem boundary
+
+### Structural Lab
+Answers: **What can this material, member, connection or assembly physically do, under what evidence and assumptions?**
+
+### FutolStructure
+Uses validated component objects to model and design structural systems.
+
+### Resilience Physics Engine (RPE)
+Consumes component failure/degradation laws for extreme-event and progressive-failure simulation.
+
+### CODA / SARA
+Provide governing-code compliance and standards/best-practice layers without contaminating raw material-property evidence.
+
+Structural Lab should not become an ETABS clone. Whole-building system analysis belongs to FutolStructure and specialist solvers; Structural Lab remains the component-level testing and evidence engine.
+
+## First integrated frame benchmark
+
+**NF-001 — 3 m × 3 m coconut-lumber wall frame** remains the first staged frame benchmark after the required connection and assembly physics are mature enough.
+
+Expected future outputs include member forces, joint slip, drift, governing limit state, progressive release/redistribution, brace alternatives and connection-aware optimization.
 
 ## Run locally
 
-No framework or package installation is required for the browser application. Serve the repository through any static server, for example:
+No framework installation is required for the static browser app. Serve the repository, for example:
 
 ```bash
 python -m http.server 8080
@@ -128,51 +162,14 @@ python -m http.server 8080
 
 Then open `http://localhost:8080`.
 
-Run engineering checks with Node 22 or newer:
+Run engineering verification with Node 22 or newer:
 
 ```bash
 npm run verify
 ```
 
-## Repository map
-
-```text
-index.html                              Materials Lab application shell
-library.html                            visual section and material library
-recommend.html                          load-driven member recommender
-bamboo.html                             tapered bamboo-culm analyser
-splice.html                             stock-length and splice demand planner
-yield.html                              experimental steel yield-cycle lab
-src/app.js                              Materials Lab orchestration
-src/libraryApp.js                       searchable library controller
-src/solver/                             member, column, tapered-culm and nonlinear solvers
-src/data/materials.js                   active source-labelled material datasets
-src/data/phTraditionalTimberLibrary.js  inactive timber research priorities
-src/data/sectionPresets.js              editable section/product inputs
-src/components/                         calculated visualisations and section sketches
-docs/PRODUCT_ARCHITECTURE.md            platform modules and staged development
-docs/ENGINEERING_BASIS.md               equations, assumptions and modelling limits
-docs/VALIDATION_MATRIX.md               benchmark register and verification status
-docs/SOURCES.md                         bibliographic records and extracted values
-```
-
-## Current engineering boundary
-
-The live modules are preliminary analytical comparison tools. They do not yet form a complete design-code or frame-analysis package.
-
-Pending major checks include:
-
-- steel local plate and lateral-torsional buckling
-- physical connection stiffness and capacity
-- wood and bamboo grading, moisture and load-duration effects
-- bamboo nodes, ovality, crookedness and splitting
-- tube/pipe manufacturing tolerances and certified grade
-- nonlinear wood/bamboo damage and physical fracture
-- support and connection failure with load redistribution
-- probabilistic material variability
-
-Until a constitutive law and benchmark exist, the interface may report a limit exceedance but must not visually claim a physical snap, local buckle or fracture.
+The verification chain includes syntax checks, deterministic engineering/data tests, real Chromium interaction tests and the Direct Compare physical PDF gate.
 
 ## Engineering notice
 
-This software is for research, education and preliminary engineering comparison. Published material properties are not a substitute for project-specific testing, code checks or professional engineering judgement. Results must not be treated as certified capacities.
+FutolTech Structural Lab is for research, education and preliminary engineering comparison. Published or provisional material properties are not substitutes for project-specific testing, governing code checks, verified product certificates, complete connection design or professional engineering judgement. Results must not be treated as certified capacities beyond the explicit status and model boundary shown by the software.
