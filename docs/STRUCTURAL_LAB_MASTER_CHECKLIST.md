@@ -32,7 +32,7 @@
 7. [x] **Failure Physics v1** — event-linked interpretation and visuals for supported serviceability/reference/yield/ultimate/global-column threshold events, with real Chromium QA.
 8. [x] **Physical-Test Calibration v1** — evidence-preserving CSV intake, measured-vs-predicted response, sample statistics and versioned calibration packages.
 9. [x] **Frame Analyzer / NF-001** — connected 2D frame, explicit spring/release states, elastic P–Δ, piecewise redistribution/mechanism detection and brace sensitivity.
-10. [ ] **FutolStructure / RPE interchange — NEXT ACTIVE** — reusable component, demand and failure-law objects.
+10. [x] **FutolStructure / RPE interchange v1** — versioned component, demand, critical-specimen and evidence-bounded failure/RPE law exchange.
 
 # Protected foundation
 
@@ -64,6 +64,10 @@
 - [x] NF-001 Brace Adviser reports elastic drift sensitivity and brace axial demand only; brace capacity remains **UNRATED**.
 - [x] Frame/brace semi-rigid properties are explicit user/research/CAL inputs and are never inferred from nail or bolt count.
 - [x] Engineering CI exposes syntax, deterministic, each Chromium lab and PDF gates as separately auditable steps.
+- [x] Structural Interchange v1 preserves source system, evidence/provenance, units, analysis boundaries and deterministic round-trip identity.
+- [x] Structural Lab → FutolStructure component packages preserve material/section/member references and never upgrade sensitivity or SCREENING status.
+- [x] FutolStructure → Structural Lab demand packages preserve signed P/V/M and case identity; critical-specimen requests are explicit selections, not automatic failure claims.
+- [x] Structural Lab → RPE exports stored threshold events and marks post-threshold degradation/residual behavior **UNAVAILABLE** unless explicitly supplied/calibrated.
 - [x] FT-CS-01 branded Direct Compare report with manual section-property and bending-response trace.
 - [x] Chromium PDF gate: logical report pages = physical pages; no blank/overflow sheets.
 - [x] Assembly Lab ASSY-001 bounded elastic composite-action model with independent/full-composite stiffness bounds and explicit η evidence status.
@@ -225,13 +229,13 @@
 - [x] Fully released zero-energy joint-core rotation coordinates are treated as inactive DOFs when unloaded; a loaded disconnected DOF or actual singular structural state still fails visibly.
 - [x] Real Chromium gates independently verify rigid, brace, semi-rigid, P–Δ and redistribution states in fresh browser sessions.
 
-# 12 — FutolTech Ecosystem Integration — NEXT ACTIVE
+# 12 — FutolTech Ecosystem Integration — interchange v1 COMPLETE / broader orchestration pending
 
-- [ ] **Structural Lab → FutolStructure:** validated material/member/connection/assembly objects and alternatives.
-- [ ] **FutolStructure → Structural Lab:** demand envelopes and critical specimens for deeper testing.
-- [ ] **Structural Lab/FutolStructure → RPE:** component failure/degradation/residual laws for resilience simulations.
-- [ ] Versioned interchange schema with source system, evidence/provenance, units, analysis boundary and unsupported-field handling.
-- [ ] Deterministic import/export/round-trip validation; unsupported schema/object types fail visibly.
+- [x] **Structural Lab → FutolStructure:** versioned material, section, member and optional connection/assembly/failure-law context objects with evidence and analysis boundaries preserved.
+- [x] **FutolStructure → Structural Lab:** signed demand envelopes plus explicit critical-specimen requests for deeper component testing.
+- [x] **Structural Lab/FutolStructure context → RPE:** component threshold/failure-law objects with degradation/residual behavior exported only when explicitly AVAILABLE.
+- [x] Versioned interchange schema with source system, evidence/provenance, units, analysis boundary and unsupported-field handling.
+- [x] Deterministic import/export/round-trip validation; unsupported schema/object types, malformed cross-references and duplicate IDs fail visibly.
 - [ ] **CODA:** governing-code compliance/citations remain a separate compliance layer.
 - [ ] **SARA:** non-code standards/best-practice layer.
 - [x] External specialist solvers may verify/extend physics but never become the source of material/product truth.
@@ -269,3 +273,4 @@
 - 2026-08-18 — NF-001 redistribution is piecewise elastic and may surface a mechanism; it does not invent plastic rotation, hysteresis or post-failure response.
 - 2026-08-18 — Brace Adviser v1 is a system-stiffness/axial-demand sensitivity tool only. Brace capacity, buckling and gusset/connection design remain UNRATED.
 - 2026-08-18 — A fully released, unloaded joint-core rotation may be an inactive zero-energy coordinate rather than a physical mechanism; loaded disconnected DOFs and actual singular structural systems still fail visibly.
+- 2026-08-18 — Structural Interchange v1 uses versioned, deterministic solver-agnostic JSON with explicit source ownership, provenance, units and analysis boundaries. SCREENING/sensitivity evidence is never upgraded by exchange; RPE degradation/residual behavior remains **UNAVAILABLE** unless an explicit validated/calibrated source law supplies it.
