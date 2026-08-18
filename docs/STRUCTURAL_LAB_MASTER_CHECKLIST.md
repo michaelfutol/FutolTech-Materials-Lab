@@ -1,247 +1,228 @@
 # FutolTech Structural Lab — Master Implementation Checklist
 
-> Permanent working checklist for the evolution of the former Native Structures / Materials Lab codebase into **FutolTech Structural Lab**.
->
-> Update this file in every feature PR that materially changes scope or completes a checklist item. Do not rely on chat history as the only record.
+> Permanent source of truth for the evolution of the former Materials Lab / Native Structures codebase into **FutolTech Structural Lab**. Update this file in every milestone PR. Chat history is not the project record.
 
 ## Status legend
 
-- [x] implemented and regression-tested
-- [ ] planned / not yet implemented
-- [~] partially implemented or screening-only
-- [!] blocked by missing verified engineering data, geometry, or governing design method
+- [x] implemented and protected by regression / browser / print gates as applicable
+- [~] implemented only as research, preliminary, or screening scope
+- [ ] planned
+- [!] intentionally blocked until required evidence or physics exists
 
-## Product identity and non-negotiable doctrine
+## Non-negotiable doctrine
 
-- [x] Rebrand public-facing **Native Structures** identity to **FutolTech Structural Lab**.
-- [x] Adopt product subtitle: **Virtual Materials, Members & Connection Testing**.
-- [x] Keep Materials Lab as a core module rather than discarding it.
-- [x] Preserve source provenance and explicit limitations for every material/product record.
-- [x] Never invent missing material strength, dimensions, fold geometry, mass, failure law, or connection capacity.
-- [x] Distinguish **PASS / PRELIM PASS / SCREENING / FAIL** according to what the implemented model actually proves.
-- [ ] Add a unified confidence/evidence badge: measured / manufacturer-published / standard / peer-reviewed / provisional / unknown.
-- [x] Rename package identity to `futoltech-structural-lab` after the public naming migration.
-- [~] Keep the repository/Pages path `FutolTech-Materials-Lab` for URL continuity; administrative repository rename is intentionally deferred.
+- [x] Public product: **FutolTech Structural Lab**
+- [x] Subtitle: **Virtual Materials, Members & Connection Testing**
+- [x] Company/report identity: **FUTOLTECH ENGINEERING AND PROJECT SYSTEMS**
+- [x] Never invent missing strength, geometry, fold dimensions, mass, connection capacity, or failure laws.
+- [x] Keep material-property evidence separate from product availability observations.
+- [x] Use honest result states: **PASS / PRELIM PASS / SCREENING / FAIL**.
+- [x] A dropdown entry is never proof that a product is design-ready.
+- [x] Whole-building analysis remains outside the core role; Structural Lab is the component/material/connection/assembly physics and evidence engine.
+- [ ] Unified evidence badge: measured / manufacturer-published / standard / peer-reviewed / provisional / unknown.
 
-## NOW — Catalog Expansion 01/02
+# Milestone scoreboard
 
-### Angle bars
+1. [x] **Public rebrand** — Native Structures → FutolTech Structural Lab, URLs preserved.
+2. [x] **PH catalog expansion 01/02** — angle bars, studs/furring records, SHS 100×100×2, existing C-purlins/pipes/H/RHS/SHS.
+3. [x] **Connection Lab v1** — nail/bolt/steel-side-plate research screening with manual trace and real Chromium QA.
+4. [x] **Run to Governing Limit v1** — stored event chronology + PAUSE / STEP / STOP; no fake fracture/post-buckling animation.
+5. [ ] **Assembly Lab v1 — NEXT ACTIVE** — built-up coco/timber members with explicit degree of composite action and connection-slip boundary.
+6. [ ] **Design Explorer v2** — member + stock/splice + connection-aware alternatives.
+7. [ ] **Failure Physics v1** — verified steel/timber governing failure modes and event-linked visuals.
+8. [ ] **Physical-Test Calibration v1** — CSV/raw-test import, predicted-vs-measured, bias/scatter.
+9. [ ] **Frame Analyzer / NF-001** — 2D connected frame with spring connections and redistribution.
+10. [ ] **FutolStructure / RPE interchange** — reusable component and failure-law objects.
 
-- [x] Add **Angle bar / L-section** as a first-class section geometry in the Materials Lab.
-- [x] Support equal and unequal legs using actual A × B × t dimensions.
-- [x] Calculate gross A, centroid, Ix, Iy, Zx, Zy and radii from an idealized sharp-corner L section.
-- [ ] Add root/toe-radius-aware rolled-angle properties and Ixy/principal-axis properties when exact standard/catalog geometry is implemented.
-- [x] Add actual L-shape section illustration and 0° / 90° / 180° / 270° orientation figure in the main lab.
-- [x] Import a deliberately curated exact PH-market angle catalog from current Regan/PNS/JIS handbook rows with published kg/m and 6 m stock; ambiguous OCR rows are omitted rather than guessed.
-- [ ] Expand the angle catalog to every current handbook row after each remaining row is independently legibility-verified; this is catalog coverage maintenance, not permission to infer missing combinations.
-- [x] Make source-backed angle presets available in Direct Compare with gross leg-axis **SCREENING** status.
-- [x] Explicitly reject angle-column compression until principal-axis and flexural-torsional buckling are implemented.
-- [x] Keep angle bars out of the automatic Design Recommender until governing instability/torsion design physics exists.
+# Protected foundation
 
-### Metal studs
-
-- [x] Add current PH metal-stud product records to the Section & Materials Library.
-- [x] Record UGC overall sizes/thickness range/length without converting published tensile strength into an assumed Fy.
-- [x] Record current Knauf Philippines drywall system stud sizes and non-load-bearing system context.
-- [!] Keep independent stud-member capacity inactive until full folded geometry and appropriate cold-formed design basis are verified.
-- [ ] Acquire manufacturer profile drawings / brochures with web, flange, return lip, corner radius and coating/base-metal thickness.
-- [ ] Derive/verify gross section properties from complete geometry.
-- [ ] Implement effective-width/local/distortional/global buckling and screw/track restraint effects before structural PASS.
-
-### Double metal furring
-
-- [x] Add current PH double-furring market record to the Section & Materials Library.
-- [x] Preserve UGC current thickness range and 5 m commercial length.
-- [!] Do not invent hat-channel fold geometry not published by the cited current source.
-- [ ] Add exact supplier/standard profile dimensions once verified.
-- [ ] Implement gross section properties and orientation figures after full geometry is known.
-- [ ] Add ceiling-system behavior later: hanger spacing, carrying channels, clips, board load, local buckling and connection checks.
-
-## Existing foundation — protect with regression tests
-
-- [x] Source-backed material datasets for coco lumber, selected Philippine timbers, bamboo, and steel baselines.
-- [x] Beam FEM and column screening solver.
+- [x] Source-backed coco, selected Philippine timber, bamboo, and steel baseline datasets.
+- [x] Beam FEM and column compression/global-buckling screening.
 - [x] Direct Compare for 2–3 members under common conditions.
-- [x] Philippine GI pipe catalog.
-- [x] SHS / RHS geometry.
-- [x] PH SHS 100×100×2.0 mm upgraded from user-observed availability to current Regan supplier/handbook-confirmed size with 6.483 kg/m catalog mass; delivered grade/thickness certificate still required.
-- [x] JIS H-section starter catalog.
-- [x] Philippine C-purlin catalog and gross-property screening.
-- [x] Four-way C-purlin installation orientation in main lab and Direct Compare.
-- [x] Real Chromium regression gate for Direct Compare C-purlin 0°/90°/180°/270° state and figures.
-- [x] One-touch main-lab load ramp to the strongest source-supported terminal reference.
-- [x] Direct Compare “Find last passing load” with animated bracket/refine search.
-- [x] Compression threshold search protected from zero-rounding in kgf/kN/tf.
-- [x] Stock & Splice module foundation.
-- [x] Steel yield / unload / residual-deformation experimental module.
-- [x] Concrete slab shoring experimental module.
-- [x] Load recommender / optimization foundation.
-- [x] FT-CS-01 branded engineering comparison report.
-- [x] Manual calculation trace for section properties and bending response.
-- [x] Chromium PDF gate: logical report pages must equal physical pages and remain inside printable A4 body.
+- [x] Direct Compare animated **Find last passing load**, including compression zero-rounding protection.
+- [x] Philippine GI pipe catalog; SHS/RHS; JIS H starter catalog.
+- [x] Philippine C-purlin catalog, gross-property SCREENING, 0°/90°/180°/270° orientation and real-browser figure/state QA.
+- [x] PH angle-bar starter catalog from exact current handbook rows with published kg/m and 6 m stock.
+- [x] Angle main-lab geometry/orientation and Direct Compare gross leg-axis SCREENING.
+- [!] Angle compression blocked pending Ixy/principal-axis and flexural-torsional behavior.
+- [x] SHS 100×100×2.0 mm supplier-handbook-confirmed with 6.483 kg/m; delivered grade/thickness still project-specific.
+- [x] Metal stud and double-furring PH library records.
+- [!] Stud/furring independent member capacity blocked until complete fold geometry and cold-formed design basis are verified.
+- [x] Stock & Splice demand/planning foundation.
+- [x] Steel Yield experimental load/unload/residual-deformation module.
+- [x] Concrete Slab Shoring experimental load-path module.
+- [x] Load Recommender / optimization foundation; incomplete open/unsymmetric sections are excluded from automatic promotion.
+- [x] FT-CS-01 branded Direct Compare report with manual section-property and bending-response trace.
+- [x] Chromium PDF gate: logical report pages = physical pages; no blank/overflow sheets.
 
-# Ultimate Structural Lab Roadmap
+# 1 — Material Intelligence
 
-## 1. Material Intelligence
+- [~] Material schemas already carry core E/strength/density/source fields, but are not yet fully unified.
+- [ ] Canonical schema for E, G, density, tension, compression, bending, shear, bearing, proportional/yield/ultimate references.
+- [ ] Moisture, temperature, corrosion/treatment and aging modifiers only when source-backed.
+- [ ] Lower/mean/upper envelopes, sample count, COV and confidence interval where evidence supports them.
+- [ ] Provenance ledger: citation, test standard, specimen basis, applicability boundary, date checked.
+- [ ] User-measured specimen records with instrument/calibration metadata.
 
-- [ ] Unified material schema for E, G, density, yield/proportional/ultimate strengths, compression, tension, bending, shear and bearing.
-- [ ] Moisture, temperature, corrosion/treatment and aging modifiers where source-backed.
-- [ ] Lower / mean / upper property envelopes and coefficient of variation where data supports them.
-- [ ] Material provenance ledger with citation, specimen basis, test standard, sample count and applicability boundary.
-- [ ] Local availability / supplier observations separated from engineering-property evidence.
-- [ ] User-measured specimen records with date/location/instrument and calibration metadata.
+# 2 — Section & Product Digital Twin
 
-## 2. Section & Product Digital Twin
+- [~] Actual geometry, orientation, source, stock length, mass and analysis boundaries already exist across current section records.
+- [ ] One canonical specimen object for material + exact geometry + orientation + product/source + condition + defects + treatment + confidence.
+- [ ] Parametric families: rectangle, round, CHS, RHS/SHS, angle, channel, C/Z purlin, H/I/T, stud/track, hat/furring, built-up.
+- [ ] Published A/I/Z/mass override when more authoritative than idealized geometry.
+- [ ] Measured-thickness / corrosion-loss mode.
+- [ ] Holes, notches, knots, splits, crush zones, welds and prior-splice annotations.
+- [ ] Figure with centroid, principal axes, extreme fibres and dimensions.
 
-- [ ] One canonical specimen object: material + actual geometry + orientation + source + stock length + measured condition + defects + treatment + confidence.
-- [ ] Parametric section families: rectangle, round, CHS, RHS/SHS, angle, channel, C/Z purlin, H/I/T, hat/furring, stud/track, built-up sections.
-- [ ] Catalog property override when published A/I/Z/mass is more authoritative than idealized geometry.
-- [ ] Measured-thickness mode for corroded/under-gauge steel.
-- [ ] Defect/condition annotations: holes, notches, corrosion loss, knots, splits, crush zones, welds and previous splices.
-- [ ] Section image with centroid, principal axes, extreme fibres and dimensions.
+# 3 — Universal Virtual Test Machine
 
-## 3. Universal Virtual Test Machine
-
-- [ ] Test selector: tension.
-- [x] Test selector: compression foundation.
-- [x] Test selector: bending foundation.
+- [x] Bending foundation.
+- [x] Compression foundation.
+- [x] Steel yield/unload experimental path.
+- [x] **Run to Governing Limit v1** with stored serviceability/reference/yield/screening/rupture events as supported by evidence.
+- [x] PAUSE / RESUME / STEP / STOP controls on governing-limit run.
+- [ ] Tension.
 - [ ] Shear.
 - [ ] Torsion.
 - [ ] Bearing / crushing.
 - [ ] Combined axial + bending.
-- [ ] Local plate / wall buckling.
-- [ ] Lateral-torsional buckling.
-- [ ] Fatigue / cyclic loading where a source-backed law exists.
-- [ ] Impact / dynamic loading only after validated physics exists.
-- [ ] Controls: Play / Pause / Step / Stop / Unload / Reload / Repeat Cycle.
-- [ ] Timeline chart: load, displacement, stress/strain, stiffness and event markers.
+- [ ] Local plate/wall buckling and LTB where governing methods are implemented.
+- [ ] Repeat-cycle and general unload/reload controls beyond the steel-yield module.
+- [ ] Unified load-displacement/stress-strain/stiffness timeline chart.
+- [!] Impact/dynamic loading waits for validated dynamic physics.
 
-## 4. Failure Physics Lab
+## Run-to-Governing-Limit v1 rules
 
-- [x] Store basic elastic/serviceability/yield/rupture threshold concepts.
-- [ ] Governing-event timeline: serviceability → first damage/yield/slip → degradation → local failure → redistribution → collapse/residual state.
-- [ ] Steel: yield, global buckling, local buckling, LTB, bearing, net-section/tear-out, weld and bolt failure.
-- [ ] Timber: fibre crushing, bending rupture, shear, splitting, bearing, nail withdrawal/pull-through.
-- [ ] Bamboo: splitting, crushing, bolt bearing, confinement and node effects only when validated.
-- [ ] Every animation must correspond to a stored solver event; no decorative fake fracture.
-- [ ] Rename generic “Find physical limit” to **Run to Governing Limit** once multi-limit chronology is implemented.
+- [x] Ordinary steel terminal = **first yield**, never mislabeled fracture.
+- [x] C-purlin terminal = gross first-yield **SCREENING**; local/distortional/LTB/restraint can govern earlier.
+- [x] Angle terminal = gross leg-axis first-yield **SCREENING**; principal-axis/torsional instability is not inferred.
+- [x] Coco with published ultimate reference can cross serviceability/allowable events to **published rupture reference**; exact specimen fracture is not claimed.
+- [x] Provisional timber without rupture evidence stops at last verified working reference.
+- [x] Columns stop at earliest implemented adverse limit; post-buckling/crushing is not simulated.
+- [x] Every visible event marker comes from a stored solver event.
 
-## 5. Connection & Splice Laboratory
+# 4 — Failure Physics Lab
 
-- [x] Stock/splice planning foundation.
-- [ ] Nailed timber lap splice.
-- [ ] Screwed timber splice.
-- [ ] Bolted timber splice.
-- [ ] Steel strap + timber fasteners.
-- [ ] Fish plates / gusset plates.
-- [ ] Welded steel splice.
-- [ ] Bolted steel splice.
-- [ ] Sleeve splice for tubes/pipes where appropriate.
-- [ ] Post bases / anchors / hold-downs.
-- [ ] Connection force–displacement law, not capacity-only.
-- [ ] Edge distance / end distance / spacing / group effects.
-- [ ] Member-versus-connection governing comparison.
+- [x] Elastic/serviceability/yield/rupture-reference event concepts.
+- [x] No decorative fake snapping, cracking or buckling.
+- [~] Steel first-yield path exists; global column instability screening exists.
+- [ ] Steel local buckling, LTB, net section, bearing/tear-out, weld/bolt failure.
+- [ ] Timber bending rupture, shear, fibre crushing, splitting, bearing, withdrawal/pull-through.
+- [ ] Bamboo splitting/crushing/bolt-bearing/confinement only after validation.
+- [ ] Event chronology extended to damage → stiffness degradation → local failure → redistribution → residual/collapse.
+- [ ] Visual failure animation only when tied to validated stored events.
 
-## 6. Assembly Lab
+# 5 — Connection & Splice Laboratory
 
-- [ ] Built-up timber/coco members with fastener slip and degree of composite action.
-- [ ] Double/triple timber beams and columns.
-- [ ] Back-to-back / boxed C-purlins.
-- [ ] Built-up light-gauge studs/channels.
-- [ ] Truss panel.
-- [ ] Shore + bearer + joist assembly.
-- [ ] Post + beam + brace assembly.
-- [ ] Explicit rule: physical fasteners/connection stiffness determine composite action; adjacency alone does not.
+## Completed v1 research screen
 
-## 7. Design Explorer
+- [x] Smooth-nail withdrawal FPL reference equation and handbook reduction references.
+- [x] Annular-thread maximum withdrawal research equation without invented allowable reduction.
+- [x] Historic single-nail lateral proportional-limit reference only inside supported FPL hardwood/softwood ranges.
+- [x] Coconut palm remains unclassified unless evidence justifies a mapping/calibration.
+- [x] Nail penetration research guidance.
+- [x] Bolt wood dowel-bearing parallel/perpendicular equations + Hankinson interpolation.
+- [x] Bolt spacing, loaded-end and edge-distance research screens.
+- [x] Wood-side and steel-side-plate concepts with figures and manual calculation trace.
+- [x] Multi-fastener n×single-fastener result labeled arithmetic upper bound, not group design capacity.
+- [x] Real Chromium nail → bolt → steel-side-plate interaction gate.
+
+## Still required for design-capable Connection Lab
+
+- [ ] Current governing NDS/AWC dowel-yield design modes and adjustment factors.
+- [ ] Nailed/screwed/bolted timber group action, splitting, row effects and deformation compatibility.
+- [ ] Steel strap/plate bearing, net section and tear-out.
+- [ ] Welded and bolted steel splices.
+- [ ] Sleeve joints for tubes/pipes.
+- [ ] Post bases, anchors and hold-downs.
+- [ ] Connection force–displacement / rotational-spring law, not capacity-only.
+- [ ] Member-versus-connection governing comparison integrated with Direct Compare/Design Explorer.
+
+# 6 — Assembly Lab — NEXT ACTIVE
+
+- [ ] Built-up coco/timber beam v1 with 2–3 plies.
+- [ ] Lower bound: independent plies / no composite transfer.
+- [ ] Upper bound: fully bonded/full-composite transformed gross section.
+- [ ] Intermediate **degree of composite action η** with explicit evidence status.
+- [ ] Until calibrated connection-slip stiffness exists, η is user/measured/research input and cannot be silently inferred from “nailed together.”
+- [ ] Effective stiffness trace: `EI_eff = EI_independent + η(EI_full − EI_independent)` for the v1 bounded model.
+- [ ] Compare deflection/stress against independent and full-composite bounds.
+- [ ] Figure shows physical plies and connector rows.
+- [ ] Connect later to Connection Lab spring/slip law so η can be derived rather than assumed.
+- [ ] Extend after timber v1: double/triple columns, back-to-back/boxed C-purlins, built-up light-gauge studs/channels, truss panel, shore+bearer+joist, post+beam+brace.
+- [x] Permanent rule: adjacency alone never proves composite action.
+
+# 7 — Design Explorer
 
 - [x] Load-driven recommender foundation.
-- [ ] Reverse query: required span/load → feasible locally available members.
-- [ ] Rank by strength/serviceability, mass, price, availability, waste, carbon and repairability.
-- [ ] Multi-objective Pareto view rather than one opaque “best” answer.
-- [ ] Availability-aware stock/splice option generation.
-- [ ] Connection-aware alternatives so a strong member with a weak joint is not recommended as a complete solution.
-- [ ] Classical optimizer backends first; QUBO/quantum backends remain optional search engines, never structural-physics solvers.
+- [ ] Reverse query: required span/load → feasible locally available solutions.
+- [ ] Generate member + stock/splice + connection alternatives together.
+- [ ] Multi-objective ranking: strength/serviceability, mass, price, availability, waste, carbon, repairability.
+- [ ] Pareto view instead of one opaque “best.”
+- [ ] Reject solutions where connection governs despite a strong member.
+- [x] Classical deterministic structural solver remains verifier; QUBO/quantum may search but never replace physics.
 
-## 8. Physical-Test Calibration
+# 8 — Physical-Test Calibration
 
-- [ ] Import real UTM / field test CSV data.
-- [ ] Compare predicted vs measured load–displacement and failure point.
-- [ ] Store specimen count, mean bias, scatter/COV and confidence interval.
-- [ ] Calibration must never silently overwrite published source values.
-- [ ] Version calibrated models and preserve original raw test evidence.
+- [ ] CSV/raw UTM or field-test importer.
+- [ ] Predicted vs measured load-displacement/failure comparison.
+- [ ] Sample count, bias, COV/scatter, confidence interval.
+- [ ] Preserve raw data and original published properties; calibration never silently overwrites them.
+- [ ] Version calibrated material/connection/composite-action models.
 
-## 9. Structural Forensics Mode
+# 9 — Structural Forensics
 
-- [ ] Failed-member intake: photos, measured geometry, supports, loads, connection, corrosion/defect notes.
-- [ ] Candidate failure-sequence reconstruction with ranked hypotheses.
-- [ ] Evidence/confidence shown for every hypothesis.
+- [ ] Failed-member intake: photos, geometry, support/load/connection, corrosion/defects.
+- [ ] Ranked candidate failure-sequence hypotheses with evidence/confidence.
 - [ ] Explicit boundary: investigation aid, not automatic legal causation opinion.
 
-## 10. Field Mode
+# 10 — Field Mode
 
-- [ ] Mobile-first specimen capture.
-- [ ] Photo + manual/AR dimensions.
-- [ ] Product suggestion from image only as a candidate requiring field verification.
-- [ ] Offline draft mode for project sites.
-- [ ] GPS/location and timestamp optional and privacy-aware.
-- [ ] Push verified specimen to Structural Lab project inventory.
+- [ ] Mobile-first specimen capture and offline draft.
+- [ ] Photo + manual/AR dimensions; image identification only as a candidate requiring verification.
+- [ ] Optional privacy-aware GPS/timestamp.
+- [ ] Push verified specimen into project inventory.
 
-## 11. Frames and System-Level Bridge
+# 11 — Frames and System-Level Bridge
 
-- [ ] 2D frame analyser with real joint/member connectivity.
+- [ ] 2D connected frame solver.
 - [ ] P–Δ / geometric nonlinearity.
-- [ ] Spring connections from Connection Lab.
-- [ ] Progressive local release and redistribution.
-- [ ] Mechanism/instability detection.
+- [ ] Connection Lab spring joints.
+- [ ] Progressive local release/redistribution and mechanism detection.
 - [ ] Brace adviser.
-- [ ] NF-001 coconut-lumber wall-frame benchmark from existing Product Architecture.
+- [ ] **NF-001:** 3 m × 3 m coconut-lumber wall-frame integrated benchmark.
 
-## 12. FutolTech Ecosystem Integration
+# 12 — FutolTech Ecosystem Integration
 
-- [ ] **Structural Lab → FutolStructure:** validated component/material/connection objects and design alternatives.
-- [ ] **FutolStructure → Structural Lab:** member demand envelopes and selected critical specimens for deeper testing.
-- [ ] **Structural Lab / FutolStructure → RPE:** component failure laws, degradation and residual behavior for resilience simulations.
-- [ ] **CODA:** governing code checks and code citations remain a compliance layer, not hidden inside raw material property data.
-- [ ] **SARA:** standards/best-practice layer for non-code guidance.
-- [ ] Solver adapters remain replaceable; external tools verify or extend physics without becoming the source of material truth.
+- [ ] **Structural Lab → FutolStructure:** validated material/member/connection/assembly objects and alternatives.
+- [ ] **FutolStructure → Structural Lab:** demand envelopes and critical specimens for deeper testing.
+- [ ] **Structural Lab/FutolStructure → RPE:** component failure/degradation/residual laws for resilience simulations.
+- [ ] **CODA:** governing-code compliance/citations remain a separate compliance layer.
+- [ ] **SARA:** non-code standards/best-practice layer.
+- [x] External specialist solvers may verify/extend physics but never become the source of material/product truth.
 
-# Standard implementation gate for every new product/feature
+# Definition of DONE for every new product/feature
 
-A checklist item is not “done” merely because it appears in a dropdown.
+1. [ ] **Source** — exact source/document/date/claim recorded.
+2. [ ] **Geometry** — no missing dimension silently assumed.
+3. [ ] **Material** — grade/strength verified or explicitly UNKNOWN/PROVISIONAL.
+4. [ ] **Physics** — equations + applicability boundary documented.
+5. [ ] **Status** — PASS/PRELIM PASS/SCREENING/FAIL is honest.
+6. [ ] **Visual** — figure/orientation matches solver state.
+7. [ ] **Manual check** — important results independently traceable.
+8. [ ] **Regression** — deterministic tests for data/equations.
+9. [ ] **Browser** — real Chromium state test where warranted.
+10. [ ] **Print** — critical output fits branded report without blank/overflow sheets.
+11. [ ] **No regression** — protected benchmark cases remain green.
+12. [ ] **Checklist** — this file updated before merge.
 
-1. [ ] **Source gate** — source URL/document, date checked, exact claim captured.
-2. [ ] **Geometry gate** — no missing dimension silently assumed.
-3. [ ] **Material gate** — grade/strength is verified or explicitly UNKNOWN/PROVISIONAL.
-4. [ ] **Physics gate** — equations and applicability boundaries documented.
-5. [ ] **Status gate** — PASS vs PRELIM PASS vs SCREENING is honest.
-6. [ ] **Visual gate** — section figure and orientation match solver state.
-7. [ ] **Manual-check gate** — important calculations can be traced independently.
-8. [ ] **Regression gate** — deterministic unit test for equations/data.
-9. [ ] **Browser gate** — real Chromium interaction test for stateful UI where warranted.
-10. [ ] **Print gate** — critical outputs fit branded report without blank/overflow pages.
-11. [ ] **No-regression gate** — existing benchmark and source-backed cases remain green.
-12. [ ] **Checklist update** — this master file reflects the new status before merge.
+# Decision log
 
-# Immediate execution order after Catalog Expansion 01
-
-1. [x] Public rebrand to **FutolTech Structural Lab** across screen, print and docs without breaking URLs.
-2. [x] Complete the source-backed PH angle starter catalog with exact handbook size/thickness/mass rows, Direct Compare screening, and explicit stability boundaries. Remaining handbook-row expansion is catalog maintenance and must not use inferred combinations.
-3. [ ] Connection Lab v1: nailed/bolted timber and simple steel plates/straps.
-4. [ ] Run-to-Governing-Limit event timeline.
-5. [ ] Assembly Lab v1: built-up coco/timber members with explicit fastener slip/composite action.
-6. [ ] Design Explorer v2: member + splice + connection alternatives.
-7. [ ] Failure Physics v1: verified steel/timber governing modes.
-8. [ ] Physical-test calibration data model/importer.
-9. [ ] Frame Analyser/NF-001 integrated benchmark.
-10. [ ] RPE/FutolStructure interchange objects.
-
-## Decision log
-
-- 2026-08-18 — Product scope officially exceeds “Native Structures”; target public identity is **FutolTech Structural Lab**.
-- 2026-08-18 — User requested the full ultimate roadmap, not a reduced subset.
-- 2026-08-18 — Angle bars are allowed into the solver from actual A×B×t geometry with an explicitly idealized sharp-corner gross-property model.
-- 2026-08-18 — Metal studs and double furring enter the library immediately, but independent section capacity remains blocked until complete folded geometry/design basis is verified. Missing folds are never invented.
-- 2026-08-18 — Public product identity migrated to **FutolTech Structural Lab** with the Structural Lab package name; repository/Pages URL retained as `FutolTech-Materials-Lab` for continuity.
-- 2026-08-18 — Current Regan supplier data independently confirms the user's observed 100×100×2.0 mm SHS size; the catalog mass is recorded while delivered grade/thickness certification remains project-specific.
-- 2026-08-18 — Angle catalog policy: import only exact leg/thickness rows whose current handbook transcription is legible and cross-checkable; never create a Cartesian combination from supplier range statements. Angle bending remains SCREENING and angle compression remains blocked pending principal-axis/flexural-torsional physics.
+- 2026-08-18 — Scope officially exceeded “Native Structures”; public identity became **FutolTech Structural Lab**.
+- 2026-08-18 — User requested the full ultimate roadmap rather than a reduced subset; execution proceeds milestone-by-milestone without treating chat memory as the plan.
+- 2026-08-18 — Angle products use exact source-backed catalog rows only; no Cartesian inference from supplier range statements.
+- 2026-08-18 — Metal studs/furring remain library-only until full folded geometry/design basis is verified.
+- 2026-08-18 — SHS 100×100×2.0 mm upgraded from user observation to current supplier-handbook-confirmed market size; delivered certificate remains project-specific.
+- 2026-08-18 — Connection Lab v1 intentionally uses public research/reference equations and spacing screens; full current code design remains a later layer.
+- 2026-08-18 — Run-to-Governing-Limit v1 records only evidence-supported events and deliberately stops before unimplemented fracture/post-buckling physics.
+- 2026-08-18 — Assembly Lab v1 will use bounded composite action. “Nailed together” is not automatically full composite; connection slip/evidence governs η.
