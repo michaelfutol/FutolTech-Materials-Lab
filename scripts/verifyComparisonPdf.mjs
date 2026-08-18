@@ -139,6 +139,108 @@ async function stopChrome(process) {
   }
 }
 
+async function configureCPurlinOrientationComparison(cdp) {
+  const materialConfigured = await cdp.send('Runtime.evaluate', {
+    expression: `(() => {
+      const cards = [...document.querySelectorAll('#compareSelectors .compare-selector-card')].slice(0, 2);
+      if (cards.length < 2) return { ok: false, reason: 'fewer than two selector cards' };
+      for (const card of cards) {
+        const material = card.querySelector('[data-slot-material]');
+        if (!material) return { ok: false, reason: 'material selector missing' };
+        if ([...material.options].some((option) => option.value === 'steel-generic-250')) {
+          material.value = 'steel-generic-250';
+          material.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+      }
+      return { ok: true };
+    })()`,
+    returnByValue: true
+  });
+  if (!materialConfigured.result?.value?.ok) {
+    throw new Error(`Could not configure C-purlin material selectors: ${materialConfigured.result?.value?.reason || 'unknown reason'}`);
+  }
+  await sleep(250);
+
+  const presetConfigured = await cdp.send('Runtime.evaluate', {
+    expression: `(() => {
+      const cards = [...document.querySelectorAll('#compareSelectors .compare-selector-card')].slice(0, 2);
+      const presets = cards.map((card) => card.querySelector('[data-slot-preset]'));
+      if (presets.some((select) => !select)) return { ok: false, reason: 'preset selector missing' };
+      const common = [...presets[0].options].find((option) => option.value.startsWith('ph-cp-') && [...presets[1].options].some((other) => other.value === option.value));
+      if (!common) return { ok: false, reason: 'no common C-purlin preset' };
+      for (const select of presets) {
+        select.value = common.value;
+        select.dispatchEvent(new Event('change', { bubbles: true }));
+      }
+      return { ok: true, preset: common.value, label: common.textContent };
+    })()`,
+    returnByValue: true
+  });
+  const presetValue = presetConfigured.result?.value;
+  if (!presetValue?.ok) throw new Error(`Could not configure matching C-purlins: ${presetValue?.reason || 'unknown reason'}`);
+  console.log(`C-purlin PDF QA preset: ${presetValue.label} (${presetValue.preset})`);
+  await sleep(350);
+
+  const orientationConfigured = await cdp.send('Runtime.evaluate', {
+    expression: `(() => {
+      const cards = [...document.querySelectorAll('#compareSelectors .compare-selector-card')].slice(0, 2);
+      const requested = [0, 90];
+      for (let index = 0; index < cards.length; index += 1) {
+        const select = cards[index].querySelector('[data-slot-orientation]');
+        if (!select) return { ok: false, reason: 'orientation selector missing' };
+        const option = [...select.options].find((candidate) => Number(candidate.dataset.orientationDeg) === requested[index]);
+        if (!option) return { ok: false, reason: 'requested orientation option missing', degrees: requested[index] };
+        option.selected = true;
+        select.dispatchEvent(new Event('change', { bubbles: true }));
+      }
+      return { ok: true };
+    })()`,
+    returnByValue: true
+  });
+  const orientationValue = orientationConfigured.result?.value;
+  if (!orientationValue?.ok) throw new Error(`Could not configure C-purlin orientations: ${orientationValue?.reason || 'unknown reason'}`);
+  await sleep(450);
+
+  // Rebuild the print document from the exact 0° versus 90° comparison state.
+  await cdp.send('Runtime.evaluate', {
+    expression: `window.dispatchEvent(new Event('beforeprint')); true`,
+    returnByValue: true
+  });
+  await sleep(300);
+
+  const traceCheck = await cdp.send('Runtime.evaluate', {
+    expression: `(() => {
+      const p7 = document.querySelector('.ft-print-page[data-page="7"]');
+      const p8 = document.querySelector('.ft-print-page[data-page="8"]');
+      const text7 = p7?.innerText || '';
+      const text8 = p8?.innerText || '';
+      const transforms = [...(p7?.querySelectorAll('.section-sketch > g') || [])].map((group) => group.getAttribute('transform'));
+      return {
+        ok: Boolean(p7 && p8)
+          && text7.includes('Gross lipped-C geometry')
+          && text7.includes('Orientation 0°')
+          && text7.includes('Orientation 90°')
+          && text7.includes('major-axis gross screening')
+          && text7.includes('minor-axis gross screening')
+          && text8.includes('FEM')
+          && text8.includes('Serviceability limit'),
+        text7Preview: text7.replace(/\\s+/g, ' ').slice(0, 300),
+        text8Preview: text8.replace(/\\s+/g, ' ').slice(0, 300),
+        transforms
+      };
+    })()`,
+    returnByValue: true
+  });
+  const trace = traceCheck.result?.value;
+  if (!trace?.ok) {
+    throw new Error(`C-purlin manual calculation trace did not render correctly. Page7=${trace?.text7Preview || 'missing'} Page8=${trace?.text8Preview || 'missing'}`);
+  }
+  if (!trace.transforms.some((value) => value?.includes('rotate(0 ')) || !trace.transforms.some((value) => value?.includes('rotate(90 '))) {
+    throw new Error(`C-purlin calculation sketches do not preserve both 0° and 90° orientations: ${JSON.stringify(trace.transforms)}`);
+  }
+  console.log('C-purlin manual trace QA passed: same preset rendered at 0° major-axis and 90° minor-axis with hand-check/FEM calculation pages.');
+}
+
 const server = createServer((req, res) => {
   const rawPath = decodeURIComponent((req.url || '/').split('?')[0]);
   const relative = rawPath === '/' ? '/index.html' : rawPath;
@@ -163,7 +265,7 @@ let cdp;
 
 try {
   const chrome = findChrome();
-  const url = `http://127.0.0.1:${port}/compare.html?build=ci-cdp-pdf-9-manual`;
+  const url = `http://127.0.0.1:${port}/compare.html?build=ci-cpurlin-manual-9`;
   chromeProcess = spawn(chrome, [
     '--headless=new',
     '--disable-gpu',
@@ -197,6 +299,7 @@ try {
   }
   if (!ready) throw new Error(`Expected ${EXPECTED_PAGES} logical FT-CS-01 pages did not become ready in Chromium.`);
 
+  await configureCPurlinOrientationComparison(cdp);
   await cdp.send('Emulation.setEmulatedMedia', { media: 'print' });
   await sleep(150);
 
