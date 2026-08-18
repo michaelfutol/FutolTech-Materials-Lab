@@ -4,8 +4,13 @@ import { evaluateMemberCandidate } from './sectionRecommender.js';
 import { productMaterialName, sectionCategory, sectionCategoryLabel } from '../data/sectionTaxonomy.js';
 
 function rotatedSection(section) {
-  if (section.type === 'rectangle' || section.type === 'rhs') {
-    return { ...section, widthMm: section.depthMm, depthMm: section.widthMm };
+  if (section.type === 'rectangle' || section.type === 'rhs' || section.type === 'angle') {
+    return {
+      ...section,
+      widthMm: section.depthMm,
+      depthMm: section.widthMm,
+      displayRotationDeg: ((section.displayRotationDeg ?? 0) + 90) % 360
+    };
   }
   if (section.type === 'custom') {
     return {
@@ -100,6 +105,7 @@ export function compareMemberCandidates({
       )
     })),
     passingCount: passing.length,
+    screeningCount: records.filter((record) => record.screeningOnly && record.pass).length,
     winners
   };
 }
@@ -121,6 +127,9 @@ function evaluateCompressionCandidate({
   intermediateBracePoints
 }) {
   const material = selection.material;
+  if (selection.preset.type === 'angle' || selection.preset.productCategory === 'angle-bar') {
+    throw new Error('Angle-bar column compression is intentionally unavailable until principal-axis and flexural-torsional buckling are implemented. Use beam-bending SCREENING only for now.');
+  }
   const section = selectedSection(selection);
   const properties = calculateSectionProperties(section);
   const compressionStrengthMPa = material.compressionParallelMPa ?? material.yieldStrengthMPa;
