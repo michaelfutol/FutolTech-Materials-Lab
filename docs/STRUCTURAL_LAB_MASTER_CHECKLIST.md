@@ -14,9 +14,9 @@
 - [x] Public product: **FutolTech Structural Lab**
 - [x] Subtitle: **Virtual Materials, Members & Connection Testing**
 - [x] Company/report identity: **FUTOLTECH ENGINEERING AND PROJECT SYSTEMS**
-- [x] Never invent missing strength, geometry, fold dimensions, mass, connection capacity, or failure laws.
+- [x] Never invent missing strength, geometry, fold dimensions, mass, connection capacity, price, carbon data, or failure laws.
 - [x] Keep material-property evidence separate from product availability observations.
-- [x] Use honest result states: **PASS / PRELIM PASS / SCREENING / FAIL**.
+- [x] Use honest result states: **PASS / PRELIM PASS / SCREENING / FAIL** plus **MEMBER FEASIBLE / INCOMPLETE** for Design Explorer solution completeness.
 - [x] A dropdown entry is never proof that a product is design-ready.
 - [x] Whole-building analysis remains outside the core role; Structural Lab is the component/material/connection/assembly physics and evidence engine.
 - [ ] Unified evidence badge: measured / manufacturer-published / standard / peer-reviewed / provisional / unknown.
@@ -28,8 +28,8 @@
 3. [x] **Connection Lab v1** — nail/bolt/steel-side-plate research screening with manual trace and real Chromium QA.
 4. [x] **Run to Governing Limit v1** — stored event chronology + PAUSE / STEP / STOP; no fake fracture/post-buckling animation.
 5. [x] **Assembly Lab v1** — 2–3 ply coco/timber bounded composite-action screening with explicit η, manual trace and real Chromium QA.
-6. [ ] **Design Explorer v2 — NEXT ACTIVE** — member + stock/splice + connection-aware alternatives.
-7. [ ] **Failure Physics v1** — verified steel/timber governing failure modes and event-linked visuals.
+6. [x] **Design Explorer v2** — reverse member query + stock/splice planning + connection completeness + evidence-bounded Pareto alternatives.
+7. [ ] **Failure Physics v1 — NEXT ACTIVE** — verified steel/timber governing failure modes and event-linked visuals.
 8. [ ] **Physical-Test Calibration v1** — CSV/raw-test import, predicted-vs-measured, bias/scatter.
 9. [ ] **Frame Analyzer / NF-001** — 2D connected frame with spring connections and redistribution.
 10. [ ] **FutolStructure / RPE interchange** — reusable component and failure-law objects.
@@ -51,7 +51,9 @@
 - [x] Stock & Splice demand/planning foundation.
 - [x] Steel Yield experimental load/unload/residual-deformation module.
 - [x] Concrete Slab Shoring experimental load-path module.
-- [x] Load Recommender / optimization foundation; incomplete open/unsymmetric sections are excluded from automatic promotion.
+- [x] Design Explorer DE-002 solution-package layer over deterministic member recommender.
+- [x] Design Explorer exposes minimum stock-piece/splice lower bounds and blocks splice-required options on unverified connection design.
+- [x] Design Explorer Pareto view uses only available numeric metrics; price/carbon remain explicitly unavailable until verified data exists.
 - [x] FT-CS-01 branded Direct Compare report with manual section-property and bending-response trace.
 - [x] Chromium PDF gate: logical report pages = physical pages; no blank/overflow sheets.
 - [x] Assembly Lab ASSY-001 bounded elastic composite-action model with independent/full-composite stiffness bounds and explicit η evidence status.
@@ -102,7 +104,7 @@
 - [x] Columns stop at earliest implemented adverse limit; post-buckling/crushing is not simulated.
 - [x] Every visible event marker comes from a stored solver event.
 
-# 4 — Failure Physics Lab
+# 4 — Failure Physics Lab — NEXT ACTIVE
 
 - [x] Elastic/serviceability/yield/rupture-reference event concepts.
 - [x] No decorative fake snapping, cracking or buckling.
@@ -110,7 +112,7 @@
 - [ ] Steel local buckling, LTB, net section, bearing/tear-out, weld/bolt failure.
 - [ ] Timber bending rupture, shear, fibre crushing, splitting, bearing, withdrawal/pull-through.
 - [ ] Bamboo splitting/crushing/bolt-bearing/confinement only after validation.
-- [ ] Event chronology extended to damage → stiffness degradation → local failure → redistribution → residual/collapse.
+- [ ] Event chronology extended to damage → stiffness degradation → local failure → redistribution → residual/collapse where evidence/model supports it.
 - [ ] Visual failure animation only when tied to validated stored events.
 
 # 5 — Connection & Splice Laboratory
@@ -154,15 +156,21 @@
 - [ ] Extend after timber v1: double/triple columns, back-to-back/boxed C-purlins, built-up light-gauge studs/channels, truss panel, shore+bearer+joist, post+beam+brace.
 - [x] Permanent rule: adjacency alone never proves composite action.
 
-# 7 — Design Explorer — NEXT ACTIVE
+# 7 — Design Explorer v2 — COMPLETE FOUNDATION
 
-- [x] Load-driven recommender foundation.
-- [ ] Reverse query: required span/load → feasible locally available solutions.
-- [ ] Generate member + stock/splice + connection alternatives together.
-- [ ] Multi-objective ranking: strength/serviceability, mass, price, availability, waste, carbon, repairability.
-- [ ] Pareto view instead of one opaque “best.”
-- [ ] Reject solutions where connection governs despite a strong member.
+- [x] Load-driven reverse query: required span/load → candidate member solutions.
+- [x] Wrap member candidates in explicit member + stock/splice + connection-completeness solution packages.
+- [x] Verified stock-length planning uses a minimum stock-piece lower bound; splice overlap/detail is not invented.
+- [x] Splice-required options are **INCOMPLETE** until an applicable design-verified connection exists.
+- [x] No-splice options are **MEMBER FEASIBLE**, not whole-detail PASS, because end/support connections remain outside scope.
+- [x] Pareto frontier implemented for currently available quantitative metrics: purchased-stock mass, governing utilisation, splice count and stock waste.
+- [x] Price and carbon explicitly report UNAVAILABLE instead of fabricating rankings.
+- [x] Real Chromium gate verifies a long low-load timber case cannot be promoted past `SPLICE CONNECTION REQUIRED / UNVERIFIED`.
 - [x] Classical deterministic structural solver remains verifier; QUBO/quantum may search but never replace physics.
+- [ ] Add verified supplier price feeds/snapshots before enabling peso-cost ranking.
+- [ ] Add product EPD/source-backed carbon data before carbon ranking.
+- [ ] Add availability confidence/evidence dimension without converting weak observations into engineering strength evidence.
+- [ ] Integrate design-capable Connection Lab capacities once implemented so a complete member+connection package can earn a higher status.
 
 # 8 — Physical-Test Calibration
 
@@ -229,3 +237,4 @@
 - 2026-08-18 — Run-to-Governing-Limit v1 records only evidence-supported events and deliberately stops before unimplemented fracture/post-buckling physics.
 - 2026-08-18 — Assembly Lab v1 uses bounded composite action. “Nailed together” is not automatically full composite; connection slip/evidence governs η.
 - 2026-08-18 — Side-by-side equal-depth plies do not gain major-axis EI from composite action in ASSY-001; stacked-through-depth plies provide the meaningful bounded composite-action case.
+- 2026-08-18 — Design Explorer v2 separates a structurally feasible member from a complete structural solution. Stock/splice and connection dependencies are explicit, and missing price/carbon evidence remains unavailable rather than estimated.
