@@ -1,0 +1,18 @@
+@media print {
+  /* Page 7 already carries the full orientation derivation. Keep the selected
+     alternatives page compact by omitting the duplicated explanatory paragraph. */
+  .ft-print-document [data-c-purlin-orientation-note] {
+    display: none !important;
+  }
+
+  /* The visible four-way selector is the source of the exact installation
+     direction. Preserve it as one compact line when the print clone still
+     contains the native control. */
+  .ft-print-document [data-c-purlin-orientation-display] {
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    font-size: 8.5pt !important;
+    line-height: 1.15 !important;
+  }
+}
