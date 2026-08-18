@@ -12,16 +12,22 @@ function setTextIfChanged(node, value) {
   if (node && node.textContent !== value) node.textContent = value;
 }
 
-function ensureConnectionLabNav() {
+function ensureToolNav({ datasetKey, path, label, activeLabel }) {
   const cluster = document.querySelector('.status-cluster');
-  if (!cluster || cluster.querySelector('[data-structural-lab-connections]')) return;
-  const current = location.pathname.endsWith('/connections.html') || location.pathname.endsWith('connections.html');
+  if (!cluster || cluster.querySelector(`[data-${datasetKey}]`)) return;
+  const current = location.pathname.endsWith(`/${path}`) || location.pathname.endsWith(path);
   const item = document.createElement(current ? 'span' : 'a');
-  item.dataset.structuralLabConnections = 'true';
+  item.dataset[datasetKey.replace(/^structuralLab/, 'structuralLab')] = 'true';
+  item.setAttribute(`data-${datasetKey}`, 'true');
   item.className = 'status-pill status-link';
-  if (!current) item.href = './connections.html';
-  item.textContent = current ? 'Connection Lab · active' : 'Connection Lab';
+  if (!current) item.href = `./${path}`;
+  item.textContent = current ? activeLabel : label;
   cluster.insertBefore(item, cluster.firstChild);
+}
+
+function ensureStructuralLabNav() {
+  ensureToolNav({ datasetKey: 'structural-lab-connections', path: 'connections.html', label: 'Connection Lab', activeLabel: 'Connection Lab · active' });
+  ensureToolNav({ datasetKey: 'structural-lab-assembly', path: 'assembly.html', label: 'Assembly Lab', activeLabel: 'Assembly Lab · active' });
 }
 
 function applyPrintBrand() {
@@ -66,7 +72,7 @@ export function applyPublicBrand() {
     setTextIfChanged(topSubtitle, PUBLIC_PRODUCT_SUBTITLE);
   }
 
-  ensureConnectionLabNav();
+  ensureStructuralLabNav();
   applyPrintBrand();
   document.documentElement.dataset.ftProduct = 'structural-lab';
 }
