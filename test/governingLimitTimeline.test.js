@@ -10,7 +10,7 @@ test('coco chronology orders serviceability, allowable reference and rupture ter
   assert.deepEqual(t.events.map((e) => e.id), ['working-reference', 'serviceability', 'rupture-reference']);
   assert.equal(t.terminalEvent.id, 'rupture-reference');
   assert.equal(t.terminalEvent.terminal, true);
-  assert.equal(t.terminalEvent.loadKN, 7.29);
+  assert.ok(Math.abs(t.terminalEvent.loadKN - 7.29) < 1e-12);
 });
 
 test('ordinary steel stops at first yield and never labels Fy as fracture', () => {
