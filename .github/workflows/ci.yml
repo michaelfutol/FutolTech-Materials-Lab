@@ -36,6 +36,8 @@ jobs:
         run: node scripts/verifyPrintTypographyUi.mjs
       - name: Pencil figure Chromium gate
         run: node scripts/verifyFigureStyleUi.mjs
+      - name: Side-by-side comparison Chromium gate
+        run: node scripts/verifyComparisonPlaybackUi.mjs
       - name: Assembly Lab Chromium gate
         run: node scripts/verifyAssemblyLabUi.mjs
       - name: Design Explorer Chromium gate
