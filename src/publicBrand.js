@@ -95,3 +95,7 @@ applyPublicBrand();
 
 const observer = new MutationObserver(queueBrandSync);
 observer.observe(document.documentElement, { childList: true, subtree: true });
+
+if (location.pathname.endsWith('/compare.html') || location.pathname.endsWith('compare.html')) {
+  import('./comparisonPlaybackUi.js');
+}
