@@ -20,10 +20,10 @@ jobs:
           node-version: 22
       - name: Syntax checks
         run: npm run check
-      - name: Deterministic engineering tests
-        run: npm test
       - name: Side-by-side comparison Chromium gate
         run: node scripts/verifyComparisonPlaybackUi.mjs
+      - name: Deterministic engineering tests
+        run: npm test
       - name: C-purlin Chromium gate
         run: node scripts/verifyCPurlinOrientationUi.mjs
       - name: Connection Lab Chromium gate
