@@ -5,7 +5,10 @@ export const SECTION_CATEGORY_LABELS = {
   rhs: 'Rectangular hollow section (RHS)',
   'steel-pipe': 'GI pipe',
   'rolled-h': 'Rolled H / wide-flange section',
+  'angle-bar': 'Angle bar / L-section',
   'c-purlin': 'C purlin / lipped channel',
+  'metal-stud': 'Metal stud / drywall stud',
+  'double-furring': 'Double metal furring',
   'catalog-other': 'Catalog / built-up section'
 };
 
@@ -15,7 +18,9 @@ export function sectionCategory(preset, family) {
   if (family === 'bamboo') return 'round-bamboo';
   if (preset?.id?.startsWith('ph-pipe-')) return 'steel-pipe';
   if (preset?.id?.startsWith('ph-jis-h-')) return 'rolled-h';
+  if (preset?.id?.startsWith('ph-angle-')) return 'angle-bar';
   if (preset?.id?.startsWith('ph-cp-')) return 'c-purlin';
+  if (preset?.type === 'angle') return 'angle-bar';
   if (preset?.type === 'rhs') return preset.widthMm === preset.depthMm ? 'shs' : 'rhs';
   return 'catalog-other';
 }
@@ -31,7 +36,9 @@ export function sectionShapeKind(preset, family) {
   if (category === 'steel-pipe') return 'pipe-ring';
   if (category === 'shs' || category === 'rhs') return 'rectangular-hollow';
   if (category === 'rolled-h') return 'h-section';
+  if (category === 'angle-bar') return 'angle';
   if (category === 'c-purlin') return 'lipped-c';
+  if (category === 'metal-stud' || category === 'double-furring') return 'catalog';
   return preset?.type === 'chs' ? 'pipe-ring' : preset?.type === 'rectangle' ? 'solid-rectangle' : 'catalog';
 }
 
@@ -46,7 +53,10 @@ export function productMaterialName(material, preset) {
   if (material?.family !== 'steel') return material?.name ?? 'Material';
   if (category === 'steel-pipe') return `GI pipe — ${steelGradeText(material)}`;
   if (category === 'rolled-h') return `Rolled structural steel — ${steelGradeText(material)}`;
+  if (category === 'angle-bar') return `Steel angle bar — ${steelGradeText(material)}`;
   if (category === 'c-purlin') return `Cold-formed C purlin — ${steelGradeText(material)}`;
+  if (category === 'metal-stud') return `Cold-formed metal stud — grade/capacity basis to verify`;
+  if (category === 'double-furring') return `Cold-formed double furring — grade/capacity basis to verify`;
   if (category === 'shs' || category === 'rhs') return `Structural steel hollow section — ${steelGradeText(material)}`;
   return `Structural steel — ${steelGradeText(material)}`;
 }

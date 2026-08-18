@@ -47,12 +47,20 @@ test('SHS remains a structural hollow section rather than a pipe', () => {
   assert.match(candidate.displayMaterialName, /hollow section/i);
 });
 
-test('visual library includes pipe, H, wood, and bamboo records with properties', () => {
+test('visual library keeps solver-ready sections calculated while allowing explicit evidence-gated library-only products', () => {
   assert.ok(SECTION_LIBRARY.some((record) => record.category === 'steel-pipe'));
   assert.ok(SECTION_LIBRARY.some((record) => record.category === 'rolled-h'));
   assert.ok(SECTION_LIBRARY.some((record) => record.family === 'wood'));
   assert.ok(SECTION_LIBRARY.some((record) => record.family === 'bamboo'));
-  assert.ok(SECTION_LIBRARY.every((record) => record.properties?.areaMm2 > 0));
+
+  const solverReady = SECTION_LIBRARY.filter((record) => !record.libraryOnly);
+  assert.ok(solverReady.length > 0);
+  assert.ok(solverReady.every((record) => record.properties?.areaMm2 > 0));
+
+  const libraryOnly = SECTION_LIBRARY.filter((record) => record.libraryOnly);
+  assert.ok(libraryOnly.length > 0);
+  assert.ok(libraryOnly.every((record) => record.activeInSolver === false));
+  assert.ok(libraryOnly.every((record) => record.properties == null));
 });
 
 test('section sketches distinguish pipe and H-section geometry', () => {

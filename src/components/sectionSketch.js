@@ -40,6 +40,23 @@ function rectangleMarkup(preset, hollow = false) {
   return `${outer}<rect x="${x + inset}" y="${y + inset}" width="${Math.max(4, w - 2 * inset)}" height="${Math.max(4, h - 2 * inset)}" rx="1" class="section-sketch__void" />`;
 }
 
+function angleMarkup(preset) {
+  const width = preset.widthMm ?? 50;
+  const depth = preset.depthMm ?? 50;
+  const thickness = preset.thicknessMm ?? 3;
+  const scale = Math.min(82 / width, 86 / depth);
+  const w = clamp(width * scale, 30, 82);
+  const h = clamp(depth * scale, 30, 86);
+  const t = clamp(thickness * scale, 4, Math.min(w, h) / 3);
+  const x = 60 - w / 2;
+  const y = 58 - h / 2;
+  const rotation = ((Number(preset.displayRotationDeg ?? 0) % 360) + 360) % 360;
+  return `<g transform="rotate(${rotation} 60 58)">
+    <rect x="${x}" y="${y}" width="${t}" height="${h}" class="section-sketch__solid" />
+    <rect x="${x}" y="${y + h - t}" width="${w}" height="${t}" class="section-sketch__solid" />
+  </g>`;
+}
+
 function hMarkup(preset) {
   const width = preset.widthMm ?? 150;
   const depth = preset.depthMm ?? 300;
@@ -92,6 +109,7 @@ export function sectionSketchSvg(preset, family, { title = preset?.label ?? 'Sec
   else if (kind === 'pipe-ring') shape = ringMarkup(preset, false);
   else if (kind === 'bamboo-ring') shape = ringMarkup(preset, true);
   else if (kind === 'h-section') shape = hMarkup(preset);
+  else if (kind === 'angle') shape = angleMarkup(preset);
   else if (kind === 'lipped-c') shape = cMarkup(preset);
   else shape = '<path d="M28 90 L28 26 L92 26 L92 90" class="section-sketch__catalog"/><text x="60" y="63" text-anchor="middle" class="section-sketch__question">A,I,Z</text>';
 
