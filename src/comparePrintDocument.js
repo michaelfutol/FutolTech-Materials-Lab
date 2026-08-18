@@ -47,7 +47,14 @@ function ensureSelectorPrintCompaction() {
 function cloneForPrint(source) {
   if (!source) return null;
   const clone = source.cloneNode(true);
-  const originals = [...source.querySelectorAll('input, select, textarea, output')];
+
+  // SIM-VIZ playback is an interactive browser laboratory. Keep the formal
+  // FT-CS-01 report on its established nine-page calculation architecture;
+  // the deterministic simulation JSON is exported separately for video/RPE.
+  clone.querySelectorAll('[data-comparison-playback]').forEach((node) => node.remove());
+
+  const originals = [...source.querySelectorAll('input, select, textarea, output')]
+    .filter((node) => !node.closest('[data-comparison-playback]'));
   const copies = [...clone.querySelectorAll('input, select, textarea, output')];
 
   originals.forEach((original, index) => {
