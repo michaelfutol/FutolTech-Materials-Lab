@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="FutolTech Structural Lab Physical-Test Calibration v1 for preserving raw test data, comparing measured and predicted response, and producing versioned calibration statistics." />
+    <title>Physical-Test Calibration · FutolTech Structural Lab</title>
+    <link rel="stylesheet" href="./src/styles.css?v=20260802-1" />
+    <link rel="stylesheet" href="./src/calibration.css?v=20260818-cal1" />
+    <link rel="stylesheet" href="./src/printReport.css?v=20260806-brand1" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">TOOLS · FutolTech Structural Lab · CAL-001</p>
+        <h1>Physical-Test Calibration</h1>
+        <p class="subtitle">Raw evidence in, transparent statistics out — without overwriting the source material or connection record.</p>
+      </div>
+      <div class="status-cluster">
+        <a class="status-pill status-link" href="./index.html">← Materials Lab</a>
+        <a class="status-pill status-link" href="./assembly.html">Assembly Lab</a>
+        <a class="status-pill status-link" href="./connections.html">Connection Lab</a>
+        <span class="status-pill">CAL-001 · active</span>
+        <span class="status-pill">Build 2026-08-18.CAL1</span>
+      </div>
+    </header>
+
+    <main class="calibration-shell">
+      <section class="panel calibration-inputs" aria-label="Calibration dataset inputs">
+        <div class="panel-heading">
+          <div><p class="eyebrow">Evidence intake</p><h2>Test metadata and raw CSV</h2></div>
+          <button id="calibrationExampleButton" class="button button--ghost" type="button">Load CAL-001 example</button>
+        </div>
+
+        <div class="control-grid calibration-meta-grid">
+          <label><span>Calibration target</span><select id="calibrationTargetType"><option value="material">Material model</option><option value="connection">Connection model</option><option value="composite-action">Composite-action model</option></select></label>
+          <label><span>Target / specimen family ID</span><input id="calibrationTargetId" type="text" value="coco-uh-2007-average" /></label>
+          <label><span>Test standard / procedure</span><input id="calibrationStandard" type="text" placeholder="e.g. project procedure / ASTM / ISO reference" /></label>
+          <label><span>Laboratory / field source</span><input id="calibrationLaboratory" type="text" placeholder="Facility or field-test source" /></label>
+          <label><span>Apparatus</span><input id="calibrationApparatus" type="text" placeholder="UTM / load cell / field rig" /></label>
+          <label><span>Instrument calibration record</span><input id="calibrationInstrument" type="text" placeholder="Certificate / date / reference" /></label>
+          <label><span>Operator / recorder</span><input id="calibrationOperator" type="text" placeholder="Name or team" /></label>
+          <label><span>Calibration package version</span><input id="calibrationVersion" type="text" value="CAL-001.v1" /></label>
+        </div>
+
+        <label class="calibration-notes"><span>Notes / specimen condition</span><textarea id="calibrationNotes" rows="3" placeholder="Moisture, defects, connection condition, loading protocol, exclusions…"></textarea></label>
+
+        <div class="calibration-upload-row">
+          <label class="calibration-file"><span>Load CSV file</span><input id="calibrationFileInput" type="file" accept=".csv,text/csv" /></label>
+          <div class="support-help">
+            <strong>CAL-001 CSV schema</strong>
+            <p>Required: <code>specimen_id, displacement_mm, measured_load_kN</code>. Optional: <code>predicted_load_kN, event</code>. Set <code>event=failure</code> only when the source record explicitly identifies that row as failure.</p>
+          </div>
+        </div>
+
+        <label class="calibration-csv-label"><span>Raw CSV — preserved verbatim in exported package</span><textarea id="calibrationCsvInput" rows="16" spellcheck="false"></textarea></label>
+        <div class="calibration-actions">
+          <button id="calibrationAnalyzeButton" class="button" type="button">Analyze dataset</button>
+          <button id="calibrationExportButton" class="button button--ghost" type="button" disabled>Export versioned JSON</button>
+          <button class="button button--ghost print-action" type="button" onclick="window.print()">Print / Save PDF</button>
+        </div>
+        <div id="calibrationErrorBanner" class="error-banner is-hidden" role="alert"></div>
+        <div class="support-help">
+          <strong>Permanent calibration boundary</strong>
+          <p>The importer computes statistics from the supplied evidence. It does not silently replace published E, strength, connection capacity, or composite-action assumptions. Any later adoption of calibrated parameters must be a separate, versioned engineering decision.</p>
+        </div>
+      </section>
+
+      <section class="panel calibration-results" aria-label="Calibration results">
+        <div class="panel-heading"><div><p class="eyebrow">Measured versus predicted</p><h2>Calibration evidence summary</h2></div><span id="calibrationEvidenceBadge" class="status-pill status-pill--warning">USER DATA / UNVERIFIED</span></div>
+        <div id="calibrationSummary" class="result-grid" aria-live="polite"></div>
+
+        <section class="calibration-chart-card">
+          <div class="calibration-section-heading"><div><p class="eyebrow">Load–displacement overlay</p><h3>Measured and predicted response</h3></div><div class="calibration-legend"><span>Measured — solid</span><span>Predicted – – dashed</span></div></div>
+          <svg id="calibrationChart" viewBox="0 0 900 420" role="img" aria-label="Measured and predicted load displacement chart"></svg>
+        </section>
+
+        <div class="details-grid calibration-details">
+          <section><h3>Paired response statistics</h3><dl id="calibrationPairedStats" class="definition-grid"></dl></section>
+          <section><h3>Peak / marked-failure scatter</h3><dl id="calibrationFailureStats" class="definition-grid"></dl></section>
+        </div>
+
+        <section>
+          <div class="calibration-section-heading"><div><p class="eyebrow">Specimen trace</p><h3>Per-specimen summary</h3></div></div>
+          <div class="calibration-table-wrap"><table class="calibration-table"><thead><tr><th>Specimen</th><th>Rows</th><th>Measured peak</th><th>Predicted peak</th><th>Marked failure</th></tr></thead><tbody id="calibrationSpecimenBody"></tbody></table></div>
+        </section>
+
+        <section>
+          <div class="calibration-section-heading"><div><p class="eyebrow">Immutable evidence preview</p><h3>Parsed rows</h3></div><span id="calibrationRowCount"></span></div>
+          <div class="calibration-table-wrap calibration-raw-wrap"><table class="calibration-table"><thead><tr><th>CSV row</th><th>Specimen</th><th>Displacement mm</th><th>Measured kN</th><th>Predicted kN</th><th>Event</th></tr></thead><tbody id="calibrationRawBody"></tbody></table></div>
+        </section>
+
+        <section id="calibrationSourceCard" class="source-card"></section>
+      </section>
+    </main>
+
+    <footer><strong>Engineering notice:</strong> Calibration statistics describe the supplied dataset only. Verify specimen identity, test standard, apparatus calibration, units, data cleaning, boundary conditions, sample representativeness, and engineer approval before adopting any calibrated model.</footer>
+    <script type="module" src="./src/publicBrand.js?v=20260818-sl1"></script>
+    <script type="module" src="./src/calibrationApp.js?v=20260818-cal1"></script>
+    <script type="module" src="./src/printReport.js?v=20260806-brand1"></script>
+  </body>
+</html>

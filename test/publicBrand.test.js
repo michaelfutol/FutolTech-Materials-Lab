@@ -11,6 +11,7 @@ const PUBLIC_PAGES = [
   'splice.html',
   'connections.html',
   'assembly.html',
+  'calibration.html',
   'yield.html',
   'shoring.html'
 ];
@@ -39,6 +40,8 @@ test('the shared brand module preserves company identity, dynamic print furnitur
   assert.match(brandModule, /ensureStructuralLabNav/);
   assert.match(brandModule, /connections\.html/);
   assert.match(brandModule, /assembly\.html/);
+  assert.match(brandModule, /calibration\.html/);
   assert.match(brandModule, /data-structural-lab-connections/);
   assert.match(brandModule, /data-structural-lab-assembly/);
+  assert.match(brandModule, /data-structural-lab-calibration/);
 });

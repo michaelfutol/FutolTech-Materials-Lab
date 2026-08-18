@@ -27,6 +27,7 @@ function ensureToolNav({ dataAttribute, path, label, activeLabel }) {
 function ensureStructuralLabNav() {
   ensureToolNav({ dataAttribute: 'data-structural-lab-connections', path: 'connections.html', label: 'Connection Lab', activeLabel: 'Connection Lab · active' });
   ensureToolNav({ dataAttribute: 'data-structural-lab-assembly', path: 'assembly.html', label: 'Assembly Lab', activeLabel: 'Assembly Lab · active' });
+  ensureToolNav({ dataAttribute: 'data-structural-lab-calibration', path: 'calibration.html', label: 'Calibration Lab', activeLabel: 'Calibration Lab · active' });
 }
 
 function applyPrintBrand() {
