@@ -329,7 +329,11 @@ function mount() {
       queueMicrotask(refresh);
     }
   });
-  for (const eventName of ['change', 'click']) document.addEventListener(eventName, () => queueMicrotask(refresh));
+  document.addEventListener('change', () => queueMicrotask(refresh));
+  document.addEventListener('click', (event) => {
+    if (controls.contains(event.target)) return;
+    queueMicrotask(refresh);
+  });
   refresh();
 }
 
