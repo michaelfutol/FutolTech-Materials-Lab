@@ -13,7 +13,7 @@
 
 ## Phase 2 execution chunks
 
-### 2A — SIM-VIZ-001 Specimen Simulation Console — ACTIVE
+### 2A — SIM-VIZ-001 Specimen Simulation Console — COMPLETE
 
 - [x] Solver-driven beam/column specimen playback shell.
 - [x] Explicit user-selected quasi-static loading rate, kN/s.
@@ -23,10 +23,10 @@
 - [x] Beam displayed deformation follows current solver deflection and selected magnification.
 - [x] Column remains visually straight until an implemented stored instability event is crossed.
 - [x] Dynamic-time disclaimer visible in the UI.
-- [ ] Real Chromium SIM-VIZ regression green on exact PR head before merge.
-- [ ] Existing full Structural Lab/PDF gates remain green before merge.
+- [x] Real Chromium SIM-VIZ regression green on PR head before merge.
+- [x] Existing full Structural Lab/PDF gates remain green before merge.
 
-### 2B — PRINT-TYPE-001 FutolTech Typewriter Print Theme
+### 2B — PRINT-TYPE-001 FutolTech Typewriter Print Theme — NEXT
 
 - [ ] Optional/default clean typewriter typography for engineering printouts.
 - [ ] Use an open-licensed embeddable typewriter family; do not distribute font files from tooling environments.
