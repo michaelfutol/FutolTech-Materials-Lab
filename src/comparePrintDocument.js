@@ -31,6 +31,16 @@ function cloneForPrint(source) {
   originals.forEach((original, index) => {
     const copy = copies[index];
     if (!copy) return;
+
+    // Direct Compare keeps a hidden binary select as the solver bridge for
+    // C-purlins. The user-facing select already carries the exact 0/90/180/270
+    // installation orientation, so printing the hidden bridge would duplicate
+    // the orientation row and can overflow the selected-alternatives page.
+    if (original.matches('[data-c-purlin-solver-orientation]')) {
+      copy.remove();
+      return;
+    }
+
     const value = original.type === 'checkbox'
       ? (original.checked ? 'Included' : 'Not included')
       : original.tagName === 'SELECT'
