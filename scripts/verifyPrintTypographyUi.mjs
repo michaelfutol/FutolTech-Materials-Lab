@@ -61,7 +61,10 @@ async function cdpOpen(url) {
 
 async function evaluate(cdp, expression) {
   const result = await cdp.send('Runtime.evaluate', { expression, returnByValue: true, awaitPromise: true });
-  if (result.exceptionDetails) throw new Error(result.exceptionDetails.text || 'Browser evaluation failed.');
+  if (result.exceptionDetails) {
+    const detail = result.exceptionDetails.exception?.description || result.exceptionDetails.text || 'Browser evaluation failed.';
+    throw new Error(detail);
+  }
   return result.result?.value;
 }
 
@@ -99,24 +102,24 @@ try {
 
   let ready = false;
   for (let i = 0; i < 150; i += 1) {
-    const state = await evaluate(cdp, `({ready:document.readyState, button:!!document.querySelector('[data-print-typography-toggle]'), theme:document.body.dataset.printTypography})`);
-    if (state?.ready === 'complete' && state.button && state.theme) { ready = true; break; }
+    const state = await evaluate(cdp, `({ready:document.readyState, button:!!document.querySelector('[data-print-typography-toggle]'), theme:document.body.dataset.printTypography, style:!!document.getElementById('ft-print-typography-style')})`);
+    if (state?.ready === 'complete' && state.button && state.theme && state.style) { ready = true; break; }
     await sleep(100);
   }
-  if (!ready) throw new Error('Print typography control did not become ready.');
+  if (!ready) throw new Error('Print typography control/style did not become ready.');
 
-  const initial = await evaluate(cdp, `({theme:document.body.dataset.printTypography,label:document.querySelector('[data-print-typography-toggle]').textContent,stack:document.getElementById('ft-print-typography-style').textContent})`);
+  const initial = await evaluate(cdp, `(() => { const button=document.querySelector('[data-print-typography-toggle]'); const style=document.getElementById('ft-print-typography-style'); return {theme:document.body.dataset.printTypography,label:button?.textContent||'',stack:style?.textContent||''}; })()`);
   if (initial.theme !== 'typewriter' || !/Typewriter/.test(initial.label)) throw new Error(`Expected default typewriter theme, got ${JSON.stringify(initial)}`);
   if (!/Courier Prime/.test(initial.stack) || !/Courier New/.test(initial.stack)) throw new Error('Typewriter font stack is missing.');
 
   await evaluate(cdp, `document.querySelector('[data-print-typography-toggle]').click()`);
   await sleep(100);
-  const modern = await evaluate(cdp, `({theme:document.body.dataset.printTypography,label:document.querySelector('[data-print-typography-toggle]').textContent})`);
+  const modern = await evaluate(cdp, `({theme:document.body.dataset.printTypography,label:document.querySelector('[data-print-typography-toggle]')?.textContent||''})`);
   if (modern.theme !== 'modern' || !/Modern/.test(modern.label)) throw new Error(`Modern toggle failed: ${JSON.stringify(modern)}`);
 
   await evaluate(cdp, `document.querySelector('[data-print-typography-toggle]').click()`);
   await sleep(100);
-  const restored = await evaluate(cdp, `({theme:document.body.dataset.printTypography,label:document.querySelector('[data-print-typography-toggle]').textContent})`);
+  const restored = await evaluate(cdp, `({theme:document.body.dataset.printTypography,label:document.querySelector('[data-print-typography-toggle]')?.textContent||''})`);
   if (restored.theme !== 'typewriter' || !/Typewriter/.test(restored.label)) throw new Error(`Typewriter restore failed: ${JSON.stringify(restored)}`);
 
   console.log('FutolTech typewriter/modern print-theme toggle QA passed in real Chromium.');
