@@ -20,6 +20,8 @@ jobs:
           node-version: 22
       - name: Syntax checks
         run: npm run check
+      - name: Comparison PDF gate
+        run: node scripts/verifyComparisonPdf.mjs
       - name: Side-by-side comparison Chromium gate
         run: node scripts/verifyComparisonPlaybackUi.mjs
       - name: Deterministic engineering tests
@@ -54,5 +56,3 @@ jobs:
         run: node scripts/verifyFrameAnalyzerUi.mjs pdelta
       - name: NF-001 redistribution Chromium gate
         run: node scripts/verifyFrameAnalyzerUi.mjs redistribution
-      - name: Comparison PDF gate
-        run: node scripts/verifyComparisonPdf.mjs
