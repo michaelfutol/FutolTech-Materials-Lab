@@ -81,6 +81,43 @@ function ensureTypographyStyles() {
         font-size: 7.8pt !important;
       }
 
+      body[data-print-typography="typewriter"] .ft-print-document .compare-result-card {
+        padding: 2.2mm !important;
+      }
+
+      body[data-print-typography="typewriter"] .ft-print-document .compare-result-card__visual {
+        height: 15mm !important;
+        margin: 1mm 0 1.4mm !important;
+      }
+
+      body[data-print-typography="typewriter"] .ft-print-document .compare-result-card__visual svg {
+        height: 13mm !important;
+        max-height: 13mm !important;
+      }
+
+      body[data-print-typography="typewriter"] .ft-print-document .compare-result-card h3 {
+        margin: 0.3mm 0 0.6mm !important;
+        font-size: 10.5pt !important;
+      }
+
+      body[data-print-typography="typewriter"] .ft-print-document .compare-mini-metrics {
+        gap: 1mm !important;
+        margin: 1mm 0 !important;
+      }
+
+      body[data-print-typography="typewriter"] .ft-print-document .compare-mini-metrics div {
+        padding: 1.1mm 1.3mm !important;
+      }
+
+      body[data-print-typography="typewriter"] .ft-print-document .compare-mini-metrics dt {
+        font-size: 7.8pt !important;
+      }
+
+      body[data-print-typography="typewriter"] .ft-print-document .compare-mini-metrics dd {
+        margin-top: 0.25mm !important;
+        font-size: 9.4pt !important;
+      }
+
       body[data-print-typography="modern"] .ft-print-document,
       body[data-print-typography="modern"] .print-letterhead,
       body[data-print-typography="modern"] .print-document-footer,
