@@ -1,58 +1,65 @@
 @media print {
+  /* The full orientation explanation is repeated on the calculation trace.
+     Keep the selected-alternatives page concise while preserving the exact
+     orientation value shown by the selector snapshot. */
+  [data-c-purlin-orientation-note] {
+    display: none !important;
+  }
+
   .ft-manual-calc {
     font-size: 8.2pt !important;
-    line-height: 1.28 !important;
+    line-height: 1.24 !important;
   }
 
   .ft-calc-grid {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 3mm;
+    gap: 2.5mm;
   }
 
   .ft-calc-card {
     min-width: 0;
-    padding: 2.6mm;
+    padding: 2.1mm;
     border: 0.25mm solid var(--ft-line);
     background: #fff !important;
     break-inside: avoid;
   }
 
   .ft-calc-card h3 {
-    margin: 0 0 2mm !important;
+    margin: 0 0 1.4mm !important;
     color: var(--ft-navy) !important;
     font-size: 9.2pt !important;
-    line-height: 1.15 !important;
+    line-height: 1.12 !important;
   }
 
   .ft-calc-block {
     display: grid;
-    grid-template-columns: 25mm minmax(0, 1fr);
-    gap: 2.5mm;
+    grid-template-columns: 24mm minmax(0, 1fr);
+    gap: 2mm;
     align-items: start;
   }
 
   .ft-calc-block--cpurlin {
-    grid-template-columns: 23mm minmax(0, 1fr);
+    grid-template-columns: 22mm minmax(0, 1fr);
   }
 
   .ft-calc-sketch {
     display: grid;
     place-items: center;
-    min-height: 24mm;
+    min-height: 22mm;
     border: 0.2mm solid #d5dbe0;
     background: #f7f9fa !important;
   }
 
   .ft-calc-sketch .section-sketch {
-    width: 22mm !important;
-    height: 22mm !important;
-    max-height: 22mm !important;
+    width: 20.5mm !important;
+    height: 20.5mm !important;
+    max-height: 20.5mm !important;
   }
 
   .ft-calc-block p,
   .ft-calc-response-card p {
-    margin: 0 0 1.1mm !important;
+    margin: 0 0 0.75mm !important;
   }
 
   .ft-equation {
@@ -61,8 +68,8 @@
   }
 
   .ft-axis-callout {
-    margin-top: 1.5mm !important;
-    padding: 1.5mm 1.8mm;
+    margin-top: 1mm !important;
+    padding: 1.1mm 1.5mm;
     border-left: 0.8mm solid var(--ft-navy);
     background: var(--ft-soft) !important;
   }
@@ -70,10 +77,10 @@
   .ft-calc-common {
     display: grid;
     grid-template-columns: auto minmax(0, 1fr);
-    gap: 3mm;
+    gap: 2.5mm;
     align-items: baseline;
-    margin-bottom: 2.5mm;
-    padding: 2mm 2.5mm;
+    margin-bottom: 1.8mm;
+    padding: 1.6mm 2mm;
     border: 0.25mm solid var(--ft-line);
     background: var(--ft-soft) !important;
   }
@@ -85,12 +92,12 @@
   .ft-calc-response-grid {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 3mm;
+    gap: 2.5mm;
   }
 
   .ft-calc-response-card {
     min-width: 0;
-    padding: 2.6mm;
+    padding: 2.1mm;
     border: 0.25mm solid var(--ft-line);
     break-inside: avoid;
   }
@@ -98,10 +105,10 @@
   .ft-calc-response-card__head {
     display: flex;
     justify-content: space-between;
-    gap: 2mm;
+    gap: 1.5mm;
     align-items: start;
-    margin-bottom: 1.8mm;
-    padding-bottom: 1.3mm;
+    margin-bottom: 1.2mm;
+    padding-bottom: 1mm;
     border-bottom: 0.2mm solid var(--ft-line);
   }
 
@@ -111,7 +118,7 @@
   }
 
   .ft-calc-response-card__head strong {
-    margin-top: 0.5mm;
+    margin-top: 0.4mm;
     color: var(--ft-navy) !important;
     font-size: 8.8pt !important;
   }
