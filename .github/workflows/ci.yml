@@ -22,6 +22,8 @@ jobs:
         run: npm run check
       - name: Deterministic engineering tests
         run: npm test
+      - name: Side-by-side comparison Chromium gate
+        run: node scripts/verifyComparisonPlaybackUi.mjs
       - name: C-purlin Chromium gate
         run: node scripts/verifyCPurlinOrientationUi.mjs
       - name: Connection Lab Chromium gate
@@ -36,8 +38,6 @@ jobs:
         run: node scripts/verifyPrintTypographyUi.mjs
       - name: Pencil figure Chromium gate
         run: node scripts/verifyFigureStyleUi.mjs
-      - name: Side-by-side comparison Chromium gate
-        run: node scripts/verifyComparisonPlaybackUi.mjs
       - name: Assembly Lab Chromium gate
         run: node scripts/verifyAssemblyLabUi.mjs
       - name: Design Explorer Chromium gate
