@@ -9,7 +9,7 @@ const identity = await readFile(new URL('../src/printCompanyIdentity.js', import
 
 test('comparison print reserves safe bands for a repeated company letterhead and footer', () => {
   assert.match(html, /printLetterhead\.css\?v=20260807-letterhead1/);
-  assert.match(html, /printCompanyIdentity\.js\?v=20260807-letterhead1/);
+  assert.match(html, /printCompanyIdentity\.js\?v=20260818-manual1/);
   assert.match(css, /@page wide-report[\s\S]*margin:\s*25mm 16mm 20mm/);
   assert.match(css, /\.print-letterhead[\s\S]*position:\s*fixed\s*!important/);
   assert.match(css, /top:\s*-20mm/);
