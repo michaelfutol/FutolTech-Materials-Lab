@@ -36,6 +36,13 @@ export const SECTION_PRESETS = {
     tubePreset('shs-38-12', 'SHS 38×38×1.2 mm', 38, 38, 1.2),
     tubePreset('shs-50-15', 'SHS 50×50×1.5 mm', 50, 50, 1.5),
     tubePreset('shs-50-20', 'SHS 50×50×2.0 mm', 50, 50, 2),
+    {
+      ...tubePreset('shs-100-20-user-observed', 'SHS 100×100×2.0 mm · user-observed PH market', 100, 100, 2),
+      marketStatus: 'User-observed physical SHS size on 2026-08-18; supplier/brand and nominal-versus-measured wall thickness are not yet recorded.',
+      analysisStatus: 'Active gross-section geometry preset. Solver uses idealized 100×100×2.0 mm SHS geometry; verify delivered dimensions, corner radii, steel grade and mill certificate before design use.',
+      evidenceStatus: 'user-observed',
+      observationDate: '2026-08-18'
+    },
     tubePreset('rhs-75-50-15', 'RHS 75×50×1.5 mm', 50, 75, 1.5),
     tubePreset('rhs-75-50-20', 'RHS 75×50×2.0 mm', 50, 75, 2),
     tubePreset('rhs-100-50-20', 'RHS 100×50×2.0 mm', 50, 100, 2),
