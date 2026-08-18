@@ -32,6 +32,8 @@ jobs:
         run: node scripts/verifyFailurePhysicsUi.mjs
       - name: Specimen Simulation Chromium gate
         run: node scripts/verifySimulationPlaybackUi.mjs
+      - name: Print typography Chromium gate
+        run: node scripts/verifyPrintTypographyUi.mjs
       - name: Assembly Lab Chromium gate
         run: node scripts/verifyAssemblyLabUi.mjs
       - name: Design Explorer Chromium gate
