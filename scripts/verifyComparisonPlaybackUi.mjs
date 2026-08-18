@@ -30,7 +30,7 @@ try{
   if(configured.livePanels!==1||configured.cards!==2)throw new Error(`Expected one live synchronized panel with two cards: ${JSON.stringify(configured)}`);
 
   await evalv(cdp,`(() => { const s=document.querySelector('.compare-shell [data-cp-scrub]');s.value='500';s.dispatchEvent(new Event('input',{bubbles:true})); })()`);await sleep(250);
-  const halfway=await evalv(cdp,`(() => { const panel=document.querySelector('.compare-shell [data-comparison-playback]'); const cards=[...panel.querySelectorAll('[data-playback-member]')]; return {load:Number(document.querySelector('#compareLoadInput').value),metricLoads:cards.map(c=>c.querySelector('.comparison-playback-card__metrics strong')?.textContent),defs:cards.map(c=>Number((c.textContent.match(/Deflection\s*([\d.]+) mm/)||[])[1]))}; })()`);
+  const halfway=await evalv(cdp,`(() => { const panel=document.querySelector('.compare-shell [data-comparison-playback]'); const cards=[...panel.querySelectorAll('[data-playback-member]')]; const metricValue=(card,label)=>{ const row=[...card.querySelectorAll('.comparison-playback-card__metrics div')].find(node=>node.querySelector('small')?.textContent?.trim()===label); return Number(row?.querySelector('strong')?.textContent?.replace(' mm','')); }; return {load:Number(document.querySelector('#compareLoadInput').value),metricLoads:cards.map(c=>c.querySelector('.comparison-playback-card__metrics strong')?.textContent),defs:cards.map(c=>metricValue(c,'Deflection'))}; })()`);
   if(!(halfway.load>45&&halfway.load<55))throw new Error(`50% scrub did not produce about 50 kgf shared load: ${JSON.stringify(halfway)}`);
   if(!(halfway.defs[1]>halfway.defs[0]))throw new Error(`90° C-purlin should deflect more than 0° under the same load: ${JSON.stringify(halfway)}`);
 
