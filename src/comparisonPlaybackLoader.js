@@ -3,11 +3,18 @@ const INTERVAL_MS = 50;
 let attempts = 0;
 let loaded = false;
 
+function slotReady(index) {
+  return !!document.querySelector(`[data-slot-material="${index}"]`)
+    && !!document.querySelector(`[data-slot-preset="${index}"]`)
+    && !!document.querySelector(`[data-slot-orientation="${index}"]`);
+}
+
 function compareReady() {
   return document.readyState !== 'loading'
-    && document.querySelectorAll('#compareSelectors .compare-selector-card').length === 3
+    && [0, 1, 2].every(slotReady)
     && !!document.getElementById('compareLoadEquivalent')
-    && !!document.getElementById('compareResultCards');
+    && !!document.getElementById('compareResultCards')
+    && !!document.querySelector('[data-slot-enable="2"]');
 }
 
 async function tryMount() {
