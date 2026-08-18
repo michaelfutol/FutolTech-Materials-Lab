@@ -1,6 +1,17 @@
 import { presetsForFamily } from './data/sectionPresets.js';
 import { sectionSketchSvg } from './components/sectionSketch.js';
 
+function installOrientationPrintStyles() {
+  if (document.querySelector('link[data-c-purlin-orientation-print]')) return;
+  const link = document.createElement('link');
+  link.rel = 'stylesheet';
+  link.href = './src/cPurlinOrientationPrint.css?v=20260818-orient2';
+  link.dataset.cPurlinOrientationPrint = 'true';
+  document.head.append(link);
+}
+
+installOrientationPrintStyles();
+
 // Direct Compare's structural solver still needs only two gross bending-axis
 // states: listed (major axis) and rotated (minor axis). Installation direction,
 // however, has four distinct views. Keep those concerns separate: this module
