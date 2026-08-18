@@ -29,8 +29,8 @@
 4. [x] **Run to Governing Limit v1** — stored event chronology + PAUSE / STEP / STOP; no fake fracture/post-buckling animation.
 5. [x] **Assembly Lab v1** — 2–3 ply coco/timber bounded composite-action screening with explicit η, manual trace and real Chromium QA.
 6. [x] **Design Explorer v2** — reverse member query + stock/splice planning + connection completeness + evidence-bounded Pareto alternatives.
-7. [ ] **Failure Physics v1 — NEXT ACTIVE** — verified steel/timber governing failure modes and event-linked visuals.
-8. [ ] **Physical-Test Calibration v1** — CSV/raw-test import, predicted-vs-measured, bias/scatter.
+7. [x] **Failure Physics v1** — event-linked interpretation and visuals for supported serviceability/reference/yield/ultimate/global-column threshold events, with real Chromium QA.
+8. [ ] **Physical-Test Calibration v1 — NEXT ACTIVE** — CSV/raw-test import, predicted-vs-measured, bias/scatter.
 9. [ ] **Frame Analyzer / NF-001** — 2D connected frame with spring connections and redistribution.
 10. [ ] **FutolStructure / RPE interchange** — reusable component and failure-law objects.
 
@@ -47,13 +47,15 @@
 - [!] Angle compression blocked pending Ixy/principal-axis and flexural-torsional behavior.
 - [x] SHS 100×100×2.0 mm supplier-handbook-confirmed with 6.483 kg/m; delivered grade/thickness still project-specific.
 - [x] Metal stud and double-furring PH library records.
-- [!] Stud/furring independent member capacity blocked until complete fold geometry and cold-formed design basis are verified.
+- [!] Stud/furring independent member capacity blocked until complete fold geometry/design basis is verified.
 - [x] Stock & Splice demand/planning foundation.
 - [x] Steel Yield experimental load/unload/residual-deformation module.
 - [x] Concrete Slab Shoring experimental load-path module.
 - [x] Design Explorer DE-002 solution-package layer over deterministic member recommender.
 - [x] Design Explorer exposes minimum stock-piece/splice lower bounds and blocks splice-required options on unverified connection design.
 - [x] Design Explorer Pareto view uses only available numeric metrics; price/carbon remain explicitly unavailable until verified data exists.
+- [x] Failure Physics v1 interprets only stored governing-limit events; it does not infer unimplemented local or post-failure mechanisms.
+- [x] Failure Physics low-load column view remains straight until a stored instability event is actually crossed.
 - [x] FT-CS-01 branded Direct Compare report with manual section-property and bending-response trace.
 - [x] Chromium PDF gate: logical report pages = physical pages; no blank/overflow sheets.
 - [x] Assembly Lab ASSY-001 bounded elastic composite-action model with independent/full-composite stiffness bounds and explicit η evidence status.
@@ -104,16 +106,21 @@
 - [x] Columns stop at earliest implemented adverse limit; post-buckling/crushing is not simulated.
 - [x] Every visible event marker comes from a stored solver event.
 
-# 4 — Failure Physics Lab — NEXT ACTIVE
+# 4 — Failure Physics Lab — v1 COMPLETE / deeper mechanisms pending
 
 - [x] Elastic/serviceability/yield/rupture-reference event concepts.
 - [x] No decorative fake snapping, cracking or buckling.
-- [~] Steel first-yield path exists; global column instability screening exists.
+- [x] Event-linked interpretation panel follows the latest crossed stored solver event.
+- [x] Steel first yield is shown as yield onset, never fracture.
+- [x] Published timber ultimate bending is shown as a rupture reference plane, never an invented crack path.
+- [x] Global-column instability cue appears only after a stored governing/Euler instability event; pre-event column remains straight.
+- [x] Compression-reference cue does not invent crushing or splitting.
+- [x] Real Chromium gate verifies steel yield onset and low-load pre-instability column behavior.
 - [ ] Steel local buckling, LTB, net section, bearing/tear-out, weld/bolt failure.
-- [ ] Timber bending rupture, shear, fibre crushing, splitting, bearing, withdrawal/pull-through.
+- [ ] Timber bending rupture damage law, shear, fibre crushing, splitting, bearing, withdrawal/pull-through.
 - [ ] Bamboo splitting/crushing/bolt-bearing/confinement only after validation.
 - [ ] Event chronology extended to damage → stiffness degradation → local failure → redistribution → residual/collapse where evidence/model supports it.
-- [ ] Visual failure animation only when tied to validated stored events.
+- [ ] Damage/failure animation beyond supported threshold cues only when tied to validated stored events.
 
 # 5 — Connection & Splice Laboratory
 
@@ -172,7 +179,7 @@
 - [ ] Add availability confidence/evidence dimension without converting weak observations into engineering strength evidence.
 - [ ] Integrate design-capable Connection Lab capacities once implemented so a complete member+connection package can earn a higher status.
 
-# 8 — Physical-Test Calibration
+# 8 — Physical-Test Calibration — NEXT ACTIVE
 
 - [ ] CSV/raw UTM or field-test importer.
 - [ ] Predicted vs measured load-displacement/failure comparison.
@@ -238,3 +245,4 @@
 - 2026-08-18 — Assembly Lab v1 uses bounded composite action. “Nailed together” is not automatically full composite; connection slip/evidence governs η.
 - 2026-08-18 — Side-by-side equal-depth plies do not gain major-axis EI from composite action in ASSY-001; stacked-through-depth plies provide the meaningful bounded composite-action case.
 - 2026-08-18 — Design Explorer v2 separates a structurally feasible member from a complete structural solution. Stock/splice and connection dependencies are explicit, and missing price/carbon evidence remains unavailable rather than estimated.
+- 2026-08-18 — Failure Physics v1 visual state is driven only by crossed stored solver events. Steel Fy is yield onset, published timber ultimate is a reference rather than a predicted crack, and a column remains visually straight before an implemented instability threshold is crossed.
