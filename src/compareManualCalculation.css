@@ -6,6 +6,27 @@
     display: none !important;
   }
 
+  /* Page 3 carries the selected alternatives plus the engineering summary.
+     Keep all product/source text, but use a slightly tighter thumbnail card so
+     the exact C-purlin comparison stays inside one A4 landscape sheet. */
+  .ft-print-page[data-page="3"] .compare-selector-card {
+    padding: 2.2mm !important;
+  }
+
+  .ft-print-page[data-page="3"] .compare-selector-visual {
+    height: 16mm !important;
+    margin: 1mm 0 1.4mm !important;
+  }
+
+  .ft-print-page[data-page="3"] .compare-selector-visual svg {
+    height: 13.5mm !important;
+    max-height: 13.5mm !important;
+  }
+
+  .ft-print-page[data-page="3"] .compare-selector-card label {
+    gap: 0.5mm !important;
+  }
+
   .ft-manual-calc {
     font-size: 8.2pt !important;
     line-height: 1.24 !important;
