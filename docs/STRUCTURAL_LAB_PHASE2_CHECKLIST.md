@@ -26,16 +26,17 @@
 - [x] Real Chromium SIM-VIZ regression green on PR head before merge.
 - [x] Existing full Structural Lab/PDF gates remain green before merge.
 
-### 2B — PRINT-TYPE-001 FutolTech Typewriter Print Theme — NEXT
+### 2B — PRINT-TYPE-001 FutolTech Typewriter Print Theme — COMPLETE
 
-- [ ] Optional/default clean typewriter typography for engineering printouts.
-- [ ] Use an open-licensed embeddable typewriter family; do not distribute font files from tooling environments.
-- [ ] Target approximately 11 pt body text, with tables only reduced where necessary for pagination.
-- [ ] Preserve current clean FutolTech letterhead, whitespace, equations and tables.
-- [ ] Font only: no aged paper, notebook ruling, scribbles or decorative distressing in formal reports.
-- [ ] PDF pagination/blank-page Chromium regression required.
+- [x] Optional/default clean typewriter typography for engineering printouts.
+- [x] Use an open-licensed embeddable typewriter family when available, with local typewriter-safe fallbacks; do not distribute font files from tooling environments.
+- [x] Target approximately 11 pt body text, with tables only reduced where necessary for pagination.
+- [x] Preserve current clean FutolTech letterhead, whitespace, equations and tables.
+- [x] Font only: no aged paper, notebook ruling, scribbles or decorative distressing in formal reports.
+- [x] Real Chromium Typewriter ↔ Modern toggle regression passed.
+- [x] Nine-page FT-CS-01 PDF pagination/blank-page Chromium regression passed after typewriter-specific result-card compaction.
 
-### 2C — SKETCH-001 Engineering Pencil Illustration Theme
+### 2C — SKETCH-001 Engineering Pencil Illustration Theme — ACTIVE
 
 - [ ] Optional hand-drawn/pencil line style for specimen figures, sections, supports, arrows and FBDs.
 - [ ] Optional handwritten-style dimension labels while numeric equations/results stay clear and typed.

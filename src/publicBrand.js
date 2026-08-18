@@ -1,3 +1,5 @@
+import './printTypography.js';
+
 export const PUBLIC_PRODUCT_NAME = 'FutolTech Structural Lab';
 export const PUBLIC_PRODUCT_SUBTITLE = 'Virtual Materials, Members & Connection Testing';
 export const COMPANY_NAME = 'FUTOLTECH ENGINEERING AND PROJECT SYSTEMS';
