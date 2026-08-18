@@ -1,17 +1,6 @@
 import { presetsForFamily } from './data/sectionPresets.js';
 import { sectionSketchSvg } from './components/sectionSketch.js';
 
-function installOrientationPrintStyles() {
-  if (document.querySelector('link[data-c-purlin-orientation-print]')) return;
-  const link = document.createElement('link');
-  link.rel = 'stylesheet';
-  link.href = './src/cPurlinOrientationPrint.css?v=20260818-orient2';
-  link.dataset.cPurlinOrientationPrint = 'true';
-  document.head.append(link);
-}
-
-installOrientationPrintStyles();
-
 // Direct Compare's structural solver still needs only two gross bending-axis
 // states: listed (major axis) and rotated (minor axis). Installation direction,
 // however, has four distinct views. Keep those concerns separate: this module
@@ -43,19 +32,6 @@ function orientationLabel(degrees) {
   if (degrees === 90) return 'Orientation 90° · web horizontal · opening down · minor-axis screening';
   if (degrees === 180) return 'Orientation 180° · web vertical · opening left · major-axis screening';
   return 'Orientation 270° · web horizontal · opening up · minor-axis screening';
-}
-
-function orientationNote(degrees) {
-  if (degrees === 0) {
-    return 'Orientation 0° selected: web depth is vertical, opening right, and roof load is screened about the section major/strong gross axis.';
-  }
-  if (degrees === 90) {
-    return 'Orientation 90° selected: web is horizontal, opening down, and the same C-section is screened about its minor/weak gross axis.';
-  }
-  if (degrees === 180) {
-    return 'Orientation 180° selected: web is vertical with the opening left. Gross major-axis properties are equivalent to Orientation 0°, while installation direction remains explicit.';
-  }
-  return 'Orientation 270° selected: web is horizontal with the opening up. Gross minor-axis properties are equivalent to Orientation 90°, while installation direction remains explicit.';
 }
 
 function cPurlinPresetById(id) {
@@ -132,6 +108,7 @@ function ensureDisplayOrientationSelect(card, coreSelect, slotIndex) {
 
 function removeDisplayOrientationSelect(card, coreSelect) {
   card.querySelector('[data-c-purlin-orientation-display]')?.remove();
+  card.querySelector('[data-c-purlin-orientation-note]')?.remove();
   if (coreSelect) {
     coreSelect.hidden = false;
     delete coreSelect.dataset.cPurlinSolverOrientation;
@@ -152,13 +129,17 @@ function applySelectorControls() {
     if (!presetSelect || !coreSelect) continue;
 
     const index = Number(presetSelect.dataset.slotPreset);
-    const existingNote = card.querySelector('[data-c-purlin-orientation-note]');
     if (!isCPurlinPreset(presetSelect)) {
-      existingNote?.remove();
       removeDisplayOrientationSelect(card, coreSelect);
       card.querySelector('.compare-selector-visual')?.removeAttribute('data-orientation-figure-key');
       continue;
     }
+
+    // The four-way selector already communicates angle, web direction, opening
+    // direction and gross screening axis. Do not duplicate that information in
+    // a paragraph below the control; the detailed explanation belongs in the
+    // manual-calculation trace on Page 7.
+    card.querySelector('[data-c-purlin-orientation-note]')?.remove();
 
     const degrees = orientationDegreesBySlot[index] ?? 0;
     ensureDisplayOrientationSelect(card, coreSelect, index);
@@ -168,12 +149,6 @@ function applySelectorControls() {
       degrees,
       card.querySelector('h3')?.textContent?.trim() || 'C-purlin'
     );
-
-    const note = existingNote ?? document.createElement('p');
-    note.dataset.cPurlinOrientationNote = 'true';
-    note.className = 'candidate-source';
-    setTextIfChanged(note, orientationNote(degrees));
-    if (!existingNote) coreSelect.closest('label')?.insertAdjacentElement('afterend', note);
   }
 }
 
