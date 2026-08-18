@@ -22,6 +22,28 @@ function selectedText(select) {
   return select.selectedOptions?.[0]?.textContent?.trim() || select.value || '—';
 }
 
+function ensureSelectorPrintCompaction() {
+  if (document.getElementById('ft-selector-print-compaction')) return;
+  const style = document.createElement('style');
+  style.id = 'ft-selector-print-compaction';
+  style.textContent = `
+    @media print {
+      .ft-print-document .compare-selector-card {
+        padding: 2.4mm !important;
+      }
+      .ft-print-document .compare-selector-visual {
+        height: 15.5mm !important;
+        margin: 1.1mm 0 1.5mm !important;
+      }
+      .ft-print-document .compare-selector-visual svg {
+        height: 13.5mm !important;
+        max-height: 13.5mm !important;
+      }
+    }
+  `;
+  document.head.appendChild(style);
+}
+
 function cloneForPrint(source) {
   if (!source) return null;
   const clone = source.cloneNode(true);
@@ -168,6 +190,7 @@ function finalNote(title, text) {
 }
 
 function buildPrintDocument() {
+  ensureSelectorPrintCompaction();
   document.querySelector('.ft-print-document')?.remove();
 
   const output = document.createElement('div');
