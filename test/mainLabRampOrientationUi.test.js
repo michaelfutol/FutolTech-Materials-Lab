@@ -7,9 +7,10 @@ const rampUi = await readFile(new URL('../src/mainLabFailureRamp.js', import.met
 const orientationUi = await readFile(new URL('../src/mainLabOrientationUi.js', import.meta.url), 'utf8');
 const angleUi = await readFile(new URL('../src/mainLabAngleUi.js', import.meta.url), 'utf8');
 
-test('main Materials Lab loads the one-touch automatic ramp, angle geometry, and four-way orientation modules', () => {
-  assert.match(indexHtml, /Build 2026-08-18\.SL1/);
+test('main Materials Lab loads the one-touch automatic ramp, angle catalog geometry, and four-way orientation modules', () => {
+  assert.match(indexHtml, /Build 2026-08-18\.SL2/);
   assert.match(indexHtml, /option value="angle">Angle bar \/ L-section/);
+  assert.match(indexHtml, /app\.js\?v=20260818-angle2/);
   assert.match(indexHtml, /mainLabOrientationUi\.js\?v=20260818-angle1/);
   assert.match(indexHtml, /mainLabFailureRamp\.js\?v=20260817-ramp1/);
   assert.match(indexHtml, /Rotate \+90°/);
