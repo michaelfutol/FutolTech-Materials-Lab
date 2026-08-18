@@ -1,7 +1,8 @@
 import { PH_BAMBOO_CULM_PRESETS } from './phBambooMaterials.js';
-import { PH_PIPE_SECTIONS } from './phSteelCatalog.js?v=20260801-1545';
+import { PH_PIPE_SECTIONS, PH_STEEL_SOURCES } from './phSteelCatalog.js?v=20260818-angle2';
 import { PH_JIS_H_SECTIONS } from './phRolledSteelCatalog.js';
 import { PH_C_PURLIN_SECTIONS } from './phCPurlinCatalog.js';
+import { PH_ANGLE_SECTIONS } from './phAngleCatalog.js';
 
 const woodPreset = (id, label, widthMm, depthMm) => ({
   id, label, type: 'rectangle', productCategory: 'sawn-wood', productLabel: 'Sawn wood', widthMm, depthMm
@@ -37,15 +38,19 @@ export const SECTION_PRESETS = {
     tubePreset('shs-50-15', 'SHS 50×50×1.5 mm', 50, 50, 1.5),
     tubePreset('shs-50-20', 'SHS 50×50×2.0 mm', 50, 50, 2),
     {
-      ...tubePreset('shs-100-20-user-observed', 'SHS 100×100×2.0 mm · user-observed PH market', 100, 100, 2),
-      marketStatus: 'User-observed physical SHS size on 2026-08-18; supplier/brand and nominal-versus-measured wall thickness are not yet recorded.',
-      analysisStatus: 'Active gross-section geometry preset. Solver uses idealized 100×100×2.0 mm SHS geometry; verify delivered dimensions, corner radii, steel grade and mill certificate before design use.',
-      evidenceStatus: 'user-observed',
+      ...tubePreset('shs-100-20-user-observed', 'SHS 100×100×2.0 mm · Regan 2026 handbook', 100, 100, 2),
+      publishedMassKgM: 6.483,
+      maxLengthM: 6,
+      sourceId: PH_STEEL_SOURCES.reganSquareTube2026.id,
+      marketStatus: 'Exact 100×100×2.0 mm square-tube size is confirmed in the current Regan product family/2026 handbook; the user independently observed this size in the Philippine market on 2026-08-18.',
+      analysisStatus: 'Active gross-section geometry preset. Solver uses idealized 100×100×2.0 mm SHS geometry and the catalog mass only for mass comparison; verify actual delivered thickness, corner radii, steel grade and mill certificate before design use.',
+      evidenceStatus: 'official-supplier-handbook + user-observed',
       observationDate: '2026-08-18'
     },
     tubePreset('rhs-75-50-15', 'RHS 75×50×1.5 mm', 50, 75, 1.5),
     tubePreset('rhs-75-50-20', 'RHS 75×50×2.0 mm', 50, 75, 2),
     tubePreset('rhs-100-50-20', 'RHS 100×50×2.0 mm', 50, 100, 2),
+    ...PH_ANGLE_SECTIONS,
     ...PH_PIPE_SECTIONS,
     ...PH_JIS_H_SECTIONS,
     ...PH_C_PURLIN_SECTIONS,

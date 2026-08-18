@@ -6,6 +6,7 @@ const compareHtml = await readFile(new URL('../compare.html', import.meta.url), 
 const compareCss = await readFile(new URL('../src/compare.css', import.meta.url), 'utf8');
 const compareApp = await readFile(new URL('../src/compareApp.js', import.meta.url), 'utf8');
 const cPurlinOrientationUi = await readFile(new URL('../src/cPurlinOrientationUi.js', import.meta.url), 'utf8');
+const angleCompareUi = await readFile(new URL('../src/angleCompareUi.js', import.meta.url), 'utf8');
 const tooltipApp = await readFile(new URL('../src/components/tooltips.js', import.meta.url), 'utf8');
 
 test('direct comparison page exposes bending, compression and intermediate bracing controls', () => {
@@ -40,15 +41,12 @@ test('direct comparison exposes the engineering print build', () => {
   assert.match(compareHtml, /printReport\.js\?v=20260807-oldschool1/);
   assert.match(compareHtml, /printLetterhead\.css\?v=20260807-letterhead1/);
   assert.match(compareHtml, /printCompanyIdentity\.js\?v=20260818-manual1/);
-  assert.match(compareHtml, /Build 2026-08-18\.SL1/);
+  assert.match(compareHtml, /Build 2026-08-18\.SL2/);
   assert.match(compareHtml, /Structural Member Comparison/);
 });
 
 test('direct comparison uses a separate four-way C-purlin UI bridged to the binary solver axis', () => {
   assert.match(compareHtml, /cPurlinOrientationUi\.js\?v=20260818-orient2/);
-  assert.match(compareHtml, /Orientation 0° \/ 90° \/ 180° \/ 270°/);
-  assert.match(compareHtml, /0° and 180° use the same gross major-axis screening properties/);
-  assert.match(compareHtml, /90° and 270° use the same gross minor-axis screening properties/);
   assert.doesNotMatch(compareHtml, /PATAOB|PATAYO/i);
 
   for (const degrees of [0, 90, 180, 270]) {
@@ -75,4 +73,13 @@ test('C-purlin enhancement observer is idempotent and batched to prevent a DOM f
   assert.match(cPurlinOrientationUi, /new MutationObserver\(scheduleEnhancements\)/);
   assert.match(cPurlinOrientationUi, /queueMicrotask/);
   assert.doesNotMatch(cPurlinOrientationUi, /new MutationObserver\(applyEnhancements\)/);
+});
+
+test('Direct Compare exposes angle presets only as gross leg-axis screening', () => {
+  assert.match(compareHtml, /angleCompareUi\.js\?v=20260818-angle2/);
+  assert.match(compareHtml, /angle bars remain gross leg-axis SCREENING/);
+  assert.match(angleCompareUi, /Orientation 0° · gross leg-axis screening/);
+  assert.match(angleCompareUi, /Orientation 90° · swapped gross leg-axis screening/);
+  assert.match(angleCompareUi, /SCREENING/);
+  assert.match(angleCompareUi, /principal-axis unsymmetric bending/);
 });

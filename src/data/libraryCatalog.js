@@ -1,11 +1,12 @@
 import { MATERIALS } from './materials.js';
 import { PH_BAMBOO_MATERIALS } from './phBambooMaterials.js';
 import { PH_TRADITIONAL_TIMBER_LIBRARY } from './phTraditionalTimberLibrary.js';
-import { PH_STEEL_SOURCES } from './phSteelCatalog.js?v=20260801-1545';
+import { PH_STEEL_SOURCES } from './phSteelCatalog.js?v=20260818-angle2';
 import { PH_ROLLED_STEEL_SOURCES } from './phRolledSteelCatalog.js';
 import { PH_C_PURLIN_SOURCES } from './phCPurlinCatalog.js';
+import { PH_ANGLE_SOURCES } from './phAngleCatalog.js';
 import { PH_LIGHT_STEEL_FRAME_MARKET_RECORDS, PH_LIGHT_STEEL_FRAME_SOURCES } from './phLightSteelFrameCatalog.js';
-import { SECTION_PRESETS } from './sectionPresets.js?v=20260801-1545';
+import { SECTION_PRESETS } from './sectionPresets.js?v=20260818-angle2';
 import { calculateSectionProperties } from '../solver/sections.js';
 import { sectionCategory, sectionCategoryLabel, sectionShapeKind } from './sectionTaxonomy.js?v=20260801-1545';
 
@@ -13,6 +14,7 @@ const SOURCE_LOOKUP = new Map([
   ...Object.values(PH_STEEL_SOURCES).map((source) => [source.id, source]),
   ...Object.values(PH_ROLLED_STEEL_SOURCES).map((source) => [source.id, source]),
   ...Object.values(PH_C_PURLIN_SOURCES).map((source) => [source.id, source]),
+  ...Object.values(PH_ANGLE_SOURCES).map((source) => [source.id, source]),
   ...Object.values(PH_LIGHT_STEEL_FRAME_SOURCES).map((source) => [source.id, source]),
   ['salzer-bioresources-2018', {
     id: 'salzer-bioresources-2018',

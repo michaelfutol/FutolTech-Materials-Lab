@@ -16,9 +16,14 @@ function supportsForBoundary(boundary) {
 }
 
 function rotatedSection(preset) {
-  if (preset.type === 'rhs' || preset.type === 'rectangle') {
-    if (preset.widthMm === preset.depthMm) return null;
-    return { ...preset, widthMm: preset.depthMm, depthMm: preset.widthMm };
+  if (preset.type === 'rhs' || preset.type === 'rectangle' || preset.type === 'angle') {
+    if (preset.widthMm === preset.depthMm && preset.type !== 'angle') return null;
+    return {
+      ...preset,
+      widthMm: preset.depthMm,
+      depthMm: preset.widthMm,
+      displayRotationDeg: ((preset.displayRotationDeg ?? 0) + 90) % 360
+    };
   }
   if (preset.type === 'custom') {
     if (preset.widthMm === preset.depthMm && preset.ixMm4 === preset.iyMm4) return null;
@@ -134,7 +139,7 @@ export function evaluateMemberCandidate({
   const pass = stockPass && strengthPass && deflectionPass;
   const governingRatio = Math.max(strengthRatio ?? Infinity, deflectionRatio);
   const productCategory = sectionCategory(preset, material.family);
-  const screeningOnly = productCategory === 'c-purlin';
+  const screeningOnly = productCategory === 'c-purlin' || productCategory === 'angle-bar';
 
   const reasons = [];
   if (!stockPass && stockBoundaryM != null) reasons.push(`splice required above ${stockBoundaryM.toFixed(2)} m stock boundary`);
@@ -142,9 +147,11 @@ export function evaluateMemberCandidate({
   if (!mass.massVerified) reasons.push('mass ranking unavailable until density is verified');
   if (!strengthPass) reasons.push(`${strengthReferenceLabel} exceeded`);
   if (!deflectionPass) reasons.push(`L/${deflectionDivisor} exceeded`);
-  if (screeningOnly) reasons.push('C-purlin is gross-section elastic screening only: local/distortional/lateral-torsional buckling, effective width, connection restraint and roof diaphragm action are not checked');
+  if (productCategory === 'c-purlin') reasons.push('C-purlin is gross-section elastic screening only: local/distortional/lateral-torsional buckling, effective width, connection restraint and roof diaphragm action are not checked');
+  if (productCategory === 'angle-bar') reasons.push('Angle bar is gross leg-axis elastic screening only: rolled radii, principal-axis unsymmetric bending, shear-centre/torsion, local instability and lateral-torsional/flexural-torsional buckling are not checked');
   if (pass && !screeningOnly) reasons.push('passes selected elastic checks');
-  if (pass && screeningOnly) reasons.push('below the selected gross-section elastic limits; this is not a cold-formed design pass');
+  if (pass && productCategory === 'c-purlin') reasons.push('below the selected gross-section elastic limits; this is not a cold-formed design pass');
+  if (pass && productCategory === 'angle-bar') reasons.push('below the selected gross leg-axis elastic limits; this is not a complete angle-member design pass');
 
   return {
     materialId: material.id,
@@ -210,9 +217,9 @@ export function recommendMemberSections({
   for (const material of materials) {
     if (familyFilter !== 'all' && material.family !== familyFilter) continue;
     for (const basePreset of presetsByFamily[material.family] ?? []) {
-      // C-purlins remain manual orientation-screening candidates until the cold-formed
-      // local/distortional/LTB and connection-restraint design layer is implemented.
-      if (basePreset.productCategory === 'c-purlin') continue;
+      // Open/cold-formed and unsymmetric angle sections remain manual screening
+      // candidates until their governing instability/torsion design layers exist.
+      if (basePreset.productCategory === 'c-purlin' || basePreset.productCategory === 'angle-bar') continue;
       for (const variant of sectionVariants(basePreset)) {
         const evaluated = evaluateMemberCandidate({
           material,

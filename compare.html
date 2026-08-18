@@ -15,14 +15,14 @@
       <div>
         <p class="eyebrow">TOOLS · FutolTech Structural Lab · CMP-003</p>
         <h1>Structural Member Comparison</h1>
-        <p class="subtitle">Compare GI pipe, hollow steel, Philippine C-purlins, coco lumber, bamboo, common Philippine hardwoods, or rolled steel under the same bending or compression test.</p>
+        <p class="subtitle">Compare GI pipe, hollow steel, angle bars, Philippine C-purlins, coco lumber, bamboo, common Philippine hardwoods, or rolled steel under the same bending or compression test.</p>
       </div>
       <div class="status-cluster">
         <a class="status-pill status-link" href="./index.html">← Materials Lab</a>
         <a class="status-pill status-link" href="./recommend.html">Load Recommender</a>
         <a class="status-pill status-link" href="./library.html">Section Library</a>
         <span class="status-pill">Bending + compression · active</span>
-        <span class="status-pill">Build 2026-08-18.SL1</span>
+        <span class="status-pill">Build 2026-08-18.SL2</span>
       </div>
     </header>
 
@@ -74,7 +74,7 @@
         </div>
         <section class="recommend-note">
           <h3>Comparison boundary</h3>
-          <p id="compareBoundaryNote">This is an elastic member comparison. For C-purlins, Direct Compare exposes Orientation 0° / 90° / 180° / 270° with a coordinated section figure. Orientations 0° and 180° use the same gross major-axis screening properties; 90° and 270° use the same gross minor-axis screening properties, while the drawing preserves the actual installation/opening direction. C-purlin results are not cold-formed design capacities: effective width, local/distortional/lateral-torsional buckling, connection restraint, roof-sheet bracing/diaphragm action, wind uplift and load combinations still require the governing design method and project details.</p>
+          <p id="compareBoundaryNote">This is an elastic member comparison. C-purlins remain gross-section cold-formed SCREENING and angle bars remain gross leg-axis SCREENING. For angle bars the current model omits rolled root/toe radii, principal-axis unsymmetric bending, shear-centre/torsion, local instability and lateral-/flexural-torsional buckling; angle-column compression is intentionally unavailable until those stability checks exist. A SCREENING result is not a complete design pass.</p>
         </section>
       </section>
     </main>
@@ -84,6 +84,7 @@
     <script type="module" src="./src/components/tooltips.js?v=20260806-1"></script>
     <script type="module" src="./src/compareApp.js?v=20260806-1"></script>
     <script type="module" src="./src/cPurlinOrientationUi.js?v=20260818-orient2"></script>
+    <script type="module" src="./src/angleCompareUi.js?v=20260818-angle2"></script>
     <script type="module" src="./src/comparisonLimitPositiveLoadGuard.js?v=20260818-1"></script>
     <script type="module" src="./src/printReport.js?v=20260807-oldschool1"></script>
     <script type="module" src="./src/printCompanyIdentity.js?v=20260818-manual1"></script>
