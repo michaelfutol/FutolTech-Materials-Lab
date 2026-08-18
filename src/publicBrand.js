@@ -98,7 +98,7 @@ observer.observe(document.documentElement, { childList: true, subtree: true });
 
 function loadComparisonPlayback() {
   if (document.querySelector('[data-comparison-playback]')) return;
-  import('./comparisonPlaybackUi.js');
+  import('./comparisonPlaybackLoader.js');
 }
 
 if (location.pathname.endsWith('/compare.html') || location.pathname.endsWith('compare.html')) {
