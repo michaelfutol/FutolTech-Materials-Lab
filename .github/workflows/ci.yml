@@ -12,8 +12,31 @@ jobs:
   verify:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Node 22
+        uses: actions/setup-node@v4
         with:
           node-version: 22
-      - run: npm run verify
+      - name: Syntax checks
+        run: npm run check
+      - name: Deterministic engineering tests
+        run: npm test
+      - name: C-purlin Chromium gate
+        run: node scripts/verifyCPurlinOrientationUi.mjs
+      - name: Connection Lab Chromium gate
+        run: node scripts/verifyConnectionLabUi.mjs
+      - name: Governing-limit Chromium gate
+        run: node scripts/verifyGoverningLimitTimelineUi.mjs
+      - name: Failure Physics Chromium gate
+        run: node scripts/verifyFailurePhysicsUi.mjs
+      - name: Assembly Lab Chromium gate
+        run: node scripts/verifyAssemblyLabUi.mjs
+      - name: Design Explorer Chromium gate
+        run: node scripts/verifyDesignExplorerUi.mjs
+      - name: Calibration Lab Chromium gate
+        run: node scripts/verifyCalibrationLabUi.mjs
+      - name: Frame Analyzer Chromium gate
+        run: node scripts/verifyFrameAnalyzerUi.mjs
+      - name: Comparison PDF gate
+        run: node scripts/verifyComparisonPdf.mjs
