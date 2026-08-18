@@ -36,15 +36,18 @@
 - [x] Real Chromium Typewriter ↔ Modern toggle regression passed.
 - [x] Nine-page FT-CS-01 PDF pagination/blank-page Chromium regression passed after typewriter-specific result-card compaction.
 
-### 2C — SKETCH-001 Engineering Pencil Illustration Theme — ACTIVE
+### 2C — SKETCH-001 Engineering Pencil Illustration Theme — COMPLETE
 
-- [ ] Optional hand-drawn/pencil line style for specimen figures, sections, supports, arrows and FBDs.
-- [ ] Optional handwritten-style dimension labels while numeric equations/results stay clear and typed.
-- [ ] Geometry/dimensions must be generated from the same section/member state used by the solver.
-- [ ] Standard Engineering linework remains available for formal submission.
-- [ ] Pencil style must never distort dimensions or hide orientation.
+- [x] Optional hand-drawn/pencil line style for specimen figures, sections, supports, arrows and generated report SVGs.
+- [x] Figure text uses an optional handwritten-style system-font stack while numeric equations/results outside figures stay under the formal print typography.
+- [x] Geometry/dimensions remain generated from the same section/member state used by the solver.
+- [x] Standard Engineering linework remains the default and is available through the same toggle.
+- [x] Pencil styling uses a visual SVG filter only; it never rewrites path `d`, points, load coordinates or section orientation transforms.
+- [x] Real Chromium Engineering → Pencil → Engineering regression proves the specimen path coordinates remain identical.
+- [x] Animated-load performance is protected by restyling only the affected SVG instead of rescanning every figure on each DOM update.
+- [x] Existing full Structural Lab and comparison PDF gates remain green.
 
-### 2D — SIM-VIZ-002 Side-by-Side Comparison Playback
+### 2D — SIM-VIZ-002 Side-by-Side Comparison Playback — ACTIVE
 
 - [ ] Synchronize Member A/B/C under the exact same load-time history.
 - [ ] Show live P, M/P, stress, deflection/utilization and governing event for each member.
