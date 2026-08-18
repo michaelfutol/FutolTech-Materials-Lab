@@ -89,6 +89,12 @@ function applyAllFigures(style) {
   document.querySelectorAll('svg').forEach((svg) => applyStyleToSvg(svg, style));
 }
 
+function svgForMutationTarget(target) {
+  if (!(target instanceof Element)) return null;
+  if (target instanceof SVGSVGElement) return target;
+  return target.closest('svg');
+}
+
 export function applyFigureStyle(style = ENGINEERING) {
   const next = normalizeStyle(style);
   document.body.dataset.figureStyle = next;
@@ -176,13 +182,30 @@ function mountFigureStyle() {
   }
   applyFigureStyle(savedStyle());
 
+  const pendingSvgs = new Set();
   let queued = false;
-  const observer = new MutationObserver(() => {
-    if (queued) return;
+  const observer = new MutationObserver((records) => {
+    records.forEach((record) => {
+      const targetSvg = svgForMutationTarget(record.target);
+      if (targetSvg && isEngineeringFigure(targetSvg)) pendingSvgs.add(targetSvg);
+      record.addedNodes.forEach((node) => {
+        if (!(node instanceof Element)) return;
+        if (node instanceof SVGSVGElement && isEngineeringFigure(node)) pendingSvgs.add(node);
+        node.querySelectorAll?.('svg').forEach((svg) => {
+          if (isEngineeringFigure(svg)) pendingSvgs.add(svg);
+        });
+      });
+    });
+    if (queued || pendingSvgs.size === 0) return;
     queued = true;
     queueMicrotask(() => {
       queued = false;
-      applyAllFigures(document.body.dataset.figureStyle || ENGINEERING);
+      const style = document.body.dataset.figureStyle || ENGINEERING;
+      const batch = [...pendingSvgs];
+      pendingSvgs.clear();
+      batch.forEach((svg) => {
+        if (svg.isConnected) applyStyleToSvg(svg, style);
+      });
     });
   });
   observer.observe(document.body, { childList: true, subtree: true });
