@@ -30,6 +30,8 @@ jobs:
         run: node scripts/verifyGoverningLimitTimelineUi.mjs
       - name: Failure Physics Chromium gate
         run: node scripts/verifyFailurePhysicsUi.mjs
+      - name: Specimen Simulation Chromium gate
+        run: node scripts/verifySimulationPlaybackUi.mjs
       - name: Assembly Lab Chromium gate
         run: node scripts/verifyAssemblyLabUi.mjs
       - name: Design Explorer Chromium gate
