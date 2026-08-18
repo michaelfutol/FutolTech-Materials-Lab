@@ -105,8 +105,12 @@ try {
   }
   if (!ready) throw new Error('Failure Physics panel did not become ready.');
 
-  const initial = await evaluate(cdp, `({state:document.querySelector('[data-fp-state]').textContent, boundary:document.querySelector('[data-fp-boundary]').textContent})`);
-  if (initial.state !== 'ELASTIC RESPONSE') throw new Error(`Expected initial elastic state, got ${initial.state}`);
+  // The default benchmark may already cross serviceability. Establish a deliberately
+  // small positive load before asserting the pre-event elastic state.
+  await evaluate(cdp, `(() => { const load=document.querySelector('#loadInput'); load.value='0.01'; load.dispatchEvent(new Event('input',{bubbles:true})); })()`);
+  await sleep(350);
+  const initial = await evaluate(cdp, `({state:document.querySelector('[data-fp-state]').textContent, boundary:document.querySelector('[data-fp-boundary]').textContent, crossed:document.querySelectorAll('.failure-ramp-event.is-crossed').length})`);
+  if (initial.state !== 'ELASTIC RESPONSE' || initial.crossed !== 0) throw new Error(`Expected explicit low-load elastic state, got ${JSON.stringify(initial)}`);
   if (!/only visualizes events already produced/i.test(initial.boundary)) throw new Error('Initial evidence boundary is missing.');
 
   await evaluate(cdp, `(() => { const material=document.querySelector('#materialSelect'); material.value='steel-generic-250'; material.dispatchEvent(new Event('change',{bubbles:true})); const load=document.querySelector('#loadInput'); load.value='0.1'; load.dispatchEvent(new Event('input',{bubbles:true})); })()`);
