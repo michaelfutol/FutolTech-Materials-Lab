@@ -3,79 +3,81 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="FutolTech Structural Lab load-driven material and section recommender." />
-    <title>Load-Driven Recommender · FutolTech Structural Lab</title>
+    <meta name="description" content="FutolTech Structural Lab Design Explorer: reverse-query member, stock/splice and connection-completeness alternatives under required structural performance." />
+    <title>Design Explorer · FutolTech Structural Lab</title>
     <link rel="stylesheet" href="./src/styles.css" />
-    <link rel="stylesheet" href="./src/recommend.css?v=20260802-1" />
-      <link rel="stylesheet" href="./src/printReport.css?v=20260806-brand1" />
+    <link rel="stylesheet" href="./src/recommend.css?v=20260818-de2" />
+    <link rel="stylesheet" href="./src/printReport.css?v=20260806-brand1" />
   </head>
   <body>
     <header class="topbar">
       <div>
-        <p class="eyebrow">TOOLS · FutolTech Structural Lab · OPT-001 / QUBO-001</p>
-        <h1>Load-Driven Member Recommender</h1>
-        <p class="subtitle">Start from the required load and rank coco, common Philippine hardwoods, round bamboo, GI pipes, hollow sections, and rolled steel.</p>
+        <p class="eyebrow">TOOLS · FutolTech Structural Lab · DE-002 / QUBO-001</p>
+        <h1>Design Explorer</h1>
+        <p class="subtitle">Start from required span and load, then compare member response, stock/splice burden, connection completeness and Pareto-efficient alternatives.</p>
       </div>
       <div class="status-cluster">
         <a class="status-pill status-link" href="./index.html">← Materials Lab</a>
         <a class="status-pill status-link" href="./library.html">Section & Materials Library</a>
-        <a class="status-pill status-link" href="./yield.html">Steel Yield</a>
         <a class="status-pill status-link" href="./splice.html">Stock & Splice</a>
-        <span class="status-pill">Classical optimizer · active</span>
+        <a class="status-pill status-link" href="./connections.html">Connection Lab</a>
+        <span class="status-pill">Classical explorer · active</span>
         <span class="status-pill">Local QUBO · experimental</span>
-        <span class="status-pill">Build 2026-08-18.SL1</span>
+        <span class="status-pill">Build 2026-08-18.DE2</span>
       </div>
     </header>
 
     <main class="app-shell recommend-shell">
-      <section class="panel controls-panel" aria-label="Load-driven recommendation inputs">
+      <section class="panel controls-panel" aria-label="Design Explorer inputs">
         <div class="panel-heading">
-          <div><p class="eyebrow">Required performance</p><h2>Design target</h2></div>
+          <div><p class="eyebrow">Reverse design query</p><h2>Required structural performance</h2></div>
           <button id="recommendResetButton" class="button" type="button">Reset 1,000 kgf case</button>
         </div>
 
         <div class="control-grid">
           <label><span>Material family</span><select id="recommendFamilySelect"><option value="all">Wood + bamboo + steel</option><option value="wood">Coco / common Philippine hardwoods</option><option value="bamboo">Round bamboo only</option><option value="steel">Steel only</option></select></label>
-          <label><span>Ranking objective</span><select id="recommendObjectiveSelect"><option value="mass">Lowest member mass</option><option value="utilisation">Lowest governing utilisation</option></select><small>Lowest mass is not yet lowest peso cost. Common hardwoods without verified density are excluded from mass ranking.</small></label>
-          <label><span>Optimization engine</span><select id="recommendEngineSelect"><option value="classical">Classical exhaustive ranking</option><option value="qubo">Local exact QUBO demonstration</option></select><small>QUBO uses a limited binary candidate window, then the deterministic structural solver verifies the selected member.</small></label>
-          <label><span>Member length, m</span><input id="recommendLengthInput" type="number" min="0.6" max="12" step="0.1" value="3" /></label>
+          <label><span>Primary ranking objective</span><select id="recommendObjectiveSelect"><option value="mass">Lowest member mass</option><option value="utilisation">Lowest governing utilisation</option></select><small>Pareto view separately considers purchased mass, utilisation, splice count and stock waste when all are known.</small></label>
+          <label><span>Optimization engine</span><select id="recommendEngineSelect"><option value="classical">Classical exhaustive ranking</option><option value="qubo">Local exact QUBO demonstration</option></select><small>QUBO searches a limited binary window, then deterministic structural physics verifies the selected member.</small></label>
+          <label><span>Required member length / span, m</span><input id="recommendLengthInput" type="number" min="0.6" max="12" step="0.1" value="3" /></label>
           <label><span>Boundary case</span><select id="recommendBoundarySelect"><option value="simply-supported">Pin + roller</option><option value="cantilever-left">Fixed left + free right</option><option value="cantilever-right">Free left + fixed right</option></select></label>
           <label><span>Required point-load value</span><input id="recommendLoadInput" type="number" min="0.01" step="0.1" value="1000" /></label>
-          <label><span>Load input unit</span><select id="recommendLoadUnitSelect"><option value="kgf">kgf — familiar kilogram-force</option><option value="kN">kN — engineering force</option><option value="tf">tonne-force</option></select><small>Use kgf when you naturally think in kilograms. The solver converts it to kN internally.</small></label>
+          <label><span>Load input unit</span><select id="recommendLoadUnitSelect"><option value="kgf">kgf — familiar kilogram-force</option><option value="kN">kN — engineering force</option><option value="tf">tonne-force</option></select></label>
           <label><span>Point-load position, m from left</span><input id="recommendLoadPositionInput" type="number" min="0" max="3" step="0.05" value="1.5" /></label>
           <label><span>Deflection criterion</span><select id="recommendDeflectionSelect"><option value="360">L/360</option><option value="240">L/240</option><option value="180">L/180</option></select></label>
         </div>
 
         <div class="support-help">
-          <strong>What “sufficient” means here</strong>
-          <p>Coco uses its published proposed allowable reference. Yakal, Guijo, Molave/Tugas, Narra, Apitong, Red Lauan, White Lauan, Tanguile, and big-leaf Mahogany use provisional historical Philippine working-stress rows pending reconciliation against the project timber book. Kawayan-tinik uses its study permissible reference. Steel uses first yield plus deflection.</p>
-          <p>Because verified density is still missing for the common hardwoods, they can be compared by strength, deflection, and utilisation but are not eligible to win a lowest-mass ranking yet. Ipil remains library-only pending a defensible property package.</p>
+          <strong>Solution-package rule</strong>
+          <p>A strong member is not automatically a complete solution. If the required length exceeds verified stock length, Design Explorer creates a minimum stock-piece planning bound and marks the splice connection <b>REQUIRED / UNVERIFIED</b>. Connection Lab v1 research screening is not promoted into a design PASS.</p>
+          <p>Price and carbon are not ranked until verified supplier-price and product EPD/carbon data exist. Missing commercial data is shown as unavailable rather than estimated.</p>
         </div>
         <div id="recommendSourceNote" class="source-card"></div>
       </section>
 
-      <section class="panel workspace-panel" aria-label="Recommended member sections">
-        <div class="panel-heading"><div><p class="eyebrow">Auditable candidate search</p><h2>Ranked material and section options</h2></div></div>
+      <section class="panel workspace-panel" aria-label="Design Explorer solutions">
+        <div class="panel-heading"><div><p class="eyebrow">Auditable solution search</p><h2>Member + stock + connection completeness</h2></div></div>
         <div id="recommendErrorBanner" class="error-banner is-hidden" role="alert"></div>
         <section id="recommendSummary" class="recommend-summary" aria-live="polite"></section>
+        <section id="recommendExplorerSummary" class="source-card" aria-live="polite"></section>
         <section id="recommendQuboReport" class="source-card is-hidden" aria-live="polite"></section>
         <div class="recommend-table-wrap">
           <table class="recommend-table">
-            <thead><tr><th>Rank</th><th>Status</th><th>Material / product</th><th>Section / orientation</th><th>Deflection</th><th>Strength use</th><th>Physical threshold</th><th>Total mass</th></tr></thead>
+            <thead><tr><th>Rank</th><th>Solution status</th><th>Material / product</th><th>Section / orientation</th><th>Member response</th><th>Stock plan</th><th>Connection</th><th>Mass / Pareto</th></tr></thead>
             <tbody id="recommendTableBody"></tbody>
           </table>
         </div>
         <section class="recommend-note">
-          <h3>Optimizer boundary</h3>
-          <p>The glowing option is the minimum under the selected objective—not automatically the cheapest item in pesos. Local QUBO mode formulates a one-member binary selection problem with exactly-one and feasibility penalties, exhaustively solves its small binary window, and sends the chosen member back through deterministic structural checks.</p>
+          <h3>Design Explorer boundary</h3>
+          <p><b>MEMBER FEASIBLE</b> means the implemented member checks and verified stock-length boundary are satisfied without a splice; it is not a whole-detail structural PASS because end/support connections remain outside the package. <b>INCOMPLETE</b> means a member may work but a required stock/splice/connection dependency is unresolved. <b>SCREENING</b> is reserved for section families whose governing physics are not yet complete.</p>
+          <p>The Pareto marker means no other currently eligible alternative is simultaneously no worse in purchased mass, governing utilisation, splice count and stock waste while being strictly better in at least one. It is not a price or carbon optimum.</p>
         </section>
       </section>
     </main>
 
-    <footer><strong>Engineering notice:</strong> Recommendations are preliminary analytical comparisons. Verify exact species, visual grade, legal origin, dimensions, moisture, treatment, defects, connections, stability, loads, market availability, and governing codes before design use.</footer>
+    <footer><strong>Engineering notice:</strong> Design Explorer outputs are preliminary analytical solution packages. Verify exact species/grade, dimensions, stability, stock, splices, connections, supplier availability, prices, environmental data, loads and governing codes before design use.</footer>
     <script type="module" src="./src/publicBrand.js?v=20260818-sl1"></script>
-    <script type="module" src="./src/recommendApp.js?v=20260802-1"></script>
+    <script type="module" src="./src/recommendApp.js?v=20260818-de2"></script>
     <script type="module" src="./src/components/loadEquivalentDisplay.js?v=20260802-1"></script>
-      <script type="module" src="./src/printReport.js?v=20260806-brand1"></script>
+    <script type="module" src="./src/printReport.js?v=20260806-brand1"></script>
   </body>
 </html>
