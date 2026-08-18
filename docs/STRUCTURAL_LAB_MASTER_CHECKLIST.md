@@ -23,18 +23,20 @@
 - [x] Rename package identity to `futoltech-structural-lab` after the public naming migration.
 - [~] Keep the repository/Pages path `FutolTech-Materials-Lab` for URL continuity; administrative repository rename is intentionally deferred.
 
-## NOW — Catalog Expansion 01
+## NOW — Catalog Expansion 01/02
 
 ### Angle bars
 
-- [~] Add **Angle bar / L-section** as a first-class section geometry in the Materials Lab.
-- [~] Support equal and unequal legs using actual A × B × t dimensions.
-- [~] Calculate gross A, centroid, Ix, Iy, Zx, Zy and radii from an idealized sharp-corner L section.
-- [ ] Add root/toe-radius-aware rolled-angle properties when exact standard/catalog geometry is available.
-- [~] Add actual L-shape section illustration and 0° / 90° / 180° / 270° orientation figure.
-- [ ] Import exact PH market angle-size/thickness combinations and published mass/section properties from a verified handbook/catalog.
-- [ ] Make verified angle presets available in Direct Compare.
-- [ ] Add angle-specific compression/torsional-flexural buckling boundary before calling a complete angle-column design.
+- [x] Add **Angle bar / L-section** as a first-class section geometry in the Materials Lab.
+- [x] Support equal and unequal legs using actual A × B × t dimensions.
+- [x] Calculate gross A, centroid, Ix, Iy, Zx, Zy and radii from an idealized sharp-corner L section.
+- [ ] Add root/toe-radius-aware rolled-angle properties and Ixy/principal-axis properties when exact standard/catalog geometry is implemented.
+- [x] Add actual L-shape section illustration and 0° / 90° / 180° / 270° orientation figure in the main lab.
+- [x] Import a deliberately curated exact PH-market angle catalog from current Regan/PNS/JIS handbook rows with published kg/m and 6 m stock; ambiguous OCR rows are omitted rather than guessed.
+- [ ] Expand the angle catalog to every current handbook row after each remaining row is independently legibility-verified; this is catalog coverage maintenance, not permission to infer missing combinations.
+- [x] Make source-backed angle presets available in Direct Compare with gross leg-axis **SCREENING** status.
+- [x] Explicitly reject angle-column compression until principal-axis and flexural-torsional buckling are implemented.
+- [x] Keep angle bars out of the automatic Design Recommender until governing instability/torsion design physics exists.
 
 ### Metal studs
 
@@ -62,7 +64,7 @@
 - [x] Direct Compare for 2–3 members under common conditions.
 - [x] Philippine GI pipe catalog.
 - [x] SHS / RHS geometry.
-- [x] User-observed PH SHS 100×100×2.0 mm preset with explicit availability/grade verification boundary.
+- [x] PH SHS 100×100×2.0 mm upgraded from user-observed availability to current Regan supplier/handbook-confirmed size with 6.483 kg/m catalog mass; delivered grade/thickness certificate still required.
 - [x] JIS H-section starter catalog.
 - [x] Philippine C-purlin catalog and gross-property screening.
 - [x] Four-way C-purlin installation orientation in main lab and Direct Compare.
@@ -224,7 +226,7 @@ A checklist item is not “done” merely because it appears in a dropdown.
 # Immediate execution order after Catalog Expansion 01
 
 1. [x] Public rebrand to **FutolTech Structural Lab** across screen, print and docs without breaking URLs.
-2. [ ] Complete PH angle catalog import with exact verified section table.
+2. [x] Complete the source-backed PH angle starter catalog with exact handbook size/thickness/mass rows, Direct Compare screening, and explicit stability boundaries. Remaining handbook-row expansion is catalog maintenance and must not use inferred combinations.
 3. [ ] Connection Lab v1: nailed/bolted timber and simple steel plates/straps.
 4. [ ] Run-to-Governing-Limit event timeline.
 5. [ ] Assembly Lab v1: built-up coco/timber members with explicit fastener slip/composite action.
@@ -241,3 +243,5 @@ A checklist item is not “done” merely because it appears in a dropdown.
 - 2026-08-18 — Angle bars are allowed into the solver from actual A×B×t geometry with an explicitly idealized sharp-corner gross-property model.
 - 2026-08-18 — Metal studs and double furring enter the library immediately, but independent section capacity remains blocked until complete folded geometry/design basis is verified. Missing folds are never invented.
 - 2026-08-18 — Public product identity migrated to **FutolTech Structural Lab** with the Structural Lab package name; repository/Pages URL retained as `FutolTech-Materials-Lab` for continuity.
+- 2026-08-18 — Current Regan supplier data independently confirms the user's observed 100×100×2.0 mm SHS size; the catalog mass is recorded while delivered grade/thickness certification remains project-specific.
+- 2026-08-18 — Angle catalog policy: import only exact leg/thickness rows whose current handbook transcription is legible and cross-checkable; never create a Cartesian combination from supplier range statements. Angle bending remains SCREENING and angle compression remains blocked pending principal-axis/flexural-torsional physics.
