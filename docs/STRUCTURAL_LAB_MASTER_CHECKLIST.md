@@ -27,8 +27,8 @@
 2. [x] **PH catalog expansion 01/02** — angle bars, studs/furring records, SHS 100×100×2, existing C-purlins/pipes/H/RHS/SHS.
 3. [x] **Connection Lab v1** — nail/bolt/steel-side-plate research screening with manual trace and real Chromium QA.
 4. [x] **Run to Governing Limit v1** — stored event chronology + PAUSE / STEP / STOP; no fake fracture/post-buckling animation.
-5. [ ] **Assembly Lab v1 — NEXT ACTIVE** — built-up coco/timber members with explicit degree of composite action and connection-slip boundary.
-6. [ ] **Design Explorer v2** — member + stock/splice + connection-aware alternatives.
+5. [x] **Assembly Lab v1** — 2–3 ply coco/timber bounded composite-action screening with explicit η, manual trace and real Chromium QA.
+6. [ ] **Design Explorer v2 — NEXT ACTIVE** — member + stock/splice + connection-aware alternatives.
 7. [ ] **Failure Physics v1** — verified steel/timber governing failure modes and event-linked visuals.
 8. [ ] **Physical-Test Calibration v1** — CSV/raw-test import, predicted-vs-measured, bias/scatter.
 9. [ ] **Frame Analyzer / NF-001** — 2D connected frame with spring connections and redistribution.
@@ -54,6 +54,7 @@
 - [x] Load Recommender / optimization foundation; incomplete open/unsymmetric sections are excluded from automatic promotion.
 - [x] FT-CS-01 branded Direct Compare report with manual section-property and bending-response trace.
 - [x] Chromium PDF gate: logical report pages = physical pages; no blank/overflow sheets.
+- [x] Assembly Lab ASSY-001 bounded elastic composite-action model with independent/full-composite stiffness bounds and explicit η evidence status.
 
 # 1 — Material Intelligence
 
@@ -138,21 +139,22 @@
 - [ ] Connection force–displacement / rotational-spring law, not capacity-only.
 - [ ] Member-versus-connection governing comparison integrated with Direct Compare/Design Explorer.
 
-# 6 — Assembly Lab — NEXT ACTIVE
+# 6 — Assembly Lab — v1 COMPLETE / calibration bridge next
 
-- [ ] Built-up coco/timber beam v1 with 2–3 plies.
-- [ ] Lower bound: independent plies / no composite transfer.
-- [ ] Upper bound: fully bonded/full-composite transformed gross section.
-- [ ] Intermediate **degree of composite action η** with explicit evidence status.
-- [ ] Until calibrated connection-slip stiffness exists, η is user/measured/research input and cannot be silently inferred from “nailed together.”
-- [ ] Effective stiffness trace: `EI_eff = EI_independent + η(EI_full − EI_independent)` for the v1 bounded model.
-- [ ] Compare deflection/stress against independent and full-composite bounds.
-- [ ] Figure shows physical plies and connector rows.
+- [x] Built-up coco/timber beam v1 with 2–3 plies.
+- [x] Lower bound: independent plies / no composite transfer.
+- [x] Upper bound: fully bonded/full-composite gross section.
+- [x] Intermediate **degree of composite action η** with explicit evidence status.
+- [x] Until calibrated connection-slip stiffness exists, η is user/measured/research input and cannot be silently inferred from “nailed together.”
+- [x] Effective stiffness trace: `EI_eff = EI_independent + η(EI_full − EI_independent)` for the v1 bounded model.
+- [x] Compare deflection and stress bounds against independent and full-composite cases.
+- [x] Figure shows physical plies and interfaces; stacked and side-by-side arrangements are distinct.
+- [x] Real Chromium interaction gate checks η endpoints, 2/3-ply figures and side-by-side no-depth-leverage boundary.
 - [ ] Connect later to Connection Lab spring/slip law so η can be derived rather than assumed.
 - [ ] Extend after timber v1: double/triple columns, back-to-back/boxed C-purlins, built-up light-gauge studs/channels, truss panel, shore+bearer+joist, post+beam+brace.
 - [x] Permanent rule: adjacency alone never proves composite action.
 
-# 7 — Design Explorer
+# 7 — Design Explorer — NEXT ACTIVE
 
 - [x] Load-driven recommender foundation.
 - [ ] Reverse query: required span/load → feasible locally available solutions.
@@ -225,4 +227,5 @@
 - 2026-08-18 — SHS 100×100×2.0 mm upgraded from user observation to current supplier-handbook-confirmed market size; delivered certificate remains project-specific.
 - 2026-08-18 — Connection Lab v1 intentionally uses public research/reference equations and spacing screens; full current code design remains a later layer.
 - 2026-08-18 — Run-to-Governing-Limit v1 records only evidence-supported events and deliberately stops before unimplemented fracture/post-buckling physics.
-- 2026-08-18 — Assembly Lab v1 will use bounded composite action. “Nailed together” is not automatically full composite; connection slip/evidence governs η.
+- 2026-08-18 — Assembly Lab v1 uses bounded composite action. “Nailed together” is not automatically full composite; connection slip/evidence governs η.
+- 2026-08-18 — Side-by-side equal-depth plies do not gain major-axis EI from composite action in ASSY-001; stacked-through-depth plies provide the meaningful bounded composite-action case.
