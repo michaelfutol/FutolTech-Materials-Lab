@@ -4,10 +4,30 @@ const GLOBAL_GUARD = '__FT_COMPARISON_PLAYBACK_LOADER_ACTIVE__';
 let attempts = 0;
 let loaded = false;
 
+function deconflictPrintCloneIds(root = document) {
+  root.querySelectorAll?.('.ft-print-document #compareSelectors').forEach((node, index) => {
+    node.dataset.printCloneSourceId = 'compareSelectors';
+    node.id = `compareSelectorsPrintClone${index + 1}`;
+  });
+}
+
+function watchPrintCloneIds() {
+  deconflictPrintCloneIds();
+  const observer = new MutationObserver((records) => {
+    let needsScan = false;
+    for (const record of records) {
+      if (record.addedNodes.length) { needsScan = true; break; }
+    }
+    if (needsScan) deconflictPrintCloneIds();
+  });
+  observer.observe(document.body, { childList: true, subtree: true });
+}
+
 function slotReady(index) {
-  return !!document.querySelector(`[data-slot-material="${index}"]`)
-    && !!document.querySelector(`[data-slot-preset="${index}"]`)
-    && !!document.querySelector(`[data-slot-orientation="${index}"]`);
+  const liveRoot = document.querySelector('.compare-shell #compareSelectors');
+  return !!liveRoot?.querySelector(`[data-slot-material="${index}"]`)
+    && !!liveRoot?.querySelector(`[data-slot-preset="${index}"]`)
+    && !!liveRoot?.querySelector(`[data-slot-orientation="${index}"]`);
 }
 
 function compareReady() {
@@ -15,15 +35,16 @@ function compareReady() {
     && [0, 1, 2].every(slotReady)
     && !!document.getElementById('compareLoadEquivalent')
     && !!document.getElementById('compareResultCards')
-    && !!document.querySelector('[data-slot-enable="2"]');
+    && !!document.querySelector('.compare-shell [data-slot-enable="2"]');
 }
 
 async function tryMount() {
-  if (loaded || document.querySelector('[data-comparison-playback]')) {
+  if (loaded || document.querySelector('.compare-shell [data-comparison-playback]')) {
     loaded = true;
     return;
   }
   if (compareReady()) {
+    deconflictPrintCloneIds();
     loaded = true;
     await import('./comparisonPlaybackUi.js');
     return;
@@ -39,5 +60,6 @@ async function tryMount() {
 
 if (!window[GLOBAL_GUARD]) {
   window[GLOBAL_GUARD] = true;
+  watchPrintCloneIds();
   tryMount();
 }
