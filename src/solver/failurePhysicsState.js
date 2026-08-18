@@ -100,12 +100,22 @@ export function currentFailurePhysicsState(events, currentLoadKN) {
 
 export function failureVisualDefinition(state, { mode = 'beam' } = {}) {
   const visual = state?.visual ?? 'elastic-deflection';
-  if (mode === 'column' || visual === 'global-instability-onset') {
+  if (mode === 'column') {
+    if (visual === 'global-instability-onset') {
+      return {
+        kind: 'column-mode',
+        title: 'IDEALIZED GLOBAL INSTABILITY MODE',
+        disclaimer: 'Schematic amplitude only · not a post-buckling prediction',
+        path: 'M 160 250 C 245 225, 245 95, 160 70'
+      };
+    }
     return {
-      kind: 'column-mode',
-      title: 'IDEALIZED GLOBAL INSTABILITY MODE',
-      disclaimer: 'Schematic amplitude only · not a post-buckling prediction',
-      path: 'M 160 250 C 245 225, 245 95, 160 70'
+      kind: visual === 'compression-stress-reference' ? 'column-compression-reference' : 'column-elastic',
+      title: state?.phase ?? 'ELASTIC COLUMN RESPONSE',
+      disclaimer: visual === 'compression-stress-reference'
+        ? 'Stress-reference cue only · no crushing or splitting inferred'
+        : 'Straight elastic response cue · no instability event crossed',
+      path: 'M 160 250 L 160 70'
     };
   }
   if (visual === 'yield-onset') {
