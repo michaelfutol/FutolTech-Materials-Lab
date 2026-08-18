@@ -67,16 +67,20 @@ function applyStyleToSvg(svg, style) {
     const filterId = ensurePencilFilter(svg);
     geometry.forEach((node) => {
       if (node.closest('defs')) return;
-      node.dataset.ftOriginalFilter = node.getAttribute('filter') ?? '';
+      if (node.dataset.ftPencilApplied !== 'true') {
+        node.dataset.ftOriginalFilter = node.getAttribute('filter') ?? '';
+        node.dataset.ftPencilApplied = 'true';
+      }
       node.setAttribute('filter', `url(#${filterId})`);
     });
   } else {
     geometry.forEach((node) => {
-      if (node.closest('defs')) return;
+      if (node.closest('defs') || node.dataset.ftPencilApplied !== 'true') return;
       const original = node.dataset.ftOriginalFilter;
       if (original) node.setAttribute('filter', original);
       else node.removeAttribute('filter');
       delete node.dataset.ftOriginalFilter;
+      delete node.dataset.ftPencilApplied;
     });
   }
 }
