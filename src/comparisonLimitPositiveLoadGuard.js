@@ -23,8 +23,10 @@ function mountPositiveLoadGuard() {
   }, { capture: true });
 }
 
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', mountPositiveLoadGuard, { once: true });
-} else {
-  mountPositiveLoadGuard();
+if (typeof document !== 'undefined') {
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', mountPositiveLoadGuard, { once: true });
+  } else {
+    mountPositiveLoadGuard();
+  }
 }
