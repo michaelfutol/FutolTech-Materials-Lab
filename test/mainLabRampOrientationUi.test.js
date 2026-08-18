@@ -4,10 +4,11 @@ import { readFile } from 'node:fs/promises';
 
 const indexHtml = await readFile(new URL('../index.html', import.meta.url), 'utf8');
 const rampUi = await readFile(new URL('../src/mainLabFailureRamp.js', import.meta.url), 'utf8');
+const timelineSolver = await readFile(new URL('../src/solver/governingLimitTimeline.js', import.meta.url), 'utf8');
 const orientationUi = await readFile(new URL('../src/mainLabOrientationUi.js', import.meta.url), 'utf8');
 const angleUi = await readFile(new URL('../src/mainLabAngleUi.js', import.meta.url), 'utf8');
 
-test('main Materials Lab loads the one-touch automatic ramp, angle catalog geometry, and four-way orientation modules', () => {
+test('main Materials Lab loads the governing-limit module, angle catalog geometry, and four-way orientation modules', () => {
   assert.match(indexHtml, /Build 2026-08-18\.SL2/);
   assert.match(indexHtml, /option value="angle">Angle bar \/ L-section/);
   assert.match(indexHtml, /app\.js\?v=20260818-angle2/);
@@ -19,14 +20,19 @@ test('main Materials Lab loads the one-touch automatic ramp, angle catalog geome
   assert.match(angleUi, /Column compression is intentionally disabled for angle bars/);
 });
 
-test('automatic ramp distinguishes rupture, yield, gross-yield screening and last verified limits', () => {
-  assert.match(rampUi, /AUTO LOAD → RUPTURE REFERENCE/);
-  assert.match(rampUi, /AUTO LOAD → FIRST YIELD/);
-  assert.match(rampUi, /AUTO LOAD → GROSS YIELD SCREEN/);
-  assert.match(rampUi, /AUTO LOAD → LAST VERIFIED LIMIT/);
-  assert.match(rampUi, /RUPTURE REFERENCE REACHED/);
-  assert.match(rampUi, /FIRST YIELD REFERENCE REACHED/);
+test('Run to Governing Limit exposes an event timeline with pause, step and stop controls', () => {
+  assert.match(rampUi, /RUN TO GOVERNING LIMIT/);
+  assert.match(rampUi, /failure-ramp-events/);
+  assert.match(rampUi, /failure-ramp-marker/);
+  assert.match(rampUi, /PAUSE/);
+  assert.match(rampUi, /STEP/);
   assert.match(rampUi, /STOP/);
+  assert.match(rampUi, /beamGoverningLimitTimeline/);
+  assert.match(rampUi, /columnGoverningLimitTimeline/);
+  assert.match(timelineSolver, /SERVICEABILITY LIMIT/);
+  assert.match(timelineSolver, /FIRST YIELD/);
+  assert.match(timelineSolver, /RUPTURE REFERENCE/);
+  assert.match(timelineSolver, /SCREENING/);
 });
 
 test('orientation UI provides visual 0, 90, 180 and 270 degree choices for all section types', () => {
