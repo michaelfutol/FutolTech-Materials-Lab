@@ -3,10 +3,10 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="FutolTech Structural Lab Frame Analyzer NF-001: a transparent 2D coconut-lumber portal benchmark with rigid, pinned, or explicitly supplied semi-rigid connections and elastic P-Delta screening." />
+    <meta name="description" content="FutolTech Structural Lab Frame Analyzer NF-001: a transparent 2D coconut-lumber portal benchmark with rigid, pinned, or explicitly supplied semi-rigid connections, elastic P-Delta screening, and evidence-bounded brace sensitivity." />
     <title>Frame Analyzer NF-001 · FutolTech Structural Lab</title>
     <link rel="stylesheet" href="./src/styles.css?v=20260802-1" />
-    <link rel="stylesheet" href="./src/frame.css?v=20260818-nf1" />
+    <link rel="stylesheet" href="./src/frame.css?v=20260818-nf2" />
     <link rel="stylesheet" href="./src/printReport.css?v=20260806-brand1" />
   </head>
   <body>
@@ -14,20 +14,20 @@
       <div>
         <p class="eyebrow">TOOLS · FutolTech Structural Lab · NF-001</p>
         <h1>Frame Analyzer</h1>
-        <p class="subtitle">2D connected-frame physics with explicit joint idealization — no hidden fastener-to-spring assumptions.</p>
+        <p class="subtitle">2D connected-frame physics with explicit joint and brace idealization — no hidden fastener-to-spring assumptions.</p>
       </div>
       <div class="status-cluster">
         <a class="status-pill status-link" href="./index.html">← Materials Lab</a>
         <a class="status-pill status-link" href="./connections.html">Connection Lab</a>
         <a class="status-pill status-link" href="./calibration.html">Calibration Lab</a>
         <span class="status-pill">NF-001 · experimental</span>
-        <span class="status-pill">Build 2026-08-18.NF1</span>
+        <span class="status-pill">Build 2026-08-18.NF2</span>
       </div>
     </header>
 
     <main class="frame-shell">
       <section class="panel frame-controls" aria-label="NF-001 frame inputs">
-        <div class="panel-heading"><div><p class="eyebrow">3 m × 3 m benchmark by default</p><h2>Frame, member and joint inputs</h2></div><button id="frameResetButton" class="button button--ghost" type="button">Reset NF-001</button></div>
+        <div class="panel-heading"><div><p class="eyebrow">3 m × 3 m benchmark by default</p><h2>Frame, member, joint and brace inputs</h2></div><button id="frameResetButton" class="button button--ghost" type="button">Reset NF-001</button></div>
 
         <div class="control-grid">
           <label><span>Frame width, m</span><input id="frameWidthInput" type="number" min="0.5" max="20" step="0.1" value="3" /></label>
@@ -53,9 +53,21 @@
           <div id="frameJointEvidence" class="support-help"></div>
         </fieldset>
 
+        <fieldset class="frame-joint-fieldset">
+          <legend>Diagonal brace sensitivity adviser</legend>
+          <div class="control-grid">
+            <label><span>Brace state</span><select id="frameBraceSelect"><option value="none">No diagonal brace</option><option value="N1-N4">N1 → N4 diagonal</option><option value="N2-N3">N2 → N3 diagonal</option></select></label>
+            <label id="frameBraceELabel" class="is-hidden"><span>Brace E, MPa</span><input id="frameBraceEInput" type="number" min="1" step="100" value="13100" /></label>
+            <label id="frameBraceAreaLabel" class="is-hidden"><span>Brace gross axial area A, mm²</span><input id="frameBraceAreaInput" type="number" min="0.1" step="10" value="2500" /></label>
+            <label id="frameBraceEvidenceLabel" class="is-hidden"><span>Brace-property evidence status</span><select id="frameBraceEvidenceSelect"><option value="sensitivity">Unverified sensitivity input</option><option value="measured">User-measured properties</option><option value="research">Research/source properties</option><option value="calibration">CAL package properties</option></select></label>
+            <label id="frameBraceSourceLabel" class="is-hidden"><span>Brace property source/reference</span><input id="frameBraceSourceInput" type="text" placeholder="CAL package / specimen / catalog / paper ref" /></label>
+          </div>
+          <div id="frameBraceEvidence" class="support-help"><strong>Brace adviser off</strong><p>No diagonal stiffness is included in the frame.</p></div>
+        </fieldset>
+
         <div class="support-help">
           <strong>NF-001 engineering boundary</strong>
-          <p>NF-001 is a software/physics benchmark, not a code-designed wall. Member E/A/I are elastic inputs. A rigid or pin joint is an explicit idealization; a semi-rigid joint exists only when you provide kθ. P–Δ is an elastic geometric-stiffness iteration. Connection degradation uses only an explicit moment threshold and residual-stiffness ratio and is not inferred from nails, bolts, straps, welds, or workmanship.</p>
+          <p>NF-001 is a software/physics benchmark, not a code-designed wall. Member E/A/I are elastic inputs. A rigid or pin joint is an explicit idealization; a semi-rigid joint exists only when you provide kθ. P–Δ is an elastic geometric-stiffness iteration. Connection degradation uses only an explicit moment threshold and residual-stiffness ratio and is not inferred from nails, bolts, straps, welds, or workmanship. Brace Adviser v1 compares elastic stiffness and axial demand only; it does not claim brace or brace-connection capacity.</p>
         </div>
         <button id="frameRunButton" class="button frame-run-button" type="button">Analyze NF-001</button>
         <div id="frameErrorBanner" class="error-banner is-hidden" role="alert"></div>
@@ -71,6 +83,7 @@
           <section><h3>Joint interpretation</h3><div id="frameJointInterpretation" class="interpretation"></div></section>
         </div>
 
+        <section id="frameBraceAdviserSection" class="is-hidden"><div class="frame-section-heading"><div><p class="eyebrow">Brace Adviser v1</p><h3>Elastic stiffness sensitivity</h3></div><span class="status-pill status-pill--warning">STIFFNESS SENSITIVITY ONLY</span></div><div id="frameBraceAdviser" class="interpretation"></div></section>
         <section><div class="frame-section-heading"><div><p class="eyebrow">Member end actions</p><h3>Element results</h3></div></div><div class="frame-table-wrap"><table class="frame-table"><thead><tr><th>Member</th><th>Axial</th><th>Shear I / J</th><th>Moment I / J</th></tr></thead><tbody id="frameElementBody"></tbody></table></div></section>
         <section><div class="frame-section-heading"><div><p class="eyebrow">Explicit semi-rigid joints</p><h3>Connection spring response</h3></div></div><div class="frame-table-wrap"><table class="frame-table"><thead><tr><th>Connection</th><th>kθ</th><th>Relative rotation</th><th>Moment</th><th>Threshold use</th></tr></thead><tbody id="frameConnectionBody"></tbody></table></div></section>
         <section id="frameRedistributionSection" class="is-hidden"><div class="frame-section-heading"><div><p class="eyebrow">Piecewise elastic event path</p><h3>Connection degradation / redistribution events</h3></div></div><div id="frameRedistributionEvents"></div></section>
@@ -78,9 +91,9 @@
       </section>
     </main>
 
-    <footer><strong>Engineering notice:</strong> Verify actual member properties, geometry, bracing, support/foundation stiffness, connection force–deformation laws and capacities, second-order applicability, load combinations and governing code before structural design use.</footer>
+    <footer><strong>Engineering notice:</strong> Verify actual member and brace properties, geometry, bracing, support/foundation stiffness, connection force–deformation laws and capacities, second-order applicability, load combinations and governing code before structural design use.</footer>
     <script type="module" src="./src/publicBrand.js?v=20260818-sl1"></script>
-    <script type="module" src="./src/frameApp.js?v=20260818-nf1"></script>
+    <script type="module" src="./src/frameApp.js?v=20260818-nf2"></script>
     <script type="module" src="./src/printReport.js?v=20260806-brand1"></script>
   </body>
 </html>
