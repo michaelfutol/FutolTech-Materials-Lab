@@ -36,7 +36,15 @@ jobs:
         run: node scripts/verifyDesignExplorerUi.mjs
       - name: Calibration Lab Chromium gate
         run: node scripts/verifyCalibrationLabUi.mjs
-      - name: Frame Analyzer Chromium gate
-        run: node scripts/verifyFrameAnalyzerUi.mjs
+      - name: NF-001 rigid Chromium gate
+        run: node scripts/verifyFrameAnalyzerUi.mjs rigid
+      - name: NF-001 brace Chromium gate
+        run: node scripts/verifyFrameAnalyzerUi.mjs brace
+      - name: NF-001 semi-rigid Chromium gate
+        run: node scripts/verifyFrameAnalyzerUi.mjs spring
+      - name: NF-001 P-Delta Chromium gate
+        run: node scripts/verifyFrameAnalyzerUi.mjs pdelta
+      - name: NF-001 redistribution Chromium gate
+        run: node scripts/verifyFrameAnalyzerUi.mjs redistribution
       - name: Comparison PDF gate
         run: node scripts/verifyComparisonPdf.mjs
