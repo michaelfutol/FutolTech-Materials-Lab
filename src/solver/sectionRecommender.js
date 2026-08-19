@@ -1,5 +1,6 @@
 import { calculateSectionProperties } from './sections.js';
 import { solveBeam } from './beamFem.js';
+import { solveSlopedCPurlinBeam, normalizeRoofSlopeDeg, resolveVerticalRoofLoad } from './cPurlinSlope.js';
 import { productMaterialName, sectionCategory, sectionCategoryLabel } from '../data/sectionTaxonomy.js';
 import {
   KGF_TO_KN,
@@ -8,6 +9,21 @@ import {
 } from '../utils/loadUnits.js';
 
 export { KGF_TO_KN, TONNE_FORCE_TO_KN, convertLoadToKN };
+
+let activeCPurlinRoofSlopeDeg = 0;
+
+export function setCPurlinRoofSlopeDeg(value) {
+  activeCPurlinRoofSlopeDeg = normalizeRoofSlopeDeg(value);
+  return activeCPurlinRoofSlopeDeg;
+}
+
+export function getCPurlinRoofSlopeDeg() {
+  return activeCPurlinRoofSlopeDeg;
+}
+
+export function resolveCPurlinRoofLoad(loadKN, roofSlopeDeg = activeCPurlinRoofSlopeDeg) {
+  return resolveVerticalRoofLoad(loadKN, roofSlopeDeg);
+}
 
 function supportsForBoundary(boundary) {
   if (boundary === 'cantilever-left') return { leftSupport: 'fixed', rightSupport: 'free' };
@@ -105,14 +121,26 @@ export function evaluateMemberCandidate({
   const section = { ...preset };
   const properties = calculateSectionProperties(section);
   const supports = supportsForBoundary(boundary);
-  const result = solveBeam({
-    lengthM,
-    elasticModulusMPa: material.elasticModulusMPa,
-    inertiaMm4: properties.ixMm4,
-    sectionModulusMm3: properties.zxMm3,
-    ...supports,
-    pointLoads: [{ xM: loadPositionM, forceKN: loadKN }]
-  });
+  const productCategory = sectionCategory(preset, material.family);
+  const roofSlopeDeg = productCategory === 'c-purlin' ? activeCPurlinRoofSlopeDeg : 0;
+  const result = productCategory === 'c-purlin' && roofSlopeDeg > 0
+    ? solveSlopedCPurlinBeam({
+      lengthM,
+      elasticModulusMPa: material.elasticModulusMPa,
+      properties,
+      ...supports,
+      loadKN,
+      loadPositionM,
+      roofSlopeDeg
+    })
+    : solveBeam({
+      lengthM,
+      elasticModulusMPa: material.elasticModulusMPa,
+      inertiaMm4: properties.ixMm4,
+      sectionModulusMm3: properties.zxMm3,
+      ...supports,
+      pointLoads: [{ xM: loadPositionM, forceKN: loadKN }]
+    });
 
   const {
     strengthReferenceMPa,
@@ -138,7 +166,6 @@ export function evaluateMemberCandidate({
   const deflectionPass = deflectionRatio <= 1;
   const pass = stockPass && strengthPass && deflectionPass;
   const governingRatio = Math.max(strengthRatio ?? Infinity, deflectionRatio);
-  const productCategory = sectionCategory(preset, material.family);
   const screeningOnly = productCategory === 'c-purlin' || productCategory === 'angle-bar';
 
   const reasons = [];
@@ -147,6 +174,10 @@ export function evaluateMemberCandidate({
   if (!mass.massVerified) reasons.push('mass ranking unavailable until density is verified');
   if (!strengthPass) reasons.push(`${strengthReferenceLabel} exceeded`);
   if (!deflectionPass) reasons.push(`L/${deflectionDivisor} exceeded`);
+  if (productCategory === 'c-purlin' && roofSlopeDeg > 0) {
+    const components = result.loadComponents;
+    reasons.push(`roof-slope ${roofSlopeDeg.toFixed(1)}° vertical-load decomposition: P⊥=${components.roofNormalKN.toFixed(3)} kN, P∥=${components.roofParallelKN.toFixed(3)} kN; gross biaxial stress envelope used`);
+  }
   if (productCategory === 'c-purlin') reasons.push('C-purlin is gross-section elastic screening only: local/distortional/lateral-torsional buckling, effective width, connection restraint and roof diaphragm action are not checked');
   if (productCategory === 'angle-bar') reasons.push('Angle bar is gross leg-axis elastic screening only: rolled radii, principal-axis unsymmetric bending, shear-centre/torsion, local instability and lateral-torsional/flexural-torsional buckling are not checked');
   if (pass && !screeningOnly) reasons.push('passes selected elastic checks');
@@ -167,6 +198,8 @@ export function evaluateMemberCandidate({
     section,
     properties,
     result,
+    roofSlopeDeg,
+    loadComponents: result.loadComponents ?? null,
     strengthReferenceMPa,
     strengthReferenceLabel,
     physicalReferenceMPa,
