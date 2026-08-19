@@ -69,17 +69,16 @@ async function tryMount() {
   if (compareReady()) {
     deconflictPrintCloneIds();
     loaded = true;
-    // All comparison visualizations share one mutable Direct Compare state.
-    // Mount and fully initialize the public C-purlin bench first so its default
-    // 0 kgf setup cannot race a synchronized playback benchmark that captures
-    // a different target load a few milliseconds later.
+    // One shared Direct Compare state is used by every visualization. First let
+    // the legacy synchronized playback finish mounting; then mount the public
+    // V3 bench last so it owns the final canonical demo state and button events.
     await import('./cPurlinSlopeUi.js');
     await import('./cPurlinPhysicsBenchV2.js');
     await waitForPhysicsBenchInitialization();
     await import('./cPurlinSharedSlopePolish.js');
+    await import('./comparisonPlaybackUi.js');
     await import('./cPurlinTestBasisPanel.js');
     await import('./cPurlinPhysicsPolishV3.js');
-    await import('./comparisonPlaybackUi.js');
     return;
   }
   attempts += 1;
