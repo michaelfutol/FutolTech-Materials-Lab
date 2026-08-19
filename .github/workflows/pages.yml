@@ -1,5 +1,6 @@
 name: Deploy Materials Lab to GitHub Pages
 
+# GitHub Pages publishing source: GitHub Actions.
 on:
   push:
     branches:
