@@ -47,16 +47,17 @@ async function tryMount() {
     deconflictPrintCloneIds();
     loaded = true;
     // The C-purlin roof-slope control shares the same member solver state as
-    // Direct Compare and SIM-VIZ-002. Load it first so both views always use
+    // Direct Compare and SIM-VIZ. Load it first so every visualization uses
     // one slope definition rather than separate calculation paths.
     await import('./cPurlinSlopeUi.js');
     await import('./comparisonPlaybackUi.js');
+    await import('./cPurlinPhysicsBench.js');
     return;
   }
   attempts += 1;
   if (attempts >= MAX_ATTEMPTS) {
     window[GLOBAL_GUARD] = false;
-    console.warn('SIM-VIZ-002 did not mount because Direct Compare did not reach its ready state.');
+    console.warn('SIM-VIZ did not mount because Direct Compare did not reach its ready state.');
     return;
   }
   setTimeout(tryMount, INTERVAL_MS);
