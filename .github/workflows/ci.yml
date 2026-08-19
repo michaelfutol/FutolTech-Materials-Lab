@@ -30,6 +30,8 @@ jobs:
         run: node scripts/verifyCPurlinPhysicsBenchUi.mjs
       - name: C-purlin shared-conditions Chromium gate
         run: node scripts/verifyCPurlinSharedConditionsUi.mjs
+      - name: C-purlin WebM download Chromium gate
+        run: node scripts/verifyCPurlinVideoDownloadUi.mjs
       - name: Deterministic engineering tests
         run: npm test
       - name: C-purlin Chromium gate
