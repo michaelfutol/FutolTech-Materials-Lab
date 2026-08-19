@@ -5,6 +5,7 @@ import './homeCPurlinDemoCard.js';
 export const PUBLIC_PRODUCT_NAME = 'FutolTech Structural Lab';
 export const PUBLIC_PRODUCT_SUBTITLE = 'Virtual Materials, Members & Connection Testing';
 export const COMPANY_NAME = 'FUTOLTECH ENGINEERING AND PROJECT SYSTEMS';
+export const WEB_COMPANY_NAME = 'FutolTech Engineering';
 
 function replaceNativeStructures(text = '') {
   return text
@@ -65,6 +66,10 @@ export function applyPublicBrand() {
     const branded = replaceNativeStructures(node.textContent || '');
     setTextIfChanged(node, branded);
   });
+
+  // Public web pages use the concise trading identity. The full legal company
+  // name remains unchanged in print/video/report identity through COMPANY_NAME.
+  setTextIfChanged(document.querySelector('.topbar .eyebrow'), WEB_COMPANY_NAME);
 
   const topHeading = document.querySelector('.topbar h1');
   const heading = topHeading?.textContent?.trim();
