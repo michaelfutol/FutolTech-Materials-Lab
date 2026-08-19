@@ -71,8 +71,9 @@ async function tryMount() {
     loaded = true;
     // One shared Direct Compare state is used by every visualization. V3 owns
     // the load/yield sequence; V4 owns the static installation reference; V5
-    // locks the duplicate span/slope controls to one state and owns the final
+    // locks duplicate span/slope controls to one state and owns the final
     // recorded longitudinal animation with per-member frozen yield loads.
+    // V6 guarantees recording begins from a fully rendered zero-load frame.
     await import('./cPurlinSlopeUi.js');
     await import('./cPurlinPhysicsBenchV2.js');
     await waitForPhysicsBenchInitialization();
@@ -87,6 +88,7 @@ async function tryMount() {
     await import('./cPurlinDirectDemoStabilizer.js');
     await import('./cPurlinSharedControlSyncV5.js');
     await import('./cPurlinCoordinatedVideoV5.js');
+    await import('./cPurlinRecordingPreRollV6.js');
     return;
   }
   attempts += 1;
