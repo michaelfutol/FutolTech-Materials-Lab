@@ -46,6 +46,10 @@ async function tryMount() {
   if (compareReady()) {
     deconflictPrintCloneIds();
     loaded = true;
+    // The C-purlin roof-slope control shares the same member solver state as
+    // Direct Compare and SIM-VIZ-002. Load it first so both views always use
+    // one slope definition rather than separate calculation paths.
+    await import('./cPurlinSlopeUi.js');
     await import('./comparisonPlaybackUi.js');
     return;
   }
