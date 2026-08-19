@@ -6,7 +6,7 @@ import './paperMatteTheme.js';
 export const PUBLIC_PRODUCT_NAME = 'FutolTech Structural Lab';
 export const PUBLIC_PRODUCT_SUBTITLE = 'Virtual Materials, Members & Connection Testing';
 export const COMPANY_NAME = 'FUTOLTECH ENGINEERING AND PROJECT SYSTEMS';
-export const WEB_COMPANY_NAME = 'FutolTech Engineering';
+export const WEB_COMPANY_NAME = 'FUTOLTECH ENGINEERING & PROJECT SYSTEMS';
 
 function replaceNativeStructures(text = '') {
   return text
@@ -68,13 +68,12 @@ export function applyPublicBrand() {
     setTextIfChanged(node, branded);
   });
 
-  // Public web pages use the concise mixed-case identity. The full legal company
-  // name remains unchanged in print/video/report identity through COMPANY_NAME.
   const webCompany = document.querySelector('.topbar .eyebrow');
   setTextIfChanged(webCompany, WEB_COMPANY_NAME);
   if (webCompany) {
     webCompany.style.textTransform = 'none';
-    webCompany.style.letterSpacing = '.06em';
+    webCompany.style.letterSpacing = '.075em';
+    webCompany.style.fontWeight = '900';
   }
 
   const topHeading = document.querySelector('.topbar h1');
