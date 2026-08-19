@@ -80,8 +80,11 @@ async function tryMount() {
     await import('./comparisonPlaybackUi.js');
     await import('./cPurlinTestBasisPanel.js');
     await import('./cPurlinPhysicsPolishV3.js');
-    await import('./cPurlinDirectDemoStabilizer.js');
     await import('./cPurlinViewSeparationV4.js');
+    // V4 inserts the final public-demo DOM nodes. Run the one-shot 0°/90°
+    // stabilizer only after that mount so no later MutationObserver pass can
+    // reset Member B during startup. User edits remain unlocked afterwards.
+    await import('./cPurlinDirectDemoStabilizer.js');
     return;
   }
   attempts += 1;
