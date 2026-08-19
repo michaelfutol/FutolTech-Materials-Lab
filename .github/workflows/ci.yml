@@ -32,7 +32,9 @@ jobs:
         run: node scripts/verifyCPurlinSharedConditionsStable.mjs
       - name: C-purlin polish V3 Chromium gate
         run: node scripts/verifyCPurlinPolishV3Ui.mjs
-      - name: C-purlin WebM download Chromium gate
+      - name: C-purlin coordinated V5 Chromium gate
+        run: node scripts/verifyCPurlinCoordinationV5Ui.mjs
+      - name: C-purlin PaperMatte WebM download Chromium gate
         run: node scripts/verifyCPurlinVideoDownloadUi.mjs
       - name: Deterministic engineering tests
         run: npm test
