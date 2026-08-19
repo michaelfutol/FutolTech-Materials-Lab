@@ -18,6 +18,8 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
+      - name: Repository line count
+        run: node scripts/repoLineCount.mjs
       - name: Syntax checks
         run: npm run check
       - name: Comparison PDF gate
@@ -34,6 +36,8 @@ jobs:
         run: node scripts/verifyCPurlinPolishV3Ui.mjs
       - name: C-purlin coordinated V5 Chromium gate
         run: node scripts/verifyCPurlinCoordinationV5Ui.mjs
+      - name: C-purlin gradual-deflection Chromium gate
+        run: node scripts/verifyCPurlinGradualDeflectionUi.mjs
       - name: C-purlin PaperMatte WebM download Chromium gate
         run: node scripts/verifyCPurlinVideoDownloadUi.mjs
       - name: Deterministic engineering tests
