@@ -79,6 +79,7 @@ async function tryMount() {
     await import('./comparisonPlaybackUi.js');
     await import('./cPurlinTestBasisPanel.js');
     await import('./cPurlinPhysicsPolishV3.js');
+    await import('./cPurlinDirectDemoStabilizer.js');
     return;
   }
   attempts += 1;
