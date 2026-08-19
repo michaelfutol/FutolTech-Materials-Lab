@@ -120,10 +120,10 @@ try {
   await cdp.send('Browser.setDownloadBehavior', { behavior:'allow', downloadPath:downloadDir, eventsEnabled:true });
 
   let ready;
-  for (let i = 0; i < 240; i += 1) {
+  for (let i = 0; i < 260; i += 1) {
     ready = await evalValue(cdp, `(() => {
       const panel=document.querySelector('[data-c-purlin-physics-bench]');
-      const canvas=panel?.querySelector('[data-cpy-polished-canvas]');
+      const canvas=panel?.querySelector('[data-cpy-coordinated-canvas]');
       const basis=panel?.querySelector('[data-ft-cp-test-basis]');
       return {
         ready:document.readyState,
@@ -134,17 +134,31 @@ try {
         captureStream:typeof canvas?.captureStream === 'function',
         basis:!!basis,
         basisText:basis?.innerText || '',
-        polish:panel?.dataset.physicsPolishV3
+        polish:panel?.dataset.physicsPolishV3,
+        coordinated:panel?.dataset.coordinatedVideoV5,
+        videoTheme:window.__FT_C_PURLIN_COORDINATED_VIDEO_V5__?.getState?.()?.theme
       };
     })()`);
-    if (ready?.ready === 'complete' && ready.panel && ready.target > 0 && ready.allTarget > ready.target && ready.basis && ready.polish === 'true') break;
+    if (ready?.ready === 'complete' && ready.panel && ready.target > 0 && ready.allTarget > ready.target && ready.basis && ready.polish === 'true' && ready.coordinated === 'true' && ready.captureStream) break;
     await sleep(100);
   }
-  if (!ready?.panel || !ready.mediaRecorder || !ready.captureStream) {
-    throw new Error(`Browser does not expose the required polished recording APIs: ${JSON.stringify(ready)}`);
+  if (!ready?.panel || !ready.mediaRecorder || !ready.captureStream || ready.coordinated !== 'true') {
+    throw new Error(`Browser does not expose the coordinated V5 recording APIs: ${JSON.stringify(ready)}`);
   }
   if (!ready.basis || !/tek screw/i.test(ready.basisText) || !/weld/i.test(ready.basisText) || !/rafter/i.test(ready.basisText)) {
     throw new Error(`Test-basis assembly context is missing: ${JSON.stringify(ready)}`);
+  }
+
+  // Record a real PaperMatte video, not merely a dark video while the webpage
+  // around it is PaperMatte.
+  const paper = await evalValue(cdp, `(() => {
+    const button=document.querySelector('[data-ft-theme-toggle]');
+    if(document.documentElement.dataset.ftTheme!=='paper-matte') button?.click();
+    window.__FT_C_PURLIN_COORDINATED_VIDEO_V5__?.render?.();
+    return {pageTheme:document.documentElement.dataset.ftTheme,videoTheme:window.__FT_C_PURLIN_COORDINATED_VIDEO_V5__?.getState?.()?.theme};
+  })()`);
+  if (paper.pageTheme !== 'paper-matte' || paper.videoTheme !== 'paper-matte') {
+    throw new Error(`PaperMatte did not reach the video canvas before recording: ${JSON.stringify(paper)}`);
   }
 
   await evalValue(cdp, `(() => {
@@ -156,7 +170,7 @@ try {
 
   let finished = false;
   let state;
-  for (let i = 0; i < 120; i += 1) {
+  for (let i = 0; i < 130; i += 1) {
     await sleep(100);
     state = await evalValue(cdp, `(() => {
       const panel=document.querySelector('[data-c-purlin-physics-bench]');
@@ -165,30 +179,37 @@ try {
         status:panel.querySelector('[data-cpy-status]')?.innerText,
         recordText:panel.querySelector('[data-cpy-record]')?.innerText,
         load:panel.querySelector('[data-cpy-load]')?.innerText,
-        frame:window.__FT_LAST_C_PURLIN_PHYSICS_FRAME__
+        recordedTheme:panel.dataset.lastRecordedTheme,
+        recordedBytes:Number(panel.dataset.lastRecordedBytes||0),
+        state:window.__FT_C_PURLIN_COORDINATED_VIDEO_V5__?.getState?.()
       };
     })()`);
-    if (state?.status === 'ALL ACTIVE MEMBERS REACHED FIRST YIELD' && state.recordText === 'RECORD + DOWNLOAD VIDEO') {
+    if (state?.status === 'ALL ACTIVE MEMBERS REACHED FIRST YIELD' && state.recordText === 'RECORD + DOWNLOAD VIDEO' && state.recordedTheme === 'paper-matte') {
       finished = true;
       break;
     }
   }
-  if (!finished) throw new Error(`Recorded all-yield test did not complete the download cycle: ${JSON.stringify(state)}`);
-  if (state.frame?.yieldedCount !== 2 || !(state.frame?.finalTargetKN > ready.target)) {
-    throw new Error(`Final video frame did not preserve the two-member all-yield state: ${JSON.stringify(state.frame)}`);
+  if (!finished) throw new Error(`Recorded PaperMatte all-yield test did not complete the download cycle: ${JSON.stringify(state)}`);
+  if (state.state?.yieldedCount !== 2 || !state.state?.members?.every((member) => member.yielded)) {
+    throw new Error(`Final PaperMatte video frame did not preserve the two-member all-yield state: ${JSON.stringify(state.state)}`);
+  }
+  if (state.state.theme !== 'paper-matte') throw new Error(`Recorded frame changed away from PaperMatte: ${JSON.stringify(state.state)}`);
+  if (!state.state.members.every((member) => Math.abs(member.displayLoadKN - member.thresholdKN) < 1e-6)) {
+    throw new Error(`Recorded final frame overwrote member-specific yield loads: ${JSON.stringify(state.state.members)}`);
   }
 
   let video = null;
-  for (let i = 0; i < 40; i += 1) {
+  for (let i = 0; i < 50; i += 1) {
     video = await downloadedWebm(downloadDir);
     if (video?.size > 10_000) break;
     await sleep(100);
   }
   if (!video || video.size <= 10_000) {
-    throw new Error(`No usable WebM was downloaded. Found: ${JSON.stringify(video)}`);
+    throw new Error(`No usable PaperMatte WebM was downloaded. Found: ${JSON.stringify(video)}`);
   }
+  if (!/paper-matte/i.test(video.file)) throw new Error(`Downloaded video filename does not identify the PaperMatte recording: ${video.file}`);
 
-  console.log(`C-purlin video-download Chromium QA passed: MediaRecorder wrote ${video.file} (${video.size} bytes) after the 5 s all-yield comparison. Test-basis text preserves tek-screw/welded-rafter context without the old assembly figure.`);
+  console.log(`C-purlin PaperMatte video-download Chromium QA passed: MediaRecorder wrote ${video.file} (${video.size} bytes) from the coordinated V5 canvas with member-specific frozen yield loads.`);
 } finally {
   cdp?.socket.close();
   await stop(chromeProcess);
