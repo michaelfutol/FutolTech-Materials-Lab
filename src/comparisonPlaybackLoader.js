@@ -38,6 +38,29 @@ function compareReady() {
     && !!document.querySelector('.compare-shell [data-slot-enable="2"]');
 }
 
+function physicsBenchInitialized() {
+  const panel = document.querySelector('.compare-shell [data-c-purlin-physics-bench]');
+  if (!panel?.dataset.yieldTargetKn) return false;
+  const activeCards = [...document.querySelectorAll('.compare-shell #compareSelectors .compare-selector-card')]
+    .filter((card) => !card.classList.contains('is-disabled'));
+  if (activeCards.length !== 2) return false;
+  const presets = activeCards.map((card) => card.querySelector('[data-slot-preset]')?.value ?? '');
+  const angles = activeCards.map((card) => card.querySelector('[data-c-purlin-orientation-display]')?.value ?? '');
+  return presets.every((value) => value.includes('colorsteel-c100'))
+    && angles[0] === '0'
+    && angles[1] === '90'
+    && Number(document.getElementById('compareLengthInput')?.value) === 2
+    && Number(document.getElementById('compareLoadInput')?.value) === 0;
+}
+
+async function waitForPhysicsBenchInitialization() {
+  for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt += 1) {
+    if (physicsBenchInitialized()) return;
+    await new Promise((resolve) => setTimeout(resolve, INTERVAL_MS));
+  }
+  throw new Error('SIM-VIZ-003 did not finish canonical C-purlin initialization before synchronized playback mounted.');
+}
+
 async function tryMount() {
   if (loaded || document.querySelector('.compare-shell [data-comparison-playback]')) {
     loaded = true;
@@ -46,12 +69,14 @@ async function tryMount() {
   if (compareReady()) {
     deconflictPrintCloneIds();
     loaded = true;
-    // The C-purlin roof-slope control shares the same member solver state as
-    // Direct Compare and SIM-VIZ. Load it first so every visualization uses
-    // one slope definition rather than separate calculation paths.
+    // All comparison visualizations share one mutable Direct Compare state.
+    // Mount and fully initialize the public C-purlin bench first so its default
+    // 0 kgf setup cannot race a synchronized playback benchmark that captures
+    // a different target load a few milliseconds later.
     await import('./cPurlinSlopeUi.js');
-    await import('./comparisonPlaybackUi.js');
     await import('./cPurlinPhysicsBench.js');
+    await waitForPhysicsBenchInitialization();
+    await import('./comparisonPlaybackUi.js');
     return;
   }
   attempts += 1;
@@ -66,5 +91,8 @@ async function tryMount() {
 if (!window[GLOBAL_GUARD]) {
   window[GLOBAL_GUARD] = true;
   watchPrintCloneIds();
-  tryMount();
+  tryMount().catch((error) => {
+    window[GLOBAL_GUARD] = false;
+    console.error(error);
+  });
 }
