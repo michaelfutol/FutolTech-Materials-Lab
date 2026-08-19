@@ -74,7 +74,7 @@ async function tryMount() {
     // 0 kgf setup cannot race a synchronized playback benchmark that captures
     // a different target load a few milliseconds later.
     await import('./cPurlinSlopeUi.js');
-    await import('./cPurlinPhysicsBench.js');
+    await import('./cPurlinPhysicsBenchV2.js');
     await waitForPhysicsBenchInitialization();
     await import('./comparisonPlaybackUi.js');
     return;
