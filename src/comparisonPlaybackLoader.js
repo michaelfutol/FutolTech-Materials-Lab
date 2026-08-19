@@ -69,9 +69,10 @@ async function tryMount() {
   if (compareReady()) {
     deconflictPrintCloneIds();
     loaded = true;
-    // One shared Direct Compare state is used by every visualization. First let
-    // the legacy synchronized playback finish mounting; then mount the public
-    // V3 bench last so it owns the final canonical demo state and button events.
+    // One shared Direct Compare state is used by every visualization. The V3
+    // engine continues to own the load/yield sequence, while V4 separates the
+    // visuals into (1) a static roof-slope/rafter attachment cross-section and
+    // (2) a longitudinal purlin-span deflection animation between rafters.
     await import('./cPurlinSlopeUi.js');
     await import('./cPurlinPhysicsBenchV2.js');
     await waitForPhysicsBenchInitialization();
@@ -80,6 +81,7 @@ async function tryMount() {
     await import('./cPurlinTestBasisPanel.js');
     await import('./cPurlinPhysicsPolishV3.js');
     await import('./cPurlinDirectDemoStabilizer.js');
+    await import('./cPurlinViewSeparationV4.js');
     return;
   }
   attempts += 1;
