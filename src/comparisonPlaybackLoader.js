@@ -89,6 +89,10 @@ async function tryMount() {
     await import('./cPurlinCoordinatedVideoV5.js');
     await import('./cPurlinRecordingPreRollV6.js');
     await import('./cPurlinPaperMatteReadabilityV7.js');
+    // V7 inserts one final presentation canvas; re-assert the canonical 0°/90°
+    // teaching pair only during startup so that legacy mutation work cannot
+    // reset Member B to 0°. The stabilizer then stops permanently.
+    await import('./cPurlinFinalStartupStabilizerV7.js');
     return;
   }
   attempts += 1;
