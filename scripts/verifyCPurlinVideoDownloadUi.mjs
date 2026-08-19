@@ -123,25 +123,28 @@ try {
   for (let i = 0; i < 240; i += 1) {
     ready = await evalValue(cdp, `(() => {
       const panel=document.querySelector('[data-c-purlin-physics-bench]');
-      const canvas=panel?.querySelector('[data-cpy-canvas]');
+      const canvas=panel?.querySelector('[data-cpy-polished-canvas]');
+      const basis=panel?.querySelector('[data-ft-cp-test-basis]');
       return {
         ready:document.readyState,
         panel:!!panel,
         target:Number(panel?.dataset.yieldTargetKn),
+        allTarget:Number(panel?.dataset.allYieldTargetKn),
         mediaRecorder:typeof MediaRecorder !== 'undefined',
         captureStream:typeof canvas?.captureStream === 'function',
-        assembly:!!panel?.querySelector('[data-cp-assembly-context]'),
-        assemblyText:panel?.querySelector('[data-cp-assembly-context]')?.innerText || ''
+        basis:!!basis,
+        basisText:basis?.innerText || '',
+        polish:panel?.dataset.physicsPolishV3
       };
     })()`);
-    if (ready?.ready === 'complete' && ready.panel && ready.target > 0 && ready.assembly) break;
+    if (ready?.ready === 'complete' && ready.panel && ready.target > 0 && ready.allTarget > ready.target && ready.basis && ready.polish === 'true') break;
     await sleep(100);
   }
   if (!ready?.panel || !ready.mediaRecorder || !ready.captureStream) {
-    throw new Error(`Browser does not expose the required recording APIs: ${JSON.stringify(ready)}`);
+    throw new Error(`Browser does not expose the required polished recording APIs: ${JSON.stringify(ready)}`);
   }
-  if (!ready.assembly || !/tek screw/i.test(ready.assemblyText) || !/weld/i.test(ready.assemblyText) || !/rafter/i.test(ready.assemblyText)) {
-    throw new Error(`Real-roof assembly visual/context is missing: ${JSON.stringify(ready)}`);
+  if (!ready.basis || !/tek screw/i.test(ready.basisText) || !/weld/i.test(ready.basisText) || !/rafter/i.test(ready.basisText)) {
+    throw new Error(`Test-basis assembly context is missing: ${JSON.stringify(ready)}`);
   }
 
   await evalValue(cdp, `(() => {
@@ -153,7 +156,7 @@ try {
 
   let finished = false;
   let state;
-  for (let i = 0; i < 100; i += 1) {
+  for (let i = 0; i < 120; i += 1) {
     await sleep(100);
     state = await evalValue(cdp, `(() => {
       const panel=document.querySelector('[data-c-purlin-physics-bench]');
@@ -161,15 +164,19 @@ try {
         progress:panel.querySelector('[data-cpy-progress]')?.innerText,
         status:panel.querySelector('[data-cpy-status]')?.innerText,
         recordText:panel.querySelector('[data-cpy-record]')?.innerText,
-        load:panel.querySelector('[data-cpy-load]')?.innerText
+        load:panel.querySelector('[data-cpy-load]')?.innerText,
+        frame:window.__FT_LAST_C_PURLIN_PHYSICS_FRAME__
       };
     })()`);
-    if (state?.status === 'FIRST YIELD REACHED' && state.recordText === 'RECORD + DOWNLOAD VIDEO') {
+    if (state?.status === 'ALL ACTIVE MEMBERS REACHED FIRST YIELD' && state.recordText === 'RECORD + DOWNLOAD VIDEO') {
       finished = true;
       break;
     }
   }
-  if (!finished) throw new Error(`Recorded test did not reach yield and complete download cycle: ${JSON.stringify(state)}`);
+  if (!finished) throw new Error(`Recorded all-yield test did not complete the download cycle: ${JSON.stringify(state)}`);
+  if (state.frame?.yieldedCount !== 2 || !(state.frame?.finalTargetKN > ready.target)) {
+    throw new Error(`Final video frame did not preserve the two-member all-yield state: ${JSON.stringify(state.frame)}`);
+  }
 
   let video = null;
   for (let i = 0; i < 40; i += 1) {
@@ -181,7 +188,7 @@ try {
     throw new Error(`No usable WebM was downloaded. Found: ${JSON.stringify(video)}`);
   }
 
-  console.log(`C-purlin video-download Chromium QA passed: MediaRecorder wrote ${video.file} (${video.size} bytes) after the 5 s load-to-first-yield animation. Assembly visual includes roof sheet/tek screws/welded-rafter context.`);
+  console.log(`C-purlin video-download Chromium QA passed: MediaRecorder wrote ${video.file} (${video.size} bytes) after the 5 s all-yield comparison. Test-basis text preserves tek-screw/welded-rafter context without the old assembly figure.`);
 } finally {
   cdp?.socket.close();
   await stop(chromeProcess);
