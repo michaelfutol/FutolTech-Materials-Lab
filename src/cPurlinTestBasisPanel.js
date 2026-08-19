@@ -55,6 +55,7 @@ function render(panel, basis) {
         <h4>Physical assembly vs model</h4>
         <p>Actual roof context: roof sheet is fastened to the C-purlin with tek screws and the C-purlin is welded to rafters. This benchmark does <strong>not</strong> credit those connections as perfect fixed-end restraint. Their stiffness, slip, local deformation and roof-sheet restraint belong to the later calibrated connection/system layer.</p>
         <p>Current result is gross-section elastic screening to first yield for each specimen; local/distortional/LTB, effective width, post-yield plasticity, connection fracture and diaphragm action are outside this layer.</p>
+        <p><strong>Continuation rule:</strong> after a specimen reaches first yield, its animation lane is frozen at that validated elastic threshold while the shared load continues for stronger specimens. The general Direct Compare table may still display the mathematical linear-elastic extrapolation at the current shared load; do not interpret that post-yield table value as physical post-yield behavior.</p>
       </section>
       <section>
         <h4>Equation basis & references</h4>
