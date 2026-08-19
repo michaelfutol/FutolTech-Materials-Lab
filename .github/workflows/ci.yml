@@ -38,6 +38,8 @@ jobs:
         run: node scripts/verifyCPurlinCoordinationV5Ui.mjs
       - name: C-purlin gradual-deflection Chromium gate
         run: node scripts/verifyCPurlinGradualDeflectionUi.mjs
+      - name: C-purlin recorded gradual-deflection Chromium gate
+        run: node scripts/verifyCPurlinRecordingGradualUi.mjs
       - name: C-purlin PaperMatte WebM download Chromium gate
         run: node scripts/verifyCPurlinVideoDownloadUi.mjs
       - name: Deterministic engineering tests
