@@ -1,6 +1,7 @@
 import './printTypography.js';
 import './figureStyle.js';
 import './homeCPurlinDemoCard.js';
+import './paperMatteTheme.js';
 
 export const PUBLIC_PRODUCT_NAME = 'FutolTech Structural Lab';
 export const PUBLIC_PRODUCT_SUBTITLE = 'Virtual Materials, Members & Connection Testing';
