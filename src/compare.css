@@ -15,6 +15,14 @@
   grid-row: span 2;
 }
 
+/* Dynamic SIM-VIZ panels can add extra grid items before results. Keep the
+   engineering results on their own full-width row so they never collapse into
+   the narrow left control column. */
+.compare-results {
+  grid-column: 1 / -1;
+  width: 100%;
+}
+
 .compare-mode-switch {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -22,11 +30,17 @@
   margin: 0 0 18px;
 }
 
-.compare-selector-grid,
-.compare-card-grid {
+.compare-selector-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 16px;
+}
+
+.compare-card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 16px;
+  width: 100%;
 }
 
 .compare-selector-card,
@@ -35,6 +49,7 @@
   border-radius: 16px;
   background: rgba(8, 24, 34, 0.72);
   overflow: hidden;
+  min-width: 0;
 }
 
 .compare-selector-card {
@@ -232,6 +247,8 @@
 }
 
 .compare-table-wrap {
+  width: 100%;
+  min-width: 0;
   margin-top: 18px;
   overflow-x: auto;
   border: 1px solid var(--border);
@@ -335,6 +352,10 @@
 
   .compare-inputs {
     grid-row: auto;
+  }
+
+  .compare-results {
+    grid-column: 1;
   }
 
   .compare-selector-grid,
