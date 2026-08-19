@@ -74,6 +74,8 @@ async function tryMount() {
     // locks duplicate span/slope controls to one state and owns the final
     // recorded longitudinal animation with per-member frozen yield loads.
     // V6 guarantees recording begins from a fully rendered zero-load frame.
+    // V7 raises PaperMatte contrast/readability and keeps the static sloping
+    // rafter attachment reference entirely inside its member cards.
     await import('./cPurlinSlopeUi.js');
     await import('./cPurlinPhysicsBenchV2.js');
     await waitForPhysicsBenchInitialization();
@@ -82,13 +84,15 @@ async function tryMount() {
     await import('./cPurlinTestBasisPanel.js');
     await import('./cPurlinPhysicsPolishV3.js');
     await import('./cPurlinViewSeparationV4.js');
-    // V4 inserts the final public-demo DOM nodes. Run the one-shot 0°/90°
-    // stabilizer after that mount so no later MutationObserver pass can reset
-    // Member B during startup. User edits remain unlocked afterwards.
     await import('./cPurlinDirectDemoStabilizer.js');
     await import('./cPurlinSharedControlSyncV5.js');
     await import('./cPurlinCoordinatedVideoV5.js');
     await import('./cPurlinRecordingPreRollV6.js');
+    await import('./cPurlinPaperMatteReadabilityV7.js');
+    // V7 inserts one final presentation canvas; re-assert the canonical 0°/90°
+    // teaching pair only during startup so that legacy mutation work cannot
+    // reset Member B to 0°. The stabilizer then stops permanently.
+    await import('./cPurlinFinalStartupStabilizerV7.js');
     return;
   }
   attempts += 1;

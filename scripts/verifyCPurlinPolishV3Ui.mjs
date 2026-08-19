@@ -28,7 +28,7 @@ try{
     await sleep(100);
   }
   if(!ready?.panel||ready.polish!=='true'||ready.separated!=='true'||ready.sharedSync!=='true'||!(ready.all>ready.first))throw new Error(`Separated all-yield bench did not initialize: ${JSON.stringify(ready)}`);
-  if(ready.brand!=='FutolTech Engineering')throw new Error(`Public web company brand is wrong: ${ready.brand}`);
+  if(ready.brand!=='FUTOLTECH ENGINEERING & PROJECT SYSTEMS')throw new Error(`Public web company brand is wrong: ${ready.brand}`);
   if(!ready.canonical||Math.abs(ready.mainSlope-ready.benchSlope)>.001)throw new Error(`Slope controls are not one synchronized state: ${JSON.stringify(ready)}`);
   if(ready.assembly)throw new Error('Obsolete real-roof assembly figure is still mounted.');
   if(ready.oldCanvasDisplay!=='none'||ready.oldPolishedDisplay!=='none')throw new Error(`Legacy duplicate canvases are still visible: ${JSON.stringify(ready)}`);
