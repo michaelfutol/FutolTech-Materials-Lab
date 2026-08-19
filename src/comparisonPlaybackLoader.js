@@ -76,6 +76,7 @@ async function tryMount() {
     await import('./cPurlinSlopeUi.js');
     await import('./cPurlinPhysicsBenchV2.js');
     await waitForPhysicsBenchInitialization();
+    await import('./cPurlinAssemblyVisual.js');
     await import('./comparisonPlaybackUi.js');
     return;
   }
