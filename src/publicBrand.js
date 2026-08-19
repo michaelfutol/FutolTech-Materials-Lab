@@ -68,9 +68,14 @@ export function applyPublicBrand() {
     setTextIfChanged(node, branded);
   });
 
-  // Public web pages use the concise trading identity. The full legal company
+  // Public web pages use the concise mixed-case identity. The full legal company
   // name remains unchanged in print/video/report identity through COMPANY_NAME.
-  setTextIfChanged(document.querySelector('.topbar .eyebrow'), WEB_COMPANY_NAME);
+  const webCompany = document.querySelector('.topbar .eyebrow');
+  setTextIfChanged(webCompany, WEB_COMPANY_NAME);
+  if (webCompany) {
+    webCompany.style.textTransform = 'none';
+    webCompany.style.letterSpacing = '.06em';
+  }
 
   const topHeading = document.querySelector('.topbar h1');
   const heading = topHeading?.textContent?.trim();
