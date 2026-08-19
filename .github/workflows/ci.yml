@@ -26,6 +26,8 @@ jobs:
         run: node scripts/verifyComparisonPlaybackUi.mjs
       - name: C-purlin roof-slope Chromium gate
         run: node scripts/verifyCPurlinSlopeUi.mjs
+      - name: C-purlin physics-bench Chromium gate
+        run: node scripts/verifyCPurlinPhysicsBenchUi.mjs
       - name: Deterministic engineering tests
         run: npm test
       - name: C-purlin Chromium gate
