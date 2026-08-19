@@ -81,6 +81,38 @@ function ensurePrintCompaction() {
   document.head.appendChild(style);
 }
 
+function slopedPrintTraceHtml(slopeDeg) {
+  const loadKN = Math.max(0, currentLoadKN());
+  const components = resolveCPurlinRoofLoad(loadKN, slopeDeg);
+  return `
+    <section class="ft-print-section ft-manual-calc">
+      <div class="ft-section-head"><div><p class="ft-section-kicker">Calculation trace boundary</p><h2>Sloped C-purlin biaxial response</h2></div><span>Gross-section SCREENING only</span></div>
+      <div class="ft-final-note">
+        <h3>Two resolved components of one global vertical load</h3>
+        <p class="ft-equation">P = ${compact(components.globalVerticalKN, 4)} kN; θ = ${compact(slopeDeg, 1)}°. P⊥ = P cos θ = <strong>${compact(components.roofNormalKN, 4)} kN</strong>; P∥ = P sin θ = <strong>${compact(components.roofParallelKN, 4)} kN</strong>.</p>
+        <p>The live comparison solves the roof-normal component about the currently installed gross section x-axis and the roof-parallel component about its gross y-axis, then combines them as a conservative gross biaxial elastic stress envelope. The original single-axis closed-form hand-check is intentionally suppressed on this page when θ &gt; 0° so it cannot be mistaken for an independent verification of the sloped case.</p>
+      </div>
+      <div class="ft-final-note">
+        <h3>Verification still required</h3>
+        <p>A future calculation-trace revision will print the complete independent two-axis derivation. Until then, use the sloped result as analytical SCREENING only. Effective-width/local buckling, distortional buckling, lateral-torsional/torsional behavior, fastener and bridging restraint, roof-sheet action, uplift/load reversal and project-specific code checks remain outside this gross-section model.</p>
+      </div>
+    </section>`;
+}
+
+function applyPrintTraceBoundary(slopeInput) {
+  if (!allActiveMembersAreCPurlins()) return;
+  const slope = Number(slopeInput.value);
+  if (!(slope > 0)) return;
+  for (const doc of document.querySelectorAll('.ft-print-document')) {
+    const responseBody = doc.querySelector('[data-page="8"] .ft-page-body');
+    if (!responseBody) continue;
+    const key = `slope-${slope}`;
+    if (responseBody.dataset.cpSlopeTraceKey === key) continue;
+    responseBody.innerHTML = slopedPrintTraceHtml(slope);
+    responseBody.dataset.cpSlopeTraceKey = key;
+  }
+}
+
 function mount() {
   if (!selectorsRoot || !loadInput || !loadUnit || !loadEquivalent || !loadPosition) return;
   if (document.getElementById('compareRoofSlopeInput')) return;
@@ -141,14 +173,21 @@ function mount() {
   loadInput.addEventListener('input', updateReadout);
   loadUnit.addEventListener('change', updateReadout);
 
-  const observer = new MutationObserver(() => {
+  const selectorObserver = new MutationObserver(() => {
     const wasEnabled = !slopeInput.disabled;
     updateReadout();
     if (wasEnabled !== !slopeInput.disabled) {
       loadInput.dispatchEvent(new Event('input', { bubbles: true }));
     }
   });
-  observer.observe(selectorsRoot, { childList: true, subtree: true });
+  selectorObserver.observe(selectorsRoot, { childList: true, subtree: true });
+
+  const printObserver = new MutationObserver((records) => {
+    if (!records.some((record) => record.addedNodes.length)) return;
+    applyPrintTraceBoundary(slopeInput);
+  });
+  printObserver.observe(document.body, { childList: true, subtree: true });
+  window.addEventListener('beforeprint', () => queueMicrotask(() => applyPrintTraceBoundary(slopeInput)));
 
   updateReadout();
 }
