@@ -17,10 +17,10 @@ function chromePath() {
   throw new Error('Chromium is required for C-purlin physics-bench QA.');
 }
 
-async function waitPort(dir, process) {
+async function waitPort(dir, chromeProcess) {
   const file = join(dir, 'DevToolsActivePort');
   for (let i = 0; i < 500; i += 1) {
-    if (process.exitCode !== null) throw new Error(`Chromium exited early ${process.exitCode}`);
+    if (chromeProcess.exitCode !== null) throw new Error(`Chromium exited early ${chromeProcess.exitCode}`);
     try {
       const port = Number((await readFile(file, 'utf8')).split(/\r?\n/)[0]);
       if (port > 0) return port;
@@ -71,11 +71,11 @@ async function evalValue(cdp, expression) {
   return result.result?.value;
 }
 
-async function stop(process) {
-  if (!process || process.exitCode !== null) return;
-  process.kill('SIGTERM');
+async function stop(chromeProcess) {
+  if (!chromeProcess || chromeProcess.exitCode !== null) return;
+  chromeProcess.kill('SIGTERM');
   await sleep(300);
-  if (process.exitCode === null) process.kill('SIGKILL');
+  if (chromeProcess.exitCode === null) chromeProcess.kill('SIGKILL');
 }
 
 const server = createServer((req, res) => {
@@ -93,12 +93,12 @@ await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
 const { port } = server.address();
 const work = await mkdtemp(join(tmpdir(), 'ft-cp-physics-'));
 const profile = join(work, 'profile');
-let process;
+let chromeProcess;
 let cdp;
 
 try {
-  process = spawn(chromePath(), ['--headless=new','--no-sandbox','--disable-gpu','--disable-dev-shm-usage','--remote-debugging-port=0',`--user-data-dir=${profile}`,`http://127.0.0.1:${port}/compare.html?build=cp-physics-ci`], { stdio: 'ignore' });
-  const debugPort = await waitPort(profile, process);
+  chromeProcess = spawn(chromePath(), ['--headless=new','--no-sandbox','--disable-gpu','--disable-dev-shm-usage','--remote-debugging-port=0',`--user-data-dir=${profile}`,`http://127.0.0.1:${port}/compare.html?build=cp-physics-ci`], { stdio: 'ignore' });
+  const debugPort = await waitPort(profile, chromeProcess);
   const page = await target(`http://127.0.0.1:${debugPort}`);
   cdp = await connect(page.webSocketDebuggerUrl);
   await cdp.send('Runtime.enable');
@@ -129,7 +129,7 @@ try {
   console.log(`C-purlin physics bench Chromium QA passed: 2 m 0°/90° load-to-first-yield demo mounted, animated in kgf, and exposes a 1280x720 recordable canvas. Target=${state.target.toFixed(4)} kN.`);
 } finally {
   cdp?.socket.close();
-  await stop(process);
+  await stop(chromeProcess);
   server.close();
   await rm(work, { recursive: true, force: true });
 }
