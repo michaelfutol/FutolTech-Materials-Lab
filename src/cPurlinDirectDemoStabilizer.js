@@ -27,7 +27,7 @@ async function settleCanonicalPairOnce() {
   // direct demo is mounting. Re-assert the canonical teaching pair only during
   // that startup window, then stop permanently so user edits remain free.
   stabilizeCanonicalPair();
-  await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+  await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
   stabilizeCanonicalPair();
   await new Promise((resolve) => setTimeout(resolve, 120));
   stabilizeCanonicalPair();
