@@ -69,10 +69,10 @@ async function tryMount() {
   if (compareReady()) {
     deconflictPrintCloneIds();
     loaded = true;
-    // One shared Direct Compare state is used by every visualization. The V3
-    // engine continues to own the load/yield sequence, while V4 separates the
-    // visuals into (1) a static roof-slope/rafter attachment cross-section and
-    // (2) a longitudinal purlin-span deflection animation between rafters.
+    // One shared Direct Compare state is used by every visualization. V3 owns
+    // the load/yield sequence; V4 owns the static installation reference; V5
+    // locks the duplicate span/slope controls to one state and owns the final
+    // recorded longitudinal animation with per-member frozen yield loads.
     await import('./cPurlinSlopeUi.js');
     await import('./cPurlinPhysicsBenchV2.js');
     await waitForPhysicsBenchInitialization();
@@ -82,9 +82,11 @@ async function tryMount() {
     await import('./cPurlinPhysicsPolishV3.js');
     await import('./cPurlinViewSeparationV4.js');
     // V4 inserts the final public-demo DOM nodes. Run the one-shot 0°/90°
-    // stabilizer only after that mount so no later MutationObserver pass can
-    // reset Member B during startup. User edits remain unlocked afterwards.
+    // stabilizer after that mount so no later MutationObserver pass can reset
+    // Member B during startup. User edits remain unlocked afterwards.
     await import('./cPurlinDirectDemoStabilizer.js');
+    await import('./cPurlinSharedControlSyncV5.js');
+    await import('./cPurlinCoordinatedVideoV5.js');
     return;
   }
   attempts += 1;
