@@ -38,6 +38,11 @@ function compareReady() {
     && !!document.querySelector('.compare-shell [data-slot-enable="2"]');
 }
 
+function isCPurlinTestPage() {
+  const queryDemo = new URLSearchParams(window.location.search).get('demo');
+  return document.body?.dataset.testPage === 'c-purlin' || queryDemo === 'c-purlin';
+}
+
 function physicsBenchInitialized() {
   const panel = document.querySelector('.compare-shell [data-c-purlin-physics-bench]');
   if (!panel?.dataset.yieldTargetKn) return false;
@@ -61,6 +66,33 @@ async function waitForPhysicsBenchInitialization() {
   throw new Error('SIM-VIZ-003 did not finish canonical C-purlin initialization before synchronized playback mounted.');
 }
 
+async function mountGenericComparisonPlayback() {
+  await import('./comparisonPlaybackUi.js');
+  await import('./genericComparisonVideoV1.js');
+  document.documentElement.dataset.comparisonExperience = 'general-materials';
+}
+
+async function mountCPurlinPhysicsExperience() {
+  // The dedicated C-purlin page retains the validated specialist stack.
+  // Its one shared Direct Compare state drives slope, orientation, yield
+  // sequencing, formula traces and PaperMatte/Lab-Dark video export.
+  await import('./cPurlinSlopeUi.js');
+  await import('./cPurlinPhysicsBenchV2.js');
+  await waitForPhysicsBenchInitialization();
+  await import('./cPurlinSharedSlopePolish.js');
+  await import('./comparisonPlaybackUi.js');
+  await import('./cPurlinTestBasisPanel.js');
+  await import('./cPurlinPhysicsPolishV3.js');
+  await import('./cPurlinViewSeparationV4.js');
+  await import('./cPurlinDirectDemoStabilizer.js');
+  await import('./cPurlinSharedControlSyncV5.js');
+  await import('./cPurlinCoordinatedVideoV5.js');
+  await import('./cPurlinRecordingPreRollV6.js');
+  await import('./cPurlinPaperMatteReadabilityV7.js');
+  await import('./cPurlinFinalStartupStabilizerV7.js');
+  document.documentElement.dataset.comparisonExperience = 'c-purlin';
+}
+
 async function tryMount() {
   if (loaded || document.querySelector('.compare-shell [data-comparison-playback]')) {
     loaded = true;
@@ -69,30 +101,8 @@ async function tryMount() {
   if (compareReady()) {
     deconflictPrintCloneIds();
     loaded = true;
-    // One shared Direct Compare state is used by every visualization. V3 owns
-    // the load/yield sequence; V4 owns the static installation reference; V5
-    // locks duplicate span/slope controls to one state and owns the final
-    // recorded longitudinal animation with per-member frozen yield loads.
-    // V6 guarantees recording begins from a fully rendered zero-load frame.
-    // V7 raises PaperMatte contrast/readability and keeps the static sloping
-    // rafter attachment reference entirely inside its member cards.
-    await import('./cPurlinSlopeUi.js');
-    await import('./cPurlinPhysicsBenchV2.js');
-    await waitForPhysicsBenchInitialization();
-    await import('./cPurlinSharedSlopePolish.js');
-    await import('./comparisonPlaybackUi.js');
-    await import('./cPurlinTestBasisPanel.js');
-    await import('./cPurlinPhysicsPolishV3.js');
-    await import('./cPurlinViewSeparationV4.js');
-    await import('./cPurlinDirectDemoStabilizer.js');
-    await import('./cPurlinSharedControlSyncV5.js');
-    await import('./cPurlinCoordinatedVideoV5.js');
-    await import('./cPurlinRecordingPreRollV6.js');
-    await import('./cPurlinPaperMatteReadabilityV7.js');
-    // V7 inserts one final presentation canvas; re-assert the canonical 0°/90°
-    // teaching pair only during startup so that legacy mutation work cannot
-    // reset Member B to 0°. The stabilizer then stops permanently.
-    await import('./cPurlinFinalStartupStabilizerV7.js');
+    if (isCPurlinTestPage()) await mountCPurlinPhysicsExperience();
+    else await mountGenericComparisonPlayback();
     return;
   }
   attempts += 1;
