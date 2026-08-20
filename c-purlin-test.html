@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="FutolTech Structural Lab C-Purlin Physics Test Bench: compare Philippine C-purlin orientations under one shared span, roof slope and centre point-load history with live equations and recordable video." />
+    <title>C-Purlin Physics Test Bench · FutolTech Structural Lab</title>
+    <link rel="stylesheet" href="./src/styles.css?v=20260806-1" />
+    <link rel="stylesheet" href="./src/compare.css?v=20260806-1" />
+    <link rel="stylesheet" href="./src/printReport.css?v=20260807-oldschool1" />
+    <link rel="stylesheet" href="./src/printLetterhead.css?v=20260807-letterhead1" />
+  </head>
+  <body data-test-page="c-purlin">
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">FUTOLTECH ENGINEERING &amp; PROJECT SYSTEMS</p>
+        <h1>C-Purlin Physics Test Bench</h1>
+        <p class="subtitle">Dedicated orientation, roof-slope and load-to-yield comparison for Philippine C-purlins. This page is separate from the general materials comparison.</p>
+      </div>
+      <div class="status-cluster">
+        <a class="status-pill status-link" href="./index.html">← Materials Lab</a>
+        <a class="status-pill status-link" href="./compare.html" target="_blank" rel="noopener">General Material Comparison ↗</a>
+        <span class="status-pill">C-purlin test · dedicated</span>
+        <span class="status-pill">2 / 3 members · shared conditions</span>
+      </div>
+    </header>
+
+    <main class="compare-shell">
+      <section class="panel compare-inputs" aria-label="Shared C-purlin test conditions">
+        <div class="panel-heading">
+          <div><p class="eyebrow">One C-purlin test environment</p><h2 id="compareConditionsTitle">Shared load and span</h2></div>
+          <button id="compareResetButton" class="button" type="button">Reset C-purlin comparison</button>
+        </div>
+
+        <div class="compare-mode-switch" role="group" aria-label="Comparison test type">
+          <button id="compareBeamModeButton" class="mode-button is-active" type="button">Beam bending</button>
+          <button id="compareColumnModeButton" class="mode-button" type="button">Column compression</button>
+        </div>
+
+        <div class="control-grid">
+          <label title="Overall span for bending or full clear height for compression."><span class="help-term" tabindex="0" data-help="For beam mode this is the support-to-support span. For compression mode this is the full clear column height before any intermediate brace divides it into shorter unbraced segments.">Member length, m <span class="help-icon" aria-hidden="true">i</span></span><input id="compareLengthInput" type="number" min="0.6" max="12" step="0.1" value="3" /></label>
+          <label class="compare-beam-only" title="Idealized beam support condition."><span class="help-term" tabindex="0" data-help="Pin + roller is a simply supported beam. A cantilever is fixed at one end and free at the other. Support choice changes moment and deflection strongly.">Beam boundary case <span class="help-icon" aria-hidden="true">i</span></span><select id="compareBoundarySelect"><option value="simply-supported">Pin + roller</option><option value="cantilever-left">Fixed left + free right</option><option value="cantilever-right">Free left + fixed right</option></select></label>
+          <label class="compare-column-only is-hidden" title="Idealized end restraint used to determine the effective-length factor K."><span class="help-term" tabindex="0" data-help="End restraint sets the effective-length factor K. Real joints are rarely perfectly pinned or fixed; use the less favorable condition when uncertain.">Column end restraint <span class="help-icon" aria-hidden="true">i</span></span><select id="compareColumnBoundarySelect"><option value="pinned-pinned">Pin + pin · K=1.0</option><option value="fixed-pinned">Fixed + pin · K≈0.699</option><option value="fixed-fixed">Fixed + fixed · K=0.5</option><option value="fixed-free">Fixed + free · K=2.0</option></select></label>
+          <label title="Force applied to every active specimen."><span id="compareLoadLabel" class="help-term" tabindex="0" data-help="The same common load history is applied to all active C-purlin specimens until each reaches its own first-yield screen.">Point load <span class="help-icon" aria-hidden="true">i</span></span><input id="compareLoadInput" type="number" min="0" step="0.1" value="100" /></label>
+          <label title="Choose the force unit you understand best."><span class="help-term" tabindex="0" data-help="kgf is the familiar weight-equivalent unit. The solver converts kgf or tonne-force to kN internally using standard gravity.">Load unit <span class="help-icon" aria-hidden="true">i</span></span><select id="compareLoadUnitSelect"><option value="kgf">kgf — familiar kilogram-force</option><option value="kN">kN — engineering force</option><option value="tf">tonne-force</option></select></label>
+          <label class="compare-beam-only" title="Location of the point load measured from the left end."><span class="help-term" tabindex="0" data-help="The dedicated C-purlin teaching benchmark uses the centre point load; the shared control remains visible for traceability.">Load position, m from left <span class="help-icon" aria-hidden="true">i</span></span><input id="compareLoadPositionInput" type="number" min="0" max="3" step="0.05" value="1.5" /></label>
+          <label class="compare-beam-only" title="Maximum permitted service deflection expressed as span divided by a number."><span class="help-term" tabindex="0" data-help="L/360 is stricter than L/240 or L/180. Serviceability remains distinct from the gross first-yield screen.">Deflection criterion <span class="help-icon" aria-hidden="true">i</span></span><select id="compareDeflectionSelect"><option value="360">L/360 · floor / brittle finish</option><option value="240">L/240 · roof with ceiling</option><option value="180">L/180 · exposed flexible roof</option></select></label>
+          <label class="compare-column-only is-hidden"><span>Load eccentricity, mm</span><input id="compareEccentricityInput" type="number" min="0" step="1" value="10" /></label>
+          <label class="compare-column-only is-hidden"><span>Intermediate lateral brace points</span><select id="compareBracePointsSelect"><option value="0">0 · full height unbraced</option><option value="1">1 · brace at midheight</option><option value="2">2 · braces at thirds</option><option value="3">3 · braces at quarters</option></select></label>
+        </div>
+        <div id="compareLoadEquivalent" class="source-card"></div>
+        <div class="support-help"><strong>Dedicated-test rule</strong><p id="compareFairRule">All active C-purlins share the same span, roof slope, centre load history and timing. Orientation and deliberately selected section properties remain specimen-specific.</p></div>
+      </section>
+
+      <section class="panel compare-members" aria-label="C-purlins being compared">
+        <div class="panel-heading"><div><p class="eyebrow">C-purlin specimens</p><h2>Orientation comparison members</h2></div></div>
+        <div id="compareSelectors" class="compare-selector-grid"></div>
+        <div id="compareErrorBanner" class="error-banner is-hidden" role="alert"></div>
+      </section>
+
+      <section class="panel compare-results" aria-label="C-purlin comparison results">
+        <div class="panel-heading"><div><p class="eyebrow">Side-by-side engineering response</p><h2 id="compareResultsTitle">C-purlin bending results</h2></div></div>
+        <div id="compareSummary" class="compare-summary" aria-live="polite"></div>
+        <div id="compareResultCards" class="compare-card-grid" aria-live="polite"></div>
+        <div class="compare-table-wrap">
+          <table class="compare-table">
+            <thead><tr><th>Metric</th><th id="compareHeadA">Member A</th><th id="compareHeadB">Member B</th><th id="compareHeadC">Member C</th></tr></thead>
+            <tbody id="compareTableBody"></tbody>
+          </table>
+        </div>
+        <section class="recommend-note"><h3>C-purlin analysis boundary</h3><p id="compareBoundaryNote">This is a gross-section elastic screening comparison. Local buckling, distortional buckling, lateral-/flexural-torsional buckling, connection fracture and full roof-system restraint are not yet promoted to design checks in this bench.</p></section>
+      </section>
+    </main>
+
+    <footer><strong>Engineering notice:</strong> Verify delivered section geometry, steel grade, coating, fasteners/welds, restraint, load combinations and governing cold-formed design provisions before structural design use.</footer>
+    <script type="module" src="./src/publicBrand.js?v=20260818-sl1"></script>
+    <script type="module" src="./src/components/tooltips.js?v=20260806-1"></script>
+    <script type="module" src="./src/compareApp.js?v=20260806-1"></script>
+    <script type="module" src="./src/cPurlinOrientationUi.js?v=20260818-orient2"></script>
+    <script type="module" src="./src/angleCompareUi.js?v=20260818-angle2"></script>
+    <script type="module" src="./src/comparisonPlaybackLoader.js?v=20260820-split1"></script>
+    <script type="module" src="./src/comparisonLimitPositiveLoadGuard.js?v=20260818-1"></script>
+    <script type="module" src="./src/printReport.js?v=20260807-oldschool1"></script>
+    <script type="module" src="./src/printCompanyIdentity.js?v=20260818-manual1"></script>
+  </body>
+</html>
