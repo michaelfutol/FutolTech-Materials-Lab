@@ -24,8 +24,10 @@ jobs:
         run: npm run check
       - name: Comparison PDF gate
         run: node scripts/verifyComparisonPdf.mjs
-      - name: Side-by-side comparison Chromium gate
+      - name: Dedicated C-purlin comparison playback Chromium gate
         run: node scripts/verifyComparisonPlaybackUi.mjs
+      - name: General comparison load-test video Chromium gate
+        run: node scripts/verifyGeneralComparisonVideoUi.mjs
       - name: C-purlin roof-slope Chromium gate
         run: node scripts/verifyCPurlinSlopeUi.mjs
       - name: C-purlin physics-bench Chromium gate
