@@ -43,6 +43,25 @@ function isCPurlinTestPage() {
   return document.body?.dataset.testPage === 'c-purlin' || queryDemo === 'c-purlin';
 }
 
+function mountExperienceTabs() {
+  const cluster = document.querySelector('.status-cluster');
+  if (!cluster || cluster.querySelector('[data-comparison-experience-tab]')) return;
+  const link = document.createElement('a');
+  link.className = 'status-pill status-link';
+  link.dataset.comparisonExperienceTab = 'true';
+  link.target = '_blank';
+  link.rel = 'noopener';
+  if (isCPurlinTestPage()) {
+    link.href = './compare.html';
+    link.textContent = 'General Material Comparison ↗';
+  } else {
+    link.href = './c-purlin-test.html';
+    link.textContent = 'C-Purlin Test Bench ↗';
+  }
+  const themeToggle = cluster.querySelector('[data-ft-theme-toggle]');
+  cluster.insertBefore(link, themeToggle ?? null);
+}
+
 function physicsBenchInitialized() {
   const panel = document.querySelector('.compare-shell [data-c-purlin-physics-bench]');
   if (!panel?.dataset.yieldTargetKn) return false;
@@ -100,6 +119,7 @@ async function tryMount() {
   }
   if (compareReady()) {
     deconflictPrintCloneIds();
+    mountExperienceTabs();
     loaded = true;
     if (isCPurlinTestPage()) await mountCPurlinPhysicsExperience();
     else await mountGenericComparisonPlayback();
