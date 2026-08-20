@@ -123,13 +123,23 @@ function isCPurlinTestPage() {
 
 function mountExperienceTabs() {
   const cluster = document.querySelector('.status-cluster');
-  if (!cluster || cluster.querySelector('[data-comparison-experience-tab]')) return;
+  if (!cluster) return;
+  const cpPage = isCPurlinTestPage();
+  const target = cpPage ? 'compare.html' : 'c-purlin-test.html';
+  const existing = [...cluster.querySelectorAll('a[href]')].find((node) => (node.getAttribute('href') || '').includes(target));
+  if (existing) {
+    existing.dataset.comparisonExperienceTab = 'true';
+    existing.target = '_blank';
+    existing.rel = 'noopener';
+    return;
+  }
+  if (cluster.querySelector('[data-comparison-experience-tab]')) return;
   const link = document.createElement('a');
   link.className = 'status-pill status-link';
   link.dataset.comparisonExperienceTab = 'true';
   link.target = '_blank';
   link.rel = 'noopener';
-  if (isCPurlinTestPage()) {
+  if (cpPage) {
     link.href = './compare.html';
     link.textContent = 'General Material Comparison ↗';
   } else {
