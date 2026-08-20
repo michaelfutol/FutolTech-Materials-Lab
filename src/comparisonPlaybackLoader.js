@@ -117,8 +117,11 @@ function compareReady() {
 }
 
 function isCPurlinTestPage() {
-  const queryDemo = new URLSearchParams(window.location.search).get('demo');
-  return document.body?.dataset.testPage === 'c-purlin' || queryDemo === 'c-purlin';
+  const params = new URLSearchParams(window.location.search);
+  const queryDemo = params.get('demo');
+  const build = params.get('build') || '';
+  const legacyQaRoute = /^cp-/i.test(build);
+  return document.body?.dataset.testPage === 'c-purlin' || queryDemo === 'c-purlin' || legacyQaRoute;
 }
 
 function mountExperienceTabs() {
