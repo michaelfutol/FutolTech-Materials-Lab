@@ -23,6 +23,84 @@ function watchPrintCloneIds() {
   observer.observe(document.body, { childList: true, subtree: true });
 }
 
+function injectPrintCardCompaction() {
+  if (document.getElementById('ft-three-member-print-compaction')) return;
+  const style = document.createElement('style');
+  style.id = 'ft-three-member-print-compaction';
+  style.textContent = `
+    @media print {
+      .ft-print-document #compareResultCards {
+        grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+        gap: 2.2mm !important;
+        align-items: stretch !important;
+      }
+      .ft-print-document #compareResultCards .compare-result-card {
+        border-radius: 2.5mm !important;
+        break-inside: avoid !important;
+      }
+      .ft-print-document #compareResultCards .compare-result-card__visual {
+        min-height: 17mm !important;
+        height: 17mm !important;
+      }
+      .ft-print-document #compareResultCards .compare-result-card__visual svg {
+        width: 18mm !important;
+        height: 15mm !important;
+        max-height: 15mm !important;
+      }
+      .ft-print-document #compareResultCards .compare-result-card__body {
+        padding: 2.2mm !important;
+      }
+      .ft-print-document #compareResultCards .compare-result-card__status {
+        gap: 1mm !important;
+        margin-bottom: 1.2mm !important;
+      }
+      .ft-print-document #compareResultCards .recommend-badge,
+      .ft-print-document #compareResultCards .compare-winner-chip {
+        padding: .45mm 1mm !important;
+        font-size: 6.4pt !important;
+        line-height: 1.1 !important;
+      }
+      .ft-print-document #compareResultCards .eyebrow {
+        margin: .7mm 0 .4mm !important;
+        font-size: 6.5pt !important;
+        line-height: 1.1 !important;
+      }
+      .ft-print-document #compareResultCards h3 {
+        margin: .4mm 0 .8mm !important;
+        font-size: 8.6pt !important;
+        line-height: 1.12 !important;
+      }
+      .ft-print-document #compareResultCards p {
+        margin: .6mm 0 !important;
+        font-size: 7.2pt !important;
+        line-height: 1.18 !important;
+      }
+      .ft-print-document #compareResultCards .compare-mini-metrics {
+        gap: .8mm !important;
+        margin: 1.2mm 0 !important;
+      }
+      .ft-print-document #compareResultCards .compare-mini-metrics div {
+        padding: 1mm !important;
+        border-radius: 1.4mm !important;
+      }
+      .ft-print-document #compareResultCards .compare-mini-metrics dt {
+        font-size: 6.2pt !important;
+        line-height: 1.1 !important;
+      }
+      .ft-print-document #compareResultCards .compare-mini-metrics dd {
+        margin-top: .35mm !important;
+        font-size: 7.1pt !important;
+        line-height: 1.12 !important;
+      }
+      .ft-print-document #compareResultCards .candidate-source {
+        font-size: 6.2pt !important;
+        line-height: 1.14 !important;
+      }
+    }
+  `;
+  document.head.appendChild(style);
+}
+
 function slotReady(index) {
   const liveRoot = document.querySelector('.compare-shell #compareSelectors');
   return !!liveRoot?.querySelector(`[data-slot-material="${index}"]`)
@@ -119,6 +197,7 @@ async function tryMount() {
   }
   if (compareReady()) {
     deconflictPrintCloneIds();
+    injectPrintCardCompaction();
     mountExperienceTabs();
     loaded = true;
     if (isCPurlinTestPage()) await mountCPurlinPhysicsExperience();
