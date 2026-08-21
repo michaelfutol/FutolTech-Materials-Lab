@@ -69,7 +69,7 @@ function dom() {
   return {
     mode: get('[data-cplc-mode]'), section: get('[data-cplc-section]'), grade: get('[data-cplc-grade]'),
     span: get('[data-cplc-span]'), slope: get('[data-cplc-slope]'), tributary: get('[data-cplc-tributary]'),
-    dead: get('[data-cplc-dead]'), live: get('[data-cplc-live]'), wind: get('[data-cplc-wind]'), windSense: get('[data-cplc-wind-sense]'),
+    dead: get('[data-cplc-dead]'), live: get('[data-cplc-live]'), windUplift: get('[data-cplc-wind-uplift]'), windDownward: get('[data-cplc-wind-downward]'), windSense: get('[data-cplc-wind-sense]'),
     duration: get('[data-cplc-duration]'), maxFactor: get('[data-cplc-max-factor]'), third: get('[data-cplc-third]'),
     orientations: [0,1,2].map((index) => get(`[data-cplc-orientation="${index}"]`)),
     resetInputs: get('[data-cplc-reset-inputs]'), start: get('[data-cplc-start]'), pause: get('[data-cplc-pause]'), reset: get('[data-cplc-reset]'), record: get('[data-cplc-record]'),
@@ -120,11 +120,16 @@ function activeMembers() {
 }
 
 function rawInputs() {
+  const windSense = ui.windSense.value === 'downward' ? 'downward' : 'uplift';
+  const windUpliftKPa = clamp(ui.windUplift.value,0,10);
+  const windDownwardKPa = clamp(ui.windDownward.value,0,10);
   return {
     mode:ui.mode.value,
     spanM:clamp(ui.span.value,.8,6), slopeDeg:clamp(ui.slope.value,0,60), tributaryWidthM:clamp(ui.tributary.value,.2,3),
-    deadLoadKPa:clamp(ui.dead.value,0,5), roofLiveLoadKPa:clamp(ui.live.value,0,5), windPressureKPa:clamp(ui.wind.value,0,10),
-    windSense:ui.windSense.value === 'downward' ? 'downward' : 'uplift', maxFactor:clamp(ui.maxFactor.value,1,20)
+    deadLoadKPa:clamp(ui.dead.value,0,5), roofLiveLoadKPa:clamp(ui.live.value,0,5),
+    windUpliftKPa, windDownwardKPa, windSense,
+    windPressureKPa:windSense === 'downward' ? windDownwardKPa : windUpliftKPa,
+    maxFactor:clamp(ui.maxFactor.value,1,20)
   };
 }
 
@@ -133,13 +138,15 @@ function buildCaseContext() {
   const members = activeMembers();
   let solveMode = input.mode;
   let windSense = input.windSense;
+  let windPressureKPa = input.windPressureKPa;
   let envelope = null;
   if (input.mode === 'envelope') {
     envelope = governingCommonWindSense({ members, ...input });
     solveMode = 'combined';
     windSense = envelope.windSense;
+    windPressureKPa = envelope.windPressureKPa;
   }
-  const common = { ...input, mode:solveMode, windSense };
+  const common = { ...input, mode:solveMode, windSense, windPressureKPa };
   const sequence = yieldSequence({ members, ...common, maxFactor:input.maxFactor });
   const targetFactor = Math.max(.0001, sequence.allYieldFactor);
   return { input, members, common, sequence, targetFactor, envelope };
@@ -163,18 +170,19 @@ function syncModeDisabledState() {
   const mode = ui.mode.value;
   const windDisabled = mode === 'gravity';
   const gravityDisabled = mode === 'wind';
-  ui.wind.disabled = windDisabled;
+  ui.windUplift.disabled = windDisabled;
+  ui.windDownward.disabled = windDisabled;
   ui.windSense.disabled = windDisabled || mode === 'envelope';
   ui.dead.disabled = gravityDisabled;
   ui.live.disabled = gravityDisabled;
-  [ui.wind.closest('label'), ui.windSense.closest('label')].forEach((node) => node?.classList.toggle('cp-loadcase-disabled', windDisabled));
+  [ui.windUplift.closest('label'), ui.windDownward.closest('label'), ui.windSense.closest('label')].forEach((node) => node?.classList.toggle('cp-loadcase-disabled', windDisabled));
   [ui.dead.closest('label'), ui.live.closest('label')].forEach((node) => node?.classList.toggle('cp-loadcase-disabled', gravityDisabled));
 }
 
 function resetInputs() {
   ui.mode.value = 'combined';
   ui.section.value = [...ui.section.options].some((option) => option.value === DEFAULT_SECTION_ID) ? DEFAULT_SECTION_ID : ui.section.options[0].value;
-  ui.grade.value = '250'; ui.span.value = '2'; ui.slope.value = '30'; ui.tributary.value = '.8'; ui.dead.value = '.20'; ui.live.value = '.75'; ui.wind.value = '1.50'; ui.windSense.value = 'uplift'; ui.duration.value = '16'; ui.maxFactor.value = '12';
+  ui.grade.value = '250'; ui.span.value = '2'; ui.slope.value = '30'; ui.tributary.value = '.8'; ui.dead.value = '.20'; ui.live.value = '.75'; ui.windUplift.value = '1.50'; ui.windDownward.value = '.80'; ui.windSense.value = 'uplift'; ui.duration.value = '16'; ui.maxFactor.value = '12';
   ui.third.checked = false; ui.orientations[0].value = '0'; ui.orientations[1].value = '90'; ui.orientations[2].value = '180';
   syncModeDisabledState(); resetAnimation();
 }
@@ -202,8 +210,8 @@ function canvasHeader(ctx, palette, title, subtitle, width) {
 }
 
 function drawVectorCanvas(context = buildCaseContext()) {
-  const canvas=ui.vectorCanvas, ctx=canvas.getContext('2d'), p=themePalette(), w=canvas.width, h=canvas.height;
-  ctx.fillStyle=p.bg; ctx.fillRect(0,0,w,h);
+  const canvas=ui.vectorCanvas, ctx=canvas.getContext('2d'), p=themePalette(), w=canvas.width;
+  ctx.fillStyle=p.bg; ctx.fillRect(0,0,canvas.width,canvas.height);
   canvasHeader(ctx,p,'ROOF CROSS-SECTION · GRAVITY + WIND VECTOR EXPLANATION','Static installation/load-path view — no span deflection is animated here.',w);
   const input=context.common, preset=context.members[0].preset;
   const loads=resolveRoofLineLoads({ ...input, preset, densityKgM3:DENSITY_KG_M3 });
@@ -229,7 +237,7 @@ function drawVectorCanvas(context = buildCaseContext()) {
   drawArrow(ctx,originX,originY,originX+rx*scale,originY+ry*scale,p.resultant,`resultant ${compact(loads.resultantKNM)} kN/m`,6);
   ctx.fillStyle=p.text; ctx.font='800 18px ui-sans-serif,system-ui,sans-serif'; ctx.fillText(`Normal direction: ${loads.normalDirection.toUpperCase()}`,790,365);
   ctx.fillStyle=p.muted; ctx.font='600 15px ui-monospace,SFMono-Regular,Consolas,monospace';
-  ctx.fillText(`gravity → w⊥ = W cosθ ; w∥ = W sinθ`,790,392); ctx.fillText(`wind → roof-normal only in this idealized layer`,790,414);
+  ctx.fillText('gravity → w⊥ = W cosθ ; w∥ = W sinθ',790,392); ctx.fillText('wind → roof-normal only in this idealized layer',790,414);
 }
 
 function drawDistributedLoad(ctx, x1, x2, baselineY, amplitude, color, label) {
@@ -240,12 +248,12 @@ function drawDistributedLoad(ctx, x1, x2, baselineY, amplitude, color, label) {
 }
 
 function drawVideo(context = buildCaseContext(), factor = animation.factor) {
-  const canvas=ui.videoCanvas,ctx=canvas.getContext('2d'),p=themePalette(),w=canvas.width,h=canvas.height;
-  ctx.fillStyle=p.bg;ctx.fillRect(0,0,w,h);
+  const canvas=ui.videoCanvas,ctx=canvas.getContext('2d'),p=themePalette(),w=canvas.width;
+  ctx.fillStyle=p.bg;ctx.fillRect(0,0,canvas.width,canvas.height);
   const modeLabel=context.input.mode==='envelope'?'GOVERNING ENVELOPE':context.common.mode.toUpperCase();
   canvasHeader(ctx,p,`C-PURLIN GRAVITY + WIND LOAD TEST · ${context.members.length} MEMBERS`,`${modeLabel} · roof slope ${compact(context.common.slopeDeg,1)}° · span ${compact(context.common.spanM,2)} m · tributary width ${compact(context.common.tributaryWidthM,2)} m`,w);
-  ctx.textAlign='right';ctx.fillStyle=p.warn;ctx.font='900 28px ui-monospace,SFMono-Regular,Consolas,monospace';ctx.fillText(`${compact(factor,2)}×`,w-45,47);ctx.fillStyle=p.muted;ctx.font='700 14px ui-monospace,SFMono-Regular,Consolas,monospace';ctx.fillText(`design input marker = 1.00× · wind ${context.common.windSense}`,w-45,73);
-  const lanes=laneResults(context,factor),gap=18,left=35,right=35,top=150,bottom=655,laneW=(w-left-right-gap*(lanes.length-1))/lanes.length;
+  ctx.textAlign='right';ctx.fillStyle=p.warn;ctx.font='900 28px ui-monospace,SFMono-Regular,Consolas,monospace';ctx.fillText(`${compact(factor,2)}×`,w-45,47);ctx.fillStyle=p.muted;ctx.font='700 14px ui-monospace,SFMono-Regular,Consolas,monospace';ctx.fillText(`design input marker = 1.00× · wind ${context.common.windSense} ${compact(context.common.windPressureKPa,2)} kPa`,w-45,73);
+  const lanes=laneResults(context,factor),gap=18,left=35,right=35,top=150,laneW=(w-left-right-gap*(lanes.length-1))/lanes.length;
   const targetLanes=laneResults(context,context.targetFactor); const maxDelta=Math.max(1,...targetLanes.map(l=>Math.abs(l.result.deltaNormalMm)));
   lanes.forEach((lane,index)=>{
     const x=left+index*(laneW+gap),y=top,cw=laneW,ch=470;
@@ -275,10 +283,10 @@ function drawVideo(context = buildCaseContext(), factor = animation.factor) {
 function updateDom(context = buildCaseContext(), factor = animation.factor) {
   const lanes=laneResults(context,factor); const representative=lanes[0]?.result;
   ui.factor.textContent=`${compact(factor,2)}×`; ui.normal.textContent=`${compact(representative?.loads.normalKNM ?? 0)} kN/m`; ui.parallel.textContent=`${compact(representative?.loads.parallelKNM ?? 0)} kN/m`;
-  ui.case.textContent=context.input.mode==='envelope'?`AUTO ${context.common.windSense.toUpperCase()}`:context.common.windSense.toUpperCase(); ui.yieldState.textContent=`${lanes.filter(l=>l.yielded).length} / ${lanes.length} yielded`;
+  ui.case.textContent=context.input.mode==='envelope'?`AUTO ${context.common.windSense.toUpperCase()} · ${compact(context.common.windPressureKPa,2)} kPa`:`${context.common.windSense.toUpperCase()} · ${compact(context.common.windPressureKPa,2)} kPa`; ui.yieldState.textContent=`${lanes.filter(l=>l.yielded).length} / ${lanes.length} yielded`;
   ui.results.innerHTML=lanes.map((lane)=>`<article class="cp-loadcase-result-card"><h3>${lane.member.label} · ${lane.member.orientationDeg}°</h3><dl><dt>Axis for roof-normal load</dt><dd>${lane.result.axes.normalAxis}</dd><dt>Axis for down-slope load</dt><dd>${lane.result.axes.parallelAxis}</dd><dt>First-yield factor</dt><dd>${Number.isFinite(lane.firstYieldFactor)?compact(lane.firstYieldFactor,2)+'×':'—'}</dd><dt>Gross stress now</dt><dd>${compact(lane.result.grossEnvelopeStressMPa,1)} MPa</dd><dt>δ roof-normal</dt><dd>${compact(lane.result.deltaNormalMm,2)} mm</dd><dt>δ down-slope</dt><dd>${compact(lane.result.deltaParallelMm,2)} mm</dd></dl></article>`).join('');
-  const p=selectedPreset(), baseLoads=resolveRoofLineLoads({ ...context.common,preset:p,densityKgM3:DENSITY_KG_M3 });
-  ui.equations.innerHTML=`<strong>Shared load decomposition at 1.00× input</strong><br>q<sub>g</sub> = D + Lr = ${compact(context.common.deadLoadKPa,2)} + ${compact(context.common.roofLiveLoadKPa,2)} = ${compact(baseLoads.gravityAreaKPa,2)} kPa<br>w<sub>g,area</sub> = q<sub>g</sub>s = ${compact(baseLoads.gravityAreaKPa,2)} × ${compact(context.common.tributaryWidthM,2)} = ${compact(baseLoads.gravityAreaLineKNM)} kN/m<br>w<sub>self</sub> = ρAg = ${compact(baseLoads.selfWeightKNM)} kN/m ${context.common.mode==='wind'?'(excluded in Wind Only mode)':''}<br>w<sub>⊥</sub> = w<sub>g</sub>cosθ ${context.common.mode==='gravity'?'':'± w<sub>wind</sub>'} = ${compact(baseLoads.normalKNM)} kN/m<br>w<sub>∥</sub> = w<sub>g</sub>sinθ = ${compact(baseLoads.parallelKNM)} kN/m<br><br><strong>For each simply supported purlin</strong><br>M<sub>⊥</sub> = w<sub>⊥</sub>L²/8 · M<sub>∥</sub> = w<sub>∥</sub>L²/8<br>σ<sub>gross</sub> = |M<sub>⊥</sub>|/Z<sub>⊥</sub> + |M<sub>∥</sub>|/Z<sub>∥</sub><br>δ = 5wL⁴/(384EI) independently about the two mapped gross axes.<br><br><strong>Current common test target:</strong> ${compact(context.targetFactor,2)}×${context.sequence.allYieldReachable?' · reaches every active gross first-yield':' · capped before every member yields'}.`;
+  const preset=selectedPreset(), baseLoads=resolveRoofLineLoads({ ...context.common,preset,densityKgM3:DENSITY_KG_M3 });
+  ui.equations.innerHTML=`<strong>Shared load decomposition at 1.00× input</strong><br>q<sub>g</sub> = D + Lr = ${compact(context.common.deadLoadKPa,2)} + ${compact(context.common.roofLiveLoadKPa,2)} = ${compact(baseLoads.gravityAreaKPa,2)} kPa<br>w<sub>g,area</sub> = q<sub>g</sub>s = ${compact(baseLoads.gravityAreaKPa,2)} × ${compact(context.common.tributaryWidthM,2)} = ${compact(baseLoads.gravityAreaLineKNM)} kN/m<br>w<sub>self</sub> = ρAg = ${compact(baseLoads.selfWeightKNM)} kN/m ${context.common.mode==='wind'?'(excluded in Wind Only mode)':''}<br>selected wind = ${context.common.windSense} ${compact(context.common.windPressureKPa,2)} kPa → ${compact(baseLoads.windNormalKNM)} kN/m roof-normal<br>w<sub>⊥</sub> = w<sub>g</sub>cosθ ± w<sub>wind</sub> = ${compact(baseLoads.normalKNM)} kN/m<br>w<sub>∥</sub> = w<sub>g</sub>sinθ = ${compact(baseLoads.parallelKNM)} kN/m<br><br><strong>For each simply supported purlin</strong><br>M<sub>⊥</sub> = w<sub>⊥</sub>L²/8 · M<sub>∥</sub> = w<sub>∥</sub>L²/8<br>σ<sub>gross</sub> = |M<sub>⊥</sub>|/Z<sub>⊥</sub> + |M<sub>∥</sub>|/Z<sub>∥</sub><br>δ = 5wL⁴/(384EI) independently about the two mapped gross axes.<br><br><strong>Current common test target:</strong> ${compact(context.targetFactor,2)}×${context.sequence.allYieldReachable?' · reaches every active gross first-yield':' · capped before every member yields'}.`;
   drawVectorCanvas(context); drawVideo(context,factor);
 }
 
@@ -324,7 +332,7 @@ async function recordVideo() {
 }
 
 function bind() {
-  const inputs=[ui.mode,ui.section,ui.grade,ui.span,ui.slope,ui.tributary,ui.dead,ui.live,ui.wind,ui.windSense,ui.maxFactor,ui.third,...ui.orientations];
+  const inputs=[ui.mode,ui.section,ui.grade,ui.span,ui.slope,ui.tributary,ui.dead,ui.live,ui.windUplift,ui.windDownward,ui.windSense,ui.maxFactor,ui.third,...ui.orientations];
   inputs.forEach((control)=>{control.addEventListener(control.tagName==='SELECT'||control.type==='checkbox'?'change':'input',()=>{syncModeDisabledState();resetAnimation();});});
   ui.resetInputs.addEventListener('click',resetInputs);ui.start.addEventListener('click',()=>startAnimation({fromZero:true}));ui.pause.addEventListener('click',togglePause);ui.reset.addEventListener('click',resetAnimation);ui.record.addEventListener('click',recordVideo);
   window.addEventListener('ft-theme-change',()=>{if(animation.caseContext)updateDom(animation.caseContext,animation.factor)});
