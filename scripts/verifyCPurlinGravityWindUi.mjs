@@ -90,18 +90,22 @@ try {
 
   let ready;
   for(let i=0;i<220;i+=1){
-    ready=await evalValue(cdp,`(() => { const root=document.querySelector('[data-cp-loadcase-app]'); const v=document.querySelector('[data-cplc-vector]'); const video=document.querySelector('[data-cplc-video]'); return {ready:document.readyState,app:root?.dataset.cpLoadcaseReady,vector:[v?.width,v?.height],video:[video?.width,video?.height],api:!!window.__FT_C_PURLIN_LOAD_CASES__,original:[...document.querySelectorAll('a[href]')].some(a=>(a.getAttribute('href')||'').includes('c-purlin-test.html')),orient:[0,1].map(i=>document.querySelector('[data-cplc-orientation="'+i+'"]')?.value),equations:document.querySelector('[data-cplc-equations]')?.innerText||''}; })()`);
-    if(ready?.ready==='complete'&&ready.app==='true'&&ready.api) break;
+    ready=await evalValue(cdp,`(() => { const root=document.querySelector('[data-cp-loadcase-app]'); const v=document.querySelector('[data-cplc-vector]'); const video=document.querySelector('[data-cplc-video]'); return {ready:document.readyState,app:root?.dataset.cpLoadcaseReady,vector:[v?.width,v?.height],video:[video?.width,video?.height],api:!!window.__FT_C_PURLIN_LOAD_CASES__,original:[...document.querySelectorAll('a[href]')].some(a=>(a.getAttribute('href')||'').includes('c-purlin-test.html')),orient:[0,1].map(i=>document.querySelector('[data-cplc-orientation="'+i+'"]')?.value),equations:document.querySelector('[data-cplc-equations]')?.innerText||'',layout:root?.dataset.vectorFigureLayout||'',slope:root?.dataset.vectorFigureSlopeDeg||'',rotation:root?.dataset.vectorFigurePurlinRotationDeg||''}; })()`);
+    if(ready?.ready==='complete'&&ready.app==='true'&&ready.api&&ready.layout==='seated-nonoverlap-v1') break;
     await sleep(100);
   }
   if(ready?.app!=='true'||!ready.api) throw new Error(`Gravity/wind app did not mount: ${JSON.stringify(ready)}`);
-  if(ready.vector[0]!==1280||ready.vector[1]!==430||ready.video[0]!==1280||ready.video[1]!==720) throw new Error(`Canvas sizes changed: ${JSON.stringify(ready)}`);
+  if(ready.vector[0]!==1280||ready.vector[1]!==520||ready.video[0]!==1280||ready.video[1]!==720) throw new Error(`Canvas sizes changed unexpectedly: ${JSON.stringify(ready)}`);
+  if(ready.layout!=='seated-nonoverlap-v1') throw new Error(`Clean static vector layout did not mount: ${JSON.stringify(ready)}`);
   if(!ready.original) throw new Error('Dedicated gravity/wind page lost the link back to the original C-purlin bench.');
   if(ready.orient[0]!=='0'||ready.orient[1]!=='90') throw new Error(`Canonical standing/flat pair changed: ${JSON.stringify(ready.orient)}`);
   if(!/M⊥ = w⊥L²\/8/.test(ready.equations)||!/5wL⁴\/\(384EI\)/.test(ready.equations)) throw new Error('Live equation basis is missing UDL moment/deflection formulas.');
 
   const envelope=await evalValue(cdp,`(() => { const set=(sel,val)=>{const el=document.querySelector(sel);el.value=String(val);el.dispatchEvent(new Event(el.tagName==='SELECT'?'change':'input',{bubbles:true}));}; set('[data-cplc-mode]','envelope'); set('[data-cplc-wind-uplift]',2.5); set('[data-cplc-wind-downward]',.5); set('[data-cplc-slope]',30); const s=window.__FT_C_PURLIN_LOAD_CASES__.getState(); return {sense:s.context.common.windSense,pressure:s.context.common.windPressureKPa,label:document.querySelector('[data-cplc-case]').innerText}; })()`);
   if(envelope.sense!=='uplift'||Math.abs(envelope.pressure-2.5)>1e-9||!/AUTO UPLIFT/.test(envelope.label)) throw new Error(`Envelope did not choose the larger supplied uplift case: ${JSON.stringify(envelope)}`);
+  await sleep(80);
+  const vectorMeta=await evalValue(cdp,`(() => { const root=document.querySelector('[data-cp-loadcase-app]'); return {layout:root.dataset.vectorFigureLayout,slope:Number(root.dataset.vectorFigureSlopeDeg),rotation:Number(root.dataset.vectorFigurePurlinRotationDeg),legacyHidden:getComputedStyle(document.querySelector('[data-cplc-vector-legacy]')).display==='none'}; })()`);
+  if(vectorMeta.layout!=='seated-nonoverlap-v1'||Math.abs(vectorMeta.slope-30)>1e-9||Math.abs(vectorMeta.rotation+30)>1e-9||!vectorMeta.legacyHidden) throw new Error(`Static roof installation geometry is not coordinated with 30° slope: ${JSON.stringify(vectorMeta)}`);
 
   const paper=await evalValue(cdp,`(() => { const b=document.querySelector('[data-ft-theme-toggle]'); if(document.documentElement.dataset.ftTheme!=='paper-matte') b?.click(); window.__FT_C_PURLIN_LOAD_CASES__.render(); return {theme:document.documentElement.dataset.ftTheme}; })()`);
   if(paper.theme!=='paper-matte') throw new Error(`PaperMatte did not activate: ${JSON.stringify(paper)}`);
@@ -124,7 +128,7 @@ try {
   let video=null;for(let i=0;i<40;i+=1){video=await largestWebm(downloads);if(video?.size>10000)break;await sleep(100);}
   if(!video||video.size<=10000||!/gravity-wind/.test(video.file)||!/paper-matte/.test(video.file)) throw new Error(`No usable gravity/wind PaperMatte WebM downloaded: ${JSON.stringify(video)}`);
 
-  console.log(`C-purlin gravity/wind Chromium QA passed: separate original-bench navigation, 30° vector decomposition, uplift envelope selection, gradual longitudinal animation, static upper figure and PaperMatte WebM ${video.file} (${video.size} bytes).`);
+  console.log(`C-purlin gravity/wind Chromium QA passed: seated 30° purlin installation figure, separated vector labels, original-bench navigation, uplift envelope selection, gradual longitudinal animation, static upper figure and PaperMatte WebM ${video.file} (${video.size} bytes).`);
 } finally {
   cdp?.socket.close(); await stop(chromeProcess); server.close(); await rm(work,{recursive:true,force:true});
 }
