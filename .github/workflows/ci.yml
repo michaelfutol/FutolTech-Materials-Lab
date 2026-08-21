@@ -26,14 +26,16 @@ jobs:
         run: node scripts/verifyComparisonPdf.mjs
       - name: Dedicated C-purlin comparison playback Chromium gate
         run: node scripts/verifyComparisonPlaybackUi.mjs
+      - name: C-purlin gravity + wind Chromium gate
+        timeout-minutes: 3
+        run: node scripts/verifyCPurlinGravityWindUi.mjs
       - name: General comparison load-test video Chromium gate
+        timeout-minutes: 3
         run: node scripts/verifyGeneralComparisonVideoUi.mjs
       - name: C-purlin roof-slope Chromium gate
         run: node scripts/verifyCPurlinSlopeUi.mjs
       - name: C-purlin physics-bench Chromium gate
         run: node scripts/verifyCPurlinPhysicsBenchUi.mjs
-      - name: C-purlin gravity + wind Chromium gate
-        run: node scripts/verifyCPurlinGravityWindUi.mjs
       - name: C-purlin shared-conditions Chromium gate
         run: node scripts/verifyCPurlinSharedConditionsStable.mjs
       - name: C-purlin polish V3 Chromium gate
