@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="FutolTech C-Purlin Gravity + Wind Physics Bench: visualize vertical gravity, roof-normal wind, slope decomposition, biaxial gross-section response, yield sequence and downloadable video." />
+    <title>C-Purlin Gravity + Wind Physics · FutolTech Structural Lab</title>
+    <link rel="stylesheet" href="./src/styles.css?v=20260806-1" />
+  </head>
+  <body data-test-page="c-purlin-load-cases">
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">FUTOLTECH ENGINEERING &amp; PROJECT SYSTEMS</p>
+        <h1>C-Purlin Gravity + Wind Physics</h1>
+        <p class="subtitle">A separate educational bench for gravity, uplift/downward wind, roof-slope decomposition and orientation-sensitive C-purlin response. The original C-purlin load-to-yield bench remains unchanged.</p>
+      </div>
+      <div class="status-cluster">
+        <a class="status-pill status-link" href="./index.html">← Materials Lab</a>
+        <a class="status-pill status-link" href="./c-purlin-test.html" target="_blank" rel="noopener">Original C-Purlin Test Bench ↗</a>
+        <a class="status-pill status-link" href="./compare.html" target="_blank" rel="noopener">General Material Comparison ↗</a>
+        <span class="status-pill">Gravity + wind · educational screening</span>
+      </div>
+    </header>
+
+    <main class="cp-loadcase-page" data-cp-loadcase-app>
+      <section class="panel cp-loadcase-controls" aria-label="C-purlin gravity and wind inputs">
+        <div class="panel-heading">
+          <div><p class="eyebrow">ONE ROOF · SAME LOAD ENVIRONMENT</p><h2>Load-case inputs</h2></div>
+          <button class="button" type="button" data-cplc-reset-inputs>Reset benchmark</button>
+        </div>
+        <p class="cp-loadcase-intro">Gravity is vertical. Wind pressure is idealized normal to the roof. The solver resolves both into roof-normal and down-slope components, then maps those demands to each C-purlin orientation.</p>
+        <div class="cp-loadcase-grid">
+          <label>Load-case mode
+            <select data-cplc-mode>
+              <option value="gravity">Gravity only</option>
+              <option value="wind">Wind only</option>
+              <option value="combined" selected>Combined gravity + wind</option>
+              <option value="envelope">Governing uplift/downward envelope</option>
+            </select>
+          </label>
+          <label>Shared C-purlin section
+            <select data-cplc-section></select>
+          </label>
+          <label>Steel sensitivity dataset
+            <select data-cplc-grade>
+              <option value="250" selected>Steel Fy 250 MPa · E 200 GPa</option>
+              <option value="345">Steel Fy 345 MPa · E 200 GPa</option>
+            </select>
+          </label>
+          <label>Purlin span / rafter spacing, m
+            <input data-cplc-span type="number" min="0.8" max="6" step="0.1" value="2" />
+          </label>
+          <label>Roof slope, °
+            <input data-cplc-slope type="number" min="0" max="60" step="1" value="30" />
+          </label>
+          <label>Purlin spacing / tributary width, m
+            <input data-cplc-tributary type="number" min="0.2" max="3" step="0.05" value="0.8" />
+          </label>
+          <label>Roofing + superimposed dead load, kPa
+            <input data-cplc-dead type="number" min="0" max="5" step="0.05" value="0.20" />
+          </label>
+          <label>Roof live load, kPa
+            <input data-cplc-live type="number" min="0" max="5" step="0.05" value="0.75" />
+          </label>
+          <label>Net wind pressure magnitude, kPa
+            <input data-cplc-wind type="number" min="0" max="10" step="0.05" value="1.50" />
+          </label>
+          <label>Wind sense
+            <select data-cplc-wind-sense>
+              <option value="uplift" selected>Uplift / suction</option>
+              <option value="downward">Downward pressure</option>
+            </select>
+          </label>
+          <label>Animation duration
+            <select data-cplc-duration>
+              <option value="8">Medium · 8 s</option>
+              <option value="16" selected>Slow · 16 s</option>
+              <option value="24">Very slow · 24 s</option>
+            </select>
+          </label>
+          <label>Maximum demonstration load factor
+            <input data-cplc-max-factor type="number" min="1" max="20" step="0.5" value="12" />
+          </label>
+        </div>
+
+        <div class="cp-loadcase-members">
+          <div class="cp-loadcase-member-control"><strong>Member A</strong><label>Orientation <select data-cplc-orientation="0"><option value="0" selected>0° · standing</option><option value="90">90° · flat</option><option value="180">180° · standing reversed</option><option value="270">270° · flat reversed</option></select></label></div>
+          <div class="cp-loadcase-member-control"><strong>Member B</strong><label>Orientation <select data-cplc-orientation="1"><option value="0">0° · standing</option><option value="90" selected>90° · flat</option><option value="180">180° · standing reversed</option><option value="270">270° · flat reversed</option></select></label></div>
+          <div class="cp-loadcase-member-control"><strong>Member C</strong><label class="cp-loadcase-inline"><input type="checkbox" data-cplc-third /> Include</label><label>Orientation <select data-cplc-orientation="2"><option value="0">0° · standing</option><option value="90">90° · flat</option><option value="180" selected>180° · standing reversed</option><option value="270">270° · flat reversed</option></select></label></div>
+        </div>
+
+        <div class="cp-loadcase-actions">
+          <button class="button primary" type="button" data-cplc-start>START · 0 → ALL FIRST-YIELDS</button>
+          <button class="button" type="button" data-cplc-pause>PAUSE</button>
+          <button class="button" type="button" data-cplc-reset>RESET TO ZERO</button>
+          <button class="button" type="button" data-cplc-record>RECORD + DOWNLOAD VIDEO</button>
+        </div>
+
+        <div class="cp-loadcase-readouts" aria-live="polite">
+          <div><small>Current load factor</small><strong data-cplc-factor>0.00×</strong></div>
+          <div><small>Roof-normal line load</small><strong data-cplc-normal>0.000 kN/m</strong></div>
+          <div><small>Down-slope line load</small><strong data-cplc-parallel>0.000 kN/m</strong></div>
+          <div><small>Wind case</small><strong data-cplc-case>UPLIFT</strong></div>
+          <div><small>Yield state</small><strong data-cplc-yield-state>0 / 2 yielded</strong></div>
+        </div>
+      </section>
+
+      <section class="panel cp-loadcase-static" aria-label="Static roof slope vector explanation">
+        <div class="panel-heading"><div><p class="eyebrow">STATIC LOAD-VECTOR EXPLANATION</p><h2>Gravity ↓ + wind normal to roof ↕</h2></div></div>
+        <canvas width="1280" height="430" data-cplc-vector aria-label="Static roof slope and load-vector diagram"></canvas>
+        <p class="cp-loadcase-note">This upper figure does not animate deflection. It explains the cross-section through the sloping rafter: gravity stays vertical, wind is normal to the roof, and the resultant is decomposed into roof-normal and down-slope components.</p>
+      </section>
+
+      <section class="panel cp-loadcase-animation" aria-label="Longitudinal C-purlin load animation">
+        <div class="panel-heading"><div><p class="eyebrow">LONGITUDINAL LOAD / DEFLECTION ANIMATION</p><h2>Same load history · orientation-sensitive response</h2></div></div>
+        <canvas width="1280" height="720" data-cplc-video aria-label="Recordable C-purlin gravity and wind animation"></canvas>
+        <p class="cp-loadcase-note">The purlin span is viewed between transverse rafters. The animated curve shows the roof-normal deflection component; the simultaneous down-slope/weak-axis deflection is reported numerically because it is out of this longitudinal view plane.</p>
+      </section>
+
+      <section class="panel cp-loadcase-results" aria-label="Live formulas and member results">
+        <div class="panel-heading"><div><p class="eyebrow">REAL CALCULATIONS</p><h2>Live load decomposition and gross-section response</h2></div></div>
+        <div data-cplc-member-results class="cp-loadcase-result-grid"></div>
+        <div class="cp-loadcase-equations" data-cplc-equations></div>
+        <div class="support-help">
+          <strong>Engineering boundary</strong>
+          <p>This is a gross-section elastic educational screen. Wind pressure is a user-supplied net design pressure; this bench does not calculate NSCP pressure coefficients or roof zones. Effective width, local/distortional buckling, lateral-torsional behavior, diaphragm restraint, screw/weld/cleat strength, fatigue and nonlinear post-yield behavior remain outside this module.</p>
+        </div>
+        <div class="support-help">
+          <strong>Equation basis / references</strong>
+          <p>Simply supported uniform-load formulas: Mmax = wL²/8 and δmax = 5wL⁴/(384EI); elastic bending stress σ = M/Z; vector resolution uses elementary statics/trigonometry; 1 kPa·m = 1 kN/m. These are standard Strength/Mechanics of Materials relations (e.g. Hibbeler; Beer, Johnston et al.; Roark). Exact cold-formed design must use the governing code and verified section/product data.</p>
+        </div>
+      </section>
+    </main>
+
+    <footer><strong>Engineering notice:</strong> This visualization teaches load path and elastic response. Verify code-derived wind pressures, load combinations, actual section geometry/grade, roof restraint, fasteners, welds and all governing cold-formed limit states before design use.</footer>
+    <script type="module" src="./src/publicBrand.js?v=20260821-gw1"></script>
+    <script type="module" src="./src/cPurlinGravityWindApp.js?v=20260821-gw1"></script>
+  </body>
+</html>
