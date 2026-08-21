@@ -118,7 +118,15 @@ try {
   let ready;
   for (let i = 0; i < 240; i += 1) {
     ready = await evalValue(cdp, `(() => { const panel=document.querySelector('[data-c-purlin-physics-bench]'); return {doc:document.readyState,panel:!!panel,target:Number(panel?.dataset.yieldTargetKn),active:Number(panel?.dataset.activeMembers),span:panel?.querySelector('[data-cpy-span-number]')?.value,slope:panel?.querySelector('[data-cpy-slope-number]')?.value,angles:[0,1].map(i=>document.querySelector('[data-c-purlin-orientation-display="'+i+'"]')?.value)}; })()`);
-    if (ready?.doc === 'complete' && ready.panel && ready.target > 0 && ready.active === 2) break;
+    const canonical = ready?.doc === 'complete'
+      && ready.panel
+      && ready.target > 0
+      && ready.active === 2
+      && ready.span === '2'
+      && ready.slope === '0'
+      && ready.angles?.[0] === '0'
+      && ready.angles?.[1] === '90';
+    if (canonical) break;
     await sleep(100);
   }
   if (!ready?.panel || ready.active !== 2 || ready.span !== '2' || ready.slope !== '0' || ready.angles[0] !== '0' || ready.angles[1] !== '90') {
