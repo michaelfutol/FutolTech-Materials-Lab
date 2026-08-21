@@ -186,13 +186,22 @@ export function solveCPurlinLoadCase({
   };
 }
 
-export function governingCommonWindSense({ members = [], ...input } = {}) {
+export function governingCommonWindSense({
+  members = [],
+  windPressureKPa = 0,
+  windUpliftKPa = windPressureKPa,
+  windDownwardKPa = windPressureKPa,
+  ...input
+} = {}) {
   if (!members.length) throw new Error('At least one active C-purlin member is required.');
-  const senses = ['uplift', 'downward'];
-  const candidates = senses.map((windSense) => {
-    const results = members.map((member) => solveCPurlinLoadCase({ ...input, ...member, windSense, mode: 'combined', loadFactor: 1 }));
+  const candidates = [
+    { windSense: 'uplift', windPressureKPa: Math.max(0, finite(windUpliftKPa, windPressureKPa)) },
+    { windSense: 'downward', windPressureKPa: Math.max(0, finite(windDownwardKPa, windPressureKPa)) }
+  ].map(({ windSense, windPressureKPa: pressure }) => {
+    const results = members.map((member) => solveCPurlinLoadCase({ ...input, ...member, windPressureKPa: pressure, windSense, mode: 'combined', loadFactor: 1 }));
     return {
       windSense,
+      windPressureKPa: pressure,
       results,
       maxUtilization: Math.max(...results.map((result) => result.utilization)),
       firstYieldFactor: Math.min(...results.map((result) => result.yieldFactor)),
