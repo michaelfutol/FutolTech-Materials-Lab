@@ -26,9 +26,6 @@ jobs:
         run: node scripts/verifyComparisonPdf.mjs
       - name: Dedicated C-purlin comparison playback Chromium gate
         run: node scripts/verifyComparisonPlaybackUi.mjs
-      - name: C-purlin gravity + wind mount diagnostics
-        timeout-minutes: 2
-        run: node scripts/debugCPurlinGravityWindMount.mjs
       - name: C-purlin gravity + wind Chromium gate
         timeout-minutes: 3
         run: node scripts/verifyCPurlinGravityWindUi.mjs
