@@ -62,10 +62,13 @@
           <label>Roof live load, kPa
             <input data-cplc-live type="number" min="0" max="5" step="0.05" value="0.75" />
           </label>
-          <label>Net wind pressure magnitude, kPa
-            <input data-cplc-wind type="number" min="0" max="10" step="0.05" value="1.50" />
+          <label>Net wind uplift / suction, kPa
+            <input data-cplc-wind-uplift type="number" min="0" max="10" step="0.05" value="1.50" />
           </label>
-          <label>Wind sense
+          <label>Net downward wind pressure, kPa
+            <input data-cplc-wind-downward type="number" min="0" max="10" step="0.05" value="0.80" />
+          </label>
+          <label>Wind sense for Wind/Combined mode
             <select data-cplc-wind-sense>
               <option value="uplift" selected>Uplift / suction</option>
               <option value="downward">Downward pressure</option>
@@ -123,7 +126,7 @@
         <div class="cp-loadcase-equations" data-cplc-equations></div>
         <div class="support-help">
           <strong>Engineering boundary</strong>
-          <p>This is a gross-section elastic educational screen. Wind pressure is a user-supplied net design pressure; this bench does not calculate NSCP pressure coefficients or roof zones. Effective width, local/distortional buckling, lateral-torsional behavior, diaphragm restraint, screw/weld/cleat strength, fatigue and nonlinear post-yield behavior remain outside this module.</p>
+          <p>This is a gross-section elastic educational screen. Wind pressures are user-supplied net design pressures; this bench does not calculate NSCP pressure coefficients or roof zones. Effective width, local/distortional buckling, lateral-torsional behavior, diaphragm restraint, screw/weld/cleat strength, fatigue and nonlinear post-yield behavior remain outside this module.</p>
         </div>
         <div class="support-help">
           <strong>Equation basis / references</strong>
@@ -134,6 +137,6 @@
 
     <footer><strong>Engineering notice:</strong> This visualization teaches load path and elastic response. Verify code-derived wind pressures, load combinations, actual section geometry/grade, roof restraint, fasteners, welds and all governing cold-formed limit states before design use.</footer>
     <script type="module" src="./src/publicBrand.js?v=20260821-gw1"></script>
-    <script type="module" src="./src/cPurlinGravityWindApp.js?v=20260821-gw1"></script>
+    <script type="module" src="./src/cPurlinGravityWindApp.js?v=20260821-gw2"></script>
   </body>
 </html>
