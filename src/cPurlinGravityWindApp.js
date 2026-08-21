@@ -12,8 +12,6 @@ const E_MPA = 200000;
 const FPS = 30;
 const root = document.querySelector('[data-cp-loadcase-app]');
 
-if (root) mount();
-
 function clamp(value, min, max) {
   return Math.min(max, Math.max(min, Number(value) || 0));
 }
@@ -343,3 +341,5 @@ function mount() {
   root.dataset.cpLoadcaseReady='true';
   window.__FT_C_PURLIN_LOAD_CASES__={getState:()=>({factor:animation.factor,targetFactor:animation.targetFactor,running:animation.running,recording:animation.recording,theme:document.documentElement.dataset.ftTheme,context:animation.caseContext}),render:()=>updateDom(animation.caseContext??buildCaseContext(),animation.factor),reset:resetAnimation};
 }
+
+if (root) mount();
