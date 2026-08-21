@@ -128,7 +128,7 @@
         <div class="cp-loadcase-equations" data-cplc-equations></div>
         <div class="support-help">
           <strong>Engineering boundary</strong>
-          <p>This is a gross-section elastic educational screen. Wind pressures are user-supplied net design pressures; this bench does not calculate NSCP pressure coefficients or roof zones. Any parapet, enclosure/internal-pressure, roof-zone and building-envelope effects must therefore already be reflected in the net wind pressures supplied to this bench. Effective width, local/distortional buckling, lateral-torsional behavior, diaphragm restraint, screw/weld/cleat strength, fatigue and nonlinear post-yield behavior remain outside this module.</p>
+          <p>This is a gross-section elastic educational screen. The optional NSCP-assisted helper applies the simplified relation pnet = λKztPnet9 after the user selects/verifies Pnet9 from the applicable code figure; it does not yet perform the complete code-figure lookup or automatically model parapet, enclosure/internal-pressure, roof-zone, effective-area, building-envelope or special wind effects. Effective width, local/distortional buckling, lateral-torsional behavior, diaphragm restraint, screw/weld/cleat strength, fatigue and nonlinear post-yield behavior remain outside this module.</p>
         </div>
         <div class="support-help">
           <strong>Equation basis / references</strong>
@@ -141,6 +141,8 @@
     <script type="module" src="./src/publicBrand.js?v=20260821-gw1"></script>
     <script type="module" src="./src/cPurlinGravityWindApp.js?v=20260821-gw2"></script>
     <script type="module" src="./src/cPurlinGravityWindFigureFix.js?v=20260821-fig1"></script>
+    <script type="module" src="./src/cPurlinLoadSourceAssist.js?v=20260821-source1"></script>
+    <script type="module" src="./src/cPurlinGravityWindFigurePolish.js?v=20260821-polish1"></script>
     <script type="module" src="./src/printReport.js?v=20260807-oldschool1"></script>
     <script type="module" src="./src/printCompanyIdentity.js?v=20260818-manual1"></script>
   </body>
