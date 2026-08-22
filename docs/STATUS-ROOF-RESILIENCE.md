@@ -33,7 +33,7 @@ Permanent current boundary:
 - Gross-section screening only; no effective-width, local/distortional/LTB or connection-capacity claim.
 
 ## M2 — Roof Bay Physics (2D / 2.5D)
-**Status: ACTIVE / major load-path foundation implemented.**
+**Status: ACTIVE / one checklist slice remains before current M2 exit.**
 
 Foundation implemented in PR #108:
 - Two adjacent rafter lines.
@@ -58,8 +58,14 @@ Completed in PR #110:
 - [x] Exact tributary start/end boundaries are stored by the solver and used by both the base Roof Bay figure and selected-member overlay; the visual no longer assumes a symmetric band around an offset edge purlin.
 - [x] Custom layout is preserved by project JSON round-trip and covered by deterministic + real-Chromium regression.
 
+Completed in PR #111:
+- [x] Separate Rafter A and Rafter B reaction diagrams show one discrete reaction station per modeled purlin.
+- [x] Roof-normal and roof-downslope reaction components are separately visible with signed direction conventions.
+- [x] Component conservation decomposes roof-area gravity, purlin self-weight and roof-normal wind before comparing the applied totals against Rafter A + Rafter B reaction totals.
+- [x] Combined, gravity-only and wind-only component checks are regression-tested; wind-only uplift remains negative roof-normal and zero downslope.
+- [x] Reaction diagrams remain demand-transfer views only and do not claim rafter/truss or connection capacity.
+
 Remaining M2 checklist before moving the primary physics effort to M3:
-- [ ] Rafter reaction diagrams and explicit conservation breakdown by roof-normal / downslope components.
 - [ ] Roof-sheet pressure-zoning placeholders that can later accept M3 field/edge/corner zones without changing the shared M2 project geometry model.
 
 M2 exit gate remains: summed reactions balance the applied roof load within numerical tolerance, with every displayed tributary/reaction path derived from the same solver model.
@@ -67,7 +73,7 @@ M2 exit gate remains: summed reactions balance the applied roof load within nume
 ## M3 — Code Wind / Roof Zoning Engine
 **Status: EARLY FOUNDATION ONLY.**
 
-Existing work provides manual net-pressure inputs and code-assist experiments, but full reproducible code-derived wind zoning is not yet implemented. M3 remains the next major physics layer after the two remaining M2 load-path slices are complete.
+Existing work provides manual net-pressure inputs and code-assist experiments, but full reproducible code-derived wind zoning is not yet implemented. M3 remains the next major physics layer after the final M2 data-model slice is complete.
 
 ## M4 — Roof Sheet + Fastener / Connection Layer
 **Status: NOT YET INTEGRATED.**
