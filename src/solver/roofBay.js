@@ -1,6 +1,8 @@
 import { solveCPurlinLoadCase } from './cPurlinLoadCases.js';
 
 const EPS = 1e-9;
+const PRESSURE_ZONE_TYPES = Object.freeze(['field', 'edge', 'corner']);
+const PRESSURE_ZONE_SCHEMA = 'futoltech.roof-pressure-zones/1';
 
 function finite(value, fallback = 0) {
   const number = Number(value);
@@ -102,6 +104,34 @@ function componentPass(residualKN, appliedKN, tolerance = 1e-9) {
   return Math.abs(residualKN) <= tolerance || Math.abs(residualKN) / Math.max(EPS, Math.abs(appliedKN)) <= tolerance;
 }
 
+function roofPlaneFrame(spanM, slopeLengthM) {
+  return {
+    system: 'roof-local-xy-m',
+    origin: 'rafter-a-eave',
+    xAxis: 'toward-rafter-b',
+    yAxis: 'upslope',
+    xExtentM: spanM,
+    yExtentM: slopeLengthM
+  };
+}
+
+function pressureZoningPlaceholder(spanM, slopeLengthM, windPressureKPa, windSense) {
+  return {
+    schemaVersion: PRESSURE_ZONE_SCHEMA,
+    status: 'UNRESOLVED',
+    activePressureModel: 'manual-uniform',
+    coordinateFrame: roofPlaneFrame(spanM, slopeLengthM),
+    supportedRegionTypes: [...PRESSURE_ZONE_TYPES],
+    regions: [],
+    codeBasis: null,
+    manualUniformWind: {
+      pressureKPa: windPressureKPa,
+      sense: windSense
+    },
+    note: 'Field/edge/corner region types and a roof-local coordinate frame are reserved for M3. M2 applies one manual uniform wind pressure and does not calculate zone geometry, coefficients or zone pressures.'
+  };
+}
+
 export function solveRoofBay({
   preset,
   rafterSpacingM = 3,
@@ -130,6 +160,7 @@ export function solveRoofBay({
   const factor = Math.max(0, finite(loadFactor, 1));
   const safeMode = ['gravity', 'wind', 'combined'].includes(mode) ? mode : 'combined';
   const safeWindSense = windSense === 'downward' ? 'downward' : 'uplift';
+  const safeWindPressureKPa = Math.max(0, finite(windPressureKPa, 0));
   const layout = customPurlinStationsM == null
     ? roofBayPurlinStations(slopeLengthM, maxPurlinSpacingM)
     : customRoofBayPurlinLayout(slopeLengthM, customPurlinStationsM);
@@ -151,7 +182,7 @@ export function solveRoofBay({
       tributaryWidthM,
       deadLoadKPa,
       roofLiveLoadKPa,
-      windPressureKPa,
+      windPressureKPa: safeWindPressureKPa,
       windSense: safeWindSense,
       loadFactor: factor
     });
@@ -170,6 +201,8 @@ export function solveRoofBay({
       tributaryEndM: tributaryBand.endM,
       tributaryWidthM,
       edge: index === 0 || index === layout.stationsM.length - 1,
+      pressureZoneIds: [],
+      pressureZoneStatus: 'UNASSIGNED_M3',
       result,
       totalNormalKN,
       totalParallelKN,
@@ -214,7 +247,7 @@ export function solveRoofBay({
   const purlinSelfWeightNormalKN = purlinSelfWeightVerticalKN * cosTheta;
   const roofGravityParallelKN = roofGravityVerticalKN * sinTheta;
   const purlinSelfWeightParallelKN = purlinSelfWeightVerticalKN * sinTheta;
-  const windNormalKN = includeWind ? windSign(safeWindSense) * Math.max(0, finite(windPressureKPa, 0)) * areaM2 * factor : 0;
+  const windNormalKN = includeWind ? windSign(safeWindSense) * safeWindPressureKPa * areaM2 * factor : 0;
   const windParallelKN = 0;
   const appliedNormalKN = roofGravityNormalKN + purlinSelfWeightNormalKN + windNormalKN;
   const appliedParallelKN = roofGravityParallelKN + purlinSelfWeightParallelKN + windParallelKN;
@@ -269,9 +302,11 @@ export function solveRoofBay({
     return (b.result.resultantDeflectionMm ?? 0) - (a.result.resultantDeflectionMm ?? 0);
   })[0] ?? null;
 
+  const pressureZoning = pressureZoningPlaceholder(spanM, slopeLengthM, safeWindPressureKPa, safeWindSense);
+
   return {
     model: 'ROOF-BAY-M2-v0.1',
-    boundary: 'Two-rafter, simply-supported purlin bay. Roof sheet and fasteners route demand only; their capacities and rafter/truss member capacities are unresolved.',
+    boundary: 'Two-rafter, simply-supported purlin bay. Roof sheet and fasteners route demand only; their capacities, code wind zoning and rafter/truss member capacities are unresolved.',
     inputs: {
       rafterSpacingM: spanM,
       roofSlopeLengthM: slopeLengthM,
@@ -282,11 +317,19 @@ export function solveRoofBay({
       mode: safeMode,
       deadLoadKPa: Math.max(0, finite(deadLoadKPa, 0)),
       roofLiveLoadKPa: Math.max(0, finite(roofLiveLoadKPa, 0)),
-      windPressureKPa: Math.max(0, finite(windPressureKPa, 0)),
+      windPressureKPa: safeWindPressureKPa,
       windSense: safeWindSense,
       loadFactor: factor
     },
-    geometry: { areaM2, ...layout, purlinCount: purlins.length, tributaryBands, tributaryWidthsM },
+    geometry: {
+      areaM2,
+      ...layout,
+      purlinCount: purlins.length,
+      tributaryBands,
+      tributaryWidthsM,
+      roofPlaneFrame: roofPlaneFrame(spanM, slopeLengthM)
+    },
+    pressureZoning,
     purlins,
     rafters: { left: leftRafter, right: rightRafter },
     applied: {
