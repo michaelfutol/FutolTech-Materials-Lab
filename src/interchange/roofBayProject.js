@@ -3,6 +3,7 @@ import {
   validateWindProjectInputAcceptance,
   windProjectInputAcceptanceToVelocityPressureCase
 } from './windProjectInputAcceptance.js';
+import { validateWindPressureContextAcceptance } from './windPressureContextAcceptance.js';
 
 export const ROOF_BAY_PROJECT_SCHEMA = 'futoltech.roof-bay-project/1';
 export const ROOF_PRESSURE_ZONE_SCHEMA = 'futoltech.roof-pressure-zones/1';
@@ -47,6 +48,10 @@ function stable(value) {
     return Object.fromEntries(Object.keys(value).sort().map((key) => [key, stable(value[key])]));
   }
   return value;
+}
+
+function stableEqual(left, right) {
+  return JSON.stringify(stable(left)) === JSON.stringify(stable(right));
 }
 
 function validatedCustomStations(stations, roofSlopeLengthM, label = 'geometry.purlinStationsM') {
@@ -128,6 +133,20 @@ function acceptedWindDesignBasis(record, profileId, projectMode) {
   });
 }
 
+function validateAcceptedPressureContext(record, acceptedWindInputs, roofSlopeDeg, profileId) {
+  validateWindPressureContextAcceptance(record);
+  if (!acceptedWindInputs) throw new Error('windProjectInputAcceptance is required when windPressureContextAcceptance is present.');
+  validateWindProjectInputAcceptance(acceptedWindInputs);
+  if (record.adoptedCodeProfileId !== profileId) throw new Error('windPressureContextAcceptance code profile must match windCodeProfileId.');
+  if (!stableEqual(record.upstreamWindProjectInputAcceptance, acceptedWindInputs)) {
+    throw new Error('windPressureContextAcceptance must remain attached to the exact windProjectInputAcceptance record carried by this Roof Bay project.');
+  }
+  if (Math.abs(finite(record.roofGeometry.roofSlopeDeg, 'windPressureContextAcceptance.roofGeometry.roofSlopeDeg') - roofSlopeDeg) > EPS) {
+    throw new Error('windPressureContextAcceptance roof slope must match geometry.slopeDeg.');
+  }
+  return true;
+}
+
 export function createRoofBayProject({
   projectId = `roof-bay-${Date.now()}`,
   projectName = 'Untitled roof bay',
@@ -151,6 +170,7 @@ export function createRoofBayProject({
   windCodeProfileId = 'ph-nscp-2015-v1-7e-2p',
   windProjectMode = 'code-baseline',
   windProjectInputAcceptance = null,
+  windPressureContextAcceptance = null,
   source = 'FutolTech Structural Lab · Roof Bay Physics M2/M3 bridge'
 } = {}) {
   const orientation = finite(orientationDeg, 'orientationDeg');
@@ -167,6 +187,8 @@ export function createRoofBayProject({
     ? validatedCustomStations(purlinStationsM, slopeLength, 'purlinStationsM')
     : null;
   const acceptedWindInputs = windProjectInputAcceptance == null ? null : clone(windProjectInputAcceptance);
+  const acceptedPressureContext = windPressureContextAcceptance == null ? null : clone(windPressureContextAcceptance);
+  if (acceptedPressureContext) validateAcceptedPressureContext(acceptedPressureContext, acceptedWindInputs, slope, windCodeProfileId);
   const windDesignBasis = acceptedWindInputs
     ? acceptedWindDesignBasis(acceptedWindInputs, windCodeProfileId, windProjectMode)
     : createWindDesignBasis({
@@ -206,6 +228,7 @@ export function createRoofBayProject({
     },
     pressureZoning: pressureZoningPlaceholder(span, slopeLength, windPressure, windSense),
     ...(acceptedWindInputs ? { windProjectInputAcceptance: acceptedWindInputs } : {}),
+    ...(acceptedPressureContext ? { windPressureContextAcceptance: acceptedPressureContext } : {}),
     windDesignBasis,
     analysisBoundary: {
       roofBaySolver: 'M2 two-rafter load-routing model',
@@ -262,11 +285,20 @@ export function validateRoofBayProject(project) {
       project.windProjectInputAcceptance.adoptedCodeProfileId,
       'code-baseline'
     );
-    if (JSON.stringify(stable(project.windDesignBasis)) !== JSON.stringify(stable(expected))) {
+    if (!stableEqual(project.windDesignBasis, expected)) {
       throw new Error('windDesignBasis must remain deterministically derived from windProjectInputAcceptance.');
     }
   } else if (project.windDesignBasis != null) {
     validateWindDesignBasis(project.windDesignBasis);
+  }
+
+  if (project.windPressureContextAcceptance != null) {
+    validateAcceptedPressureContext(
+      project.windPressureContextAcceptance,
+      project.windProjectInputAcceptance ?? null,
+      slope,
+      project.windProjectInputAcceptance?.adoptedCodeProfileId ?? project.windPressureContextAcceptance.adoptedCodeProfileId
+    );
   }
 
   const boundary = project.analysisBoundary;
