@@ -6,6 +6,10 @@ import {
   validateWindProjectInputAcceptance
 } from '../src/interchange/windProjectInputAcceptance.js';
 import { calculateAcceptedWindProjectVelocityPressure } from '../src/interchange/windProjectInputBridge.js';
+import {
+  parseWindProjectInputAcceptance,
+  serializeWindProjectInputAcceptance
+} from '../src/interchange/windProjectInputSerialization.js';
 
 const BASE = Object.freeze({
   siteLocation: 'Sta. Magdalena, Sorsogon, Philippines',
@@ -81,6 +85,13 @@ test('accepted project inputs feed the benchmarked velocity-pressure solver but 
   assert.ok(Math.abs(result.calculation.exposure.kz - 0.9748206328451855) < 1e-12);
   assert.ok(Math.abs(result.calculation.result.qKPa - 2.257467958862151) < 1e-12);
   assert.match(result.boundary, /not a final roof pressure/i);
+});
+
+test('accepted wind project input record serializes deterministically and round-trips exactly', () => {
+  const record = createWindProjectInputAcceptance(BASE);
+  const first = serializeWindProjectInputAcceptance(record);
+  const second = serializeWindProjectInputAcceptance(parseWindProjectInputAcceptance(first));
+  assert.equal(second, first);
 });
 
 test('mutated acceptance records cannot silently claim wind-map verification or automated physics', () => {
