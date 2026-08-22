@@ -6,6 +6,7 @@ export const WIND_ROOF_EXTERNAL_GCP_SCHEMA = 'futoltech.wind-roof-external-gcp/1
 const SUPPORTED_CODE_PROFILE = 'ph-nscp-2015-v1-7e-2p';
 const DESIGN_PROCEDURE = 'components-and-cladding';
 const TARGET_CLASS = 'roof-purlin';
+const SUPPORTED_ENCLOSURES = Object.freeze(['enclosed', 'partially-enclosed']);
 const M2_TO_FT2 = 10.763910416709722;
 const MIN_CURVE_AREA_FT2 = 10;
 const MAX_CURVE_AREA_FT2 = 100;
@@ -14,7 +15,7 @@ const STATUS = 'PURLIN_EXTERNAL_GCP_RESOLVED_EXTERNAL_PRESSURE_BLOCKED';
 const CODE_FIGURE_RULE = 'Use the applicable NSCP 2015 Figure 207E.4-2B or 207E.4-2C external roof GCp curve for the resolved gable-roof zone and the purlin coefficient-selection effective wind area.';
 const CURVE_EQUATION_RULE = 'The implemented log10 interpolation equations reproduce the corresponding ASCE 7-10 Guide Tables G2-3/G2-4 curve segments between 10 ft² and 100 ft²; endpoint coefficients are held on the graph plateaus outside that interval.';
 const VERIFICATION_BOUNDARY = 'Verify the applicable NSCP figure and coefficients against an authorized code copy before project use.';
-const RECORD_BOUNDARY = 'This record resolves external GCp only for a supported non-overhang symmetric-gable roof purlin and preserves separate positive/negative coefficients for every resolved zone portion of the selected tributary band. It does not multiply by qh, combine internal pressure, create load combinations, resolve roof-sheet/fastener effective area, rate purlin capacity, or activate code-derived Roof Bay pressure.';
+const RECORD_BOUNDARY = 'This record resolves external GCp only for a supported non-overhang symmetric-gable roof purlin in an enclosed or partially enclosed building with h <= 18 m, and preserves separate positive/negative coefficients for every resolved zone portion of the selected tributary band. It does not multiply by qh, combine internal pressure, create load combinations, resolve roof-sheet/fastener effective area, rate purlin capacity, or activate code-derived Roof Bay pressure.';
 
 function clone(value) { return JSON.parse(JSON.stringify(value)); }
 function stable(value) {
@@ -77,7 +78,12 @@ function buildRecord({ windRoofZoneGeometry, roofPurlinEffectiveWindArea, target
   validateUpstreamPair(windRoofZoneGeometry, roofPurlinEffectiveWindArea);
   const zones = clone(windRoofZoneGeometry);
   const effectiveArea = clone(roofPurlinEffectiveWindArea);
-  const heightM = Number(zones.upstreamWindPressureContextAcceptance.roofGeometry?.meanRoofHeightM);
+  const pressureContext = zones.upstreamWindPressureContextAcceptance;
+  const enclosureClassification = pressureContext.enclosure?.classification;
+  if (!SUPPORTED_ENCLOSURES.includes(enclosureClassification)) {
+    throw new Error('This NSCP 207E.4 external roof GCp slice supports only enclosed or partially-enclosed buildings; open buildings require the separate open-building C&C procedure.');
+  }
+  const heightM = Number(pressureContext.roofGeometry?.meanRoofHeightM);
   if (!Number.isFinite(heightM) || heightM > 18 + EPS) throw new Error('This external roof GCp slice supports only buildings with mean roof height h <= 18 m.');
   if (zones.applicability?.overhangGeometryImplemented !== false) throw new Error('This external roof GCp slice does not support roof-overhang coefficient selection.');
   const label = nonEmpty(targetPurlinBandLabel, 'targetPurlinBandLabel');
@@ -114,7 +120,7 @@ function buildRecord({ windRoofZoneGeometry, roofPurlinEffectiveWindArea, target
     target: { class: TARGET_CLASS, purlinBandLabel: label, roofPlane: zones.roofPlaneRegistration.roofPlane },
     upstreamWindRoofZoneGeometry: zones,
     upstreamRoofPurlinEffectiveWindArea: effectiveArea,
-    applicability: { roofForm: 'gable', symmetricGableConfirmed: true, roofSlopeDeg: zones.applicability.roofSlopeDeg, meanRoofHeightM: heightM, maxSupportedMeanRoofHeightM: 18, roofOverhangTargetSupported: false, figureId },
+    applicability: { roofForm: 'gable', symmetricGableConfirmed: true, enclosureClassification, supportedEnclosureClassifications: [...SUPPORTED_ENCLOSURES], roofSlopeDeg: zones.applicability.roofSlopeDeg, meanRoofHeightM: heightM, maxSupportedMeanRoofHeightM: 18, roofOverhangTargetSupported: false, figureId },
     coefficientArea: { ...coefficientArea, curveAreaUnit: 'ft2', interpolationAxis: 'log10-effective-wind-area', lowPlateauLimitFt2: MIN_CURVE_AREA_FT2, highPlateauLimitFt2: MAX_CURVE_AREA_FT2, metricToImperialAreaFactor: M2_TO_FT2 },
     coefficientCases,
     sourceBasis: {
