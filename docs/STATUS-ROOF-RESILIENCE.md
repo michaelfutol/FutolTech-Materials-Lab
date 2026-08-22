@@ -80,7 +80,7 @@ M2 exit gate:
 - [x] PR #112 final-head full Engineering Checks passed, including syntax, deterministic engineering tests, all Roof Bay Chromium gates, legacy lab/browser gates and PDF/print protections.
 
 ## M3 — Code Wind / Roof Zoning Engine
-**Status: ACTIVE — provenance, velocity-pressure and source-backed project-input acceptance slices are merged; Roof Bay project-input integration is the PR #116 candidate.**
+**Status: ACTIVE — PRs #113 through #116 are merged; enclosure + roof/building geometry input acceptance is the PR #117 candidate.**
 
 Completed in PR #113:
 - Source-backed wind-code profile registry.
@@ -88,51 +88,47 @@ Completed in PR #113:
 - Versioned `futoltech.wind-design-basis/1` provenance object carries code identity, publisher/jurisdiction metadata, evidence records, explicit required input families, formula-implementation state and blockers.
 - Eight M3 input families are explicit in the provenance-only state: site/location, basic wind speed, risk/importance, exposure/terrain, topography, enclosure/internal pressure, building height and roof geometry.
 - Roof Bay project JSON carries the provenance object while `pressureZoning.codeBasis` remains null, region polygons remain empty and the M2 manual-uniform pressure path remains active.
-- Evidence comparison is canonicalized before equality checking, preserving deterministic JSON round-trip while still rejecting semantic provenance mutations.
-- Public source/boundary record: `docs/M3_WIND_DESIGN_BASIS.md`.
 - Final-head full Engineering Checks passed and PR #113 merged.
 
 Completed in PR #114 — velocity-pressure chain:
 - Deterministic NSCP 2015 building equation `qz = 0.613 Kz Kzt Kd V²`, using V in m/s and q in Pa.
 - Building directionality factor `Kd = 0.85` and Exposure B/C/D velocity-pressure coefficient evaluation are explicit.
 - `Kz = 2.01(z/zg)^(2/alpha)` is implemented with the 4.57 m minimum evaluation height; the solver rejects extrapolation beyond the verified `zg` expression domain.
-- Basic wind speed is accepted in kph and converted visibly to m/s. No Philippine map lookup is implemented.
-- `Kzt` remains an explicit input with source/reference; no silent flat-terrain assumption or automatic topographic derivation is made.
 - Independent benchmark: Exposure C, `h = 8.82 m`, `V = 240 kph`, `Kzt = 1.0`, `Kd = 0.85` gives `Kz = 0.974820633` and `q = 2.257468 kPa` at full precision.
-- `futoltech.wind-design-basis/1` can represent a source-referenced `VELOCITY_PRESSURE_AVAILABLE_ZONING_BLOCKED` state without promoting the rest of the wind engine.
-- Six input families may be resolved for this slice — site/location, basic wind speed, occupancy/risk basis, exposure/terrain, topography and height — while enclosure/internal pressure and roof geometry remain `UNRESOLVED`.
-- External pressure coefficients, internal pressure coefficients, field/edge/corner geometry and load combinations remain `UNIMPLEMENTED`.
-- Stored velocity-pressure output is recalculated during validation so mutated `Kz` or q cannot be accepted as source truth.
-- Visible M3.1 benchmark panel exposes the substitutions and result; dedicated Chromium QA asserts that this benchmark is **not** routed into the live Roof Bay pressure model or project export.
-- Public equation/benchmark/boundary record: `docs/M3_VELOCITY_PRESSURE.md`.
+- External/internal pressure coefficients, field/edge/corner geometry and load combinations remain `UNIMPLEMENTED`.
 - Final-head full Engineering Checks passed and PR #114 merged.
 
 Completed in PR #115 — project wind-input acceptance foundation:
 - Versioned `futoltech.wind-project-input-acceptance/1` record preserves project site, occupancy category, basic-wind-speed provenance, exposure, topographic factor and evaluation height.
 - NSCP 2015 Section 207A.5.1 occupancy-to-figure gate is explicit: Category I → `207A.5-1C`; Category II → `207A.5-1B`; Categories III/IV/V → `207A.5-1A`.
-- The repository stores **no wind-map contour values and no province-by-province speed table**. An authorized-code-map value must be transcribed by the engineer/project record together with its figure and selection method.
-- Authorized code-map input rejects an occupancy/figure mismatch. Project design criteria and site-specific studies are preserved as traceable non-map sources and cannot claim software-verified map status.
-- Exposure B/C/D, `Kzt`, and evaluation height require explicit source references. Address-based terrain inference and automatic topographic-factor derivation remain unavailable.
-- A dedicated bridge feeds an accepted record into the already benchmarked velocity-pressure solver while preserving the acceptance record and required map figure context.
-- Deterministic serialization protects accepted records and exact round-trip identity.
-- Final-head full Engineering Checks passed and PR #115 merged on 2026-08-22.
-- Public boundary record: `docs/M3_PROJECT_WIND_INPUT_ACCEPTANCE.md`.
+- The repository stores no wind-map contour values and no province-by-province speed table.
+- Exposure B/C/D, `Kzt`, and evaluation height require explicit source references.
+- Accepted records can feed the benchmarked velocity-pressure solver without becoming final roof pressure.
+- Final-head full Engineering Checks passed and PR #115 merged.
 
-Implemented in PR #116 candidate — Roof Bay project-input integration:
-- Roof Bay exposes explicit source-referenced project fields for site, occupancy, basic wind speed, source type/method/figure, exposure, `Kzt`, evaluation height and their evidence references.
-- The occupancy-matched NSCP wind-speed figure is visible before acceptance; no geographic map lookup or hidden speed inference is added.
-- `VALIDATE + ACCEPT FOR q` uses the PR #115 contract and the benchmarked PR #114 velocity-pressure solver.
-- The accepted UI state displays `Kz` and `q`, but explicitly states that the value is not applied as final Roof Bay pressure.
-- Editing any accepted input invalidates acceptance so stale results cannot survive changed project evidence.
-- An accepted record can be embedded in `futoltech.roof-bay-project/1`; its `windDesignBasis` is deterministically derived from that record and validation rejects detached/mutated derived results.
+Completed in PR #116 — Roof Bay project-input integration:
+- Roof Bay exposes explicit source-referenced project fields for site, occupancy, basic wind speed, source type/method/figure, exposure, `Kzt`, evaluation height and evidence references.
+- `VALIDATE + ACCEPT FOR q` uses the PR #115 contract and PR #114 solver.
+- Editing any accepted input invalidates acceptance.
+- Accepted records can be embedded in `futoltech.roof-bay-project/1`; the project `windDesignBasis` is deterministically derived and validated from the accepted record.
 - `pressureZoning.activePressureModel` remains `manual-uniform`, `pressureZoning.codeBasis` remains null and code-derived region polygons remain empty.
-- Existing schema-v1 project files remain backward compatible when the additive accepted-input field is absent.
-- Dedicated deterministic and real-Chromium QA cover acceptance, q reproduction, project export, invalidation after edit and preservation of the manual-pressure boundary.
+- Dedicated deterministic and real-Chromium QA passed together with the full final-head Engineering Checks, and PR #116 merged on 2026-08-22.
 - Public boundary/QA record: `docs/M3_ROOF_BAY_PROJECT_WIND_INPUT_UI.md`.
 
-Next M3 work after the PR #116 candidate is green: resolve and validate enclosure/internal-pressure classification plus roof geometry/plan inputs before pressure coefficients are enabled.
+Implemented in PR #117 candidate — enclosure + roof/building geometry input acceptance:
+- Adds versioned `futoltech.wind-pressure-context-acceptance/1` on top of a valid upstream accepted wind-project record.
+- Uses the NSCP 2015 Section 207A.10.1 enclosure classification family: `enclosed`, `partially-enclosed`, and `open`.
+- Classification remains `ENGINEER_DECLARED_PROJECT_INPUT`; automatic evaluation of the quantitative opening definitions is not implemented.
+- Requires both an enclosure-classification source/reference and a separate building-envelope opening-assessment reference, consistent with the Section 207A.10.2 requirement to determine openings for enclosure classification.
+- Requires source-referenced roof form, plan length, plan width, mean roof height and roof slope.
+- Mean roof height must equal the already accepted wind-project height in this slice.
+- Deterministic serialization and anti-promotion validation protect upstream provenance and prevent mutated records from claiming automatic classification or coefficient implementation.
+- `automaticEnclosureClassificationImplemented`, `codeDefinitionThresholdEvaluationImplemented`, `internalPressureCoefficientImplemented`, `externalPressureCoefficientImplemented`, `effectiveWindAreaImplemented`, `fieldEdgeCornerGeometryImplemented`, and `finalRoofPressureImplemented` are hard-locked false.
+- Public boundary record: `docs/M3_ENCLOSURE_ROOF_GEOMETRY_INPUT_ACCEPTANCE.md`.
 
-Permanent M3 boundary: a verified velocity pressure is not a final roof pressure. Manual pressure entry remains the active auditable Roof Bay path until external/internal pressure coefficients, roof zoning and project integration are independently verified.
+Next M3 work after PR #117: expose this accepted pressure-context record in Roof Bay/project JSON. Only after that bridge is stable should exact code-specific `GCpi`, external pressure coefficients, effective-area logic and field/edge/corner zoning be implemented and independently benchmarked.
+
+Permanent M3 boundary: a verified velocity pressure plus a traceable enclosure/roof-geometry context is still not a final roof pressure. Manual pressure entry remains the active auditable Roof Bay path until the complete coefficient/zoning chain is verified.
 
 ## M4 — Roof Sheet + Fastener / Connection Layer
 **Status: NOT YET INTEGRATED.**
@@ -142,4 +138,4 @@ Connection Lab contains reusable research foundations. Roof Bay deliberately lab
 ## M5–M13
 **Status: ROADMAP / enabling foundations only.**
 
-The current M2 project-data and load-path work is structured so it can feed the later transparent Three.js roof viewer, full roof-system solver, cold-formed design, automatic resizing, live formula cockpit, resilience/failure sequencing, local product calibration, professional package and final integrated Roof Resilience Physics Engine without duplicating geometry or inventing visual-only physics.
+The current M2/M3 project-data and load-path work is structured so it can feed the later transparent Three.js roof viewer, full roof-system solver, cold-formed design, automatic resizing, live formula cockpit, resilience/failure sequencing, local product calibration, professional package and final integrated Roof Resilience Physics Engine without duplicating geometry or inventing visual-only physics.
