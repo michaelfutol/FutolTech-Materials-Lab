@@ -80,9 +80,9 @@ M2 exit gate:
 - [x] PR #112 final-head full Engineering Checks passed, including syntax, deterministic engineering tests, all Roof Bay Chromium gates, legacy lab/browser gates and PDF/print protections.
 
 ## M3 — Code Wind / Roof Zoning Engine
-**Status: ACTIVE — first provenance slice implemented in PR #113 candidate; full final-head gate + merge pending.**
+**Status: ACTIVE — code/version + wind-input provenance foundation complete in PR #113; velocity-pressure physics is next.**
 
-Implemented in PR #113 candidate:
+Completed in PR #113:
 - Source-backed wind-code profile registry.
 - Initial Philippine profile identifies **NSCP 2015, Volume 1, 7th Edition, 2nd Printing**, with public evidence records from ASEP publisher/professional context and a DPWH structural-design TOR.
 - Versioned `futoltech.wind-design-basis/1` provenance object carries code identity, publisher/jurisdiction metadata, evidence records, explicit required input families, formula-implementation state and blockers.
@@ -91,13 +91,11 @@ Implemented in PR #113 candidate:
 - Roof Bay project JSON carries the provenance object while `pressureZoning.codeBasis` remains null, region polygons remain empty and the M2 manual-uniform pressure path remains active.
 - Visible M3 wind-basis panel exposes code identity, source links, unresolved inputs and the blocked calculation boundary.
 - Deterministic tests prevent silent input/formula/evidence promotion; dedicated real-Chromium QA checks that the UI and exported project remain provenance-only.
+- Evidence comparison is canonicalized before equality checking, preserving deterministic JSON round-trip while still rejecting semantic provenance mutations.
 - Public source/boundary record: `docs/M3_WIND_DESIGN_BASIS.md`.
+- Final-head full Engineering Checks passed after the serialization fix, including the new M3 Chromium gate, deterministic engineering tests, all existing Roof Bay/browser gates and print/PDF protections.
 
-PR #113 completion gate:
-- [ ] Final-head full Engineering Checks pass.
-- [ ] Merge to `main` before marking the first M3 task complete.
-
-Next M3 task after PR #113: implement the adopted-code velocity-pressure calculation chain with visible substitutions and independent hand benchmarks. Do not enable field/edge/corner pressure coefficients yet.
+Next M3 task: implement the adopted-code velocity-pressure calculation chain with visible substitutions and independent hand benchmarks. Do not enable field/edge/corner pressure coefficients yet.
 
 Permanent M3 boundary: identifying a code edition does not mean its equations, maps, coefficients or zoning rules are implemented. Manual pressure entry remains an explicit auditable path until code-derived calculations are verified.
 
