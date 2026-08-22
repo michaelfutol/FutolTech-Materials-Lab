@@ -21,6 +21,7 @@ Status date: 2026-08-22
   - [x] Source-backed base internal-pressure coefficient (`GCpi`) foundation — PR #119.
   - [x] Large-volume partially enclosed reduction factor (`Ri`) applicability + equation — PR #120.
   - [x] Internal-pressure velocity-pressure selection + signed `qi(GCpi)` term — PR #121.
+    - The opening-height `qi=qz` option belongs to the Part 3 higher-building pressure procedure; it is not automatically reused by the current `h <= 18 m` Part 1 C&C path.
   - [x] Roof-purlin Components & Cladding target + effective-wind-area foundation — PR #123.
     - Schema: `futoltech.wind-roof-purlin-effective-area/1`.
     - Target is explicitly `roof-purlin` under Components & Cladding; no MWFRS substitution.
@@ -30,8 +31,7 @@ Status date: 2026-08-22
     - Enlarging the coefficient-selection area never changes the physical tributary/load-application area.
     - 4.0 m × 1.0 m benchmark: actual area = 4.0 m²; one-third-span coefficient area = 5.333333333... m².
     - Roof sheet and fastener effective areas remain unresolved; fasteners cannot inherit purlin area.
-    - External `GCp`, code zones, pressure combination, load combinations, purlin capacity promotion and final Roof Bay code pressure remain blocked.
-  - [x] Source-backed symmetric-gable field/edge/corner zone geometry + physical purlin tributary-band zone intersections — PR #124 implementation candidate.
+  - [x] Source-backed symmetric-gable field/edge/corner zone geometry + physical purlin tributary-band zone intersections — PR #124.
     - Schema: `futoltech.wind-roof-zone-geometry/1`.
     - Roof Bay placement is explicitly registered within whole-roof ridge-parallel coordinates; no local-bay zone guessing.
     - Gable figure family preserves the 27° split: `207E.4-2B` for `7° < θ <= 27°`; `207E.4-2C` for `27° < θ <= 45°`.
@@ -40,14 +40,24 @@ Status date: 2026-08-22
     - Zone 1/field, Zone 2/edge and Zone 3/corner use deterministic non-overlapping roof-surface cells.
     - A purlin tributary band may retain separate field/edge/corner intersection areas; no convenient whole-member zone label is substituted.
     - Every band and the complete Roof Bay preserve area conservation and deterministic round-trip/mutation protection.
-    - Overhangs, external `GCp`, roof-sheet/fastener effective area, pressure combination and final code-derived Roof Bay pressure remain blocked.
-    - Preliminary implementation head passed the complete Engineering Checks suite; this documentation-updated exact head must also be fully green before PR #124 merge.
-  - [ ] **Current:** implement source-backed external roof `GCp` selection using roof form/slope + PR #124 zone identity/intersection + PR #123 purlin effective wind area together.
-    - Do not apply one convenient `GCp` to a purlin band crossing multiple zones.
-    - Preserve the exact applicable figure/rule, coefficient-selection area and any interpolation/substitution trace.
-    - Keep roof-sheet and fastener effective areas separate and unresolved.
-  - [ ] Implement external pressure term only after the supported external `GCp` layer is independently benchmarked.
-  - [ ] Implement external-minus-internal pressure combination, load combinations and final code-pressure routing only through their own source-backed gates.
+    - PR #124 exact final head passed the complete Engineering Checks suite and merged.
+  - [x] **External roof `GCp` selection for roof-purlin C&C — PR #127, clean successor to PR #125.**
+    - Schema: `futoltech.wind-roof-external-gcp/1`.
+    - Consumes the exact PR #123 coefficient-selection effective wind area and PR #124 physical zone-intersection pieces together.
+    - Uses the resolved `207E.4-2B` / `207E.4-2C` figure family with the 27° boundary inherited from the verified geometry.
+    - Effective area at or below 10 ft² uses the low-area plateau; 10–100 ft² uses source-backed `log10(A)` interpolation; at or above 100 ft² uses the high-area plateau.
+    - Positive and negative `GCp` are preserved separately for every actual field/edge/corner portion of the selected purlin band.
+    - 25° / 4.0 m² benchmark: positive `+0.3731939868`; negative Zone 1 `-0.8365969934`, Zone 2 `-1.3829849670`, Zone 3 `-2.2195819604`.
+    - 30° / 4.8 m² benchmark: positive `+0.8286788688`; negative Zone 1 `-0.8573577376`, Zones 2/3 `-1.0573577376`.
+    - Deterministic tests protect curve selection, effective-area behavior, multi-zone handling, provenance, serialization and anti-promotion boundaries.
+    - Preliminary current-main integration head passed the complete Engineering Checks suite; this documentation-updated exact final head must also be fully green before PR #127 merges.
+    - Roof sheet and fastener effective areas remain independent and unresolved.
+  - [ ] **Current:** implement source-backed external roof pressure term `qh × GCp` with explicit sign convention for each actual zone-intersection piece.
+    - Reuse the already-verified mean-roof-height velocity pressure `qh`; do not recompute it from a different context.
+    - Preserve positive/downward and negative/suction external terms independently.
+    - Benchmark the external term before any internal combination.
+  - [ ] Implement the current low-rise Part 1 net pressure as `qh[(GCp) - (GCpi)]` only after the external term is benchmarked; require the internal velocity basis to be `qh` and do not import PR #121's Part 3 opening-height `qi=qz` option.
+  - [ ] Implement governing toward-surface / away-from-surface cases, traceable load combinations and automatic code-derived Roof Bay pressure only through their own source-backed gates and end-to-end benchmarks.
 - [ ] **M4 — Roof Sheet + Fastener / Connection Layer:** reusable Connection Lab foundations exist; Roof Bay integration remains unresolved.
 - [ ] **M5–M13:** follow `ROADMAP-ROOF-RESILIENCE-PHYSICS.md` in order unless an explicit engineering dependency requires resequencing.
 

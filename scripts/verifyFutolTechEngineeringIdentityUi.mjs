@@ -121,52 +121,86 @@ try {
 
   let ready = false;
   for (let i = 0; i < 150; i += 1) {
-    const state = await evaluate(cdp, `({
-      ready:document.readyState,
-      identity:document.documentElement.dataset.ftEngineeringIdentity,
-      designMode:document.documentElement.dataset.ftDesignMode,
-      identityStyle:!!document.getElementById('ft-engineering-identity-style'),
-      themeButton:!!document.querySelector('[data-ft-theme-toggle]')
-    })`);
-    if (state?.ready === 'complete' && state.identity === 'v1' && state.designMode === 'engineering' && state.identityStyle && state.themeButton) {
+    const state = await evaluate(cdp, `(() => {
+      const html = document.documentElement;
+      if (!html) return { ready:document.readyState, identity:null, designMode:null, identityStyle:false, themeButton:false, topbar:false };
+      return {
+        ready:document.readyState,
+        identity:html.dataset.ftEngineeringIdentity || null,
+        designMode:html.dataset.ftDesignMode || null,
+        identityStyle:!!document.getElementById('ft-engineering-identity-style'),
+        themeButton:!!document.querySelector('[data-ft-theme-toggle]'),
+        topbar:!!document.querySelector('.topbar')
+      };
+    })()`);
+    if (state?.ready === 'complete' && state.identity === 'v1' && state.designMode === 'engineering' && state.identityStyle && state.themeButton && state.topbar) {
       ready = true;
       break;
     }
     await sleep(100);
   }
-  if (!ready) throw new Error('Static FutolTech engineering identity did not mount on the public page.');
+  if (!ready) throw new Error('Static FutolTech engineering identity and topbar did not mount on the public page.');
 
-  const initial = await evaluate(cdp, `(() => {
-    const html = document.documentElement;
-    const bar = document.querySelector('.topbar');
-    const after = getComputedStyle(bar, '::after');
-    return {
-      identity:html.dataset.ftEngineeringIdentity,
-      designMode:html.dataset.ftDesignMode,
-      theme:html.dataset.ftTheme,
-      livingPeriod:html.dataset.ftLivingPeriod || null,
-      livingLayer:!!document.querySelector('[data-ft-living-atmosphere], #ft-living-atmosphere'),
-      livingParticles:document.querySelectorAll('.ftli-particle').length,
-      editorialRuleContent:after.content,
-      editorialRuleHeight:after.height,
-      topbarPosition:getComputedStyle(bar).position
-    };
-  })()`);
+  let initial = null;
+  for (let i = 0; i < 50; i += 1) {
+    initial = await evaluate(cdp, `(() => {
+      const html = document.documentElement;
+      const bar = document.querySelector('.topbar');
+      if (!html || !bar) return null;
+      const after = getComputedStyle(bar, '::after');
+      return {
+        identity:html.dataset.ftEngineeringIdentity || null,
+        designMode:html.dataset.ftDesignMode || null,
+        theme:html.dataset.ftTheme || null,
+        livingPeriod:html.dataset.ftLivingPeriod || null,
+        livingLayer:!!document.querySelector('[data-ft-living-atmosphere], #ft-living-atmosphere'),
+        livingParticles:document.querySelectorAll('.ftli-particle').length,
+        editorialRuleContent:after.content,
+        editorialRuleHeight:after.height,
+        topbarPosition:getComputedStyle(bar).position
+      };
+    })()`);
+    if (initial) break;
+    await sleep(100);
+  }
+  if (!initial) throw new Error('FutolTech engineering DOM disappeared before the identity assertion could run.');
 
   if (initial.identity !== 'v1' || initial.designMode !== 'engineering') throw new Error(`Engineering identity state changed: ${JSON.stringify(initial)}`);
   if (initial.livingPeriod || initial.livingLayer || initial.livingParticles !== 0) throw new Error(`Living/time-of-day ambience leaked into engineering mode: ${JSON.stringify(initial)}`);
   if (!initial.editorialRuleContent || initial.editorialRuleContent === 'none' || initial.editorialRuleHeight !== '2px') throw new Error(`Editorial gold rule did not render: ${JSON.stringify(initial)}`);
   if (initial.topbarPosition !== 'relative') throw new Error(`Engineering identity did not preserve the expected editorial frame: ${JSON.stringify(initial)}`);
 
-  await evaluate(cdp, `document.querySelector('[data-ft-theme-toggle]').click()`);
+  let clicked = false;
+  for (let i = 0; i < 50; i += 1) {
+    clicked = await evaluate(cdp, `(() => {
+      const button = document.querySelector('[data-ft-theme-toggle]');
+      if (!button) return false;
+      button.click();
+      return true;
+    })()`);
+    if (clicked) break;
+    await sleep(100);
+  }
+  if (!clicked) throw new Error('PaperMatte/Lab Dark theme toggle disappeared before interaction.');
   await sleep(100);
-  const toggled = await evaluate(cdp, `({
-    theme:document.documentElement.dataset.ftTheme,
-    identity:document.documentElement.dataset.ftEngineeringIdentity,
-    designMode:document.documentElement.dataset.ftDesignMode,
-    livingLayer:!!document.querySelector('[data-ft-living-atmosphere], #ft-living-atmosphere'),
-    livingParticles:document.querySelectorAll('.ftli-particle').length
-  })`);
+
+  let toggled = null;
+  for (let i = 0; i < 50; i += 1) {
+    toggled = await evaluate(cdp, `(() => {
+      const html = document.documentElement;
+      if (!html) return null;
+      return {
+        theme:html.dataset.ftTheme || null,
+        identity:html.dataset.ftEngineeringIdentity || null,
+        designMode:html.dataset.ftDesignMode || null,
+        livingLayer:!!document.querySelector('[data-ft-living-atmosphere], #ft-living-atmosphere'),
+        livingParticles:document.querySelectorAll('.ftli-particle').length
+      };
+    })()`);
+    if (toggled) break;
+    await sleep(100);
+  }
+  if (!toggled) throw new Error('Engineering DOM disappeared after theme toggle.');
   if (toggled.theme === initial.theme) throw new Error(`PaperMatte/Lab Dark toggle did not change theme: ${JSON.stringify({ initial, toggled })}`);
   if (toggled.identity !== 'v1' || toggled.designMode !== 'engineering') throw new Error(`Theme toggle displaced the engineering identity: ${JSON.stringify(toggled)}`);
   if (toggled.livingLayer || toggled.livingParticles !== 0) throw new Error(`Living ambience appeared after theme toggle: ${JSON.stringify(toggled)}`);
