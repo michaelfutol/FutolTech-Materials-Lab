@@ -32,6 +32,9 @@ jobs:
       - name: Roof Bay M2 Chromium gate
         timeout-minutes: 3
         run: node scripts/verifyRoofBayUi.mjs
+      - name: Roof Bay selectable load-path Chromium gate
+        timeout-minutes: 3
+        run: node scripts/verifyRoofBayInteractionV2.mjs
       - name: General comparison load-test video Chromium gate
         timeout-minutes: 3
         run: node scripts/verifyGeneralComparisonVideoUi.mjs
