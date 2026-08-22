@@ -70,6 +70,48 @@ test('roof bay reactions conserve applied gravity and uplift load', () => {
   assert.ok(Math.abs(model.rafters.left.normalKN - model.rafters.right.normalKN) < 1e-12);
 });
 
+test('combined roof bay exposes auditable roof-normal and downslope conservation components', () => {
+  const model = solveRoofBay({
+    preset: PRESET,
+    rafterSpacingM: 3,
+    roofSlopeLengthM: 4,
+    maxPurlinSpacingM: 0.8,
+    slopeDeg: 25,
+    mode: 'combined',
+    deadLoadKPa: 0.2,
+    roofLiveLoadKPa: 0.75,
+    windPressureKPa: 1.5,
+    windSense: 'uplift'
+  });
+  const normal=model.conservation.normal, parallel=model.conservation.parallel;
+  assert.equal(normal.applied.totalKN, model.applied.normalKN);
+  assert.equal(parallel.applied.totalKN, model.applied.parallelKN);
+  assert.equal(normal.reactions.totalKN, model.equilibrium.reactionNormalKN);
+  assert.equal(parallel.reactions.totalKN, model.equilibrium.reactionParallelKN);
+  assert.ok(Math.abs(normal.applied.roofAreaGravityKN + normal.applied.purlinSelfWeightKN + normal.applied.windKN - normal.applied.totalKN) < 1e-12);
+  assert.ok(Math.abs(parallel.applied.roofAreaGravityKN + parallel.applied.purlinSelfWeightKN + parallel.applied.windKN - parallel.applied.totalKN) < 1e-12);
+  assert.ok(Math.abs(normal.reactions.leftRafterKN + normal.reactions.rightRafterKN - normal.reactions.totalKN) < 1e-12);
+  assert.ok(Math.abs(parallel.reactions.leftRafterKN + parallel.reactions.rightRafterKN - parallel.reactions.totalKN) < 1e-12);
+  assert.equal(normal.pass, true);
+  assert.equal(parallel.pass, true);
+  assert.ok(Math.abs(normal.residualKN) < 1e-12);
+  assert.ok(Math.abs(parallel.residualKN) < 1e-12);
+});
+
+test('gravity-only sloped roof has positive normal and downslope reaction components with no wind term', () => {
+  const model=solveRoofBay({preset:PRESET,rafterSpacingM:3,roofSlopeLengthM:4,maxPurlinSpacingM:0.8,slopeDeg:30,mode:'gravity',deadLoadKPa:0.2,roofLiveLoadKPa:0.75,windPressureKPa:9,windSense:'uplift'});
+  assert.equal(model.conservation.normal.applied.windKN,0);
+  assert.equal(model.conservation.parallel.applied.windKN,0);
+  assert.ok(model.conservation.normal.applied.totalKN>0);
+  assert.ok(model.conservation.parallel.applied.totalKN>0);
+  assert.ok(model.rafters.left.normalKN>0);
+  assert.ok(model.rafters.left.parallelKN>0);
+  assert.ok(Math.abs(model.rafters.left.normalKN-model.rafters.right.normalKN)<1e-12);
+  assert.ok(Math.abs(model.rafters.left.parallelKN-model.rafters.right.parallelKN)<1e-12);
+  assert.equal(model.conservation.normal.pass,true);
+  assert.equal(model.conservation.parallel.pass,true);
+});
+
 test('custom nonuniform roof bay conserves load, preserves supplied stations and exposes exact bands', () => {
   const stations = [0.15, 0.72, 1.48, 2.4, 3.18, 3.8];
   const model = solveRoofBay({
@@ -125,5 +167,12 @@ test('wind-only uplift transfers a negative roof-normal reaction with zero downs
   assert.ok(model.applied.normalKN < 0);
   assert.ok(Math.abs(model.applied.parallelKN) < 1e-12);
   assert.ok(model.rafters.left.normalKN < 0);
+  assert.equal(model.conservation.normal.applied.windKN,model.applied.normalKN);
+  assert.equal(model.conservation.normal.applied.roofAreaGravityKN,0);
+  assert.equal(model.conservation.normal.applied.purlinSelfWeightKN,0);
+  assert.equal(model.conservation.parallel.applied.totalKN,0);
+  assert.equal(model.conservation.parallel.reactions.totalKN,0);
+  assert.equal(model.conservation.normal.pass,true);
+  assert.equal(model.conservation.parallel.pass,true);
   assert.equal(model.equilibrium.pass, true);
 });
