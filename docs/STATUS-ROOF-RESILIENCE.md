@@ -80,7 +80,7 @@ M2 exit gate:
 - [x] PR #112 final-head full Engineering Checks passed, including syntax, deterministic engineering tests, all Roof Bay Chromium gates, legacy lab/browser gates and PDF/print protections.
 
 ## M3 — Code Wind / Roof Zoning Engine
-**Status: ACTIVE — provenance foundation merged in PR #113; benchmarked velocity-pressure slice is the PR #114 candidate.**
+**Status: ACTIVE — provenance foundation merged in PR #113; velocity-pressure implementation is complete in the PR #114 closure branch and may merge only after the final closure-head full Engineering Checks are green.**
 
 Completed in PR #113:
 - Source-backed wind-code profile registry.
@@ -92,7 +92,7 @@ Completed in PR #113:
 - Public source/boundary record: `docs/M3_WIND_DESIGN_BASIS.md`.
 - Final-head full Engineering Checks passed and PR #113 merged.
 
-Implemented in PR #114 candidate — velocity-pressure chain:
+Implemented in PR #114 — velocity-pressure chain:
 - Deterministic NSCP 2015 building equation `qz = 0.613 Kz Kzt Kd V²`, using V in m/s and q in Pa.
 - Building directionality factor `Kd = 0.85` and Exposure B/C/D velocity-pressure coefficient evaluation are explicit.
 - `Kz = 2.01(z/zg)^(2/alpha)` is implemented with the 4.57 m minimum evaluation height; the solver rejects extrapolation beyond the verified `zg` expression domain.
@@ -105,12 +105,9 @@ Implemented in PR #114 candidate — velocity-pressure chain:
 - Stored velocity-pressure output is recalculated during validation so mutated `Kz` or q cannot be accepted as source truth.
 - Visible M3.1 benchmark panel exposes the substitutions and result; dedicated Chromium QA asserts that this benchmark is **not** routed into the live Roof Bay pressure model or project export.
 - Public equation/benchmark/boundary record: `docs/M3_VELOCITY_PRESSURE.md`.
+- The complete code/test/browser/print suite passed on the implementation head before the source-of-truth closure edits; a final closure-head rerun is still required before merge because those documentation commits advance the PR head.
 
-PR #114 completion gate:
-- [ ] Full final-head Engineering Checks pass after all source-of-truth status updates.
-- [ ] Merge to `main` before marking the velocity-pressure slice complete.
-
-Next M3 task after PR #114: build the source-backed project wind-input acceptance path, especially defensible Philippine basic-wind-speed selection and explicit applicability/provenance for occupancy/risk, exposure, topography and height. Pressure coefficients and roof zoning remain blocked until that input layer is verified.
+Next M3 task after PR #114 merges: build the source-backed project wind-input acceptance path, especially defensible Philippine basic-wind-speed selection and explicit applicability/provenance for occupancy/risk, exposure, topography and height. Pressure coefficients and roof zoning remain blocked until that input layer is verified.
 
 Permanent M3 boundary: a verified velocity pressure is not a final roof pressure. Manual pressure entry remains the active auditable Roof Bay path until external/internal pressure coefficients, roof zoning and project integration are independently verified.
 
