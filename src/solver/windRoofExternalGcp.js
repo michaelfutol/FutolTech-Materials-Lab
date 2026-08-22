@@ -10,6 +10,11 @@ const M2_TO_FT2 = 10.763910416709722;
 const MIN_CURVE_AREA_FT2 = 10;
 const MAX_CURVE_AREA_FT2 = 100;
 const EPS = 1e-9;
+const STATUS = 'PURLIN_EXTERNAL_GCP_RESOLVED_EXTERNAL_PRESSURE_BLOCKED';
+const CODE_FIGURE_RULE = 'Use the applicable NSCP 2015 Figure 207E.4-2B or 207E.4-2C external roof GCp curve for the resolved gable-roof zone and the purlin coefficient-selection effective wind area.';
+const CURVE_EQUATION_RULE = 'The implemented log10 interpolation equations reproduce the corresponding ASCE 7-10 Guide Tables G2-3/G2-4 curve segments between 10 ft² and 100 ft²; endpoint coefficients are held on the graph plateaus outside that interval.';
+const VERIFICATION_BOUNDARY = 'Verify the applicable NSCP figure and coefficients against an authorized code copy before project use.';
+const RECORD_BOUNDARY = 'This record resolves external GCp only for a supported non-overhang symmetric-gable roof purlin and preserves separate positive/negative coefficients for every resolved zone portion of the selected tributary band. It does not multiply by qh, combine internal pressure, create load combinations, resolve roof-sheet/fastener effective area, rate purlin capacity, or activate code-derived Roof Bay pressure.';
 
 function clone(value) {
   return JSON.parse(JSON.stringify(value));
@@ -119,19 +124,9 @@ function activeZoneTypes(band) {
   return ['field', 'edge', 'corner'].filter((type) => Number(band.zoneAreasM2?.[type]) > EPS);
 }
 
-export function resolveWindRoofExternalGcp({
-  windRoofZoneGeometry,
-  roofPurlinEffectiveWindArea,
-  targetPurlinBandLabel,
-  codeFigureSourceReference,
-  curveEquationSourceReference,
-  note = null
-} = {}) {
-  validateWindRoofZoneGeometry(windRoofZoneGeometry);
-  validateRoofPurlinEffectiveWindArea(roofPurlinEffectiveWindArea);
-
-  const zones = clone(windRoofZoneGeometry);
-  const effectiveArea = clone(roofPurlinEffectiveWindArea);
+function validateUpstreamPair(zones, effectiveArea) {
+  validateWindRoofZoneGeometry(zones);
+  validateRoofPurlinEffectiveWindArea(effectiveArea);
   if (zones.adoptedCodeProfileId !== SUPPORTED_CODE_PROFILE || effectiveArea.adoptedCodeProfileId !== SUPPORTED_CODE_PROFILE) {
     throw new Error(`External roof GCp selection supports only '${SUPPORTED_CODE_PROFILE}'.`);
   }
@@ -142,6 +137,19 @@ export function resolveWindRoofExternalGcp({
   if (!sameRecord(zones.upstreamWindPressureContextAcceptance, effectiveArea.upstreamWindPressureContextAcceptance)) {
     throw new Error('Roof-zone geometry and purlin effective-area records must reference the exact same accepted wind pressure context.');
   }
+}
+
+function buildRecord({
+  windRoofZoneGeometry,
+  roofPurlinEffectiveWindArea,
+  targetPurlinBandLabel,
+  codeFigureSourceReference,
+  curveEquationSourceReference,
+  note = null
+}) {
+  validateUpstreamPair(windRoofZoneGeometry, roofPurlinEffectiveWindArea);
+  const zones = clone(windRoofZoneGeometry);
+  const effectiveArea = clone(roofPurlinEffectiveWindArea);
 
   const heightM = Number(zones.upstreamWindPressureContextAcceptance.roofGeometry?.meanRoofHeightM);
   if (!Number.isFinite(heightM) || heightM > 18 + EPS) {
@@ -167,12 +175,10 @@ export function resolveWindRoofExternalGcp({
   const coefficientArea = curveArea(effectiveArea.coefficientSelection.effectiveWindAreaM2);
   const zoneTypes = activeZoneTypes(band);
   if (!zoneTypes.length) throw new Error('Target purlin tributary band has no resolved field/edge/corner area.');
-
   const coefficientCases = zoneTypes.map((type) => {
     const values = coefficientsForFigure(figureId, type, coefficientArea);
-    const zoneNumber = type === 'field' ? 1 : type === 'edge' ? 2 : 3;
     return {
-      zoneNumber,
+      zoneNumber: type === 'field' ? 1 : type === 'edge' ? 2 : 3,
       type,
       actualZoneIntersectionAreaM2: band.zoneAreasM2[type],
       componentCoefficientSelectionEffectiveAreaM2: coefficientArea.effectiveWindAreaM2,
@@ -183,9 +189,9 @@ export function resolveWindRoofExternalGcp({
     };
   });
 
-  const record = {
+  return {
     schemaVersion: WIND_ROOF_EXTERNAL_GCP_SCHEMA,
-    status: 'PURLIN_EXTERNAL_GCP_RESOLVED_EXTERNAL_PRESSURE_BLOCKED',
+    status: STATUS,
     adoptedCodeProfileId: SUPPORTED_CODE_PROFILE,
     designProcedure: DESIGN_PROCEDURE,
     target: {
@@ -216,9 +222,9 @@ export function resolveWindRoofExternalGcp({
     sourceBasis: {
       codeFigureSourceReference: nonEmpty(codeFigureSourceReference, 'codeFigureSourceReference'),
       curveEquationSourceReference: nonEmpty(curveEquationSourceReference, 'curveEquationSourceReference'),
-      codeFigureRule: 'Use the applicable NSCP 2015 Figure 207E.4-2B or 207E.4-2C external roof GCp curve for the resolved gable-roof zone and the purlin coefficient-selection effective wind area.',
-      curveEquationRule: 'The implemented log10 interpolation equations reproduce the corresponding ASCE 7-10 Guide Tables G2-3/G2-4 curve segments between 10 ft² and 100 ft²; endpoint coefficients are held on the graph plateaus outside that interval.',
-      verificationBoundary: 'Verify the applicable NSCP figure and coefficients against an authorized code copy before project use.'
+      codeFigureRule: CODE_FIGURE_RULE,
+      curveEquationRule: CURVE_EQUATION_RULE,
+      verificationBoundary: VERIFICATION_BOUNDARY
     },
     implementation: {
       externalPressureCoefficientImplemented: true,
@@ -233,9 +239,12 @@ export function resolveWindRoofExternalGcp({
       purlinCapacityPromotionImplemented: false
     },
     note: note == null || String(note).trim() === '' ? null : String(note).trim(),
-    boundary: 'This record resolves external GCp only for a supported non-overhang symmetric-gable roof purlin and preserves separate positive/negative coefficients for every resolved zone portion of the selected tributary band. It does not multiply by qh, combine internal pressure, create load combinations, resolve roof-sheet/fastener effective area, rate purlin capacity, or activate code-derived Roof Bay pressure.'
+    boundary: RECORD_BOUNDARY
   };
+}
 
+export function resolveWindRoofExternalGcp(input = {}) {
+  const record = buildRecord(input);
   validateWindRoofExternalGcp(record);
   return clone(record);
 }
@@ -243,93 +252,27 @@ export function resolveWindRoofExternalGcp({
 export function validateWindRoofExternalGcp(record) {
   if (!record || typeof record !== 'object' || Array.isArray(record)) throw new Error('Wind roof external GCp record must be an object.');
   if (record.schemaVersion !== WIND_ROOF_EXTERNAL_GCP_SCHEMA) throw new Error(`Unsupported wind roof external GCp schema '${record.schemaVersion}'.`);
-  if (record.status !== 'PURLIN_EXTERNAL_GCP_RESOLVED_EXTERNAL_PRESSURE_BLOCKED') throw new Error('Wind roof external GCp status changed.');
-  validateWindRoofZoneGeometry(record.upstreamWindRoofZoneGeometry);
-  validateRoofPurlinEffectiveWindArea(record.upstreamRoofPurlinEffectiveWindArea);
+  if (record.status !== STATUS) throw new Error('Wind roof external GCp status changed.');
   if (record.adoptedCodeProfileId !== SUPPORTED_CODE_PROFILE) throw new Error('Wind roof external GCp code profile changed.');
   if (record.designProcedure !== DESIGN_PROCEDURE) throw new Error('Wind roof external GCp procedure must remain Components & Cladding.');
   if (record.target?.class !== TARGET_CLASS) throw new Error('Wind roof external GCp target must remain roof-purlin.');
+  nonEmpty(record.sourceBasis?.codeFigureSourceReference, 'sourceBasis.codeFigureSourceReference');
+  nonEmpty(record.sourceBasis?.curveEquationSourceReference, 'sourceBasis.curveEquationSourceReference');
+  if (record.sourceBasis?.codeFigureRule !== CODE_FIGURE_RULE) throw new Error('External GCp code-figure rule text changed.');
+  if (record.sourceBasis?.curveEquationRule !== CURVE_EQUATION_RULE) throw new Error('External GCp curve-equation rule text changed.');
+  if (record.sourceBasis?.verificationBoundary !== VERIFICATION_BOUNDARY) throw new Error('External GCp verification boundary changed.');
+  if (record.boundary !== RECORD_BOUNDARY) throw new Error('External GCp engineering boundary changed.');
 
-  const rebuilt = resolveForValidation(record);
+  const rebuilt = buildRecord({
+    windRoofZoneGeometry: record.upstreamWindRoofZoneGeometry,
+    roofPurlinEffectiveWindArea: record.upstreamRoofPurlinEffectiveWindArea,
+    targetPurlinBandLabel: record.target?.purlinBandLabel,
+    codeFigureSourceReference: record.sourceBasis.codeFigureSourceReference,
+    curveEquationSourceReference: record.sourceBasis.curveEquationSourceReference,
+    note: record.note
+  });
   if (!sameRecord(record, rebuilt)) throw new Error('Wind roof external GCp record changed from its deterministic upstream geometry/effective-area/source inputs.');
   return true;
-}
-
-function resolveForValidation(record) {
-  const zones = record.upstreamWindRoofZoneGeometry;
-  const effectiveArea = record.upstreamRoofPurlinEffectiveWindArea;
-  const label = record.target?.purlinBandLabel;
-  validateWindRoofZoneGeometry(zones);
-  validateRoofPurlinEffectiveWindArea(effectiveArea);
-  if (!sameRecord(zones.upstreamWindPressureContextAcceptance, effectiveArea.upstreamWindPressureContextAcceptance)) {
-    throw new Error('Roof-zone geometry and purlin effective-area records must reference the exact same accepted wind pressure context.');
-  }
-  const band = targetBand(zones, label);
-  if (!nearlyEqual(zones.roofPlaneRegistration?.baySpanM, effectiveArea.geometry?.purlinSpanM)) throw new Error('Purlin effective-area span must match the registered Roof Bay span.');
-  if (!nearlyEqual(band.widthM, effectiveArea.geometry?.actualTributaryWidthM)) throw new Error('Purlin effective-area actual tributary width must match the selected roof-zone tributary band width.');
-  if (!nearlyEqual(band.actualLoadApplicationAreaM2, effectiveArea.geometry?.actualLoadApplicationAreaM2)) throw new Error('Purlin actual load areas do not match.');
-
-  const heightM = Number(zones.upstreamWindPressureContextAcceptance.roofGeometry?.meanRoofHeightM);
-  if (!Number.isFinite(heightM) || heightM > 18 + EPS) throw new Error('External roof GCp record exceeds the supported h <= 18 m scope.');
-  const coefficientArea = curveArea(effectiveArea.coefficientSelection.effectiveWindAreaM2);
-  const zoneTypes = activeZoneTypes(band);
-  const figureId = zones.applicability.figureId;
-  const coefficientCases = zoneTypes.map((type) => {
-    const values = coefficientsForFigure(figureId, type, coefficientArea);
-    return {
-      zoneNumber: type === 'field' ? 1 : type === 'edge' ? 2 : 3,
-      type,
-      actualZoneIntersectionAreaM2: band.zoneAreasM2[type],
-      componentCoefficientSelectionEffectiveAreaM2: coefficientArea.effectiveWindAreaM2,
-      positiveGCp: values.positive,
-      negativeGCp: values.negative,
-      positiveCurveId: figureId === '207E.4-2B' ? '2B-all-zones-positive' : '2C-all-zones-positive',
-      negativeCurveId: values.negativeCurveId
-    };
-  });
-
-  return {
-    schemaVersion: WIND_ROOF_EXTERNAL_GCP_SCHEMA,
-    status: 'PURLIN_EXTERNAL_GCP_RESOLVED_EXTERNAL_PRESSURE_BLOCKED',
-    adoptedCodeProfileId: SUPPORTED_CODE_PROFILE,
-    designProcedure: DESIGN_PROCEDURE,
-    target: { class: TARGET_CLASS, purlinBandLabel: label, roofPlane: zones.roofPlaneRegistration.roofPlane },
-    upstreamWindRoofZoneGeometry: clone(zones),
-    upstreamRoofPurlinEffectiveWindArea: clone(effectiveArea),
-    applicability: {
-      roofForm: 'gable',
-      symmetricGableConfirmed: true,
-      roofSlopeDeg: zones.applicability.roofSlopeDeg,
-      meanRoofHeightM: heightM,
-      maxSupportedMeanRoofHeightM: 18,
-      roofOverhangTargetSupported: false,
-      figureId
-    },
-    coefficientArea: {
-      ...coefficientArea,
-      curveAreaUnit: 'ft2',
-      interpolationAxis: 'log10-effective-wind-area',
-      lowPlateauLimitFt2: MIN_CURVE_AREA_FT2,
-      highPlateauLimitFt2: MAX_CURVE_AREA_FT2,
-      metricToImperialAreaFactor: M2_TO_FT2
-    },
-    coefficientCases,
-    sourceBasis: clone(record.sourceBasis),
-    implementation: {
-      externalPressureCoefficientImplemented: true,
-      positiveAndNegativeCasesImplemented: true,
-      multiZonePurlinBandImplemented: true,
-      externalPressureTermImplemented: false,
-      externalInternalPressureCombinationImplemented: false,
-      roofSheetEffectiveWindAreaImplemented: false,
-      fastenerEffectiveWindAreaImplemented: false,
-      codeDerivedRoofPressureImplemented: false,
-      roofBayCodePressureRoutingImplemented: false,
-      purlinCapacityPromotionImplemented: false
-    },
-    note: record.note == null || String(record.note).trim() === '' ? null : String(record.note).trim(),
-    boundary: record.boundary
-  };
 }
 
 export function serializeWindRoofExternalGcp(record) {
