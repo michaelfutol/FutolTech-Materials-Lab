@@ -34,7 +34,7 @@
 9. [x] **Frame Analyzer / NF-001** — connected 2D frame, explicit spring/release states, elastic P–Δ, piecewise redistribution/mechanism detection and brace sensitivity.
 10. [x] **FutolStructure / RPE interchange v1** — versioned component, demand, critical-specimen and evidence-bounded failure/RPE law exchange.
 11. [x] **Roof Resilience Physics M2** — Roof Bay load routing, member selection/exploded trace, stable project JSON, custom/nonuniform purlin stations, reaction diagrams and M3-ready pressure-zone placeholders completed through PR #112 with the M2 exit gate green.
-12. [~] **Roof Resilience Physics M3** — PRs #113–#121 merged: code/version provenance, velocity-pressure benchmark, project wind-input acceptance + Roof Bay bridge, enclosure/roof-geometry context + Roof Bay bridge, base `GCpi`, large-volume `Ri`, and signed `qi(GCpi)` internal-pressure term. Current dependency is a source-backed roof Components & Cladding target/effective-wind-area foundation before any external `GCp`, zone pressure, or automatic code-pressure routing.
+12. [~] **Roof Resilience Physics M3** — completed through PR #123: code/version provenance, velocity-pressure benchmark, project wind-input acceptance + Roof Bay bridge, enclosure/roof-geometry context + Roof Bay bridge, base `GCpi`, large-volume `Ri`, signed `qi(GCpi)` internal-pressure term, and source-backed roof-purlin C&C effective wind area. Current dependency is field/edge/corner zone geometry + purlin/tributary-band zone assignment before external `GCp` lookup.
 
 # Protected foundation
 
@@ -280,12 +280,16 @@
 - [x] PR #121 enclosed cases use `qi=qh`; partially enclosed negative uses `qh`; partially enclosed positive requires either explicit conservative `qh` or source-referenced `qz` at the highest relevant opening; open remains zero because `GCpi=0`.
 - [x] PR #121 partially enclosed records cannot bypass the explicit `Ri` decision; deterministic validation recalculates `qh`, optional `qz`, `qi` and `qi(GCpi)` and rejects mutation.
 - [x] PR #121 exact head `9a458078f610a35a678213583f0f91462bba7dcb` passed the complete Engineering Checks suite after a legacy Chromium temp-profile cleanup flake was rerun successfully; PR #121 squash-merged as `5acab72d3848ee1b3e55191560577dc965b15d08`.
-- [!] External roof `GCp`, effective wind area, field/edge/corner geometry, external-minus-internal pressure combination, load combinations and automatic code-pressure routing remain blocked.
-- [ ] **Current M3 slice:** establish a source-backed roof Components & Cladding target/procedure and effective-wind-area contract before external coefficient selection.
-- [ ] Keep coefficient-selection effective area distinct from actual roof tributary/load-application area; do not make roof sheet, fastener and purlin targets share one coefficient path by default.
-- [ ] Where a code-permitted effective-width treatment may enlarge coefficient-selection area, require explicit engineer/evidence-bounded selection rather than silently applying the beneficial option.
-- [ ] Independently benchmark and protect the effective-area calculation/serialization before enabling external roof `GCp`.
-- [ ] After effective area is resolved, implement external coefficients, field/edge/corner geometry, pressure combination, load combinations and final code-pressure routing only through their own source-backed gates.
+- [x] PR #123 — `futoltech.wind-roof-purlin-effective-area/1` establishes the supported `roof-purlin` Components & Cladding target and keeps coefficient-selection effective wind area distinct from actual tributary/load-application area.
+- [x] PR #123 supports explicit `actual-tributary-width` and source-referenced `one-third-span-minimum` selections; the latter uses `max(actual width, span/3)` and never rewrites the physical Roof Bay tributary band.
+- [x] PR #123 deterministic benchmark: 4.0 m purlin span × 1.0 m actual tributary width → 4.0 m² actual load area; explicit one-third-span selection → 5.333333333... m² coefficient-selection effective area.
+- [x] PR #123 validation blocks silent roof-sheet/fastener area promotion, external `GCp`, code zones, pressure combination, final Roof Bay pressure and purlin capacity promotion; preliminary full Engineering Checks passed before checklist advancement and the documentation-updated exact head must also be green before merge.
+- [!] External roof `GCp`, field/edge/corner geometry, external-minus-internal pressure combination, load combinations and automatic code-pressure routing remain blocked. Roof sheet and fastener effective areas also remain unresolved.
+- [ ] **Current M3 slice:** implement source-backed field/edge/corner roof C&C zone geometry and physical purlin/tributary-band zone assignment before external coefficient selection.
+- [ ] Reuse the existing M2 roof-local coordinate frame and accepted roof/building dimensions so zone polygons, diagrams, solver state and later pressure routing share one geometry source.
+- [ ] Do not assign an entire purlin to one convenient zone if its actual tributary/load area intersects multiple code zones.
+- [ ] Independently benchmark zone dimensions/polygons and protect deterministic serialization/anti-mutation before enabling external roof `GCp`.
+- [ ] After zone identity is resolved, implement external `GCp` using roof form/slope + zone + PR #123 effective area, then external/internal pressure combination, load combinations and final code-pressure routing through separate source-backed gates.
 
 # Definition of DONE for every new product/feature
 
@@ -330,4 +334,5 @@
 - 2026-08-22 — PRs #117–#118 established source-backed enclosure/roof geometry and exposed that exact pressure context in Roof Bay/project JSON without automatic enclosure classification, coefficients or zones.
 - 2026-08-22 — PRs #119–#121 completed the current internal-pressure chain as separate auditable layers: base `GCpi`, engineer-gated large-volume `Ri`, then velocity selection and signed `qi(GCpi)`. None is promoted to final roof pressure.
 - 2026-08-22 — PR #121 exact final head passed the complete Engineering Checks suite after rerunning a legacy Chromium temp-profile cleanup flake; it squash-merged as `5acab72d3848ee1b3e55191560577dc965b15d08`.
-- 2026-08-22 — Before external roof `GCp`, M3 will explicitly resolve the supported roof Components & Cladding target/procedure and coefficient-selection effective wind area. Effective area remains distinct from actual tributary/load-application area, and any code-permitted beneficial effective-width treatment must be explicit rather than silently assumed.
+- 2026-08-22 — PR #123 resolves only the current roof-purlin C&C target and coefficient-selection effective wind area. It keeps physical tributary/load area separate, makes one-third-span enlargement explicit and source-referenced, and leaves sheet/fastener area, zone geometry, external `GCp`, pressure combination and final code pressure blocked.
+- 2026-08-22 — M3 sequencing is corrected so source-backed field/edge/corner zone geometry and physical purlin/tributary-band zone assignment precede external `GCp` lookup; zone-dependent coefficients will never be selected first and assigned a zone afterward.
