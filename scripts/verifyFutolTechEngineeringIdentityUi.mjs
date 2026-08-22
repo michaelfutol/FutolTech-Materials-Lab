@@ -126,32 +126,40 @@ try {
       identity:document.documentElement.dataset.ftEngineeringIdentity,
       designMode:document.documentElement.dataset.ftDesignMode,
       identityStyle:!!document.getElementById('ft-engineering-identity-style'),
-      themeButton:!!document.querySelector('[data-ft-theme-toggle]')
+      themeButton:!!document.querySelector('[data-ft-theme-toggle]'),
+      topbar:!!document.querySelector('.topbar')
     })`);
-    if (state?.ready === 'complete' && state.identity === 'v1' && state.designMode === 'engineering' && state.identityStyle && state.themeButton) {
+    if (state?.ready === 'complete' && state.identity === 'v1' && state.designMode === 'engineering' && state.identityStyle && state.themeButton && state.topbar) {
       ready = true;
       break;
     }
     await sleep(100);
   }
-  if (!ready) throw new Error('Static FutolTech engineering identity did not mount on the public page.');
+  if (!ready) throw new Error('Static FutolTech engineering identity and topbar did not mount on the public page.');
 
-  const initial = await evaluate(cdp, `(() => {
-    const html = document.documentElement;
-    const bar = document.querySelector('.topbar');
-    const after = getComputedStyle(bar, '::after');
-    return {
-      identity:html.dataset.ftEngineeringIdentity,
-      designMode:html.dataset.ftDesignMode,
-      theme:html.dataset.ftTheme,
-      livingPeriod:html.dataset.ftLivingPeriod || null,
-      livingLayer:!!document.querySelector('[data-ft-living-atmosphere], #ft-living-atmosphere'),
-      livingParticles:document.querySelectorAll('.ftli-particle').length,
-      editorialRuleContent:after.content,
-      editorialRuleHeight:after.height,
-      topbarPosition:getComputedStyle(bar).position
-    };
-  })()`);
+  let initial = null;
+  for (let i = 0; i < 50; i += 1) {
+    initial = await evaluate(cdp, `(() => {
+      const html = document.documentElement;
+      const bar = document.querySelector('.topbar');
+      if (!bar) return null;
+      const after = getComputedStyle(bar, '::after');
+      return {
+        identity:html.dataset.ftEngineeringIdentity,
+        designMode:html.dataset.ftDesignMode,
+        theme:html.dataset.ftTheme,
+        livingPeriod:html.dataset.ftLivingPeriod || null,
+        livingLayer:!!document.querySelector('[data-ft-living-atmosphere], #ft-living-atmosphere'),
+        livingParticles:document.querySelectorAll('.ftli-particle').length,
+        editorialRuleContent:after.content,
+        editorialRuleHeight:after.height,
+        topbarPosition:getComputedStyle(bar).position
+      };
+    })()`);
+    if (initial) break;
+    await sleep(100);
+  }
+  if (!initial) throw new Error('FutolTech engineering topbar disappeared before the identity assertion could run.');
 
   if (initial.identity !== 'v1' || initial.designMode !== 'engineering') throw new Error(`Engineering identity state changed: ${JSON.stringify(initial)}`);
   if (initial.livingPeriod || initial.livingLayer || initial.livingParticles !== 0) throw new Error(`Living/time-of-day ambience leaked into engineering mode: ${JSON.stringify(initial)}`);
