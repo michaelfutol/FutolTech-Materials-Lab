@@ -12,20 +12,23 @@ Completed M3 input-contract slice: **source-backed project wind-input acceptance
 
 Completed M3.2 slice: **Roof Bay project wind-input acceptance + project JSON bridge — PR #116**. The dedicated M3 project-input Chromium gate and full Engineering Checks passed before merge, and PR #116 merged on 2026-08-22.
 
-Current M3 task: **source-backed enclosure classification + roof/building geometry input acceptance — PR #117 candidate**.
+Completed M3.3 input-contract foundation: **source-backed enclosure classification + roof/building geometry input acceptance — PR #117**. The final-head Engineering Checks passed and PR #117 merged on 2026-08-22.
 
-Implemented in the PR #117 candidate foundation:
-1. Versioned `futoltech.wind-pressure-context-acceptance/1` record requiring a valid upstream `futoltech.wind-project-input-acceptance/1` record.
-2. Explicit enclosure labels `enclosed`, `partially-enclosed`, and `open`, consistent with the NSCP 2015 Section 207A.10.1 classification family.
-3. The classification remains `ENGINEER_DECLARED_PROJECT_INPUT`; the software does not yet evaluate the quantitative opening definitions automatically.
-4. An enclosure-classification reference and a separate project opening-assessment reference are mandatory, reflecting the Section 207A.10.2 need to determine building-envelope openings.
-5. Source-referenced roof/building geometry is explicit: roof form, plan length, plan width, mean roof height, and roof slope.
-6. Mean roof height must match the upstream accepted wind-project height so the pressure-context record cannot silently detach from the velocity-pressure basis.
-7. Deterministic serialization and validation protect the full upstream evidence chain.
-8. Automatic enclosure classification, code-definition threshold evaluation, `GCpi`, external pressure coefficients, effective wind area, field/edge/corner zoning, and final roof pressure remain hard-blocked.
+Current M3 task: **Roof Bay pressure-context acceptance + project JSON bridge — PR #118 candidate**.
 
-Next step after the PR #117 foundation is green: expose the accepted enclosure/roof-geometry context in Roof Bay/project JSON. Only then should the exact code-specific internal/external pressure coefficient and zoning rules be implemented and independently benchmarked.
+Implemented in the PR #118 candidate:
+1. Roof Bay exposes the merged `futoltech.wind-pressure-context-acceptance/1` workflow only after an upstream project wind-input record has been accepted.
+2. Enclosure remains an `ENGINEER_DECLARED_PROJECT_INPUT`; the UI does not automatically evaluate the quantitative NSCP opening definitions.
+3. Separate enclosure-classification and building-envelope-opening assessment references are required.
+4. Source-referenced roof form, overall building plan length/width, mean roof height, and roof slope are explicit.
+5. Mean roof height is inherited from the accepted upstream wind record, preserving the velocity-pressure height basis.
+6. Pressure-context roof slope must match the active Roof Bay project slope; overall building plan dimensions are not incorrectly inferred from local bay dimensions.
+7. A project carrying pressure context must also carry the exact upstream accepted wind-project record used to create it.
+8. Accepted pressure context can be embedded in `futoltech.roof-bay-project/1` while `pressureZoning.activePressureModel` remains `manual-uniform`, `codeBasis` remains null, regions remain empty, and `codeWindZoning` remains `UNRESOLVED`.
+9. Deterministic project tests and a dedicated real-Chromium V9 gate protect acceptance, export, anti-drift, invalidation, and no-premature-pressure-routing behavior.
+
+Next step after PR #118 is final-head green and merged: begin a separate source-backed, independently benchmarked internal-pressure coefficient (`GCpi`) slice. External pressure coefficients, effective wind area, field/edge/corner zoning, load combinations, and final code-derived Roof Bay pressure remain blocked until their own gates are complete.
 
 Permanent M3 rule: a verified velocity pressure and a traceable enclosure/roof-geometry context are still not a final roof pressure. Manual pressure remains the active Roof Bay path until the complete coefficient/zoning chain is verified.
 
-Detailed scope and gates live in `ROADMAP-ROOF-RESILIENCE-PHYSICS.md`, `STATUS-ROOF-RESILIENCE.md`, `ROOF-RESILIENCE-PHYSICS-MILESTONE-STATUS.md`, `M3_WIND_DESIGN_BASIS.md`, `M3_VELOCITY_PRESSURE.md`, `M3_PROJECT_WIND_INPUT_ACCEPTANCE.md`, `M3_ROOF_BAY_PROJECT_WIND_INPUT_UI.md`, and `M3_ENCLOSURE_ROOF_GEOMETRY_INPUT_ACCEPTANCE.md`.
+Detailed scope and gates live in `ROADMAP-ROOF-RESILIENCE-PHYSICS.md`, `STATUS-ROOF-RESILIENCE.md`, `ROOF-RESILIENCE-PHYSICS-MILESTONE-STATUS.md`, `M3_WIND_DESIGN_BASIS.md`, `M3_VELOCITY_PRESSURE.md`, `M3_PROJECT_WIND_INPUT_ACCEPTANCE.md`, `M3_ROOF_BAY_PROJECT_WIND_INPUT_UI.md`, `M3_ENCLOSURE_ROOF_GEOMETRY_INPUT_ACCEPTANCE.md`, and `M3_ROOF_BAY_PRESSURE_CONTEXT_UI.md`.
