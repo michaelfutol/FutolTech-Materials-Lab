@@ -29,6 +29,9 @@ jobs:
       - name: C-purlin gravity + wind Chromium gate
         timeout-minutes: 3
         run: node scripts/verifyCPurlinGravityWindUi.mjs
+      - name: Roof Bay M2 Chromium gate
+        timeout-minutes: 3
+        run: node scripts/verifyRoofBayUi.mjs
       - name: General comparison load-test video Chromium gate
         timeout-minutes: 3
         run: node scripts/verifyGeneralComparisonVideoUi.mjs
