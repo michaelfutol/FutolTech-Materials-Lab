@@ -179,6 +179,8 @@ async function waitForPhysicsBenchInitialization() {
 async function mountGenericComparisonPlayback() {
   await import('./comparisonPlaybackUi.js');
   await import('./genericComparisonVideoV1.js');
+  await import('./generalComparisonLayoutV2.js');
+  await import('./genericComparisonVideoDurationV2.js');
   document.documentElement.dataset.comparisonExperience = 'general-materials';
 }
 
