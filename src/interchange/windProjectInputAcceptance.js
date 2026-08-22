@@ -42,6 +42,12 @@ function category(value, label, allowed) {
   return normalized;
 }
 
+function enumText(value, label, allowed) {
+  const normalized = text(value, label);
+  if (!allowed.includes(normalized)) throw new Error(`${label} must be one of ${allowed.join(', ')}.`);
+  return normalized;
+}
+
 export function requiredWindSpeedFigureForOccupancy(occupancyCategory) {
   const normalized = category(occupancyCategory, 'occupancyCategory', Object.keys(OCCUPANCY_WIND_FIGURES));
   return clone(OCCUPANCY_WIND_FIGURES[normalized]);
@@ -67,13 +73,10 @@ export function createWindProjectInputAcceptance({
 } = {}) {
   const occupancy = category(occupancyCategory, 'occupancyCategory', ['I', 'II', 'III', 'IV', 'V']);
   const requiredFigure = requiredWindSpeedFigureForOccupancy(occupancy);
-  const sourceType = category(windSpeedSourceType, 'windSpeedSourceType', WIND_SPEED_SOURCE_TYPES);
-  const selectionMethod = text(windSpeedSelectionMethod, 'windSpeedSelectionMethod');
-  if (!WIND_SPEED_SELECTION_METHODS.includes(selectionMethod)) {
-    throw new Error(`windSpeedSelectionMethod must be one of ${WIND_SPEED_SELECTION_METHODS.join(', ')}.`);
-  }
+  const sourceType = enumText(windSpeedSourceType, 'windSpeedSourceType', WIND_SPEED_SOURCE_TYPES);
+  const selectionMethod = enumText(windSpeedSelectionMethod, 'windSpeedSelectionMethod', WIND_SPEED_SELECTION_METHODS);
 
-  let declaredFigureId = windSpeedFigureId == null || String(windSpeedFigureId).trim() === '' ? null : String(windSpeedFigureId).trim();
+  const declaredFigureId = windSpeedFigureId == null || String(windSpeedFigureId).trim() === '' ? null : String(windSpeedFigureId).trim();
   let codeMapStatus = 'NOT_A_CODE_MAP_SOURCE';
 
   if (sourceType === 'authorized-code-map') {
@@ -166,10 +169,9 @@ export function validateWindProjectInputAcceptance(record) {
   text(record.occupancy?.requiredWindSpeedFigure?.ruleReference, 'requiredWindSpeedFigure.ruleReference');
 
   positive(record.basicWindSpeed?.valueKph, 'basicWindSpeed.valueKph');
-  const sourceType = category(record.basicWindSpeed?.sourceType, 'basicWindSpeed.sourceType', WIND_SPEED_SOURCE_TYPES);
+  const sourceType = enumText(record.basicWindSpeed?.sourceType, 'basicWindSpeed.sourceType', WIND_SPEED_SOURCE_TYPES);
   text(record.basicWindSpeed?.sourceReference, 'basicWindSpeed.sourceReference');
-  const selectionMethod = text(record.basicWindSpeed?.selectionMethod, 'basicWindSpeed.selectionMethod');
-  if (!WIND_SPEED_SELECTION_METHODS.includes(selectionMethod)) throw new Error('basicWindSpeed.selectionMethod is unsupported.');
+  const selectionMethod = enumText(record.basicWindSpeed?.selectionMethod, 'basicWindSpeed.selectionMethod', WIND_SPEED_SELECTION_METHODS);
 
   if (sourceType === 'authorized-code-map') {
     if (record.basicWindSpeed.declaredFigureId !== requiredFigure.figureId) throw new Error('Authorized code-map input must declare the required occupancy wind-speed figure.');
