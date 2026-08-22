@@ -22,6 +22,8 @@ jobs:
         run: node scripts/repoLineCount.mjs
       - name: Syntax checks
         run: npm run check
+      - name: FutolTech engineering identity Chromium gate
+        run: node scripts/verifyFutolTechEngineeringIdentityUi.mjs
       - name: Comparison PDF gate
         run: node scripts/verifyComparisonPdf.mjs
       - name: Dedicated C-purlin comparison playback Chromium gate

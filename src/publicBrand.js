@@ -2,6 +2,7 @@ import './printTypography.js';
 import './figureStyle.js';
 import './homeCPurlinDemoCard.js';
 import './paperMatteTheme.js';
+import './futolTechEngineeringIdentity.js';
 import './primaryNav.js';
 
 export const PUBLIC_PRODUCT_NAME = 'FutolTech Structural Lab';
