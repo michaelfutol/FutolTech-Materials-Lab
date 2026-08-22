@@ -124,8 +124,7 @@ if (root) {
 
     model.purlins.forEach((item,index)=>{
       const a=project(model,0,item.stationM), b=project(model,model.inputs.rafterSpacingM,item.stationM);
-      const bandTop=item.stationM-item.tributaryWidthM/2, bandBottom=item.stationM+item.tributaryWidthM/2;
-      const bt=Math.max(0,bandTop), bb=Math.min(model.inputs.roofSlopeLengthM,bandBottom);
+      const bt=item.tributaryStartM, bb=item.tributaryEndM;
       const q1=project(model,0,bt),q2=project(model,model.inputs.rafterSpacingM,bt),q3=project(model,model.inputs.rafterSpacingM,bb),q4=project(model,0,bb);
       ctx.fillStyle=index%2===0?p.band:'transparent'; ctx.beginPath(); [q1,q2,q3,q4].forEach((pt,i)=>i?ctx.lineTo(pt.x,pt.y):ctx.moveTo(pt.x,pt.y)); ctx.closePath(); ctx.fill();
       ctx.strokeStyle=p.purlin; ctx.lineWidth=item===model.governingPurlin?8:5; ctx.beginPath(); ctx.moveTo(a.x,a.y); ctx.lineTo(b.x,b.y); ctx.stroke();
