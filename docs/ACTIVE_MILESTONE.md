@@ -16,20 +16,24 @@ Completed M3.3 input-contract foundation: **source-backed enclosure classificati
 
 Completed M3.3 Roof Bay integration: **pressure-context acceptance + project JSON bridge — PR #118**. The dedicated V9 real-Chromium gate, deterministic engineering tests, all legacy/browser gates and final-head Engineering Checks passed before merge; PR #118 merged on 2026-08-22.
 
-Current M3 task: **source-backed NSCP 2015 base internal-pressure coefficient (`GCpi`) foundation — PR #119 candidate**.
+Completed internal-pressure base layer: **NSCP 2015 base `GCpi` foundation — PR #119**. The exact final head passed syntax, deterministic engineering tests, all Roof Bay/M3 gates, 16-second recording regression, print/PDF/calibration protections and NF-001 frame regressions before PR #119 merged on 2026-08-22.
 
-Implemented in the PR #119 candidate:
-1. Versioned `futoltech.wind-internal-pressure-coefficient/1` records require a valid upstream `futoltech.wind-pressure-context-acceptance/1` record.
-2. The already accepted engineer-declared enclosure classification maps to NSCP 2015 Section 207A.11.1 / Table 207A.11-1 base cases: open `0.00`, enclosed `+0.18/-0.18`, partially enclosed `+0.55/-0.55`.
-3. Positive and negative GCpi cases remain explicit rather than being collapsed into a magnitude-only value.
-4. Partially enclosed buildings are deliberately blocked behind an unresolved NSCP 2015 Section 207A.11.1.1 large-volume reduction-factor (`Ri`) applicability gate.
-5. `Ri` is not guessed or silently assumed to be 1.0 for partially enclosed buildings; the future project facts needed to resolve the provision are explicit.
-6. Open/enclosed base classifications mark the partially-enclosed large-volume `Ri` gate as not applicable in this slice.
-7. Deterministic tests protect all three base coefficient sets, exact upstream enclosure attachment, round-trip serialization, and anti-promotion of `Ri` or final pressure.
-8. Internal-pressure velocity selection, external pressure coefficients, effective wind area, field/edge/corner zoning, pressure combination, load combinations, and final code-derived Roof Bay pressure remain hard-blocked.
+Current M3 task: **large-volume partially enclosed reduction-factor (`Ri`) applicability + equation — PR #120 candidate**.
 
-Next step after PR #119 is final-head green and merged: add the quantitative large-volume/applicability inputs and independently benchmark the `Ri` rule before allowing a partially enclosed internal-pressure coefficient to advance further. Only after the internal-pressure chain is complete should external roof coefficients and zoning be promoted.
+Implemented in the PR #120 candidate:
+1. Versioned `futoltech.wind-large-volume-reduction/1` records require the exact upstream partially enclosed base-GCpi record.
+2. Applicability remains an engineer-declared project fact: the software does not infer that the building contains a qualifying single unpartitioned large volume.
+3. If non-qualifying, `Ri = 1.0`, no unused `Aog`/`Vi` inputs are carried, and `GCpi = ±0.55` remains unchanged.
+4. If qualifying, positive source-referenced `Aog` (total building-envelope opening area) and `Vi` (unpartitioned internal volume) are required.
+5. The metric equation is explicit: `Ri = 0.5 * (1 + 1 / sqrt(1 + Vi / (6950 * Aog))) <= 1.0`.
+6. The code-permitted conservative `Ri = 1.0` path remains explicit; the software never silently selects the beneficial reduction.
+7. Engineer selection is recorded as either `conservative-ri-1` or `equation-reduction`.
+8. Deterministic benchmark: `Vi = 6950 m³`, `Aog = 1.00 m²` → `Ri = 0.8535533905932737`; applying it to base `GCpi = ±0.55` gives `±0.4694543648263006`.
+9. Validation prevents mutation of the equation result, selected factor, adjusted GCpi, applicability, or downstream implementation flags.
+10. Internal-pressure velocity selection, external pressure coefficients, effective wind area, field/edge/corner zoning, pressure combination, load combinations, and final code-derived Roof Bay pressure remain hard-blocked.
 
-Permanent M3 rule: a verified velocity pressure, traceable enclosure/roof geometry, and even a base `GCpi` value are still not final roof pressure. Manual pressure remains the active Roof Bay path until the complete coefficient/zoning chain is verified.
+Next step after PR #120 is final-head green and merged: implement the applicable NSCP internal-pressure velocity-pressure selection/term as its own source-backed benchmarked slice before external pressure coefficients are introduced.
 
-Detailed scope and gates live in `ROADMAP-ROOF-RESILIENCE-PHYSICS.md`, `STATUS-ROOF-RESILIENCE.md`, `ROOF-RESILIENCE-PHYSICS-MILESTONE-STATUS.md`, `M3_WIND_DESIGN_BASIS.md`, `M3_VELOCITY_PRESSURE.md`, `M3_PROJECT_WIND_INPUT_ACCEPTANCE.md`, `M3_ROOF_BAY_PROJECT_WIND_INPUT_UI.md`, `M3_ENCLOSURE_ROOF_GEOMETRY_INPUT_ACCEPTANCE.md`, `M3_ROOF_BAY_PRESSURE_CONTEXT_UI.md`, and `M3_INTERNAL_PRESSURE_COEFFICIENT.md`.
+Permanent M3 rule: even a resolved base `GCpi` plus an auditable `Ri` is still not final roof pressure. Manual pressure remains the active Roof Bay path until the complete internal/external coefficient, velocity-pressure, zoning, and combination chain is verified.
+
+Detailed scope and gates live in `ROADMAP-ROOF-RESILIENCE-PHYSICS.md`, `STATUS-ROOF-RESILIENCE.md`, `ROOF-RESILIENCE-PHYSICS-MILESTONE-STATUS.md`, `M3_WIND_DESIGN_BASIS.md`, `M3_VELOCITY_PRESSURE.md`, `M3_PROJECT_WIND_INPUT_ACCEPTANCE.md`, `M3_ROOF_BAY_PROJECT_WIND_INPUT_UI.md`, `M3_ENCLOSURE_ROOF_GEOMETRY_INPUT_ACCEPTANCE.md`, `M3_ROOF_BAY_PRESSURE_CONTEXT_UI.md`, `M3_INTERNAL_PRESSURE_COEFFICIENT.md`, and `M3_LARGE_VOLUME_RI.md`.
