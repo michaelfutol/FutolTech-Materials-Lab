@@ -1,4 +1,8 @@
 import { createWindDesignBasis, validateWindDesignBasis } from './windDesignBasis.js';
+import {
+  validateWindProjectInputAcceptance,
+  windProjectInputAcceptanceToVelocityPressureCase
+} from './windProjectInputAcceptance.js';
 
 export const ROOF_BAY_PROJECT_SCHEMA = 'futoltech.roof-bay-project/1';
 export const ROOF_PRESSURE_ZONE_SCHEMA = 'futoltech.roof-pressure-zones/1';
@@ -113,6 +117,17 @@ function validatePressureZoningPlaceholder(zoning, project) {
   return true;
 }
 
+function acceptedWindDesignBasis(record, profileId, projectMode) {
+  validateWindProjectInputAcceptance(record);
+  if (record.adoptedCodeProfileId !== profileId) throw new Error('windProjectInputAcceptance code profile must match windCodeProfileId.');
+  return createWindDesignBasis({
+    profileId,
+    projectMode,
+    manualPressureFallback: true,
+    velocityPressureCase: windProjectInputAcceptanceToVelocityPressureCase(record)
+  });
+}
+
 export function createRoofBayProject({
   projectId = `roof-bay-${Date.now()}`,
   projectName = 'Untitled roof bay',
@@ -135,6 +150,7 @@ export function createRoofBayProject({
   loadFactor = 1,
   windCodeProfileId = 'ph-nscp-2015-v1-7e-2p',
   windProjectMode = 'code-baseline',
+  windProjectInputAcceptance = null,
   source = 'FutolTech Structural Lab · Roof Bay Physics M2/M3 bridge'
 } = {}) {
   const orientation = finite(orientationDeg, 'orientationDeg');
@@ -150,6 +166,14 @@ export function createRoofBayProject({
   const customStations = layoutMode === 'custom-stations'
     ? validatedCustomStations(purlinStationsM, slopeLength, 'purlinStationsM')
     : null;
+  const acceptedWindInputs = windProjectInputAcceptance == null ? null : clone(windProjectInputAcceptance);
+  const windDesignBasis = acceptedWindInputs
+    ? acceptedWindDesignBasis(acceptedWindInputs, windCodeProfileId, windProjectMode)
+    : createWindDesignBasis({
+      profileId: windCodeProfileId,
+      projectMode: windProjectMode,
+      manualPressureFallback: true
+    });
 
   const project = {
     schemaVersion: ROOF_BAY_PROJECT_SCHEMA,
@@ -181,11 +205,8 @@ export function createRoofBayProject({
       loadFactor: nonNegative(loadFactor, 'loadFactor')
     },
     pressureZoning: pressureZoningPlaceholder(span, slopeLength, windPressure, windSense),
-    windDesignBasis: createWindDesignBasis({
-      profileId: windCodeProfileId,
-      projectMode: windProjectMode,
-      manualPressureFallback: true
-    }),
+    ...(acceptedWindInputs ? { windProjectInputAcceptance: acceptedWindInputs } : {}),
+    windDesignBasis,
     analysisBoundary: {
       roofBaySolver: 'M2 two-rafter load-routing model',
       purlinModel: 'gross-section elastic C-purlin screening',
@@ -232,7 +253,22 @@ export function validateRoofBayProject(project) {
   if (!WIND_SENSES.includes(project.loading?.windSense)) throw new Error('loading.windSense is unsupported.');
   nonNegative(project.loading?.loadFactor, 'loading.loadFactor');
   if (project.pressureZoning != null) validatePressureZoningPlaceholder(project.pressureZoning, project);
-  if (project.windDesignBasis != null) validateWindDesignBasis(project.windDesignBasis);
+
+  if (project.windProjectInputAcceptance != null) {
+    validateWindProjectInputAcceptance(project.windProjectInputAcceptance);
+    if (project.windDesignBasis == null) throw new Error('windDesignBasis is required when windProjectInputAcceptance is present.');
+    const expected = acceptedWindDesignBasis(
+      project.windProjectInputAcceptance,
+      project.windProjectInputAcceptance.adoptedCodeProfileId,
+      'code-baseline'
+    );
+    if (JSON.stringify(stable(project.windDesignBasis)) !== JSON.stringify(stable(expected))) {
+      throw new Error('windDesignBasis must remain deterministically derived from windProjectInputAcceptance.');
+    }
+  } else if (project.windDesignBasis != null) {
+    validateWindDesignBasis(project.windDesignBasis);
+  }
+
   const boundary = project.analysisBoundary;
   if (!boundary || typeof boundary !== 'object' || Array.isArray(boundary)) throw new Error('analysisBoundary must be explicit.');
   for (const unresolved of ['roofSheetCapacity', 'fastenerCapacity', 'purlinToRafterConnectionCapacity', 'rafterOrTrussMemberCapacity', 'coldFormedLocalDistortionalLTB', 'codeWindZoning']) {

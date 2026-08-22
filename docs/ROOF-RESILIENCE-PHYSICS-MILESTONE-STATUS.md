@@ -22,15 +22,22 @@ Status date: 2026-08-22
     - Independent Exposure C / 8.82 m / 240 kph / Kzt 1.0 benchmark gives `Kz = 0.974820633` and `q = 2.257468 kPa` at full solver precision.
     - External/internal pressure coefficients, field/edge/corner geometry and load combinations remain `UNIMPLEMENTED`.
     - The benchmark remains isolated from Roof Bay; project pressure remains `manual-uniform`.
-  - [~] Project wind-input acceptance — PR #115 candidate.
+  - [x] Project wind-input acceptance — PR #115; final-head Engineering Checks passed and PR merged.
     - Adds versioned `futoltech.wind-project-input-acceptance/1` records for site, occupancy, basic-wind-speed provenance, exposure, Kzt and height.
     - Occupancy-to-wind-map figure gate: I → `207A.5-1C`; II → `207A.5-1B`; III/IV/V → `207A.5-1A`.
     - No wind-map contour values or province speed table are embedded; authorized code-map values remain engineer-transcribed project inputs with explicit source references.
     - Project design criteria and site-specific studies remain explicit non-map sources and cannot silently claim code-map verification.
     - Exposure, Kzt and height require source references; automatic terrain classification and automatic topographic derivation remain blocked.
-    - Accepted records can feed the benchmarked velocity-pressure solver through a dedicated bridge, but final roof pressure and Roof Bay routing remain blocked.
-  - [ ] Expose accepted project-input workflow in Roof Bay and resolve enclosure/internal-pressure plus roof-geometry inputs before pressure coefficients are enabled.
-  - [ ] Add field/edge/corner geometry and positive/suction pressures only from explicit code rules and traceable inputs.
+    - Accepted records can feed the benchmarked velocity-pressure solver through a dedicated bridge, while final roof pressure and Roof Bay code routing remain blocked.
+  - [~] Roof Bay project wind-input integration — PR #116 candidate.
+    - Exposes the accepted project-input workflow directly in Roof Bay with visible source references and occupancy-matched wind-map figure guidance.
+    - A validated record can run the benchmarked q chain and show `Kz` / `q` without becoming final roof pressure.
+    - Accepted inputs can be embedded in `futoltech.roof-bay-project/1`; the exported wind-design basis is deterministically derived from the accepted record.
+    - Editing accepted inputs invalidates the accepted state.
+    - `pressureZoning.activePressureModel` remains `manual-uniform`, `codeBasis` remains null and regions remain empty.
+    - Dedicated deterministic and real-Chromium gates protect the acceptance → q → project export path and the no-premature-routing boundary.
+  - [ ] Resolve enclosure/internal-pressure classification plus roof geometry/plan inputs before pressure coefficients are enabled.
+  - [ ] Add external/internal pressure coefficients and field/edge/corner geometry only from explicit code rules, source-backed inputs and independent benchmark checks.
 - [ ] **M4 — Roof Sheet + Fastener / Connection Layer:** reusable Connection Lab foundations exist; Roof Bay integration remains unresolved.
 - [ ] **M5–M13:** follow `ROADMAP-ROOF-RESILIENCE-PHYSICS.md` in order unless an explicit engineering dependency requires resequencing.
 

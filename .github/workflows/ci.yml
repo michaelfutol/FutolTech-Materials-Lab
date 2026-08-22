@@ -50,6 +50,9 @@ jobs:
       - name: M3 velocity-pressure Chromium gate
         timeout-minutes: 3
         run: node scripts/verifyRoofBayVelocityPressureV7.mjs
+      - name: M3 project wind input acceptance Chromium gate
+        timeout-minutes: 3
+        run: node scripts/verifyRoofBayWindProjectInputV8.mjs
       - name: General comparison load-test video Chromium gate
         timeout-minutes: 3
         run: node scripts/verifyGeneralComparisonVideoUi.mjs
