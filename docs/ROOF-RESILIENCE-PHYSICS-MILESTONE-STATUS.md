@@ -12,11 +12,13 @@ Status date: 2026-08-22
   - [x] M3-ready roof pressure-zone schema/coordinate-frame placeholders with field/edge/corner types reserved and zero invented code zones — PR #112.
   - [x] Exit gate: reactions balance applied roof load within numerical tolerance, visual and solver paths remain synchronized, and full final-head CI is green.
 - [~] **M3 — Code Wind / Roof Zoning:** ACTIVE.
-  - [~] Adopted code/version + wind-input provenance object — implemented in PR #113; final-head Engineering Checks + merge required before marking complete.
+  - [x] Adopted code/version + wind-input provenance foundation — PR #113; final-head Engineering Checks passed before merge.
     - Initial source-backed profile: NSCP 2015, Volume 1, 7th Edition, 2nd Printing.
+    - Versioned `futoltech.wind-design-basis/1` object is carried by Roof Bay export.
     - Eight required wind-input families remain `UNRESOLVED`.
     - Velocity-pressure, coefficients, zone geometry and load combinations remain `UNIMPLEMENTED`; code calculation remains `BLOCKED`.
     - Existing manual uniform pressure remains active; no code-derived pressure is claimed.
+    - Deterministic serialization now compares evidence canonically so object key ordering cannot create a false provenance mismatch while semantic mutations are still rejected.
   - [ ] Implement and hand-benchmark the velocity-pressure chain before applying zone coefficients.
   - [ ] Resolve/validate code input families with source references and applicability rules.
   - [ ] Add field/edge/corner geometry and positive/suction pressures only from explicit code rules and traceable inputs.
