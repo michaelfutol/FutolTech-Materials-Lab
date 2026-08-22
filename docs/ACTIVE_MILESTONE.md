@@ -4,28 +4,24 @@ Current milestone: **Roof Resilience Physics — M3 Code Wind / Roof Zoning Engi
 
 M2 Roof Bay is closed through PR #112.
 
-Completed first M3 task: **Code/version + wind-input provenance foundation — PR #113**.
+Completed M3 foundation: **Code/version + wind-input provenance — PR #113**.
 
-Completed in PR #113:
-1. Source-backed code-profile registry with initial Philippine profile `ph-nscp-2015-v1-7e-2p` — NSCP 2015, Volume 1, 7th Edition, 2nd Printing.
-2. Versioned `futoltech.wind-design-basis/1` object carrying code identity, publisher/jurisdiction metadata, evidence records, required input families, formula status and blockers.
-3. Eight wind-input families remain explicitly `UNRESOLVED`: site/location, basic wind speed, risk/importance, exposure/terrain, topography, enclosure/internal pressure, building height and roof geometry.
-4. Velocity-pressure, external/internal coefficients, field/edge/corner geometry and load combinations remain `UNIMPLEMENTED`; code calculation remains `BLOCKED`.
-5. Roof Bay project export carries the provenance object while `pressureZoning.codeBasis` remains null and the existing manual-uniform pressure stays active.
-6. Visible M3 basis/provenance panel, deterministic anti-promotion tests, public-source documentation and a dedicated Chromium gate.
-7. Deterministic serialization compares evidence canonically, so object-key ordering cannot produce a false provenance mismatch while actual evidence changes still fail validation.
-8. Final-head full Engineering Checks passed after the round-trip fix.
+Current closure slice: **benchmarked NSCP 2015 velocity-pressure chain — PR #114**.
 
-Current M3 task: **implement the adopted-code velocity-pressure calculation chain with visible substitutions and independent hand benchmarks**.
+Implemented in PR #114:
+1. Deterministic building velocity-pressure solver: `qz = 0.613 Kz Kzt Kd V²`.
+2. Building `Kd = 0.85`; Exposure B/C/D constants and Kz expression with the 4.57 m minimum evaluation height.
+3. Explicit kph→m/s conversion and source-referenced `Kzt`; no automatic wind-map lookup and no silent topographic-factor assumption.
+4. Independent benchmark: Exposure C, 8.82 m, 240 kph, Kzt 1.0 gives `Kz = 0.974820633` and `q = 2.257468 kPa` at full precision.
+5. Wind-design-basis velocity-pressure state resolves only the six input families needed to justify/use this equation path; enclosure/internal pressure and roof geometry remain unresolved.
+6. External/internal pressure coefficients, field/edge/corner geometry and load combinations remain unimplemented and blocked.
+7. Visible substitutions + dedicated real-Chromium gate; stored results are deterministically recalculated during validation to reject altered q/Kz values.
+8. The benchmark is deliberately isolated from the live Roof Bay: manual uniform pressure remains active, `pressureZoning.codeBasis` remains null, and project export remains provenance-only.
 
-Execution order for the current task:
-1. Identify the exact adopted-code velocity-pressure equation path and every factor it requires.
-2. Add only the minimum validated input fields required for that chain, preserving source/provenance per input.
-3. Implement the deterministic calculation with visible substitutions and units.
-4. Create at least one independent hand benchmark and regression test.
-5. Keep external/internal pressure coefficients and field/edge/corner zone geometry disabled until the velocity-pressure chain is verified.
-6. Preserve manual pressure entry as an explicit auditable fallback/research path.
+PR #114 closure rule: merge only after the complete Engineering Checks suite passes on the final documentation/checklist head. No post-green source-of-truth edit should be needed before merge.
 
-Permanent M3 rule: identifying a code edition is not evidence that its equations, maps, coefficients or zoning rules have been implemented.
+Next active M3 task after PR #114 merges: **source-backed project wind-input acceptance**, beginning with a defensible Philippine basic-wind-speed selection/provenance path and explicit validation of occupancy/risk, exposure, topography and height. Do not enable external/internal pressure coefficients or field/edge/corner zoning until these inputs are traceable and verified.
 
-Detailed scope and gates live in `ROADMAP-ROOF-RESILIENCE-PHYSICS.md`, `STATUS-ROOF-RESILIENCE.md`, `ROOF-RESILIENCE-PHYSICS-MILESTONE-STATUS.md`, and `M3_WIND_DESIGN_BASIS.md`.
+Permanent M3 rule: a verified velocity pressure is not a final roof pressure. Manual pressure remains the active Roof Bay path until the complete coefficient/zoning chain is verified.
+
+Detailed scope and gates live in `ROADMAP-ROOF-RESILIENCE-PHYSICS.md`, `STATUS-ROOF-RESILIENCE.md`, `ROOF-RESILIENCE-PHYSICS-MILESTONE-STATUS.md`, `M3_WIND_DESIGN_BASIS.md`, and `M3_VELOCITY_PRESSURE.md`.
