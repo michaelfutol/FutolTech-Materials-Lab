@@ -3,25 +3,26 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="FutolTech Structural Lab Physical-Test Calibration v1 for preserving raw test data, comparing measured and predicted response, and producing versioned calibration statistics." />
-    <title>Physical-Test Calibration · FutolTech Structural Lab</title>
+    <meta name="description" content="FutolTech Test Data Validation / Physical-Test Calibration for preserving raw test data, comparing measured and predicted response, and producing versioned calibration statistics." />
+    <title>Test Data Validation · FutolTech Structural Lab</title>
     <link rel="stylesheet" href="./src/styles.css?v=20260802-1" />
     <link rel="stylesheet" href="./src/calibration.css?v=20260818-cal1" />
     <link rel="stylesheet" href="./src/printReport.css?v=20260806-brand1" />
+    <style>html:not([data-calibration-unlocked="true"]) body > :not(.ft-calibration-gate){visibility:hidden!important}</style>
   </head>
   <body>
     <header class="topbar">
       <div>
-        <p class="eyebrow">TOOLS · FutolTech Structural Lab · CAL-001</p>
-        <h1>Physical-Test Calibration</h1>
-        <p class="subtitle">Raw evidence in, transparent statistics out — without overwriting the source material or connection record.</p>
+        <p class="eyebrow">ADVANCED / R&amp;D · FutolTech Structural Lab · CAL-001</p>
+        <h1>Test Data Validation</h1>
+        <p class="subtitle">Compare measured physical-test evidence with solver predictions while preserving the original source rows and provenance.</p>
       </div>
       <div class="status-cluster">
-        <a class="status-pill status-link" href="./index.html">← Materials Lab</a>
+        <a class="status-pill status-link" href="./index.html">HOME</a>
         <a class="status-pill status-link" href="./assembly.html">Assembly Lab</a>
         <a class="status-pill status-link" href="./connections.html">Connection Lab</a>
-        <span class="status-pill">CAL-001 · active</span>
-        <span class="status-pill">Build 2026-08-18.CAL1</span>
+        <span class="status-pill">Physical-Test Calibration · CAL-001</span>
+        <span class="status-pill">Advanced / R&amp;D</span>
       </div>
     </header>
 
@@ -95,6 +96,7 @@
     </main>
 
     <footer><strong>Engineering notice:</strong> Calibration statistics describe the supplied dataset only. Verify specimen identity, test standard, apparatus calibration, units, data cleaning, boundary conditions, sample representativeness, and engineer approval before adopting any calibrated model.</footer>
+    <script type="module" src="./src/calibrationAccessGate.js?v=20260822-rd1"></script>
     <script type="module" src="./src/publicBrand.js?v=20260818-sl1"></script>
     <script type="module" src="./src/calibrationApp.js?v=20260818-cal1"></script>
     <script type="module" src="./src/printReport.js?v=20260806-brand1"></script>

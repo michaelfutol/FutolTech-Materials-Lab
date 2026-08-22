@@ -32,6 +32,9 @@ jobs:
       - name: General comparison load-test video Chromium gate
         timeout-minutes: 3
         run: node scripts/verifyGeneralComparisonVideoUi.mjs
+      - name: General comparison full-width + 16s recording Chromium gate
+        timeout-minutes: 3
+        run: node scripts/verifyGeneralComparisonUxV2.mjs
       - name: C-purlin roof-slope Chromium gate
         run: node scripts/verifyCPurlinSlopeUi.mjs
       - name: C-purlin physics-bench Chromium gate
@@ -70,6 +73,8 @@ jobs:
         run: node scripts/verifyDesignExplorerUi.mjs
       - name: Calibration Lab Chromium gate
         run: node scripts/verifyCalibrationLabUi.mjs
+      - name: Calibration Lab soft-access Chromium gate
+        run: node scripts/verifyCalibrationAccessGateUi.mjs
       - name: NF-001 rigid Chromium gate
         run: node scripts/verifyFrameAnalyzerUi.mjs rigid
       - name: NF-001 brace Chromium gate
