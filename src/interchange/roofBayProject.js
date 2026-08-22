@@ -1,3 +1,5 @@
+import { createWindDesignBasis, validateWindDesignBasis } from './windDesignBasis.js';
+
 export const ROOF_BAY_PROJECT_SCHEMA = 'futoltech.roof-bay-project/1';
 export const ROOF_PRESSURE_ZONE_SCHEMA = 'futoltech.roof-pressure-zones/1';
 
@@ -96,9 +98,9 @@ function validateRoofPlaneFrame(frame, rafterSpacingM, roofSlopeLengthM, label =
 function validatePressureZoningPlaceholder(zoning, project) {
   if (!zoning || typeof zoning !== 'object' || Array.isArray(zoning)) throw new Error('pressureZoning must be an object when present.');
   if (zoning.schemaVersion !== ROOF_PRESSURE_ZONE_SCHEMA) throw new Error('pressureZoning.schemaVersion is unsupported.');
-  if (zoning.status !== 'UNRESOLVED') throw new Error('pressureZoning.status must remain UNRESOLVED in Roof Bay M2.');
-  if (zoning.activePressureModel !== 'manual-uniform') throw new Error('pressureZoning.activePressureModel must remain manual-uniform in Roof Bay M2.');
-  if (zoning.codeBasis !== null) throw new Error('pressureZoning.codeBasis must remain null in Roof Bay M2.');
+  if (zoning.status !== 'UNRESOLVED') throw new Error('pressureZoning.status must remain UNRESOLVED until M3 code zoning is implemented.');
+  if (zoning.activePressureModel !== 'manual-uniform') throw new Error('pressureZoning.activePressureModel must remain manual-uniform until the code-wind solver is implemented.');
+  if (zoning.codeBasis !== null) throw new Error('pressureZoning.codeBasis must remain null until code-wind calculation is implemented.');
   if (!Array.isArray(zoning.supportedRegionTypes) || JSON.stringify(zoning.supportedRegionTypes) !== JSON.stringify(PRESSURE_ZONE_TYPES)) {
     throw new Error('pressureZoning.supportedRegionTypes must reserve field, edge and corner in that order.');
   }
@@ -131,7 +133,9 @@ export function createRoofBayProject({
   windPressureKPa,
   windSense,
   loadFactor = 1,
-  source = 'FutolTech Structural Lab · Roof Bay Physics M2'
+  windCodeProfileId = 'ph-nscp-2015-v1-7e-2p',
+  windProjectMode = 'code-baseline',
+  source = 'FutolTech Structural Lab · Roof Bay Physics M2/M3 bridge'
 } = {}) {
   const orientation = finite(orientationDeg, 'orientationDeg');
   if (!ORIENTATIONS.includes(orientation)) throw new Error('orientationDeg must be 0, 90, 180 or 270 degrees.');
@@ -177,6 +181,11 @@ export function createRoofBayProject({
       loadFactor: nonNegative(loadFactor, 'loadFactor')
     },
     pressureZoning: pressureZoningPlaceholder(span, slopeLength, windPressure, windSense),
+    windDesignBasis: createWindDesignBasis({
+      profileId: windCodeProfileId,
+      projectMode: windProjectMode,
+      manualPressureFallback: true
+    }),
     analysisBoundary: {
       roofBaySolver: 'M2 two-rafter load-routing model',
       purlinModel: 'gross-section elastic C-purlin screening',
@@ -223,10 +232,11 @@ export function validateRoofBayProject(project) {
   if (!WIND_SENSES.includes(project.loading?.windSense)) throw new Error('loading.windSense is unsupported.');
   nonNegative(project.loading?.loadFactor, 'loading.loadFactor');
   if (project.pressureZoning != null) validatePressureZoningPlaceholder(project.pressureZoning, project);
+  if (project.windDesignBasis != null) validateWindDesignBasis(project.windDesignBasis);
   const boundary = project.analysisBoundary;
   if (!boundary || typeof boundary !== 'object' || Array.isArray(boundary)) throw new Error('analysisBoundary must be explicit.');
   for (const unresolved of ['roofSheetCapacity', 'fastenerCapacity', 'purlinToRafterConnectionCapacity', 'rafterOrTrussMemberCapacity', 'coldFormedLocalDistortionalLTB', 'codeWindZoning']) {
-    if (boundary[unresolved] !== 'UNRESOLVED') throw new Error(`${unresolved} must remain UNRESOLVED in Roof Bay M2.`);
+    if (boundary[unresolved] !== 'UNRESOLVED') throw new Error(`${unresolved} must remain UNRESOLVED until its physics/design layer is implemented.`);
   }
   return true;
 }
