@@ -75,7 +75,7 @@ test('Roof Bay M2 pressure zoning cannot silently invent a code-derived region o
 test('Roof Bay project rejects silent promotion of the provenance-only wind basis', () => {
   const project = createRoofBayProject(INPUT);
   project.windDesignBasis.calculationStatus = 'READY';
-  assert.throws(() => serializeRoofBayProject(project), /calculationStatus must remain BLOCKED/);
+  assert.throws(() => serializeRoofBayProject(project), /calculationStatus (?:must remain BLOCKED|is unsupported)/);
 });
 
 test('Roof Bay M2 project cannot silently promote unresolved design checks', () => {
