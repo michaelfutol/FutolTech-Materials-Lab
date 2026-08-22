@@ -80,7 +80,7 @@ M2 exit gate:
 - [x] PR #112 final-head full Engineering Checks passed, including syntax, deterministic engineering tests, all Roof Bay Chromium gates, legacy lab/browser gates and PDF/print protections.
 
 ## M3 — Code Wind / Roof Zoning Engine
-**Status: ACTIVE — PRs #113 through #119 are merged; large-volume `Ri` work is the PR #120 candidate.**
+**Status: ACTIVE — PRs #113 through #120 are merged; internal-pressure velocity/term work is the PR #121 candidate.**
 
 Completed in PR #113 — code/version + provenance:
 - Source-backed wind-code profile registry for NSCP 2015 Volume 1, 7th Edition, 2nd Printing.
@@ -127,26 +127,34 @@ Completed in PR #119 — base internal-pressure coefficient (`GCpi`) foundation:
 - Positive and negative internal-pressure cases remain explicit.
 - The partially enclosed path stops at an explicit Section 207A.11.1.1 large-volume `Ri` gate rather than silently assuming a reduction.
 - Deterministic tests protect code-table values, upstream attachment, serialization and no-final-pressure promotion.
-- Exact final-head Engineering Checks passed after one unrelated legacy Chromium timing flake was rerun successfully without a code change; PR #119 merged on 2026-08-22.
 - Public boundary record: `docs/M3_INTERNAL_PRESSURE_COEFFICIENT.md`.
 
-Implemented in PR #120 candidate — large-volume partially enclosed reduction factor (`Ri`):
+Completed in PR #120 — large-volume partially enclosed reduction factor (`Ri`):
 - Adds `futoltech.wind-large-volume-reduction/1` downstream of the exact partially enclosed base-GCpi record.
-- Applicability remains an engineer-declared fact: the software does not infer whether the building contains a qualifying single unpartitioned large volume.
-- A non-qualifying building keeps `Ri = 1.0`, carries no unused `Aog`/`Vi` values, and keeps base `GCpi = ±0.55`.
-- A qualifying building requires positive source-referenced `Aog` (total envelope opening area) and `Vi` (unpartitioned internal volume).
-- Implemented metric equation: `Ri = 0.5 * (1 + 1 / sqrt(1 + Vi / (6950 * Aog))) <= 1.0`.
-- The code-permitted conservative `Ri = 1.0` path remains explicit; equation reduction is never silently selected.
-- Explicit application choice is `conservative-ri-1` or `equation-reduction`.
-- Hand benchmark: `Vi = 6950 m³`, `Aog = 1.00 m²` gives ratio `1.0`, `Ri = 0.8535533905932737`, and adjusted `GCpi = ±0.4694543648263006` if reduction is selected.
-- Validation prevents mutation of applicability, source-backed project facts, equation ratio/result, selected Ri, adjusted GCpi or downstream implementation flags.
-- Deterministic tests cover conservative, reduced and non-applicable paths plus serialization and anti-promotion.
-- Internal-pressure velocity-pressure selection, external pressure coefficients, effective wind area, field/edge/corner zoning, pressure combination, load combinations and final code-derived Roof Bay pressure remain unimplemented.
+- Applicability remains an engineer-declared fact.
+- Non-qualifying path keeps `Ri = 1.0` and carries no unused `Aog`/`Vi` values.
+- Qualifying path requires source-referenced `Aog` and `Vi`.
+- Metric equation: `Ri = 0.5 * (1 + 1 / sqrt(1 + Vi / (6950 * Aog))) <= 1.0`.
+- Conservative `Ri = 1.0` remains explicit; equation reduction is never silently selected.
+- Hand benchmark: `Vi = 6950 m³`, `Aog = 1.00 m²` gives `Ri = 0.8535533905932737`, and adjusted `GCpi = ±0.4694543648263006` when the reduction is selected.
 - Public boundary/QA record: `docs/M3_LARGE_VOLUME_RI.md`.
 
-Next M3 work after PR #120 is final-head green and merged: implement and independently benchmark the applicable internal-pressure velocity-pressure selection/term before external pressure coefficients are introduced.
+Implemented in PR #121 candidate — internal-pressure velocity selection + signed term:
+- Adds `futoltech.wind-internal-pressure-term/1` attached to the exact upstream coefficient chain.
+- Enclosed buildings use `qi = qh` for both positive and negative internal pressure.
+- Partially enclosed negative internal pressure uses `qi = qh`.
+- Partially enclosed positive internal pressure can use either source-referenced `qz` at the highest opening affecting positive internal pressure or the explicit conservative `qi = qh` path.
+- Highest-opening elevation is never inferred and is not retained when the conservative path is selected.
+- Partially enclosed records cannot bypass the explicit `Ri` decision record, even when that record selects `Ri = 1.0`.
+- Signed internal pressure is preserved as `qi * (GCpi)`; it is not prematurely combined with external pressure.
+- Open buildings retain zero internal term because `GCpi = 0`.
+- Validation deterministically recalculates `qh`, optional opening-height `qz`, coefficient carry-through, `qi`, and `qi(GCpi)` and rejects mutation.
+- External pressure coefficients, effective wind area, field/edge/corner zoning, pressure combination, load combinations and final code-derived Roof Bay pressure remain unimplemented.
+- Public boundary/QA record: `docs/M3_INTERNAL_PRESSURE_TERM.md`.
 
-Permanent M3 boundary: a verified velocity pressure, accepted pressure context, base `GCpi`, and even an auditable `Ri` still do not constitute final roof pressure. Manual pressure entry remains the active Roof Bay path until the complete internal/external coefficient, velocity-pressure, zoning and pressure-combination chain is verified.
+Next M3 work after PR #121 is final-head green and merged: begin the source-backed external roof pressure coefficient slice, still keeping code-derived Roof Bay pressure blocked until coefficients, effective-area/zoning and pressure combination are all verified.
+
+Permanent M3 boundary: a verified velocity pressure, accepted pressure context, base/adjusted `GCpi`, and resolved internal-pressure term still do not constitute final roof pressure. Manual pressure entry remains the active Roof Bay path until the complete internal/external coefficient, zoning and pressure-combination chain is verified.
 
 ## M4 — Roof Sheet + Fastener / Connection Layer
 **Status: NOT YET INTEGRATED.**
