@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createRoofBayProject, parseRoofBayProject, serializeRoofBayProject } from '../src/interchange/roofBayProject.js';
+import { createWindProjectInputAcceptance } from '../src/interchange/windProjectInputAcceptance.js';
 
 const INPUT = {
   projectId: 'RB-001',
@@ -19,6 +20,24 @@ const INPUT = {
   windSense: 'uplift',
   loadFactor: 1
 };
+
+const ACCEPTED_WIND_INPUT = createWindProjectInputAcceptance({
+  siteLocation: 'Sta. Magdalena, Sorsogon, Philippines',
+  siteSourceReference: 'Project site record / survey reference',
+  occupancyCategory: 'III',
+  occupancySourceReference: 'Project occupancy classification record; verify against NSCP 2015 Table 103-1',
+  basicWindSpeedKph: 240,
+  windSpeedSourceType: 'authorized-code-map',
+  windSpeedSourceReference: 'Engineer transcription from authorized NSCP 2015 wind map for the stated site',
+  windSpeedSelectionMethod: 'direct-contour-read',
+  windSpeedFigureId: '207A.5-1A',
+  exposureCategory: 'C',
+  exposureSourceReference: 'Engineer terrain/exposure classification record',
+  topographicFactorKzt: 1,
+  topographySourceReference: 'Engineer topographic-factor project record',
+  heightM: 8.82,
+  heightSourceReference: 'Project geometry / mean-roof-height record'
+});
 
 test('Roof Bay project keeps geometry, material reference and loading explicit', () => {
   const project = createRoofBayProject(INPUT);
@@ -58,6 +77,23 @@ test('Roof Bay export carries source-backed M3 code identity while code pressure
   assert.equal(project.analysisBoundary.codeWindZoning, 'UNRESOLVED');
 });
 
+test('accepted project wind inputs are embedded and deterministically produce q-ready basis without replacing manual Roof Bay pressure', () => {
+  const project = createRoofBayProject({ ...INPUT, windProjectInputAcceptance: ACCEPTED_WIND_INPUT });
+  assert.equal(project.windProjectInputAcceptance.schemaVersion, 'futoltech.wind-project-input-acceptance/1');
+  assert.equal(project.windProjectInputAcceptance.status, 'ACCEPTED_FOR_VELOCITY_PRESSURE_ONLY');
+  assert.equal(project.windDesignBasis.calculationStatus, 'VELOCITY_PRESSURE_AVAILABLE_ZONING_BLOCKED');
+  assert.ok(Math.abs(project.windDesignBasis.velocityPressure.result.qKPa - 2.257467958862151) < 1e-12);
+  assert.equal(project.pressureZoning.activePressureModel, 'manual-uniform');
+  assert.equal(project.pressureZoning.codeBasis, null);
+  assert.deepEqual(project.pressureZoning.regions, []);
+});
+
+test('accepted wind-input project cannot detach or mutate its derived velocity-pressure basis', () => {
+  const project = createRoofBayProject({ ...INPUT, windProjectInputAcceptance: ACCEPTED_WIND_INPUT });
+  project.windDesignBasis.velocityPressure.result.qKPa += 0.1;
+  assert.throws(() => serializeRoofBayProject(project), /deterministically derived from windProjectInputAcceptance/);
+});
+
 test('Roof Bay M2 pressure zoning cannot silently invent a code-derived region or status', () => {
   const project = createRoofBayProject(INPUT);
   project.pressureZoning.regions.push({ id:'fake-corner', type:'corner', pressureKPa:9 });
@@ -86,6 +122,13 @@ test('Roof Bay M2 project cannot silently promote unresolved design checks', () 
 
 test('Roof Bay project serialization is deterministic and round-trips exactly', () => {
   const project = createRoofBayProject(INPUT);
+  const first = serializeRoofBayProject(project);
+  const second = serializeRoofBayProject(parseRoofBayProject(first));
+  assert.equal(second, first);
+});
+
+test('accepted wind-input Roof Bay project also round-trips exactly', () => {
+  const project = createRoofBayProject({ ...INPUT, windProjectInputAcceptance: ACCEPTED_WIND_INPUT });
   const first = serializeRoofBayProject(project);
   const second = serializeRoofBayProject(parseRoofBayProject(first));
   assert.equal(second, first);
