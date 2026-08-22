@@ -16,16 +16,20 @@ Status date: 2026-08-22
     - Initial source-backed profile: NSCP 2015, Volume 1, 7th Edition, 2nd Printing.
     - Versioned `futoltech.wind-design-basis/1` object is carried by Roof Bay export.
     - Manual uniform pressure remains active until later code-derived pressure/zoning slices are verified.
-  - [x] Velocity-pressure chain — PR #114; full Engineering Checks passed on the closure head before merge.
+  - [x] Velocity-pressure chain — PR #114; final-head Engineering Checks passed and PR merged.
     - Implements `qz = 0.613 Kz Kzt Kd V²` for the adopted NSCP 2015 building path, with building `Kd = 0.85` and Exposure B/C/D Kz evaluation.
     - Uses the 4.57 m minimum Kz evaluation height and explicit kph→m/s conversion; no wind-speed map lookup or silent Kzt assumption is added.
     - Independent Exposure C / 8.82 m / 240 kph / Kzt 1.0 benchmark gives `Kz = 0.974820633` and `q = 2.257468 kPa` at full solver precision.
-    - Source-referenced velocity-pressure state resolves only site, speed, occupancy/risk basis, exposure, topography and height; enclosure/internal pressure and roof geometry remain `UNRESOLVED`.
     - External/internal pressure coefficients, field/edge/corner geometry and load combinations remain `UNIMPLEMENTED`.
-    - Stored Kz/q are deterministically recalculated during validation; altered result values or missing input provenance are rejected.
-    - The benchmark is visible and regression-protected but deliberately not routed into Roof Bay; project pressure remains `manual-uniform`, `pressureZoning.codeBasis` remains null and code-derived regions remain empty.
-    - Dedicated M3 velocity-pressure Chromium QA and the full legacy/deterministic/print/browser suite passed before closure.
-  - [ ] Resolve/validate project wind-input families with source references and applicability rules, including a defensible Philippine basic-wind-speed selection path, before pressure coefficients are enabled.
+    - The benchmark remains isolated from Roof Bay; project pressure remains `manual-uniform`.
+  - [~] Project wind-input acceptance — PR #115 candidate.
+    - Adds versioned `futoltech.wind-project-input-acceptance/1` records for site, occupancy, basic-wind-speed provenance, exposure, Kzt and height.
+    - Occupancy-to-wind-map figure gate: I → `207A.5-1C`; II → `207A.5-1B`; III/IV/V → `207A.5-1A`.
+    - No wind-map contour values or province speed table are embedded; authorized code-map values remain engineer-transcribed project inputs with explicit source references.
+    - Project design criteria and site-specific studies remain explicit non-map sources and cannot silently claim code-map verification.
+    - Exposure, Kzt and height require source references; automatic terrain classification and automatic topographic derivation remain blocked.
+    - Accepted records can feed the benchmarked velocity-pressure solver through a dedicated bridge, but final roof pressure and Roof Bay routing remain blocked.
+  - [ ] Expose accepted project-input workflow in Roof Bay and resolve enclosure/internal-pressure plus roof-geometry inputs before pressure coefficients are enabled.
   - [ ] Add field/edge/corner geometry and positive/suction pressures only from explicit code rules and traceable inputs.
 - [ ] **M4 — Roof Sheet + Fastener / Connection Layer:** reusable Connection Lab foundations exist; Roof Bay integration remains unresolved.
 - [ ] **M5–M13:** follow `ROADMAP-ROOF-RESILIENCE-PHYSICS.md` in order unless an explicit engineering dependency requires resequencing.
