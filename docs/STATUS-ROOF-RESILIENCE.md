@@ -33,35 +33,41 @@ Permanent current boundary:
 - Gross-section screening only; no effective-width, local/distortional/LTB or connection-capacity claim.
 
 ## M2 — Roof Bay Physics (2D / 2.5D)
-**Status: FOUNDATION IMPLEMENTED IN PR #108.**
+**Status: ACTIVE / major load-path foundation implemented.**
 
-Implemented in the first M2 slice:
+Foundation implemented in PR #108:
 - Two adjacent rafter lines.
-- Multiple equally distributed purlin rows from eave to ridge/high edge.
-- Requested purlin spacing treated as a maximum; actual equal spacing is recomputed so no tiny remainder bay is created.
-- Explicit edge/interior tributary widths; summed tributary widths must equal the roof slope length.
+- Multiple purlin rows and equalized maximum-spacing layout.
+- Explicit edge/interior tributary widths with full-roof coverage.
 - Manual gravity/wind pressure routing from roof sheet area to each purlin.
-- Each purlin solved under the existing C-purlin gross elastic solver with its own tributary width.
+- Existing gross-elastic C-purlin solver reused per tributary row.
 - Simply-supported purlin reactions routed as discrete point loads into both rafter lines.
-- Vector load-conservation check: summed rafter reactions must balance applied roof pressure plus modeled purlin self-weight within numerical tolerance.
-- Transparent 2D/2.5D roof-sheet context, visible purlins, representative sheet fastener markers, reaction arrows and animated load path.
-- Per-purlin table for station, tributary width, line load, reaction, moment, deflection and gross utilization.
-- Explicit `UNRESOLVED` state for roof-sheet capacity, fastener capacity, purlin-to-rafter connection capacity and rafter/truss member capacity.
-- JSON export.
-- Deterministic solver tests plus a real-Chromium gate for default geometry, equal-spacing reflow, primary navigation, equilibrium and wind-only uplift routing.
+- Vector load-conservation check for applied roof pressure plus modeled purlin self-weight.
+- Transparent 2D/2.5D roof-sheet context, fastener markers, reaction arrows and animated load path.
+- Per-purlin station/load/reaction/moment/deflection/utilization table.
+- Explicit `UNRESOLVED` states for roof sheet, fasteners, purlin-to-rafter connections and rafter/truss member capacity.
 
-Next M2 slices:
-1. Member selection → highlight the exact tributary band, purlin, two reaction points and formula trace.
-2. Exploded load-path mode separating sheet, screws, purlins and rafters visually.
-3. Optional custom purlin station layout instead of equal spacing only.
-4. Rafter reaction diagrams and conservation breakdown by roof-normal / downslope components.
-5. Roof-sheet pressure zoning placeholders that can later accept M3 field/edge/corner zones without changing the M2 project data model.
-6. Stable Roof Bay project JSON schema for later Three.js M5 rendering and RPE interchange.
+Completed in PR #109:
+- [x] Member selection highlights the exact selected purlin, its tributary band, both rafter reaction points and synchronized formula/result trace.
+- [x] Exploded demand-routing view: sheet → screws → selected purlin → rafters → supporting system.
+- [x] Stable `futoltech.roof-bay-project/1` project JSON schema for later shared geometry/rendering/interchange work, with unresolved design layers prevented from silently becoming PASS.
+
+Completed in PR #110:
+- [x] Optional custom/nonuniform purlin station layout in addition to equalized maximum spacing.
+- [x] Custom edge purlins may be offset from the physical roof boundary while tributary bands still terminate exactly at the roof eave/high-edge domain.
+- [x] Exact tributary start/end boundaries are stored by the solver and used by both the base Roof Bay figure and selected-member overlay; the visual no longer assumes a symmetric band around an offset edge purlin.
+- [x] Custom layout is preserved by project JSON round-trip and covered by deterministic + real-Chromium regression.
+
+Remaining M2 checklist before moving the primary physics effort to M3:
+- [ ] Rafter reaction diagrams and explicit conservation breakdown by roof-normal / downslope components.
+- [ ] Roof-sheet pressure-zoning placeholders that can later accept M3 field/edge/corner zones without changing the shared M2 project geometry model.
+
+M2 exit gate remains: summed reactions balance the applied roof load within numerical tolerance, with every displayed tributary/reaction path derived from the same solver model.
 
 ## M3 — Code Wind / Roof Zoning Engine
 **Status: EARLY FOUNDATION ONLY.**
 
-Existing work provides manual net-pressure inputs and code-assist experiments, but full reproducible code-derived wind zoning is not yet implemented. M3 remains the next major physics layer after M2 load-path geometry is stable.
+Existing work provides manual net-pressure inputs and code-assist experiments, but full reproducible code-derived wind zoning is not yet implemented. M3 remains the next major physics layer after the two remaining M2 load-path slices are complete.
 
 ## M4 — Roof Sheet + Fastener / Connection Layer
 **Status: NOT YET INTEGRATED.**
