@@ -150,6 +150,7 @@ Completed in PR #121 — internal-pressure velocity selection + signed term:
 - Signed internal pressure is preserved as `qi * (GCpi)`; it is not prematurely combined with external pressure.
 - Open buildings retain zero internal term because `GCpi = 0`.
 - Validation deterministically recalculates `qh`, optional opening-height `qz`, coefficient carry-through, `qi`, and `qi(GCpi)` and rejects mutation.
+- **Procedure boundary:** the opening-height `qi=qz` option is the Part 3 higher-building rule. The present `h <= 18 m` Part 1 C&C net-pressure path will require `qh` for the internal term and will reject automatic reuse of a Part 3 `qi=qz` selection.
 - Exact final head `9a458078f610a35a678213583f0f91462bba7dcb` passed the complete Engineering Checks suite; PR #121 squash-merged as `5acab72d3848ee1b3e55191560577dc965b15d08`.
 - Public boundary/QA record: `docs/M3_INTERNAL_PRESSURE_TERM.md`.
 
@@ -200,16 +201,16 @@ Current M3 dependency — source-backed external pressure term `qh × GCp`:
 - Reuse `qh` from the exact accepted wind/project pressure context already carried by the external-`GCp` record.
 - Multiply `qh` by each resolved positive/negative external `GCp` and retain the sign convention explicitly.
 - Keep each field/edge/corner zone-intersection term separate; do not average coefficients across a purlin band.
-- Independently benchmark the external pressure term before it can be combined with internal pressure.
+- Independently benchmark the external pressure term before any internal-pressure combination.
 - Keep roof-sheet and fastener effective wind areas separate and unresolved; they must not inherit the purlin coefficient-selection area.
 
 Next M3 work after the external term:
-- External-minus-internal pressure combination using the already-resolved signed `qi(GCpi)` term.
-- Governing positive/downward and suction/uplift pressure cases with transparent sign convention.
+- For the current `h <= 18 m` Part 1 C&C path, net design pressure is `qh[(GCp) - (GCpi)]`; the internal velocity basis is therefore `qh`, not an opening-height `qi=qz` value from the Part 3 procedure.
+- Preserve both positive and negative `GCpi` cases and derive governing toward-surface / away-from-surface pressure cases with a transparent sign convention.
 - Traceable code wind load cases/combinations.
 - Automatic code-derived Roof Bay pressure only after the full chain passes independent end-to-end benchmarks and final-head QA.
 
-Permanent M3 boundary: a verified velocity pressure, accepted pressure context, base/adjusted `GCpi`, resolved internal-pressure term, purlin effective-wind-area record, zone geometry, external coefficient or external-only pressure term still does not constitute final roof pressure. Manual pressure entry remains the active Roof Bay path until the complete internal/external coefficient, zoning and pressure-combination chain is verified.
+Permanent M3 boundary: a verified velocity pressure, accepted pressure context, base/adjusted `GCpi`, resolved internal-pressure term, purlin effective-wind-area record, zone geometry, external coefficient or external-only pressure term still does not constitute final roof pressure. Procedure applicability is a required solver state: the low-rise Part 1 path must not silently import a Part 3 internal-velocity option. Manual pressure entry remains the active Roof Bay path until the complete internal/external coefficient, zoning and pressure-combination chain is verified.
 
 ## M4 — Roof Sheet + Fastener / Connection Layer
 **Status: NOT YET INTEGRATED.**
