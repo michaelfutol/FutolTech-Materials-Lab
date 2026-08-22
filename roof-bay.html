@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="FutolTech Roof Bay Physics M2: route gravity and wind pressure from roof sheet to purlins and into two adjacent rafters with explicit tributary areas and load conservation." />
+    <title>Roof Bay Physics · FutolTech Structural Lab</title>
+    <link rel="stylesheet" href="./src/styles.css?v=20260802-1" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">FutolTech Engineering & Project Systems</p>
+        <h1>Roof Bay Physics</h1>
+        <p class="subtitle">M2 · Sheet → Purlins → Rafters · explicit tributary load path</p>
+      </div>
+      <div class="status-cluster">
+        <a class="status-pill status-link" href="./index.html">HOME</a>
+        <a class="status-pill status-link" href="./c-purlin-load-cases.html">Roof Load Cases</a>
+        <a class="status-pill status-link" href="./c-purlin-test.html">C-Purlin Test</a>
+        <span class="status-pill">M2 foundation · experimental</span>
+      </div>
+    </header>
+
+    <main class="roof-bay-page" data-roof-bay-app>
+      <section class="panel roof-bay-controls" aria-label="Roof bay inputs">
+        <div class="panel-heading"><div><p class="eyebrow">M2 · roof bay geometry</p><h2>One roof plane between two rafters</h2></div><button class="button button--ghost" type="button" data-rb-reset>Reset</button></div>
+        <p class="roof-bay-note">This first M2 build distributes roof pressure to each purlin using explicit tributary widths, solves every purlin as a simply supported C-section between two rafters, then transfers reactions into the two rafter lines. Roof-sheet, screw and rafter member capacities are intentionally unresolved.</p>
+        <div class="roof-bay-grid">
+          <label><span>C-purlin section</span><select data-rb-section></select></label>
+          <label><span>Steel yield Fy, MPa</span><select data-rb-fy><option value="230">230</option><option value="250" selected>250</option><option value="275">275</option><option value="345">345</option></select></label>
+          <label><span>Rafter spacing / purlin span, m</span><input data-rb-span type="number" min="1" max="8" step="0.1" value="3" /></label>
+          <label><span>Roof slope length, m</span><input data-rb-length type="number" min="1" max="15" step="0.1" value="4" /></label>
+          <label><span>Maximum purlin spacing, m</span><input data-rb-spacing type="number" min="0.3" max="2" step="0.05" value="0.8" /></label>
+          <label><span>Roof slope, degrees</span><input data-rb-slope type="number" min="0" max="60" step="1" value="25" /></label>
+          <label><span>C-section orientation</span><select data-rb-orientation><option value="0">0° · major axis roof-normal</option><option value="90">90° · minor axis roof-normal</option><option value="180">180° · major axis reversed</option><option value="270">270° · minor axis reversed</option></select></label>
+          <label><span>Load mode</span><select data-rb-mode><option value="combined" selected>Combined gravity + wind</option><option value="gravity">Gravity only</option><option value="wind">Wind only</option></select></label>
+          <label><span>Dead load, kPa</span><input data-rb-dead type="number" min="0" max="5" step="0.05" value="0.20" /></label>
+          <label><span>Roof live load, kPa</span><input data-rb-live type="number" min="0" max="5" step="0.05" value="0.75" /></label>
+          <label><span>Wind pressure magnitude, kPa</span><input data-rb-wind type="number" min="0" max="10" step="0.05" value="1.50" /></label>
+          <label><span>Wind sense</span><select data-rb-wind-sense><option value="uplift" selected>Uplift / suction</option><option value="downward">Downward pressure</option></select></label>
+          <label><span>Load factor for visualization</span><input data-rb-factor type="range" min="0" max="2" step="0.01" value="1" /><output data-rb-factor-out>1.00×</output></label>
+          <label><span>Roof sheet opacity</span><input data-rb-opacity type="range" min="0" max="1" step="0.05" value="0.35" /><output data-rb-opacity-out>35%</output></label>
+        </div>
+        <div class="roof-bay-actions"><button class="button" type="button" data-rb-play>PLAY LOAD PATH</button><button class="button button--ghost" type="button" data-rb-export>EXPORT ROOF BAY JSON</button></div>
+        <div class="support-help"><strong>Permanent boundary</strong><p>Current C-purlin response is gross-section elastic screening. Local/distortional/LTB, roof-sheet capacity, screw pull-out/pull-over, purlin-to-rafter connection capacity, rafter/truss member design and code wind zoning remain separate future checks.</p></div>
+      </section>
+
+      <section class="panel roof-bay-visual" aria-label="Roof bay load path visualization">
+        <div class="panel-heading"><div><p class="eyebrow">2D / 2.5D load path</p><h2>Roof bay and tributary routing</h2></div><span class="status-pill" data-rb-equilibrium>Equilibrium · —</span></div>
+        <canvas width="1200" height="720" data-rb-canvas aria-label="Roof bay load path canvas"></canvas>
+        <div class="roof-bay-summary" data-rb-summary></div>
+      </section>
+
+      <section class="panel roof-bay-results" aria-label="Roof bay results">
+        <div class="panel-heading"><div><p class="eyebrow">Purlin-by-purlin solver</p><h2>Demand transfer and member response</h2></div></div>
+        <div class="roof-bay-result-cards" data-rb-cards></div>
+        <div class="roof-bay-table-wrap"><table class="roof-bay-table"><thead><tr><th>Purlin</th><th>Station</th><th>Tributary width</th><th>Roof-normal line load</th><th>Rafter reaction / side</th><th>M normal</th><th>Deflection</th><th>Gross utilization</th><th>Connection</th></tr></thead><tbody data-rb-body></tbody></table></div>
+        <div class="roof-bay-equations" data-rb-equations></div>
+      </section>
+    </main>
+
+    <footer><strong>Engineering notice:</strong> Roof Bay Physics M2 is an explainable load-routing and gross member-screening tool. It is not yet a complete roof-system design or code wind engine.</footer>
+    <script type="module" src="./src/publicBrand.js?v=20260822-rb1"></script>
+    <script type="module" src="./src/roofBayApp.js?v=20260822-rb1"></script>
+  </body>
+</html>
