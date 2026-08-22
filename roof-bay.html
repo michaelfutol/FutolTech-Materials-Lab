@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="FutolTech Roof Bay Physics M2: route gravity and wind pressure from roof sheet to purlins and into two adjacent rafters with explicit tributary areas and load conservation." />
+    <meta name="description" content="FutolTech Roof Bay Physics: explicit sheet-to-purlin-to-rafter load routing with an M3 wind-code provenance bridge." />
     <title>Roof Bay Physics · FutolTech Structural Lab</title>
     <link rel="stylesheet" href="./src/styles.css?v=20260802-1" />
     <link rel="stylesheet" href="./src/printReport.css?v=20260806-brand1" />
@@ -13,20 +13,20 @@
       <div>
         <p class="eyebrow">FutolTech Engineering & Project Systems</p>
         <h1>Roof Bay Physics</h1>
-        <p class="subtitle">M2 · Sheet → Purlins → Rafters · explicit tributary load path</p>
+        <p class="subtitle">M2 load path complete · M3 wind-code provenance active</p>
       </div>
       <div class="status-cluster">
         <a class="status-pill status-link" href="./index.html">HOME</a>
         <a class="status-pill status-link" href="./c-purlin-load-cases.html">Roof Load Cases</a>
         <a class="status-pill status-link" href="./c-purlin-test.html">C-Purlin Test</a>
-        <span class="status-pill">M2 foundation · experimental</span>
+        <span class="status-pill">M3 basis · code calculation blocked</span>
       </div>
     </header>
 
     <main class="roof-bay-page" data-roof-bay-app>
       <section class="panel roof-bay-controls" aria-label="Roof bay inputs">
         <div class="panel-heading"><div><p class="eyebrow">M2 · roof bay geometry</p><h2>One roof plane between two rafters</h2></div><button class="button button--ghost" type="button" data-rb-reset>Reset</button></div>
-        <p class="roof-bay-note">This first M2 build distributes roof pressure to each purlin using explicit tributary widths, solves every purlin as a simply supported C-section between two rafters, then transfers reactions into the two rafter lines. Roof-sheet, screw and rafter member capacities are intentionally unresolved.</p>
+        <p class="roof-bay-note">This M2 model distributes roof pressure to each purlin using explicit tributary widths, solves every purlin as a simply supported C-section between two rafters, then transfers reactions into the two rafter lines. The new M3 panel below identifies the wind-code basis but does not yet calculate code wind pressure.</p>
         <div class="roof-bay-grid">
           <label><span>C-purlin section</span><select data-rb-section></select></label>
           <label><span>Steel yield Fy, MPa</span><select data-rb-fy><option value="230">230</option><option value="250" selected>250</option><option value="275">275</option><option value="345">345</option></select></label>
@@ -61,13 +61,14 @@
       </section>
     </main>
 
-    <footer><strong>Engineering notice:</strong> Roof Bay Physics M2 is an explainable load-routing and gross member-screening tool. It is not yet a complete roof-system design or code wind engine.</footer>
+    <footer><strong>Engineering notice:</strong> Roof Bay M2 load routing is an explainable gross-screening model. M3 currently identifies wind-code provenance only; code-derived velocity pressure, coefficients and roof zones are still blocked.</footer>
     <script type="module" src="./src/publicBrand.js?v=20260822-rb1"></script>
-    <script type="module" src="./src/roofBayApp.js?v=20260822-rb5"></script>
-    <script type="module" src="./src/roofBayInteractionV2.js?v=20260822-rb5"></script>
-    <script type="module" src="./src/roofBayCustomLayoutV3.js?v=20260822-rb5"></script>
-    <script type="module" src="./src/roofBayReactionDiagramsV4.js?v=20260822-rb5"></script>
-    <script type="module" src="./src/roofBayPressureZoneBridgeV5.js?v=20260822-rb5"></script>
+    <script type="module" src="./src/roofBayApp.js?v=20260822-rb6"></script>
+    <script type="module" src="./src/roofBayInteractionV2.js?v=20260822-rb6"></script>
+    <script type="module" src="./src/roofBayCustomLayoutV3.js?v=20260822-rb6"></script>
+    <script type="module" src="./src/roofBayReactionDiagramsV4.js?v=20260822-rb6"></script>
+    <script type="module" src="./src/roofBayPressureZoneBridgeV5.js?v=20260822-rb6"></script>
+    <script type="module" src="./src/roofBayWindBasisV6.js?v=20260822-rb6"></script>
     <script type="module" src="./src/printReport.js?v=20260806-brand1"></script>
   </body>
 </html>
