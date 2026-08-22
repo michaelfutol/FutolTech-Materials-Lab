@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { roofBayPurlinStations, customRoofBayPurlinLayout, tributaryWidthsFromStations, solveRoofBay } from '../src/solver/roofBay.js';
+import { roofBayPurlinStations, customRoofBayPurlinLayout, tributaryBandsFromStations, tributaryWidthsFromStations, solveRoofBay } from '../src/solver/roofBay.js';
 
 const PRESET = {
   id: 'test-c100',
@@ -29,11 +29,16 @@ test('tributary widths exactly cover the roof slope length', () => {
   assert.ok(Math.abs(widths.reduce((sum, value) => sum + value, 0) - 4) < 1e-12);
 });
 
-test('custom station layout may offset edge purlins while tributary bands still cover the physical roof', () => {
+test('custom station layout may offset edge purlins while exact tributary bands still cover the physical roof', () => {
   const layout = customRoofBayPurlinLayout(4, [0.2, 0.85, 1.7, 2.65, 3.55]);
-  const widths = tributaryWidthsFromStations(layout.stationsM, 4);
+  const bands = tributaryBandsFromStations(layout.stationsM, 4);
+  const widths = bands.map((band) => band.widthM);
   assert.equal(layout.layoutMode, 'custom-stations');
   assert.deepEqual(layout.stationsM, [0.2, 0.85, 1.7, 2.65, 3.55]);
+  assert.equal(bands[0].startM, 0);
+  assert.equal(bands.at(-1).endM, 4);
+  assert.equal(bands[0].endM, (0.2 + 0.85) / 2);
+  assert.equal(bands[1].startM, bands[0].endM);
   assert.ok(Math.abs(widths.reduce((sum, value) => sum + value, 0) - 4) < 1e-12);
   assert.ok(widths[0] > (layout.stationsM[1] - layout.stationsM[0]) / 2);
   assert.ok(widths.at(-1) > (layout.stationsM.at(-1) - layout.stationsM.at(-2)) / 2);
@@ -65,7 +70,7 @@ test('roof bay reactions conserve applied gravity and uplift load', () => {
   assert.ok(Math.abs(model.rafters.left.normalKN - model.rafters.right.normalKN) < 1e-12);
 });
 
-test('custom nonuniform roof bay conserves load and preserves supplied stations', () => {
+test('custom nonuniform roof bay conserves load, preserves supplied stations and exposes exact bands', () => {
   const stations = [0.15, 0.72, 1.48, 2.4, 3.18, 3.8];
   const model = solveRoofBay({
     preset: PRESET,
@@ -83,6 +88,9 @@ test('custom nonuniform roof bay conserves load and preserves supplied stations'
   assert.equal(model.geometry.layoutMode, 'custom-stations');
   assert.deepEqual(model.geometry.stationsM, stations);
   assert.equal(model.geometry.actualSpacingM, null);
+  assert.equal(model.purlins[0].tributaryStartM, 0);
+  assert.equal(model.purlins.at(-1).tributaryEndM, 4);
+  assert.deepEqual(model.geometry.tributaryBands.map(({ startM, endM }) => [startM, endM]), model.purlins.map((item) => [item.tributaryStartM, item.tributaryEndM]));
   assert.ok(Math.abs(model.geometry.tributaryWidthsM.reduce((sum, value) => sum + value, 0) - 4) < 1e-12);
   assert.equal(model.equilibrium.pass, true);
   assert.ok(model.equilibrium.relativeResidual < 1e-12);
