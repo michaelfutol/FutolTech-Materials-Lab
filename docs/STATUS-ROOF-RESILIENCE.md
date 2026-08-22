@@ -80,7 +80,7 @@ M2 exit gate:
 - [x] PR #112 final-head full Engineering Checks passed, including syntax, deterministic engineering tests, all Roof Bay Chromium gates, legacy lab/browser gates and PDF/print protections.
 
 ## M3 — Code Wind / Roof Zoning Engine
-**Status: ACTIVE — PRs #113 through #121 are merged; the next dependency is the roof C&C target/effective-wind-area foundation before external `GCp`.**
+**Status: ACTIVE — completed through the roof-purlin C&C effective-wind-area foundation in PR #123; zone geometry/assignment is next before external `GCp`.**
 
 Completed in PR #113 — code/version + provenance:
 - Source-backed wind-code profile registry for NSCP 2015 Volume 1, 7th Edition, 2nd Printing.
@@ -150,24 +150,35 @@ Completed in PR #121 — internal-pressure velocity selection + signed term:
 - Open buildings retain zero internal term because `GCpi = 0`.
 - Validation deterministically recalculates `qh`, optional opening-height `qz`, coefficient carry-through, `qi`, and `qi(GCpi)` and rejects mutation.
 - Exact final head `9a458078f610a35a678213583f0f91462bba7dcb` passed the complete Engineering Checks suite; PR #121 squash-merged as `5acab72d3848ee1b3e55191560577dc965b15d08`.
-- External pressure coefficients, effective wind area, field/edge/corner zoning, pressure combination, load combinations and final code-derived Roof Bay pressure remain unimplemented.
 - Public boundary/QA record: `docs/M3_INTERNAL_PRESSURE_TERM.md`.
 
-Current M3 dependency — roof Components & Cladding target + effective wind area:
-- Establish the supported roof design target/procedure explicitly before external coefficient selection; do not let MWFRS and C&C paths blur together.
-- Treat coefficient-selection effective wind area as a distinct engineering quantity from actual tributary/load-application area.
-- Start with only member/component classes whose geometry and applicability can be defended from the accepted Roof Bay/project record; unresolved sheet/fastener/component cases stay blocked.
-- Where a code-permitted effective-width treatment can enlarge coefficient-selection area, make the selection explicit and engineer/evidence bounded rather than silently adopting the beneficial option.
-- Add deterministic hand benchmarks and serialization/anti-mutation tests before any external `GCp` values are enabled.
+Completed in PR #123 — roof-purlin C&C target + effective wind area:
+- Adds `futoltech.wind-roof-purlin-effective-area/1` attached to the exact accepted wind pressure context.
+- Explicitly classifies the current supported wind target as `roof-purlin` under Components & Cladding rather than MWFRS.
+- Keeps actual load-application area equal to purlin span × actual tributary width.
+- Keeps coefficient-selection effective wind area separate from the physical load area.
+- Requires an explicit source-referenced choice between `actual-tributary-width` and `one-third-span-minimum`.
+- The one-third-span path uses `max(actual tributary width, span/3)` and never rewrites the physical Roof Bay tributary band.
+- Deterministic benchmark: 4.0 m span × 1.0 m actual tributary width gives 4.0 m² actual load area and 5.333333333... m² coefficient-selection area for the one-third-span path.
+- Validation rejects mutated areas, missing selection/source references, silent `GCp` promotion, sheet/fastener area promotion, final pressure promotion and purlin capacity promotion.
+- Roof-sheet and fastener effective areas remain explicitly unresolved; the fastener tributary-area cap is not implemented in this purlin slice.
+- Preliminary implementation head passed the full Engineering Checks suite before milestone/checklist advancement; the documentation-updated exact head must also pass before merge.
+- Public boundary/QA record: `docs/M3_ROOF_PURLIN_EFFECTIVE_WIND_AREA.md`.
 
-Next M3 work after that foundation:
-- Source-backed external roof pressure coefficient selection for supported roof form/slope/target/effective area.
-- Field/edge/corner zone geometry and member/area assignment.
-- External-minus-internal pressure combination with explicit sign conventions.
+Current M3 dependency — source-backed roof C&C zone geometry + purlin zone assignment:
+- Reuse the M2 roof-local coordinate frame and accepted roof/building geometry rather than creating a second drawing-only zone geometry.
+- Resolve field/edge/corner zone dimensions and polygons from the governing C&C procedure without embedding external coefficient values in the zoning layer.
+- Assign physical purlin tributary bands by actual zone intersection; do not label an entire purlin with one convenient zone if its loaded area spans multiple zones.
+- Preserve deterministic geometry, serialization, anti-mutation tests and independent hand benchmarks before enabling external `GCp`.
+
+Next M3 work after zone geometry:
+- Source-backed external roof `GCp` selection using roof form/slope, resolved zone identity and PR #123 coefficient-selection effective area together.
+- External pressure term with explicit sign convention.
+- External-minus-internal pressure combination.
 - Traceable load combinations.
 - Automatic code-derived Roof Bay pressure only after the full chain passes independent benchmarks and final-head QA.
 
-Permanent M3 boundary: a verified velocity pressure, accepted pressure context, base/adjusted `GCpi`, resolved internal-pressure term, or future effective-wind-area record still does not constitute final roof pressure. Manual pressure entry remains the active Roof Bay path until the complete internal/external coefficient, zoning and pressure-combination chain is verified.
+Permanent M3 boundary: a verified velocity pressure, accepted pressure context, base/adjusted `GCpi`, resolved internal-pressure term, purlin effective-wind-area record, or future zone geometry still does not constitute final roof pressure. Manual pressure entry remains the active Roof Bay path until the complete internal/external coefficient, zoning and pressure-combination chain is verified.
 
 ## M4 — Roof Sheet + Fastener / Connection Layer
 **Status: NOT YET INTEGRATED.**

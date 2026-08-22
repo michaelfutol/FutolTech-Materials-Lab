@@ -19,24 +19,25 @@ Status date: 2026-08-22
   - [x] Enclosure + roof/building geometry input acceptance — PR #117.
   - [x] Roof Bay pressure-context acceptance + project JSON integration — PR #118.
   - [x] Source-backed base internal-pressure coefficient (`GCpi`) foundation — PR #119.
-  - [x] Large-volume partially enclosed reduction factor (`Ri`) applicability + equation — PR #120; engineer-declared applicability, explicit conservative `Ri = 1.0`, source-referenced equation path, no silent beneficial reduction.
+  - [x] Large-volume partially enclosed reduction factor (`Ri`) applicability + equation — PR #120.
   - [x] Internal-pressure velocity-pressure selection + signed `qi(GCpi)` term — PR #121.
-    - `futoltech.wind-internal-pressure-term/1` follows the exact upstream coefficient chain.
-    - Enclosed: `qi = qh` for positive and negative internal-pressure cases.
-    - Partially enclosed negative internal pressure: `qi = qh`.
-    - Partially enclosed positive internal pressure: explicit conservative `qi = qh` or source-referenced `qz` at the highest opening affecting positive internal pressure.
-    - Highest-opening elevation is never inferred.
-    - Partially enclosed records cannot bypass the explicit `Ri` record, including the conservative `Ri = 1.0` path.
-    - Signed internal-pressure term is stored as `qi * (GCpi)` and is not prematurely combined with external pressure.
-    - Open building remains zero internal term because `GCpi = 0`.
-    - Deterministic recalculation protects `qh`, optional `qz`, `qi`, coefficient carry-through and `qi(GCpi)`.
-    - Exact final head `9a458078f610a35a678213583f0f91462bba7dcb` passed the full Engineering Checks suite; PR #121 squash-merged as `5acab72d3848ee1b3e55191560577dc965b15d08`.
-  - [ ] **Current:** implement a source-backed roof Components & Cladding design-target + effective-wind-area foundation before external `GCp` selection.
-    - Keep coefficient-selection effective area distinct from the actual roof tributary/load-application area.
-    - Do not make roof sheet, fastener and purlin targets share one coefficient path by default.
-    - Any code-permitted effective-width treatment must remain explicit and evidence/engineer bounded; no silent beneficial enlargement.
-  - [ ] Implement external roof pressure coefficients only after the supported target/effective area is resolved and independently benchmarked.
-  - [ ] Implement field/edge/corner geometry, external-minus-internal pressure combination, load combinations and final code-pressure routing only through their own source-backed gates.
+  - [x] Roof-purlin Components & Cladding target + effective-wind-area foundation — PR #123.
+    - Schema: `futoltech.wind-roof-purlin-effective-area/1`.
+    - Target is explicitly `roof-purlin` under Components & Cladding; no MWFRS substitution.
+    - Actual load area = purlin span × actual tributary width.
+    - Coefficient-selection effective area = purlin span × explicitly selected effective width.
+    - Supported selections: actual tributary width or source-referenced one-third-span minimum `max(actual width, span/3)`.
+    - Enlarging the coefficient-selection area never changes the physical tributary/load-application area.
+    - 4.0 m × 1.0 m benchmark: actual area = 4.0 m²; one-third-span coefficient area = 5.333333333... m².
+    - Roof sheet and fastener effective areas remain unresolved; fasteners cannot inherit purlin area.
+    - External `GCp`, code zones, pressure combination, load combinations, purlin capacity promotion and final Roof Bay code pressure remain blocked.
+    - Preliminary implementation head passed the complete Engineering Checks suite; the documentation-updated exact head must also be fully green before PR #123 merge.
+  - [ ] **Current:** implement source-backed roof C&C field/edge/corner zone geometry + purlin/tributary-band zone assignment before external `GCp` lookup.
+    - Reuse the M2 roof-local coordinate frame and accepted project roof/building geometry.
+    - Do not assign one convenient zone to a purlin whose physical tributary band intersects multiple code zones.
+    - Keep coefficient values out of the zoning slice; zone geometry/identity must be independently benchmarked first.
+  - [ ] Implement external roof `GCp` selection only after supported zone identity, roof form/slope, and PR #123 effective area are available together.
+  - [ ] Implement external-minus-internal pressure combination, load combinations and final code-pressure routing only through their own source-backed gates.
 - [ ] **M4 — Roof Sheet + Fastener / Connection Layer:** reusable Connection Lab foundations exist; Roof Bay integration remains unresolved.
 - [ ] **M5–M13:** follow `ROADMAP-ROOF-RESILIENCE-PHYSICS.md` in order unless an explicit engineering dependency requires resequencing.
 
