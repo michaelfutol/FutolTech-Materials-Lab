@@ -74,7 +74,7 @@ if (root) {
 
   function currentInput(loadFactor = Number(ui.factor.value)) {
     return {
-      preset:selectedPreset(), rafterSpacingM:clamp(ui.span.value,1,8), roofSlopeLengthM:clamp(ui.length.value,1,15), maxPurlinSpacingM:clamp(ui.spacing.value,.3,2), slopeDeg:clamp(ui.slope.value,0,60), orientationDeg:Number(ui.orientation.value), elasticModulusMPa:E_MPA, yieldStrengthMPa:Number(ui.fy.value), densityKgM3:DENSITY_KG_M3,
+      preset:selectedPreset(), rafterSpacingM:clamp(ui.span.value,1,8), roofSlopeLengthM:clamp(ui.length.value,1,15), maxPurlinSpacingM:clamp(ui.spacing.value,.3,2), customPurlinStationsM:Array.isArray(window.__FT_ROOF_BAY_CUSTOM_STATIONS__)?[...window.__FT_ROOF_BAY_CUSTOM_STATIONS__]:null, slopeDeg:clamp(ui.slope.value,0,60), orientationDeg:Number(ui.orientation.value), elasticModulusMPa:E_MPA, yieldStrengthMPa:Number(ui.fy.value), densityKgM3:DENSITY_KG_M3,
       mode:ui.mode.value, deadLoadKPa:clamp(ui.dead.value,0,5), roofLiveLoadKPa:clamp(ui.live.value,0,5), windPressureKPa:clamp(ui.wind.value,0,10), windSense:ui.windSense.value, loadFactor:Math.max(0, Number(loadFactor) || 0)
     };
   }
@@ -158,9 +158,12 @@ if (root) {
     draw(model);
     ui.equilibrium.textContent=`Equilibrium · ${model.equilibrium.pass?'PASS':'CHECK'}`;
     ui.equilibrium.classList.toggle('roof-bay-pass',model.equilibrium.pass); ui.equilibrium.classList.toggle('roof-bay-fail',!model.equilibrium.pass);
+    const layoutSummary=model.geometry.layoutMode==='custom-stations'
+      ? `${model.geometry.purlinCount} custom rows · gaps ${compact(model.geometry.minSpacingM,3)}–${compact(model.geometry.maxSpacingM,3)} m`
+      : `${model.geometry.purlinCount} rows @ ${compact(model.geometry.actualSpacingM,3)} m`;
     ui.summary.innerHTML=`
       <div><small>Roof bay area</small><strong>${compact(model.geometry.areaM2,2)} m²</strong></div>
-      <div><small>Purlin layout</small><strong>${model.geometry.purlinCount} rows @ ${compact(model.geometry.actualSpacingM,3)} m</strong></div>
+      <div><small>Purlin layout</small><strong>${layoutSummary}</strong></div>
       <div><small>Applied resultant</small><strong>${compact(model.applied.resultantKN,3)} kN</strong></div>
       <div><small>Reaction each rafter</small><strong>${compact(model.rafters.left.resultantKN,3)} kN</strong></div>
       <div><small>Governing purlin</small><strong>${model.governingPurlin?.label ?? '—'}</strong></div>
@@ -168,13 +171,16 @@ if (root) {
       <div><small>Max deflection</small><strong>${compact(model.governingPurlin?.result.resultantDeflectionMm ?? 0,2)} mm</strong></div>
       <div><small>Load conservation residual</small><strong>${compact(model.equilibrium.residualKN,9)} kN</strong></div>`;
     const gov=model.governingPurlin;
+    const layoutCard=model.geometry.layoutMode==='custom-stations'
+      ? `<dt>Layout mode</dt><dd>Custom stations</dd><dt>Station gaps</dt><dd>${compact(model.geometry.minSpacingM,3)}–${compact(model.geometry.maxSpacingM,3)} m</dd>`
+      : `<dt>Requested max spacing</dt><dd>${compact(model.geometry.requestedMaxSpacingM,3)} m</dd><dt>Actual equal spacing</dt><dd>${compact(model.geometry.actualSpacingM,3)} m</dd>`;
     ui.cards.innerHTML=`
-      <article class="roof-bay-result-card"><h3>Geometry & tributary layout</h3><dl><dt>Requested max spacing</dt><dd>${compact(model.geometry.requestedMaxSpacingM,3)} m</dd><dt>Actual equal spacing</dt><dd>${compact(model.geometry.actualSpacingM,3)} m</dd><dt>Purlin rows</dt><dd>${model.geometry.purlinCount}</dd><dt>End tributary width</dt><dd>${compact(model.purlins[0].tributaryWidthM,3)} m</dd></dl></article>
+      <article class="roof-bay-result-card"><h3>Geometry & tributary layout</h3><dl>${layoutCard}<dt>Purlin rows</dt><dd>${model.geometry.purlinCount}</dd><dt>First tributary width</dt><dd>${compact(model.purlins[0].tributaryWidthM,3)} m</dd></dl></article>
       <article class="roof-bay-result-card"><h3>Rafter reaction transfer</h3><dl><dt>Rafter A normal</dt><dd>${compact(model.rafters.left.normalKN,3)} kN</dd><dt>Rafter A downslope</dt><dd>${compact(model.rafters.left.parallelKN,3)} kN</dd><dt>Rafter B normal</dt><dd>${compact(model.rafters.right.normalKN,3)} kN</dd><dt>Balance</dt><dd>${model.equilibrium.pass?'PASS':'CHECK'}</dd></dl></article>
       <article class="roof-bay-result-card"><h3>Governing purlin screening</h3><dl><dt>Member</dt><dd>${gov?.label ?? '—'}</dd><dt>Tributary width</dt><dd>${compact(gov?.tributaryWidthM,3)} m</dd><dt>Gross stress</dt><dd>${compact(gov?.result.grossEnvelopeStressMPa,1)} MPa</dd><dt>Gross utilization</dt><dd>${compact((gov?.result.utilization ?? 0)*100,1)}%</dd></dl></article>
       <article class="roof-bay-result-card"><h3>Unresolved next links</h3><dl><dt>Roof sheet</dt><dd class="roof-bay-unresolved">UNRESOLVED</dd><dt>Fasteners</dt><dd class="roof-bay-unresolved">UNRESOLVED</dd><dt>Purlin→rafter connection</dt><dd class="roof-bay-unresolved">UNRESOLVED</dd><dt>Rafter/truss design</dt><dd class="roof-bay-unresolved">UNRESOLVED</dd></dl></article>`;
     ui.body.innerHTML=model.purlins.map((item)=>`<tr><td><strong>${item.label}</strong>${item.edge?' · edge':''}</td><td>${compact(item.stationM,3)} m</td><td>${compact(item.tributaryWidthM,3)} m</td><td>${compact(item.result.loads.normalKNM,3)} kN/m</td><td>${compact(item.leftRafterReaction.resultantKN,3)} kN</td><td>${compact(item.result.momentNormalKNM,3)} kN·m</td><td>${compact(item.result.resultantDeflectionMm,2)} mm</td><td>${compact(item.result.utilization*100,1)}%</td><td class="roof-bay-unresolved">${item.connectionStatus}</td></tr>`).join('');
-    ui.equations.innerHTML=`<strong>Load routing trace</strong><br>Roof area = L<sub>slope</sub> × rafter spacing = ${compact(model.inputs.roofSlopeLengthM,3)} × ${compact(model.inputs.rafterSpacingM,3)} = ${compact(model.geometry.areaM2,3)} m²<br>Σ tributary widths = ${compact(model.geometry.tributaryWidthsM.reduce((a,b)=>a+b,0),6)} m = roof slope length<br>Each purlin: w = q × tributary width + self-weight; simply-supported reactions = wL/2 per rafter.<br>Rafter A total resultant = ${compact(model.rafters.left.resultantKN,6)} kN; Rafter B = ${compact(model.rafters.right.resultantKN,6)} kN.<br>Applied roof-bay resultant = ${compact(model.applied.resultantKN,6)} kN; vector equilibrium residual = ${compact(model.equilibrium.residualKN,9)} kN.<br><strong>${model.equilibrium.pass?'CONSERVATION CHECK PASS':'CONSERVATION CHECK REQUIRES REVIEW'}</strong><br><br><strong>Boundary:</strong> ${model.boundary}`;
+    ui.equations.innerHTML=`<strong>Load routing trace</strong><br>Roof area = L<sub>slope</sub> × rafter spacing = ${compact(model.inputs.roofSlopeLengthM,3)} × ${compact(model.inputs.rafterSpacingM,3)} = ${compact(model.geometry.areaM2,3)} m²<br>Layout = ${model.geometry.layoutMode==='custom-stations'?'custom station list':'equalized maximum spacing'}; Σ tributary widths = ${compact(model.geometry.tributaryWidthsM.reduce((a,b)=>a+b,0),6)} m = roof slope length<br>Each purlin: w = q × tributary width + self-weight; simply-supported reactions = wL/2 per rafter.<br>Rafter A total resultant = ${compact(model.rafters.left.resultantKN,6)} kN; Rafter B = ${compact(model.rafters.right.resultantKN,6)} kN.<br>Applied roof-bay resultant = ${compact(model.applied.resultantKN,6)} kN; vector equilibrium residual = ${compact(model.equilibrium.residualKN,9)} kN.<br><strong>${model.equilibrium.pass?'CONSERVATION CHECK PASS':'CONSERVATION CHECK REQUIRES REVIEW'}</strong><br><br><strong>Boundary:</strong> ${model.boundary}`;
     window.__FT_ROOF_BAY_MODEL__=model;
   }
 
@@ -184,6 +190,7 @@ if (root) {
   }
 
   function reset() {
+    window.__FT_ROOF_BAY_CUSTOM_STATIONS__=null;
     ui.section.value=[...ui.section.options].some((o)=>o.value===DEFAULT_SECTION_ID)?DEFAULT_SECTION_ID:ui.section.options[0]?.value;
     ui.fy.value='250';ui.span.value='3';ui.length.value='4';ui.spacing.value='.8';ui.slope.value='25';ui.orientation.value='0';ui.mode.value='combined';ui.dead.value='.20';ui.live.value='.75';ui.wind.value='1.50';ui.windSense.value='uplift';ui.factor.value='1';ui.opacity.value='.35';syncMode();render();
   }
