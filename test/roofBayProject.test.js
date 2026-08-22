@@ -24,6 +24,7 @@ test('Roof Bay project keeps geometry, material reference and loading explicit',
   const project = createRoofBayProject(INPUT);
   assert.equal(project.schemaVersion, 'futoltech.roof-bay-project/1');
   assert.equal(project.geometry.rafterSpacingM, 3);
+  assert.equal(project.geometry.layoutMode, 'equal-max-spacing');
   assert.equal(project.purlin.sectionId, INPUT.sectionId);
   assert.equal(project.loading.windSense, 'uplift');
 });
@@ -39,6 +40,26 @@ test('Roof Bay project serialization is deterministic and round-trips exactly', 
   const first = serializeRoofBayProject(project);
   const second = serializeRoofBayProject(parseRoofBayProject(first));
   assert.equal(second, first);
+});
+
+test('custom station project preserves exact nonuniform station list in schema v1', () => {
+  const stations = [0.15, 0.72, 1.48, 2.4, 3.18, 3.8];
+  const project = createRoofBayProject({ ...INPUT, layoutMode:'custom-stations', purlinStationsM:stations });
+  assert.equal(project.geometry.layoutMode, 'custom-stations');
+  assert.deepEqual(project.geometry.purlinStationsM, stations);
+  const roundTrip = parseRoofBayProject(serializeRoofBayProject(project));
+  assert.deepEqual(roundTrip.geometry.purlinStationsM, stations);
+});
+
+test('schema v1 remains backward compatible when old equal-layout project omits layoutMode', () => {
+  const project = createRoofBayProject(INPUT);
+  delete project.geometry.layoutMode;
+  assert.doesNotThrow(() => serializeRoofBayProject(project));
+});
+
+test('custom station project rejects duplicate and out-of-roof station values', () => {
+  assert.throws(() => createRoofBayProject({ ...INPUT, layoutMode:'custom-stations', purlinStationsM:[0.2,1,1,3.8] }), /strictly increasing/);
+  assert.throws(() => createRoofBayProject({ ...INPUT, layoutMode:'custom-stations', purlinStationsM:[0.2,1.4,4.2] }), /within the roof slope length/);
 });
 
 test('Roof Bay project rejects unsupported orientation and slope range', () => {

@@ -3,6 +3,8 @@ export const ROOF_BAY_PROJECT_SCHEMA = 'futoltech.roof-bay-project/1';
 const MODES = Object.freeze(['gravity', 'wind', 'combined']);
 const WIND_SENSES = Object.freeze(['uplift', 'downward']);
 const ORIENTATIONS = Object.freeze([0, 90, 180, 270]);
+const LAYOUT_MODES = Object.freeze(['equal-max-spacing', 'custom-stations']);
+const EPS = 1e-9;
 
 function finite(value, label) {
   const number = Number(value);
@@ -39,6 +41,18 @@ function stable(value) {
   return value;
 }
 
+function validatedCustomStations(stations, roofSlopeLengthM, label = 'geometry.purlinStationsM') {
+  if (!Array.isArray(stations) || stations.length < 2) throw new Error(`${label} requires at least two stations.`);
+  const clean = stations.map((value, index) => finite(value, `${label}[${index}]`));
+  for (let index = 1; index < clean.length; index += 1) {
+    if (!(clean[index] > clean[index - 1])) throw new Error(`${label} must be strictly increasing.`);
+  }
+  if (clean[0] < -EPS || clean[clean.length - 1] > roofSlopeLengthM + EPS) {
+    throw new Error(`${label} must stay within the roof slope length.`);
+  }
+  return clean.map((station) => Math.min(roofSlopeLengthM, Math.max(0, station)));
+}
+
 export function createRoofBayProject({
   projectId = `roof-bay-${Date.now()}`,
   projectName = 'Untitled roof bay',
@@ -46,6 +60,8 @@ export function createRoofBayProject({
   rafterSpacingM,
   roofSlopeLengthM,
   maxPurlinSpacingM,
+  layoutMode = 'equal-max-spacing',
+  purlinStationsM = null,
   slopeDeg,
   orientationDeg,
   elasticModulusMPa = 200000,
@@ -63,8 +79,13 @@ export function createRoofBayProject({
   if (!ORIENTATIONS.includes(orientation)) throw new Error('orientationDeg must be 0, 90, 180 or 270 degrees.');
   if (!MODES.includes(mode)) throw new Error(`mode '${mode}' is unsupported.`);
   if (!WIND_SENSES.includes(windSense)) throw new Error(`windSense '${windSense}' is unsupported.`);
+  if (!LAYOUT_MODES.includes(layoutMode)) throw new Error(`layoutMode '${layoutMode}' is unsupported.`);
   const slope = finite(slopeDeg, 'slopeDeg');
   if (slope < 0 || slope > 60) throw new Error('slopeDeg must lie from 0 to 60 degrees in Roof Bay M2.');
+  const slopeLength = positive(roofSlopeLengthM, 'roofSlopeLengthM');
+  const customStations = layoutMode === 'custom-stations'
+    ? validatedCustomStations(purlinStationsM, slopeLength, 'purlinStationsM')
+    : null;
 
   const project = {
     schemaVersion: ROOF_BAY_PROJECT_SCHEMA,
@@ -73,9 +94,11 @@ export function createRoofBayProject({
     source: string(source, 'source'),
     geometry: {
       rafterSpacingM: positive(rafterSpacingM, 'rafterSpacingM'),
-      roofSlopeLengthM: positive(roofSlopeLengthM, 'roofSlopeLengthM'),
+      roofSlopeLengthM: slopeLength,
       maxPurlinSpacingM: positive(maxPurlinSpacingM, 'maxPurlinSpacingM'),
-      slopeDeg: slope
+      slopeDeg: slope,
+      layoutMode,
+      ...(customStations ? { purlinStationsM: customStations } : {})
     },
     purlin: {
       sectionId: string(sectionId, 'sectionId'),
@@ -114,10 +137,16 @@ export function validateRoofBayProject(project) {
   string(project.projectName, 'projectName');
   string(project.source, 'source');
   positive(project.geometry?.rafterSpacingM, 'geometry.rafterSpacingM');
-  positive(project.geometry?.roofSlopeLengthM, 'geometry.roofSlopeLengthM');
+  const roofSlopeLengthM = positive(project.geometry?.roofSlopeLengthM, 'geometry.roofSlopeLengthM');
   positive(project.geometry?.maxPurlinSpacingM, 'geometry.maxPurlinSpacingM');
   const slope = finite(project.geometry?.slopeDeg, 'geometry.slopeDeg');
   if (slope < 0 || slope > 60) throw new Error('geometry.slopeDeg must lie from 0 to 60 degrees.');
+  const layoutMode = project.geometry?.layoutMode ?? 'equal-max-spacing';
+  if (!LAYOUT_MODES.includes(layoutMode)) throw new Error('geometry.layoutMode is unsupported.');
+  if (layoutMode === 'custom-stations') validatedCustomStations(project.geometry?.purlinStationsM, roofSlopeLengthM);
+  if (layoutMode === 'equal-max-spacing' && project.geometry?.purlinStationsM != null) {
+    throw new Error('geometry.purlinStationsM is only valid for custom-stations layout mode.');
+  }
   string(project.purlin?.sectionId, 'purlin.sectionId');
   const orientation = finite(project.purlin?.orientationDeg, 'purlin.orientationDeg');
   if (!ORIENTATIONS.includes(orientation)) throw new Error('purlin.orientationDeg must be 0, 90, 180 or 270 degrees.');
