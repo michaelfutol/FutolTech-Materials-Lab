@@ -29,11 +29,17 @@ try{
 
   await evaluate(cdp,`(() => {const mode=document.querySelector('[data-rb-layout-mode]');mode.value='custom-stations';mode.dispatchEvent(new Event('change',{bubbles:true}));const input=document.querySelector('[data-rb-custom-stations]');input.value='0.20, 0.90, 1.75, 2.60, 3.50';input.dispatchEvent(new Event('change',{bubbles:true}));})()`);
   await sleep(250);
-  const custom=await evaluate(cdp,`(() => {const m=window.__FT_ROOF_BAY_MODEL__;return {mode:m.geometry.layoutMode,stations:m.geometry.stationsM,widthSum:m.geometry.tributaryWidthsM.reduce((a,b)=>a+b,0),count:m.geometry.purlinCount,equilibrium:m.equilibrium.pass,spacingDisabled:document.querySelector('[data-rb-spacing]').disabled,status:document.querySelector('[data-rb-layout-status]').textContent};})()`);
+  const custom=await evaluate(cdp,`(() => {const m=window.__FT_ROOF_BAY_MODEL__;return {mode:m.geometry.layoutMode,stations:m.geometry.stationsM,widthSum:m.geometry.tributaryWidthsM.reduce((a,b)=>a+b,0),firstBand:[m.purlins[0].tributaryStartM,m.purlins[0].tributaryEndM],lastBand:[m.purlins.at(-1).tributaryStartM,m.purlins.at(-1).tributaryEndM],count:m.geometry.purlinCount,equilibrium:m.equilibrium.pass,spacingDisabled:document.querySelector('[data-rb-spacing]').disabled,status:document.querySelector('[data-rb-layout-status]').textContent};})()`);
   if(custom.mode!=='custom-stations'||custom.count!==5)throw new Error(`Custom station model was not applied: ${JSON.stringify(custom)}`);
   if(JSON.stringify(custom.stations)!==JSON.stringify([0.2,0.9,1.75,2.6,3.5]))throw new Error(`Custom stations changed unexpectedly: ${JSON.stringify(custom.stations)}`);
+  if(custom.firstBand[0]!==0||custom.lastBand[1]!==4)throw new Error(`Offset edge tributary bands do not terminate at physical roof boundaries: ${JSON.stringify(custom)}`);
+  if(Math.abs(custom.firstBand[1]-0.55)>1e-10)throw new Error(`First custom tributary midline is wrong: ${JSON.stringify(custom.firstBand)}`);
   if(Math.abs(custom.widthSum-4)>1e-10||!custom.equilibrium)throw new Error(`Custom tributary/load conservation failed: ${JSON.stringify(custom)}`);
   if(!custom.spacingDisabled||!/Custom layout applied/.test(custom.status))throw new Error(`Custom layout controls are not synchronized: ${JSON.stringify(custom)}`);
+
+  await evaluate(cdp,`document.querySelectorAll('[data-rb-body] tr')[0].click()`);await sleep(100);
+  const trace=await evaluate(cdp,`document.querySelector('[data-rb-focus-trace]').textContent`);
+  if(!/Tributary band = 0 to 0\.55 m/.test(trace))throw new Error(`Selected edge purlin trace does not expose the exact physical tributary band: ${trace}`);
 
   await evaluate(cdp,`document.querySelector('[data-rb-export-project]').click()`);await sleep(100);
   const project=await evaluate(cdp,`window.__FT_LAST_ROOF_BAY_PROJECT__||null`);
@@ -44,5 +50,5 @@ try{
   const equal=await evaluate(cdp,`(() => ({mode:window.__FT_ROOF_BAY_MODEL__.geometry.layoutMode,count:window.__FT_ROOF_BAY_MODEL__.geometry.purlinCount,spacingDisabled:document.querySelector('[data-rb-spacing]').disabled}))()`);
   if(equal.mode!=='equal-max-spacing'||equal.count!==6||equal.spacingDisabled)throw new Error(`Equal layout restoration failed: ${JSON.stringify(equal)}`);
 
-  console.log(`Roof Bay custom-layout V3 Chromium QA passed: nonuniform 5-row station layout conserved the full 4 m tributary roof domain, exported through ${project.schemaVersion}, and restored the default equal layout.`);
+  console.log(`Roof Bay custom-layout V3 Chromium QA passed: nonuniform 5-row station layout conserved the full 4 m tributary roof domain with exact edge bands, exported through ${project.schemaVersion}, and restored the default equal layout.`);
 } finally {try{cdp?.socket.close();}catch{}await stop(proc);await new Promise((resolve)=>server.close(resolve));await rm(work,{recursive:true,force:true});}
