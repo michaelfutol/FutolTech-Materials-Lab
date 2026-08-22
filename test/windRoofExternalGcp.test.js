@@ -6,7 +6,7 @@ import { resolveRoofPurlinEffectiveWindArea } from '../src/solver/windRoofPurlin
 import { resolveWindRoofZoneGeometry } from '../src/solver/windRoofZoneGeometry.js';
 import { resolveWindRoofExternalGcp, serializeWindRoofExternalGcp, parseWindRoofExternalGcp } from '../src/solver/windRoofExternalGcp.js';
 
-function pressureContext({ slopeDeg = 25, planLengthM = 12, planWidthM = 8, heightM = 8.82 } = {}) {
+function pressureContext({ slopeDeg = 25, planLengthM = 12, planWidthM = 8, heightM = 8.82, enclosureClassification = 'enclosed' } = {}) {
   const wind = createWindProjectInputAcceptance({
     siteLocation: 'Sta. Magdalena, Sorsogon, Philippines', siteSourceReference: 'Project site record / survey reference',
     occupancyCategory: 'III', occupancySourceReference: 'Project occupancy classification record',
@@ -16,14 +16,14 @@ function pressureContext({ slopeDeg = 25, planLengthM = 12, planWidthM = 8, heig
   });
   return createWindPressureContextAcceptance({
     windProjectInputAcceptance: wind,
-    enclosureClassification: 'enclosed', enclosureClassificationSourceReference: 'Engineer enclosure classification record', openingsAssessmentSourceReference: 'Project openings assessment',
+    enclosureClassification, enclosureClassificationSourceReference: 'Engineer enclosure classification record', openingsAssessmentSourceReference: 'Project openings assessment',
     roofForm: 'gable', roofFormSourceReference: 'Architectural roof plan', planLengthM, planWidthM, planDimensionSourceReference: 'Dimensioned architectural plan',
     meanRoofHeightM: heightM, meanRoofHeightSourceReference: 'Project mean-roof-height record', roofSlopeDeg: slopeDeg, roofSlopeSourceReference: 'Architectural roof section'
   });
 }
 
-function makeFixture({ slopeDeg = 25, bayStartM = 0.4, baySpanM = 4, firstBandWidthM = 1, effectiveWidthSelection = 'actual-tributary-width', heightM = 8.82 } = {}) {
-  const context = pressureContext({ slopeDeg, heightM });
+function makeFixture({ slopeDeg = 25, bayStartM = 0.4, baySpanM = 4, firstBandWidthM = 1, effectiveWidthSelection = 'actual-tributary-width', heightM = 8.82, enclosureClassification = 'enclosed' } = {}) {
+  const context = pressureContext({ slopeDeg, heightM, enclosureClassification });
   const theta = slopeDeg * Math.PI / 180;
   const slopeLengthM = 4 / Math.cos(theta);
   const bands = [{ label: 'P1', startM: 0, endM: firstBandWidthM }, { label: 'P2', startM: firstBandWidthM, endM: slopeLengthM }];
@@ -45,6 +45,7 @@ function caseByType(record, type) { return record.coefficientCases.find((item) =
 test('2B benchmark evaluates 4.0 m2 purlin effective area on log10 curve and preserves separate zone coefficients', () => {
   const { record } = makeFixture();
   assert.equal(record.applicability.figureId, '207E.4-2B');
+  assert.equal(record.applicability.enclosureClassification, 'enclosed');
   assert.equal(record.coefficientArea.effectiveWindAreaM2, 4);
   assert.ok(Math.abs(record.coefficientArea.effectiveWindAreaFt2 - 43.05564166683889) < 1e-12);
   assert.equal(record.coefficientArea.regime, 'LOG10_INTERPOLATION');
@@ -71,6 +72,13 @@ test('2C benchmark uses common Zone 2/3 negative curve and keeps positive/negati
   assert.ok(Math.abs(edge.negativeGCp - (-1.0573577375919077)) < 1e-12);
   assert.ok(Math.abs(corner.negativeGCp - (-1.0573577375919077)) < 1e-12);
   assert.equal(edge.negativeCurveId, '2C-Z2-Z3-negative'); assert.equal(corner.negativeCurveId, '2C-Z2-Z3-negative');
+});
+
+test('Part 1 roof GCp accepts enclosed and partially enclosed buildings but rejects open buildings', () => {
+  const partiallyEnclosed = makeFixture({ enclosureClassification: 'partially-enclosed' }).record;
+  assert.equal(partiallyEnclosed.applicability.enclosureClassification, 'partially-enclosed');
+  assert.deepEqual(partiallyEnclosed.applicability.supportedEnclosureClassifications, ['enclosed', 'partially-enclosed']);
+  assert.throws(() => makeFixture({ enclosureClassification: 'open' }), /supports only enclosed or partially-enclosed buildings/);
 });
 
 test('curve evaluation holds the <=10 ft2 and >=100 ft2 graph plateaus', () => {
