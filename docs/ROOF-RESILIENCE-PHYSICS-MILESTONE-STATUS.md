@@ -21,6 +21,7 @@ Status date: 2026-08-22
   - [x] Source-backed base internal-pressure coefficient (`GCpi`) foundation — PR #119.
   - [x] Large-volume partially enclosed reduction factor (`Ri`) applicability + equation — PR #120.
   - [x] Internal-pressure velocity-pressure selection + signed `qi(GCpi)` term — PR #121.
+    - The opening-height `qi=qz` option belongs to the Part 3 higher-building pressure procedure; it is not automatically reused by the current `h <= 18 m` Part 1 C&C path.
   - [x] Roof-purlin Components & Cladding target + effective-wind-area foundation — PR #123.
     - Schema: `futoltech.wind-roof-purlin-effective-area/1`.
     - Target is explicitly `roof-purlin` under Components & Cladding; no MWFRS substitution.
@@ -54,9 +55,9 @@ Status date: 2026-08-22
   - [ ] **Current:** implement source-backed external roof pressure term `qh × GCp` with explicit sign convention for each actual zone-intersection piece.
     - Reuse the already-verified mean-roof-height velocity pressure `qh`; do not recompute it from a different context.
     - Preserve positive/downward and negative/suction external terms independently.
-    - Keep the external term separate from the existing signed `qi(GCpi)` internal term until the next benchmarked gate.
-  - [ ] Implement external-minus-internal pressure combination and governing pressure cases only after the external term passes independent benchmarks.
-  - [ ] Implement traceable load combinations and automatic code-derived Roof Bay pressure only through their own source-backed gates and end-to-end benchmarks.
+    - Benchmark the external term before any internal combination.
+  - [ ] Implement the current low-rise Part 1 net pressure as `qh[(GCp) - (GCpi)]` only after the external term is benchmarked; require the internal velocity basis to be `qh` and do not import PR #121's Part 3 opening-height `qi=qz` option.
+  - [ ] Implement governing toward-surface / away-from-surface cases, traceable load combinations and automatic code-derived Roof Bay pressure only through their own source-backed gates and end-to-end benchmarks.
 - [ ] **M4 — Roof Sheet + Fastener / Connection Layer:** reusable Connection Lab foundations exist; Roof Bay integration remains unresolved.
 - [ ] **M5–M13:** follow `ROADMAP-ROOF-RESILIENCE-PHYSICS.md` in order unless an explicit engineering dependency requires resequencing.
 
