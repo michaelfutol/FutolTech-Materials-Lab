@@ -119,15 +119,17 @@ test('2B benchmark evaluates 4.0 m2 purlin effective area on log10 curve and pre
 });
 
 test('2C benchmark uses common Zone 2/3 negative curve and keeps positive/negative cases explicit', () => {
-  const { record } = makeFixture({ slopeDeg: 30 });
+  const { record } = makeFixture({ slopeDeg: 30, firstBandWidthM: 1.2 });
   assert.equal(record.applicability.figureId, '207E.4-2C');
+  assert.ok(Math.abs(record.coefficientArea.effectiveWindAreaM2 - 4.8) < 1e-12);
   const field = caseByType(record, 'field');
   const edge = caseByType(record, 'edge');
   const corner = caseByType(record, 'corner');
-  assert.ok(Math.abs(field.positiveGCp - 0.8365969934007164) < 1e-12);
-  assert.ok(Math.abs(field.negativeGCp - (-0.8731939868014327)) < 1e-12);
-  assert.ok(Math.abs(edge.negativeGCp - (-1.0731939868014326)) < 1e-12);
-  assert.ok(Math.abs(corner.negativeGCp - (-1.0731939868014326)) < 1e-12);
+  assert.ok(field && edge && corner, '2C benchmark should cross all three resolved zone types');
+  assert.ok(Math.abs(field.positiveGCp - 0.8286788687959539) < 1e-12);
+  assert.ok(Math.abs(field.negativeGCp - (-0.8573577375919077)) < 1e-12);
+  assert.ok(Math.abs(edge.negativeGCp - (-1.0573577375919077)) < 1e-12);
+  assert.ok(Math.abs(corner.negativeGCp - (-1.0573577375919077)) < 1e-12);
   assert.equal(edge.negativeCurveId, '2C-Z2-Z3-negative');
   assert.equal(corner.negativeCurveId, '2C-Z2-Z3-negative');
 });
