@@ -80,7 +80,7 @@ M2 exit gate:
 - [x] PR #112 final-head full Engineering Checks passed, including syntax, deterministic engineering tests, all Roof Bay Chromium gates, legacy lab/browser gates and PDF/print protections.
 
 ## M3 — Code Wind / Roof Zoning Engine
-**Status: ACTIVE — PRs #113 through #120 are merged; internal-pressure velocity/term work is the PR #121 candidate.**
+**Status: ACTIVE — PRs #113 through #121 are merged; the next dependency is the roof C&C target/effective-wind-area foundation before external `GCp`.**
 
 Completed in PR #113 — code/version + provenance:
 - Source-backed wind-code profile registry for NSCP 2015 Volume 1, 7th Edition, 2nd Printing.
@@ -139,7 +139,7 @@ Completed in PR #120 — large-volume partially enclosed reduction factor (`Ri`)
 - Hand benchmark: `Vi = 6950 m³`, `Aog = 1.00 m²` gives `Ri = 0.8535533905932737`, and adjusted `GCpi = ±0.4694543648263006` when the reduction is selected.
 - Public boundary/QA record: `docs/M3_LARGE_VOLUME_RI.md`.
 
-Implemented in PR #121 candidate — internal-pressure velocity selection + signed term:
+Completed in PR #121 — internal-pressure velocity selection + signed term:
 - Adds `futoltech.wind-internal-pressure-term/1` attached to the exact upstream coefficient chain.
 - Enclosed buildings use `qi = qh` for both positive and negative internal pressure.
 - Partially enclosed negative internal pressure uses `qi = qh`.
@@ -149,12 +149,25 @@ Implemented in PR #121 candidate — internal-pressure velocity selection + sign
 - Signed internal pressure is preserved as `qi * (GCpi)`; it is not prematurely combined with external pressure.
 - Open buildings retain zero internal term because `GCpi = 0`.
 - Validation deterministically recalculates `qh`, optional opening-height `qz`, coefficient carry-through, `qi`, and `qi(GCpi)` and rejects mutation.
+- Exact final head `9a458078f610a35a678213583f0f91462bba7dcb` passed the complete Engineering Checks suite; PR #121 squash-merged as `5acab72d3848ee1b3e55191560577dc965b15d08`.
 - External pressure coefficients, effective wind area, field/edge/corner zoning, pressure combination, load combinations and final code-derived Roof Bay pressure remain unimplemented.
 - Public boundary/QA record: `docs/M3_INTERNAL_PRESSURE_TERM.md`.
 
-Next M3 work after PR #121 is final-head green and merged: begin the source-backed external roof pressure coefficient slice, still keeping code-derived Roof Bay pressure blocked until coefficients, effective-area/zoning and pressure combination are all verified.
+Current M3 dependency — roof Components & Cladding target + effective wind area:
+- Establish the supported roof design target/procedure explicitly before external coefficient selection; do not let MWFRS and C&C paths blur together.
+- Treat coefficient-selection effective wind area as a distinct engineering quantity from actual tributary/load-application area.
+- Start with only member/component classes whose geometry and applicability can be defended from the accepted Roof Bay/project record; unresolved sheet/fastener/component cases stay blocked.
+- Where a code-permitted effective-width treatment can enlarge coefficient-selection area, make the selection explicit and engineer/evidence bounded rather than silently adopting the beneficial option.
+- Add deterministic hand benchmarks and serialization/anti-mutation tests before any external `GCp` values are enabled.
 
-Permanent M3 boundary: a verified velocity pressure, accepted pressure context, base/adjusted `GCpi`, and resolved internal-pressure term still do not constitute final roof pressure. Manual pressure entry remains the active Roof Bay path until the complete internal/external coefficient, zoning and pressure-combination chain is verified.
+Next M3 work after that foundation:
+- Source-backed external roof pressure coefficient selection for supported roof form/slope/target/effective area.
+- Field/edge/corner zone geometry and member/area assignment.
+- External-minus-internal pressure combination with explicit sign conventions.
+- Traceable load combinations.
+- Automatic code-derived Roof Bay pressure only after the full chain passes independent benchmarks and final-head QA.
+
+Permanent M3 boundary: a verified velocity pressure, accepted pressure context, base/adjusted `GCpi`, resolved internal-pressure term, or future effective-wind-area record still does not constitute final roof pressure. Manual pressure entry remains the active Roof Bay path until the complete internal/external coefficient, zoning and pressure-combination chain is verified.
 
 ## M4 — Roof Sheet + Fastener / Connection Layer
 **Status: NOT YET INTEGRATED.**

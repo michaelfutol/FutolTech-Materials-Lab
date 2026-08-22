@@ -20,8 +20,8 @@ Status date: 2026-08-22
   - [x] Roof Bay pressure-context acceptance + project JSON integration — PR #118.
   - [x] Source-backed base internal-pressure coefficient (`GCpi`) foundation — PR #119.
   - [x] Large-volume partially enclosed reduction factor (`Ri`) applicability + equation — PR #120; engineer-declared applicability, explicit conservative `Ri = 1.0`, source-referenced equation path, no silent beneficial reduction.
-  - [~] Internal-pressure velocity-pressure selection + signed `qi(GCpi)` term — PR #121 candidate.
-    - New `futoltech.wind-internal-pressure-term/1` record follows the exact upstream coefficient chain.
+  - [x] Internal-pressure velocity-pressure selection + signed `qi(GCpi)` term — PR #121.
+    - `futoltech.wind-internal-pressure-term/1` follows the exact upstream coefficient chain.
     - Enclosed: `qi = qh` for positive and negative internal-pressure cases.
     - Partially enclosed negative internal pressure: `qi = qh`.
     - Partially enclosed positive internal pressure: explicit conservative `qi = qh` or source-referenced `qz` at the highest opening affecting positive internal pressure.
@@ -30,10 +30,14 @@ Status date: 2026-08-22
     - Signed internal-pressure term is stored as `qi * (GCpi)` and is not prematurely combined with external pressure.
     - Open building remains zero internal term because `GCpi = 0`.
     - Deterministic recalculation protects `qh`, optional `qz`, `qi`, coefficient carry-through and `qi(GCpi)`.
-    - External pressure coefficients, effective wind area, field/edge/corner geometry, pressure combination, load combinations and final code-pressure routing remain blocked.
-  - [ ] Begin source-backed external roof pressure coefficient implementation only after PR #121 is final-head green and merged.
-  - [ ] Add effective wind area, field/edge/corner geometry, load combinations and final code-pressure routing only through their own source-backed gates.
+    - Exact final head `9a458078f610a35a678213583f0f91462bba7dcb` passed the full Engineering Checks suite; PR #121 squash-merged as `5acab72d3848ee1b3e55191560577dc965b15d08`.
+  - [ ] **Current:** implement a source-backed roof Components & Cladding design-target + effective-wind-area foundation before external `GCp` selection.
+    - Keep coefficient-selection effective area distinct from the actual roof tributary/load-application area.
+    - Do not make roof sheet, fastener and purlin targets share one coefficient path by default.
+    - Any code-permitted effective-width treatment must remain explicit and evidence/engineer bounded; no silent beneficial enlargement.
+  - [ ] Implement external roof pressure coefficients only after the supported target/effective area is resolved and independently benchmarked.
+  - [ ] Implement field/edge/corner geometry, external-minus-internal pressure combination, load combinations and final code-pressure routing only through their own source-backed gates.
 - [ ] **M4 — Roof Sheet + Fastener / Connection Layer:** reusable Connection Lab foundations exist; Roof Bay integration remains unresolved.
 - [ ] **M5–M13:** follow `ROADMAP-ROOF-RESILIENCE-PHYSICS.md` in order unless an explicit engineering dependency requires resequencing.
 
-Rule: after each completed Roof Resilience task, update this scoreboard and `STATUS-ROOF-RESILIENCE.md` before merge. Do not use chat memory as the implementation record.
+Rule: after each completed Roof Resilience task, update this scoreboard, `STATUS-ROOF-RESILIENCE.md`, `ACTIVE_MILESTONE.md`, and `STRUCTURAL_LAB_MASTER_CHECKLIST.md` before the next feature merge. Do not use chat memory as the implementation record.
