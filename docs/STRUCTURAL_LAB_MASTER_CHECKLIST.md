@@ -34,7 +34,7 @@
 9. [x] **Frame Analyzer / NF-001** — connected 2D frame, explicit spring/release states, elastic P–Δ, piecewise redistribution/mechanism detection and brace sensitivity.
 10. [x] **FutolStructure / RPE interchange v1** — versioned component, demand, critical-specimen and evidence-bounded failure/RPE law exchange.
 11. [x] **Roof Resilience Physics M2** — Roof Bay load routing, member selection/exploded trace, stable project JSON, custom/nonuniform purlin stations, reaction diagrams and M3-ready pressure-zone placeholders completed through PR #112 with the M2 exit gate green.
-12. [~] **Roof Resilience Physics M3** — code/version + wind-input provenance foundation implemented in PR #113 candidate; velocity-pressure and code zoning physics remain blocked pending source-backed implementation/benchmarking.
+12. [~] **Roof Resilience Physics M3** — code/version + wind-input provenance foundation merged in PR #113; benchmarked NSCP 2015 velocity-pressure chain implemented in PR #114 closure branch; project input acceptance, pressure coefficients and code zoning remain blocked pending source-backed implementation/verification.
 
 # Protected foundation
 
@@ -55,7 +55,7 @@
 - [x] Concrete Slab Shoring experimental load-path module.
 - [x] Design Explorer DE-002 solution-package layer over deterministic member recommender.
 - [x] Design Explorer exposes minimum stock-piece/splice lower bounds and blocks splice-required options on unverified connection design.
-- [x] Design Explorer Pareto view uses only available numeric metrics; price/carbon remain explicitly unavailable until verified data exists.
+- [x] Design Explorer Pareto view uses only available quantitative metrics; price/carbon remain explicitly unavailable until verified data exists.
 - [x] Failure Physics v1 interprets only stored governing-limit events; it does not infer unimplemented local or post-failure mechanisms.
 - [x] Failure Physics low-load column view remains straight until a stored instability event is actually crossed.
 - [x] CAL-001 preserves original CSV and parsed raw fields in every versioned calibration package.
@@ -258,12 +258,15 @@
 
 ## M3 active
 
-- [~] PR #113 candidate — source-backed code/version identity + `futoltech.wind-design-basis/1` provenance object; final-head Engineering Checks + merge pending.
-- [~] Initial Philippine profile identifies NSCP 2015, Volume 1, 7th Edition, 2nd Printing from public ASEP/DPWH evidence while code rules remain `UNIMPLEMENTED`.
-- [x] Eight required wind-input families are explicitly named and blocked from silent population in the provenance slice.
-- [x] Manual uniform pressure remains active; code-derived pressure, coefficients and region geometry remain blocked.
-- [ ] Complete PR #113 gate, then implement and hand-benchmark the adopted-code velocity-pressure chain.
-- [ ] Resolve/validate code input families with source references and applicability rules.
+- [x] PR #113 — source-backed code/version identity + `futoltech.wind-design-basis/1` provenance object; final-head Engineering Checks passed and the PR merged.
+- [x] Initial Philippine profile identifies NSCP 2015, Volume 1, 7th Edition, 2nd Printing from public ASEP/DPWH evidence without claiming unimplemented wind rules.
+- [x] Provenance-only state explicitly names eight required wind-input families and blocks silent population.
+- [x] PR #114 — benchmarked building velocity-pressure chain `qz = 0.613 Kz Kzt Kd V²`, with Exposure B/C/D Kz, `Kd = 0.85`, 4.57 m minimum Kz evaluation height, source-referenced inputs and independent hand benchmark.
+- [x] PR #114 deterministic benchmark: Exposure C, h=8.82 m, V=240 kph, Kzt=1.0 → `Kz = 0.974820633`, `q = 2.257468 kPa` at full precision.
+- [x] Velocity-pressure result validation recalculates Kz/q and rejects changed results or missing source provenance.
+- [x] Manual uniform pressure remains active; the benchmark is not routed into Roof Bay and `pressureZoning.codeBasis` remains null.
+- [!] External/internal pressure coefficients, field/edge/corner geometry, effective-area zoning and load combinations remain blocked until their code rules and project inputs are verified.
+- [ ] Resolve/validate project wind-input families with source references and applicability rules, beginning with a defensible Philippine basic-wind-speed selection/provenance path.
 - [ ] Implement field/edge/corner zone geometry and positive/suction pressures only from verified code rules.
 
 # Definition of DONE for every new product/feature
@@ -302,4 +305,5 @@
 - 2026-08-18 — Structural Interchange v1 uses versioned, deterministic solver-agnostic JSON with explicit source ownership, provenance, units and analysis boundaries. SCREENING/sensitivity evidence is never upgraded by exchange; RPE degradation/residual behavior remains **UNAVAILABLE** unless an explicit validated/calibrated source law supplies it.
 - 2026-08-22 — Roof Resilience development uses `ROADMAP-ROOF-RESILIENCE-PHYSICS.md` plus the dedicated status/checklist files as the execution source of truth. Each completed slice updates those records before merge.
 - 2026-08-22 — M2 Roof Bay closed through PR #112 after the reaction-diagram and M3-ready pressure-zone placeholder slices passed full final-head Engineering Checks.
-- 2026-08-22 — M3 begins with code/version provenance rather than equations. PR #113 identifies NSCP 2015 Volume 1, 7th Edition, 2nd Printing from public ASEP/DPWH evidence, but code-wind calculation stays blocked until inputs, equations and benchmarks are implemented.
+- 2026-08-22 — M3 begins with code/version provenance rather than equations. PR #113 identifies NSCP 2015 Volume 1, 7th Edition, 2nd Printing from public ASEP/DPWH evidence; its final-head Engineering Checks passed and it merged before equation work began.
+- 2026-08-22 — PR #114 implements only the benchmarked velocity-pressure layer. The independent Exposure C / 8.82 m / 240 kph / Kzt 1.0 case reproduces Kz≈0.975 and q≈2.26 kPa, while map selection, Kzt derivation, pressure coefficients, roof zoning and final code pressure remain deliberately unimplemented.
