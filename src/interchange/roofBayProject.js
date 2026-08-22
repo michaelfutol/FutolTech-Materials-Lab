@@ -1,9 +1,11 @@
 export const ROOF_BAY_PROJECT_SCHEMA = 'futoltech.roof-bay-project/1';
+export const ROOF_PRESSURE_ZONE_SCHEMA = 'futoltech.roof-pressure-zones/1';
 
 const MODES = Object.freeze(['gravity', 'wind', 'combined']);
 const WIND_SENSES = Object.freeze(['uplift', 'downward']);
 const ORIENTATIONS = Object.freeze([0, 90, 180, 270]);
 const LAYOUT_MODES = Object.freeze(['equal-max-spacing', 'custom-stations']);
+const PRESSURE_ZONE_TYPES = Object.freeze(['field', 'edge', 'corner']);
 const EPS = 1e-9;
 
 function finite(value, label) {
@@ -53,6 +55,62 @@ function validatedCustomStations(stations, roofSlopeLengthM, label = 'geometry.p
   return clean.map((station) => Math.min(roofSlopeLengthM, Math.max(0, station)));
 }
 
+function roofPlaneFrame(rafterSpacingM, roofSlopeLengthM) {
+  return {
+    system: 'roof-local-xy-m',
+    origin: 'rafter-a-eave',
+    xAxis: 'toward-rafter-b',
+    yAxis: 'upslope',
+    xExtentM: rafterSpacingM,
+    yExtentM: roofSlopeLengthM
+  };
+}
+
+function pressureZoningPlaceholder(rafterSpacingM, roofSlopeLengthM, windPressureKPa, windSense) {
+  return {
+    schemaVersion: ROOF_PRESSURE_ZONE_SCHEMA,
+    status: 'UNRESOLVED',
+    activePressureModel: 'manual-uniform',
+    coordinateFrame: roofPlaneFrame(rafterSpacingM, roofSlopeLengthM),
+    supportedRegionTypes: [...PRESSURE_ZONE_TYPES],
+    regions: [],
+    codeBasis: null,
+    manualUniformWind: {
+      pressureKPa: windPressureKPa,
+      sense: windSense
+    },
+    note: 'M2 reserves the field/edge/corner region schema and roof-local coordinate frame only. No code-derived zone dimensions, coefficients or zone pressures are assigned until M3.'
+  };
+}
+
+function validateRoofPlaneFrame(frame, rafterSpacingM, roofSlopeLengthM, label = 'geometry.roofPlaneFrame') {
+  if (!frame || typeof frame !== 'object' || Array.isArray(frame)) throw new Error(`${label} must be an object.`);
+  if (frame.system !== 'roof-local-xy-m') throw new Error(`${label}.system must be roof-local-xy-m.`);
+  if (frame.origin !== 'rafter-a-eave') throw new Error(`${label}.origin must be rafter-a-eave.`);
+  if (frame.xAxis !== 'toward-rafter-b' || frame.yAxis !== 'upslope') throw new Error(`${label} axes are unsupported.`);
+  if (Math.abs(finite(frame.xExtentM, `${label}.xExtentM`) - rafterSpacingM) > EPS) throw new Error(`${label}.xExtentM must match rafter spacing.`);
+  if (Math.abs(finite(frame.yExtentM, `${label}.yExtentM`) - roofSlopeLengthM) > EPS) throw new Error(`${label}.yExtentM must match roof slope length.`);
+  return true;
+}
+
+function validatePressureZoningPlaceholder(zoning, project) {
+  if (!zoning || typeof zoning !== 'object' || Array.isArray(zoning)) throw new Error('pressureZoning must be an object when present.');
+  if (zoning.schemaVersion !== ROOF_PRESSURE_ZONE_SCHEMA) throw new Error('pressureZoning.schemaVersion is unsupported.');
+  if (zoning.status !== 'UNRESOLVED') throw new Error('pressureZoning.status must remain UNRESOLVED in Roof Bay M2.');
+  if (zoning.activePressureModel !== 'manual-uniform') throw new Error('pressureZoning.activePressureModel must remain manual-uniform in Roof Bay M2.');
+  if (zoning.codeBasis !== null) throw new Error('pressureZoning.codeBasis must remain null in Roof Bay M2.');
+  if (!Array.isArray(zoning.supportedRegionTypes) || JSON.stringify(zoning.supportedRegionTypes) !== JSON.stringify(PRESSURE_ZONE_TYPES)) {
+    throw new Error('pressureZoning.supportedRegionTypes must reserve field, edge and corner in that order.');
+  }
+  if (!Array.isArray(zoning.regions) || zoning.regions.length !== 0) throw new Error('pressureZoning.regions must remain empty until M3 code zoning is implemented.');
+  validateRoofPlaneFrame(zoning.coordinateFrame, project.geometry.rafterSpacingM, project.geometry.roofSlopeLengthM, 'pressureZoning.coordinateFrame');
+  if (Math.abs(nonNegative(zoning.manualUniformWind?.pressureKPa, 'pressureZoning.manualUniformWind.pressureKPa') - project.loading.windPressureKPa) > EPS) {
+    throw new Error('pressureZoning manual uniform pressure must match loading.windPressureKPa.');
+  }
+  if (zoning.manualUniformWind?.sense !== project.loading.windSense) throw new Error('pressureZoning manual uniform wind sense must match loading.windSense.');
+  return true;
+}
+
 export function createRoofBayProject({
   projectId = `roof-bay-${Date.now()}`,
   projectName = 'Untitled roof bay',
@@ -82,7 +140,9 @@ export function createRoofBayProject({
   if (!LAYOUT_MODES.includes(layoutMode)) throw new Error(`layoutMode '${layoutMode}' is unsupported.`);
   const slope = finite(slopeDeg, 'slopeDeg');
   if (slope < 0 || slope > 60) throw new Error('slopeDeg must lie from 0 to 60 degrees in Roof Bay M2.');
+  const span = positive(rafterSpacingM, 'rafterSpacingM');
   const slopeLength = positive(roofSlopeLengthM, 'roofSlopeLengthM');
+  const windPressure = nonNegative(windPressureKPa, 'windPressureKPa');
   const customStations = layoutMode === 'custom-stations'
     ? validatedCustomStations(purlinStationsM, slopeLength, 'purlinStationsM')
     : null;
@@ -93,11 +153,12 @@ export function createRoofBayProject({
     projectName: string(projectName, 'projectName'),
     source: string(source, 'source'),
     geometry: {
-      rafterSpacingM: positive(rafterSpacingM, 'rafterSpacingM'),
+      rafterSpacingM: span,
       roofSlopeLengthM: slopeLength,
       maxPurlinSpacingM: positive(maxPurlinSpacingM, 'maxPurlinSpacingM'),
       slopeDeg: slope,
       layoutMode,
+      roofPlaneFrame: roofPlaneFrame(span, slopeLength),
       ...(customStations ? { purlinStationsM: customStations } : {})
     },
     purlin: {
@@ -111,10 +172,11 @@ export function createRoofBayProject({
       mode,
       deadLoadKPa: nonNegative(deadLoadKPa, 'deadLoadKPa'),
       roofLiveLoadKPa: nonNegative(roofLiveLoadKPa, 'roofLiveLoadKPa'),
-      windPressureKPa: nonNegative(windPressureKPa, 'windPressureKPa'),
+      windPressureKPa: windPressure,
       windSense,
       loadFactor: nonNegative(loadFactor, 'loadFactor')
     },
+    pressureZoning: pressureZoningPlaceholder(span, slopeLength, windPressure, windSense),
     analysisBoundary: {
       roofBaySolver: 'M2 two-rafter load-routing model',
       purlinModel: 'gross-section elastic C-purlin screening',
@@ -136,7 +198,7 @@ export function validateRoofBayProject(project) {
   string(project.projectId, 'projectId');
   string(project.projectName, 'projectName');
   string(project.source, 'source');
-  positive(project.geometry?.rafterSpacingM, 'geometry.rafterSpacingM');
+  const rafterSpacingM = positive(project.geometry?.rafterSpacingM, 'geometry.rafterSpacingM');
   const roofSlopeLengthM = positive(project.geometry?.roofSlopeLengthM, 'geometry.roofSlopeLengthM');
   positive(project.geometry?.maxPurlinSpacingM, 'geometry.maxPurlinSpacingM');
   const slope = finite(project.geometry?.slopeDeg, 'geometry.slopeDeg');
@@ -147,6 +209,7 @@ export function validateRoofBayProject(project) {
   if (layoutMode === 'equal-max-spacing' && project.geometry?.purlinStationsM != null) {
     throw new Error('geometry.purlinStationsM is only valid for custom-stations layout mode.');
   }
+  if (project.geometry?.roofPlaneFrame != null) validateRoofPlaneFrame(project.geometry.roofPlaneFrame, rafterSpacingM, roofSlopeLengthM);
   string(project.purlin?.sectionId, 'purlin.sectionId');
   const orientation = finite(project.purlin?.orientationDeg, 'purlin.orientationDeg');
   if (!ORIENTATIONS.includes(orientation)) throw new Error('purlin.orientationDeg must be 0, 90, 180 or 270 degrees.');
@@ -159,6 +222,7 @@ export function validateRoofBayProject(project) {
   nonNegative(project.loading?.windPressureKPa, 'loading.windPressureKPa');
   if (!WIND_SENSES.includes(project.loading?.windSense)) throw new Error('loading.windSense is unsupported.');
   nonNegative(project.loading?.loadFactor, 'loading.loadFactor');
+  if (project.pressureZoning != null) validatePressureZoningPlaceholder(project.pressureZoning, project);
   const boundary = project.analysisBoundary;
   if (!boundary || typeof boundary !== 'object' || Array.isArray(boundary)) throw new Error('analysisBoundary must be explicit.');
   for (const unresolved of ['roofSheetCapacity', 'fastenerCapacity', 'purlinToRafterConnectionCapacity', 'rafterOrTrussMemberCapacity', 'coldFormedLocalDistortionalLTB', 'codeWindZoning']) {
