@@ -19,16 +19,23 @@ Status date: 2026-08-22
     - Roof Bay accepts the source-referenced project record, shows `Kz` / `q`, embeds the accepted record in project JSON, and invalidates acceptance after edits.
     - The project wind-design basis is deterministically derived from the accepted record.
     - `pressureZoning.activePressureModel` remains `manual-uniform`, `codeBasis` remains null and regions remain empty.
-  - [~] Enclosure + roof/building geometry input acceptance — PR #117 candidate.
+  - [x] Enclosure + roof/building geometry input acceptance — PR #117; final-head Engineering Checks passed and PR merged.
     - Adds versioned `futoltech.wind-pressure-context-acceptance/1` records on top of a valid upstream accepted wind-project record.
     - Stores only the NSCP enclosure classification family `enclosed`, `partially-enclosed`, `open`; classification remains an engineer-declared project input, not an automatic code-definition result.
     - Requires separate enclosure-classification and building-envelope-opening assessment references.
     - Requires source-referenced roof form, plan length, plan width, mean roof height and roof slope.
     - Mean roof height must match the upstream accepted wind-project height.
-    - Deterministic tests protect serialization, provenance, height consistency and anti-promotion flags.
     - Automatic enclosure classification, code threshold evaluation, `GCpi`, external pressure coefficients, effective wind area, field/edge/corner zoning and final roof pressure remain blocked.
-  - [ ] Expose the accepted pressure-context record in Roof Bay/project JSON after PR #117.
-  - [ ] Add internal/external pressure coefficients and field/edge/corner geometry only from explicit code rules, source-backed inputs and independent benchmark checks.
+  - [~] Roof Bay pressure-context acceptance + project JSON integration — PR #118 candidate.
+    - Exposes the merged pressure-context contract directly in Roof Bay only after accepted upstream wind inputs exist.
+    - Mean roof height/source is inherited from the accepted wind-project record; pressure-context roof slope must match active Roof Bay slope.
+    - Overall building plan dimensions remain explicit building-level inputs and are not inferred from bay dimensions.
+    - Project JSON may embed `windPressureContextAcceptance` only with its exact upstream accepted wind-project record.
+    - Editing accepted upstream wind inputs or active roof slope invalidates downstream context acceptance.
+    - Deterministic project tests and a real-Chromium V9 gate protect the acceptance → context → project-export chain.
+    - `pressureZoning.activePressureModel` remains `manual-uniform`, `codeBasis` remains null, regions remain empty, and `analysisBoundary.codeWindZoning` remains `UNRESOLVED`.
+  - [ ] Implement and independently benchmark internal-pressure coefficient (`GCpi`) rules from explicit authorized code rules after PR #118 is merged.
+  - [ ] Add external pressure coefficients, effective wind area, field/edge/corner geometry, load combinations and final code-pressure routing only through their own source-backed gates.
 - [ ] **M4 — Roof Sheet + Fastener / Connection Layer:** reusable Connection Lab foundations exist; Roof Bay integration remains unresolved.
 - [ ] **M5–M13:** follow `ROADMAP-ROOF-RESILIENCE-PHYSICS.md` in order unless an explicit engineering dependency requires resequencing.
 

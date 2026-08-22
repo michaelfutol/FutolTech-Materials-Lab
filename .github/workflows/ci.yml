@@ -53,6 +53,9 @@ jobs:
       - name: M3 project wind input acceptance Chromium gate
         timeout-minutes: 3
         run: node scripts/verifyRoofBayWindProjectInputV8.mjs
+      - name: M3 enclosure + roof geometry pressure-context Chromium gate
+        timeout-minutes: 3
+        run: node scripts/verifyRoofBayPressureContextV9.mjs
       - name: General comparison load-test video Chromium gate
         timeout-minutes: 3
         run: node scripts/verifyGeneralComparisonVideoUi.mjs
