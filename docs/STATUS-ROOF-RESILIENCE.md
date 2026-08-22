@@ -80,7 +80,7 @@ M2 exit gate:
 - [x] PR #112 final-head full Engineering Checks passed, including syntax, deterministic engineering tests, all Roof Bay Chromium gates, legacy lab/browser gates and PDF/print protections.
 
 ## M3 — Code Wind / Roof Zoning Engine
-**Status: ACTIVE — provenance foundation merged in PR #113; velocity-pressure implementation is complete in the PR #114 closure branch and may merge only after the final closure-head full Engineering Checks are green.**
+**Status: ACTIVE — provenance and velocity-pressure slices are merged; project wind-input acceptance is the PR #115 candidate.**
 
 Completed in PR #113:
 - Source-backed wind-code profile registry.
@@ -92,22 +92,32 @@ Completed in PR #113:
 - Public source/boundary record: `docs/M3_WIND_DESIGN_BASIS.md`.
 - Final-head full Engineering Checks passed and PR #113 merged.
 
-Implemented in PR #114 — velocity-pressure chain:
+Completed in PR #114 — velocity-pressure chain:
 - Deterministic NSCP 2015 building equation `qz = 0.613 Kz Kzt Kd V²`, using V in m/s and q in Pa.
 - Building directionality factor `Kd = 0.85` and Exposure B/C/D velocity-pressure coefficient evaluation are explicit.
 - `Kz = 2.01(z/zg)^(2/alpha)` is implemented with the 4.57 m minimum evaluation height; the solver rejects extrapolation beyond the verified `zg` expression domain.
-- Basic wind speed is accepted in kph and converted visibly to m/s. No Philippine map lookup is yet implemented.
+- Basic wind speed is accepted in kph and converted visibly to m/s. No Philippine map lookup is implemented.
 - `Kzt` remains an explicit input with source/reference; no silent flat-terrain assumption or automatic topographic derivation is made.
-- Independent benchmark: Exposure C, `h = 8.82 m`, `V = 240 kph`, `Kzt = 1.0`, `Kd = 0.85` gives `Kz = 0.974820633` and `q = 2.257468 kPa` at full precision, consistent with the rounded worked example.
+- Independent benchmark: Exposure C, `h = 8.82 m`, `V = 240 kph`, `Kzt = 1.0`, `Kd = 0.85` gives `Kz = 0.974820633` and `q = 2.257468 kPa` at full precision.
 - `futoltech.wind-design-basis/1` can represent a source-referenced `VELOCITY_PRESSURE_AVAILABLE_ZONING_BLOCKED` state without promoting the rest of the wind engine.
 - Six input families may be resolved for this slice — site/location, basic wind speed, occupancy/risk basis, exposure/terrain, topography and height — while enclosure/internal pressure and roof geometry remain `UNRESOLVED`.
 - External pressure coefficients, internal pressure coefficients, field/edge/corner geometry and load combinations remain `UNIMPLEMENTED`.
 - Stored velocity-pressure output is recalculated during validation so mutated `Kz` or q cannot be accepted as source truth.
 - Visible M3.1 benchmark panel exposes the substitutions and result; dedicated Chromium QA asserts that this benchmark is **not** routed into the live Roof Bay pressure model or project export.
 - Public equation/benchmark/boundary record: `docs/M3_VELOCITY_PRESSURE.md`.
-- The complete code/test/browser/print suite passed on the implementation head before the source-of-truth closure edits; a final closure-head rerun is still required before merge because those documentation commits advance the PR head.
+- Final-head full Engineering Checks passed and PR #114 merged.
 
-Next M3 task after PR #114 merges: build the source-backed project wind-input acceptance path, especially defensible Philippine basic-wind-speed selection and explicit applicability/provenance for occupancy/risk, exposure, topography and height. Pressure coefficients and roof zoning remain blocked until that input layer is verified.
+Implemented in PR #115 candidate — project wind-input acceptance foundation:
+- Versioned `futoltech.wind-project-input-acceptance/1` record preserves project site, occupancy category, basic-wind-speed provenance, exposure, topographic factor and evaluation height.
+- NSCP 2015 Section 207A.5.1 occupancy-to-figure gate is explicit: Category I → `207A.5-1C`; Category II → `207A.5-1B`; Categories III/IV/V → `207A.5-1A`.
+- The repository stores **no wind-map contour values and no province-by-province speed table**. An authorized-code-map value must be transcribed by the engineer/project record together with its figure and selection method.
+- Authorized code-map input rejects an occupancy/figure mismatch. Project design criteria and site-specific studies are preserved as traceable non-map sources and cannot claim software-verified map status.
+- Exposure B/C/D, `Kzt`, and evaluation height require explicit source references. Address-based terrain inference and automatic topographic-factor derivation remain unavailable.
+- A dedicated bridge feeds an accepted record into the already benchmarked velocity-pressure solver while preserving the acceptance record and required map figure context.
+- Deterministic tests protect the occupancy/figure mapping, explicit source modes, anti-promotion flags, and velocity-pressure bridge result.
+- Public boundary record: `docs/M3_PROJECT_WIND_INPUT_ACCEPTANCE.md`.
+
+Next M3 work after the PR #115 foundation is green: expose this acceptance workflow in Roof Bay, then resolve enclosure/internal-pressure and roof geometry inputs before pressure coefficients are enabled.
 
 Permanent M3 boundary: a verified velocity pressure is not a final roof pressure. Manual pressure entry remains the active auditable Roof Bay path until external/internal pressure coefficients, roof zoning and project integration are independently verified.
 
