@@ -33,7 +33,7 @@ Permanent current boundary:
 - Gross-section screening only; no effective-width, local/distortional/LTB or connection-capacity claim.
 
 ## M2 — Roof Bay Physics (2D / 2.5D)
-**Status: CLOSED — all current M2 checklist slices and the milestone exit gate passed on PR #112 final-head Engineering Checks.**
+**Status: CLOSED — all current M2 checklist slices and the milestone exit gate passed on PR #112 final-head Engineering Checks and merged.**
 
 Foundation implemented in PR #108:
 - Two adjacent rafter lines.
@@ -80,11 +80,24 @@ M2 exit gate:
 - [x] PR #112 final-head full Engineering Checks passed, including syntax, deterministic engineering tests, all Roof Bay Chromium gates, legacy lab/browser gates and PDF/print protections.
 
 ## M3 — Code Wind / Roof Zoning Engine
-**Status: ACTIVE NEXT PRIMARY PHYSICS MILESTONE.**
+**Status: ACTIVE — code/version + wind-input provenance foundation complete in PR #113; velocity-pressure physics is next.**
 
-M3 will replace/augment the current manual uniform-pressure path with a reproducible code-derived option using explicit code/version, wind basis, risk/importance, exposure/terrain, topography, enclosure/internal pressure, building height and roof geometry. The reserved M2 pressure-zone schema is only an interface; it is not itself a wind-code calculation.
+Completed in PR #113:
+- Source-backed wind-code profile registry.
+- Initial Philippine profile identifies **NSCP 2015, Volume 1, 7th Edition, 2nd Printing**, with public evidence records from ASEP publisher/professional context and a DPWH structural-design TOR.
+- Versioned `futoltech.wind-design-basis/1` provenance object carries code identity, publisher/jurisdiction metadata, evidence records, explicit required input families, formula-implementation state and blockers.
+- Eight M3 input families are explicit and remain `UNRESOLVED`: site/location, basic wind speed, risk/importance, exposure/terrain, topography, enclosure/internal pressure, building height and roof geometry.
+- Velocity-pressure chain, external pressure coefficients, internal pressure coefficients, field/edge/corner geometry and load combinations remain `UNIMPLEMENTED`; code calculation is `BLOCKED`.
+- Roof Bay project JSON carries the provenance object while `pressureZoning.codeBasis` remains null, region polygons remain empty and the M2 manual-uniform pressure path remains active.
+- Visible M3 wind-basis panel exposes code identity, source links, unresolved inputs and the blocked calculation boundary.
+- Deterministic tests prevent silent input/formula/evidence promotion; dedicated real-Chromium QA checks that the UI and exported project remain provenance-only.
+- Evidence comparison is canonicalized before equality checking, preserving deterministic JSON round-trip while still rejecting semantic provenance mutations.
+- Public source/boundary record: `docs/M3_WIND_DESIGN_BASIS.md`.
+- Final-head full Engineering Checks passed after the serialization fix, including the new M3 Chromium gate, deterministic engineering tests, all existing Roof Bay/browser gates and print/PDF protections.
 
-Immediate M3 entry task: define the adopted code/version + wind-input provenance object and benchmark chain before any field/edge/corner pressure coefficients are applied.
+Next M3 task: implement the adopted-code velocity-pressure calculation chain with visible substitutions and independent hand benchmarks. Do not enable field/edge/corner pressure coefficients yet.
+
+Permanent M3 boundary: identifying a code edition does not mean its equations, maps, coefficients or zoning rules are implemented. Manual pressure entry remains an explicit auditable path until code-derived calculations are verified.
 
 ## M4 — Roof Sheet + Fastener / Connection Layer
 **Status: NOT YET INTEGRATED.**

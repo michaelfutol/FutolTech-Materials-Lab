@@ -44,6 +44,9 @@ jobs:
       - name: Roof Bay pressure-zone bridge Chromium gate
         timeout-minutes: 3
         run: node scripts/verifyRoofBayPressureZoneBridgeV5.mjs
+      - name: M3 wind code provenance Chromium gate
+        timeout-minutes: 3
+        run: node scripts/verifyRoofBayWindBasisV6.mjs
       - name: General comparison load-test video Chromium gate
         timeout-minutes: 3
         run: node scripts/verifyGeneralComparisonVideoUi.mjs
