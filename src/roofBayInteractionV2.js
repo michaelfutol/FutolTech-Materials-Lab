@@ -80,12 +80,12 @@ if (root) {
 
     function drawOverlay(model) {
       const ctx=overlay.getContext('2d'), p=palette(); ctx.clearRect(0,0,overlay.width,overlay.height); const item=selected(model); if(!item)return;
-      const bandTop=Math.max(0,item.stationM-item.tributaryWidthM/2), bandBottom=Math.min(model.inputs.roofSlopeLengthM,item.stationM+item.tributaryWidthM/2);
+      const bandTop=item.tributaryStartM, bandBottom=item.tributaryEndM;
       const q1=project(model,0,bandTop),q2=project(model,model.inputs.rafterSpacingM,bandTop),q3=project(model,model.inputs.rafterSpacingM,bandBottom),q4=project(model,0,bandBottom);
       ctx.fillStyle=p.fill; ctx.strokeStyle=p.select; ctx.lineWidth=2; ctx.setLineDash([8,5]); ctx.beginPath(); [q1,q2,q3,q4].forEach((pt,i)=>i?ctx.lineTo(pt.x,pt.y):ctx.moveTo(pt.x,pt.y));ctx.closePath();ctx.fill();ctx.stroke();ctx.setLineDash([]);
       const a=project(model,0,item.stationM),b=project(model,model.inputs.rafterSpacingM,item.stationM); ctx.strokeStyle=p.select;ctx.lineWidth=11;ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.stroke();
       [a,b].forEach((pt)=>{ctx.fillStyle=p.select;ctx.beginPath();ctx.arc(pt.x,pt.y,10,0,Math.PI*2);ctx.fill();});
-      ctx.fillStyle=p.select;ctx.font='900 20px system-ui,sans-serif';ctx.fillText(`${item.label} SELECTED`,a.x+16,a.y-15);ctx.font='800 15px system-ui,sans-serif';ctx.fillText(`tributary width ${compact(item.tributaryWidthM,3)} m`,a.x+16,a.y+24);
+      ctx.fillStyle=p.select;ctx.font='900 20px system-ui,sans-serif';ctx.fillText(`${item.label} SELECTED`,a.x+16,a.y-15);ctx.font='800 15px system-ui,sans-serif';ctx.fillText(`tributary ${compact(item.tributaryStartM,3)}–${compact(item.tributaryEndM,3)} m · width ${compact(item.tributaryWidthM,3)} m`,a.x+16,a.y+24);
     }
 
     function drawExploded(model) {
@@ -111,7 +111,7 @@ if (root) {
       const item=selected(model);if(!item)return;label.textContent=`Selected purlin · ${item.label}${item.edge?' · EDGE':' · INTERIOR'}`;focusTitle.textContent=`${item.label} · station ${compact(item.stationM,3)} m`;
       const L=model.inputs.rafterSpacingM,w=item.result.loads.normalKNM,trib=item.tributaryWidthM,R=item.leftRafterReaction.normalKN,M=item.result.momentNormalKNM;
       trace.textContent=[
-        `Tributary band = ${compact(trib,4)} m`,
+        `Tributary band = ${compact(item.tributaryStartM,4)} to ${compact(item.tributaryEndM,4)} m · width ${compact(trib,4)} m`,
         `Roof-normal line load wₙ = ${compact(w,5)} kN/m`,
         `Purlin span L = ${compact(L,4)} m`,
         `Reaction per rafter Rₙ = wₙL/2 = ${compact(R,5)} kN`,
