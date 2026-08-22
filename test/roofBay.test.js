@@ -70,6 +70,33 @@ test('roof bay reactions conserve applied gravity and uplift load', () => {
   assert.ok(Math.abs(model.rafters.left.normalKN - model.rafters.right.normalKN) < 1e-12);
 });
 
+test('M2 reserves a roof-local pressure-zone schema without inventing field edge or corner geometry', () => {
+  const model = solveRoofBay({
+    preset: PRESET,
+    rafterSpacingM: 3,
+    roofSlopeLengthM: 4,
+    maxPurlinSpacingM: 0.8,
+    slopeDeg: 25,
+    mode: 'combined',
+    deadLoadKPa: 0.2,
+    roofLiveLoadKPa: 0.75,
+    windPressureKPa: 1.5,
+    windSense: 'uplift'
+  });
+  assert.equal(model.pressureZoning.schemaVersion, 'futoltech.roof-pressure-zones/1');
+  assert.equal(model.pressureZoning.status, 'UNRESOLVED');
+  assert.equal(model.pressureZoning.activePressureModel, 'manual-uniform');
+  assert.deepEqual(model.pressureZoning.supportedRegionTypes, ['field', 'edge', 'corner']);
+  assert.deepEqual(model.pressureZoning.regions, []);
+  assert.equal(model.pressureZoning.codeBasis, null);
+  assert.deepEqual(model.pressureZoning.coordinateFrame, model.geometry.roofPlaneFrame);
+  assert.equal(model.pressureZoning.coordinateFrame.xExtentM, 3);
+  assert.equal(model.pressureZoning.coordinateFrame.yExtentM, 4);
+  assert.equal(model.pressureZoning.manualUniformWind.pressureKPa, 1.5);
+  assert.equal(model.pressureZoning.manualUniformWind.sense, 'uplift');
+  assert.ok(model.purlins.every((item) => item.pressureZoneStatus === 'UNASSIGNED_M3' && item.pressureZoneIds.length === 0));
+});
+
 test('combined roof bay exposes auditable roof-normal and downslope conservation components', () => {
   const model = solveRoofBay({
     preset: PRESET,

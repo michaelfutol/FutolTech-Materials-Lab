@@ -29,6 +29,35 @@ test('Roof Bay project keeps geometry, material reference and loading explicit',
   assert.equal(project.loading.windSense, 'uplift');
 });
 
+test('new Roof Bay project reserves M3 field edge corner zoning without claiming code zones', () => {
+  const project = createRoofBayProject(INPUT);
+  assert.equal(project.geometry.roofPlaneFrame.system, 'roof-local-xy-m');
+  assert.equal(project.geometry.roofPlaneFrame.xExtentM, 3);
+  assert.equal(project.geometry.roofPlaneFrame.yExtentM, 4);
+  assert.equal(project.pressureZoning.schemaVersion, 'futoltech.roof-pressure-zones/1');
+  assert.equal(project.pressureZoning.status, 'UNRESOLVED');
+  assert.equal(project.pressureZoning.activePressureModel, 'manual-uniform');
+  assert.deepEqual(project.pressureZoning.supportedRegionTypes, ['field', 'edge', 'corner']);
+  assert.deepEqual(project.pressureZoning.regions, []);
+  assert.equal(project.pressureZoning.codeBasis, null);
+  assert.equal(project.pressureZoning.manualUniformWind.pressureKPa, INPUT.windPressureKPa);
+  assert.equal(project.pressureZoning.manualUniformWind.sense, INPUT.windSense);
+});
+
+test('Roof Bay M2 pressure zoning cannot silently invent a code-derived region or status', () => {
+  const project = createRoofBayProject(INPUT);
+  project.pressureZoning.regions.push({ id:'fake-corner', type:'corner', pressureKPa:9 });
+  assert.throws(() => serializeRoofBayProject(project), /regions must remain empty until M3/);
+
+  const promoted = createRoofBayProject(INPUT);
+  promoted.pressureZoning.status = 'RESOLVED';
+  assert.throws(() => serializeRoofBayProject(promoted), /status must remain UNRESOLVED/);
+
+  const codeBasis = createRoofBayProject(INPUT);
+  codeBasis.pressureZoning.codeBasis = { code:'NSCP' };
+  assert.throws(() => serializeRoofBayProject(codeBasis), /codeBasis must remain null/);
+});
+
 test('Roof Bay M2 project cannot silently promote unresolved design checks', () => {
   const project = createRoofBayProject(INPUT);
   project.analysisBoundary.fastenerCapacity = 'PASS';
@@ -51,9 +80,11 @@ test('custom station project preserves exact nonuniform station list in schema v
   assert.deepEqual(roundTrip.geometry.purlinStationsM, stations);
 });
 
-test('schema v1 remains backward compatible when old equal-layout project omits layoutMode', () => {
+test('schema v1 remains backward compatible when old equal-layout project omits layoutMode and new zoning fields', () => {
   const project = createRoofBayProject(INPUT);
   delete project.geometry.layoutMode;
+  delete project.geometry.roofPlaneFrame;
+  delete project.pressureZoning;
   assert.doesNotThrow(() => serializeRoofBayProject(project));
 });
 
