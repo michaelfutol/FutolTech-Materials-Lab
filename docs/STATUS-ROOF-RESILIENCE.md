@@ -33,7 +33,7 @@ Permanent current boundary:
 - Gross-section screening only; no effective-width, local/distortional/LTB or connection-capacity claim.
 
 ## M2 — Roof Bay Physics (2D / 2.5D)
-**Status: EXIT CANDIDATE IN PR #112 — current M2 checklist implemented; merge only after full Engineering Checks pass.**
+**Status: CLOSED — all current M2 checklist slices and the milestone exit gate passed on PR #112 final-head Engineering Checks.**
 
 Foundation implemented in PR #108:
 - Two adjacent rafter lines.
@@ -65,7 +65,7 @@ Completed in PR #111:
 - [x] Combined, gravity-only and wind-only component checks are regression-tested; wind-only uplift remains negative roof-normal and zero downslope.
 - [x] Reaction diagrams remain demand-transfer views only and do not claim rafter/truss or connection capacity.
 
-Implemented in PR #112:
+Completed in PR #112:
 - [x] Stable `futoltech.roof-pressure-zones/1` placeholder schema added without changing the existing M2 bay dimensions or purlin layout model.
 - [x] Roof-local coordinate frame is explicit: origin at Rafter A/eave, x toward Rafter B, y upslope, with extents tied to the solver geometry.
 - [x] Field / edge / corner region types are reserved for M3, while M2 stores zero region polygons, zero purlin-zone assignments and no code basis.
@@ -77,12 +77,14 @@ M2 exit gate:
 - [x] Summed reactions balance the applied roof load within numerical tolerance.
 - [x] Every displayed tributary/reaction path is derived from the same solver model.
 - [x] The future M3 field/edge/corner zoning interface is reserved without inventing code dimensions, coefficients or pressures.
-- [ ] PR #112 full Engineering Checks must pass before the M2 milestone is marked merged/closed on `main`.
+- [x] PR #112 final-head full Engineering Checks passed, including syntax, deterministic engineering tests, all Roof Bay Chromium gates, legacy lab/browser gates and PDF/print protections.
 
 ## M3 — Code Wind / Roof Zoning Engine
-**Status: NEXT PRIMARY PHYSICS MILESTONE AFTER PR #112 MERGES.**
+**Status: ACTIVE NEXT PRIMARY PHYSICS MILESTONE.**
 
 M3 will replace/augment the current manual uniform-pressure path with a reproducible code-derived option using explicit code/version, wind basis, risk/importance, exposure/terrain, topography, enclosure/internal pressure, building height and roof geometry. The reserved M2 pressure-zone schema is only an interface; it is not itself a wind-code calculation.
+
+Immediate M3 entry task: define the adopted code/version + wind-input provenance object and benchmark chain before any field/edge/corner pressure coefficients are applied.
 
 ## M4 — Roof Sheet + Fastener / Connection Layer
 **Status: NOT YET INTEGRATED.**
