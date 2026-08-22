@@ -10,21 +10,21 @@ Completed M3.1 slice: **benchmarked NSCP 2015 velocity-pressure chain — PR #11
 
 Completed M3 input-contract slice: **source-backed project wind-input acceptance — PR #115**. PR #115 final-head Engineering Checks passed and the PR merged on 2026-08-22.
 
-Current M3 task: **expose project wind-input acceptance in Roof Bay and preserve it in project JSON — PR #116 candidate**.
+Completed implementation gate for M3.2: **Roof Bay project wind-input acceptance + project JSON bridge — PR #116**. The dedicated M3 project-input Chromium gate and the full Engineering Checks suite passed on the implementation head before merge.
 
-Implemented in the PR #116 candidate slice:
-1. Roof Bay now exposes the versioned `futoltech.wind-project-input-acceptance/1` workflow for site, occupancy category, basic-wind-speed provenance, exposure, `Kzt`, and evaluation height.
-2. The UI displays the occupancy-matched NSCP wind-speed figure and keeps authorized code-map reads distinct from project design criteria and site-specific studies.
-3. No contour value, province speed table, address-based terrain inference, or automatic `Kzt` derivation is introduced.
-4. A valid source-referenced project record can run the already benchmarked velocity-pressure chain and visibly report `Kz` and `q`.
-5. Editing an accepted input invalidates the accepted state so a stale velocity pressure cannot remain attached to changed project inputs.
-6. `EXPORT PROJECT JSON` can embed the accepted wind-input record and deterministically derive the project `futoltech.wind-design-basis/1` velocity-pressure state from it.
-7. The live Roof Bay pressure path remains `manual-uniform`; `pressureZoning.codeBasis` remains null and code-derived field/edge/corner regions remain empty.
-8. Deterministic and dedicated real-Chromium QA protect the acceptance → q → project-export chain and the no-premature-pressure-routing boundary.
+PR #116 provides:
+1. Roof Bay exposure of the versioned `futoltech.wind-project-input-acceptance/1` workflow for site, occupancy category, basic-wind-speed provenance, exposure, `Kzt`, and evaluation height.
+2. Visible occupancy-matched NSCP wind-speed figure guidance while authorized code-map reads remain distinct from project design criteria and site-specific studies.
+3. No contour value, province speed table, address-based terrain inference, or automatic `Kzt` derivation.
+4. Source-referenced acceptance into the already benchmarked velocity-pressure chain with visible `Kz` and `q`.
+5. Automatic invalidation of acceptance whenever an accepted input is edited.
+6. Accepted input records embedded in `futoltech.roof-bay-project/1`, with the project `futoltech.wind-design-basis/1` state deterministically derived from the accepted record.
+7. The live Roof Bay pressure path still `manual-uniform`; `pressureZoning.codeBasis` remains null and code-derived field/edge/corner regions remain empty.
+8. Deterministic and real-Chromium regression protecting the acceptance → q → project-export chain and the no-premature-pressure-routing boundary.
 
-Current PR #116 boundary: enclosure/internal-pressure classification, roof-plan geometry required by code coefficient/zoning rules, external/internal pressure coefficients, field/edge/corner geometry, load combinations, and final code-derived Roof Bay pressure remain unimplemented.
+Current M3 task after PR #116: **resolve and validate enclosure/internal-pressure classification plus roof geometry/plan inputs before any pressure-coefficient implementation is allowed**.
 
-Next step inside M3 after the Roof Bay acceptance bridge is green: resolve and validate enclosure/internal-pressure classification and roof geometry/plan inputs before any pressure-coefficient implementation is allowed.
+Still blocked: external/internal pressure coefficients, field/edge/corner geometry, effective-area zoning, load combinations, and final code-derived Roof Bay pressure.
 
 Permanent M3 rule: a verified velocity pressure is not a final roof pressure. Manual pressure remains the active Roof Bay path until the complete coefficient/zoning chain is verified.
 
