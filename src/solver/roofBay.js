@@ -16,6 +16,18 @@ function clamp(value, min, max) {
   return Math.min(max, Math.max(min, finite(value, min)));
 }
 
+function validatedStations(stationsM = []) {
+  if (!Array.isArray(stationsM) || stationsM.length < 2) {
+    throw new Error('At least two purlin stations are required.');
+  }
+  const clean = stationsM.map((value) => finite(value, NaN));
+  if (!clean.every(Number.isFinite)) throw new Error('Purlin stations must be finite numbers.');
+  for (let index = 1; index < clean.length; index += 1) {
+    if (!(clean[index] > clean[index - 1])) throw new Error('Purlin stations must be strictly increasing.');
+  }
+  return clean;
+}
+
 /**
  * Create equally spaced purlin stations from eave (0) to ridge/high edge
  * (roofSlopeLengthM). The requested spacing is treated as a maximum so the
@@ -50,14 +62,7 @@ export function roofBayPurlinStations(roofSlopeLengthM = 4, maxSpacingM = 0.8) {
  */
 export function customRoofBayPurlinLayout(roofSlopeLengthM = 4, stationsM = []) {
   const length = positive(roofSlopeLengthM, 4);
-  if (!Array.isArray(stationsM) || stationsM.length < 2) {
-    throw new Error('Custom Roof Bay layout requires at least two purlin stations.');
-  }
-  const clean = stationsM.map((value) => finite(value, NaN));
-  if (!clean.every(Number.isFinite)) throw new Error('Custom purlin stations must be finite numbers.');
-  for (let index = 1; index < clean.length; index += 1) {
-    if (!(clean[index] > clean[index - 1])) throw new Error('Custom purlin stations must be strictly increasing.');
-  }
+  const clean = validatedStations(stationsM);
   if (clean[0] < -EPS || clean[clean.length - 1] > length + EPS) {
     throw new Error('Custom purlin stations must stay within the roof slope length.');
   }
@@ -77,22 +82,14 @@ export function customRoofBayPurlinLayout(roofSlopeLengthM = 4, stationsM = []) 
 }
 
 /**
- * Tributary widths use midlines between neighboring purlins. When an explicit
- * roofSlopeLengthM is supplied, the first and last tributary bands extend to
- * the physical roof boundaries at 0 and roofSlopeLengthM. Without a domain
- * length the legacy behavior is preserved and the station range itself is the
- * tributary domain.
+ * Tributary bands use midlines between neighboring purlins. When an explicit
+ * roofSlopeLengthM is supplied, the first and last bands extend exactly to the
+ * physical roof boundaries at 0 and roofSlopeLengthM. This makes offset edge
+ * purlins numerically and visually traceable without assuming symmetry about
+ * the purlin centerline.
  */
-export function tributaryWidthsFromStations(stationsM = [], roofSlopeLengthM = null) {
-  if (!Array.isArray(stationsM) || stationsM.length < 2) {
-    throw new Error('At least two purlin stations are required.');
-  }
-  const clean = stationsM.map((value) => finite(value, NaN));
-  if (!clean.every(Number.isFinite)) throw new Error('Purlin stations must be finite numbers.');
-  for (let index = 1; index < clean.length; index += 1) {
-    if (!(clean[index] > clean[index - 1])) throw new Error('Purlin stations must be strictly increasing.');
-  }
-
+export function tributaryBandsFromStations(stationsM = [], roofSlopeLengthM = null) {
+  const clean = validatedStations(stationsM);
   const hasRoofBoundary = roofSlopeLengthM != null;
   const domainStartM = hasRoofBoundary ? 0 : clean[0];
   const domainEndM = hasRoofBoundary ? positive(roofSlopeLengthM, clean[clean.length - 1]) : clean[clean.length - 1];
@@ -100,11 +97,15 @@ export function tributaryWidthsFromStations(stationsM = [], roofSlopeLengthM = n
     throw new Error('Purlin stations must lie inside the tributary roof domain.');
   }
 
-  return clean.map((station, index) => {
-    const leftBoundaryM = index === 0 ? domainStartM : (clean[index - 1] + station) / 2;
-    const rightBoundaryM = index === clean.length - 1 ? domainEndM : (station + clean[index + 1]) / 2;
-    return rightBoundaryM - leftBoundaryM;
+  return clean.map((stationM, index) => {
+    const startM = index === 0 ? domainStartM : (clean[index - 1] + stationM) / 2;
+    const endM = index === clean.length - 1 ? domainEndM : (stationM + clean[index + 1]) / 2;
+    return { stationM, startM, endM, widthM: endM - startM };
   });
+}
+
+export function tributaryWidthsFromStations(stationsM = [], roofSlopeLengthM = null) {
+  return tributaryBandsFromStations(stationsM, roofSlopeLengthM).map((band) => band.widthM);
 }
 
 function windSign(windSense) {
@@ -146,10 +147,12 @@ export function solveRoofBay({
   const layout = customPurlinStationsM == null
     ? roofBayPurlinStations(slopeLengthM, maxPurlinSpacingM)
     : customRoofBayPurlinLayout(slopeLengthM, customPurlinStationsM);
-  const tributaryWidthsM = tributaryWidthsFromStations(layout.stationsM, slopeLengthM);
+  const tributaryBands = tributaryBandsFromStations(layout.stationsM, slopeLengthM);
+  const tributaryWidthsM = tributaryBands.map((band) => band.widthM);
 
   const purlins = layout.stationsM.map((stationM, index) => {
-    const tributaryWidthM = tributaryWidthsM[index];
+    const tributaryBand = tributaryBands[index];
+    const tributaryWidthM = tributaryBand.widthM;
     const result = solveCPurlinLoadCase({
       preset,
       orientationDeg,
@@ -177,6 +180,8 @@ export function solveRoofBay({
       index,
       label: `P${index + 1}`,
       stationM,
+      tributaryStartM: tributaryBand.startM,
+      tributaryEndM: tributaryBand.endM,
       tributaryWidthM,
       edge: index === 0 || index === layout.stationsM.length - 1,
       result,
@@ -262,6 +267,7 @@ export function solveRoofBay({
       areaM2,
       ...layout,
       purlinCount: purlins.length,
+      tributaryBands,
       tributaryWidthsM
     },
     purlins,
