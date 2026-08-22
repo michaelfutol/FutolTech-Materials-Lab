@@ -28,11 +28,6 @@ function validatedStations(stationsM = []) {
   return clean;
 }
 
-/**
- * Create equally spaced purlin stations from eave (0) to ridge/high edge
- * (roofSlopeLengthM). The requested spacing is treated as a maximum so the
- * final bay is never a tiny remainder bay.
- */
 export function roofBayPurlinStations(roofSlopeLengthM = 4, maxSpacingM = 0.8) {
   const length = positive(roofSlopeLengthM, 4);
   const requested = positive(maxSpacingM, 0.8);
@@ -54,12 +49,6 @@ export function roofBayPurlinStations(roofSlopeLengthM = 4, maxSpacingM = 0.8) {
   };
 }
 
-/**
- * Validate an explicit custom purlin station layout. Stations are measured
- * along the roof slope from the eave datum (0 m). The first/last purlin may
- * be offset from the roof edges; tributary widths then extend to the physical
- * roof boundary rather than pretending the purlin itself lies at the edge.
- */
 export function customRoofBayPurlinLayout(roofSlopeLengthM = 4, stationsM = []) {
   const length = positive(roofSlopeLengthM, 4);
   const clean = validatedStations(stationsM);
@@ -81,13 +70,6 @@ export function customRoofBayPurlinLayout(roofSlopeLengthM = 4, stationsM = []) 
   };
 }
 
-/**
- * Tributary bands use midlines between neighboring purlins. When an explicit
- * roofSlopeLengthM is supplied, the first and last bands extend exactly to the
- * physical roof boundaries at 0 and roofSlopeLengthM. This makes offset edge
- * purlins numerically and visually traceable without assuming symmetry about
- * the purlin centerline.
- */
 export function tributaryBandsFromStations(stationsM = [], roofSlopeLengthM = null) {
   const clean = validatedStations(stationsM);
   const hasRoofBoundary = roofSlopeLengthM != null;
@@ -114,6 +96,10 @@ function windSign(windSense) {
 
 function vectorMagnitude(normalKN, parallelKN) {
   return Math.hypot(normalKN, parallelKN);
+}
+
+function componentPass(residualKN, appliedKN, tolerance = 1e-9) {
+  return Math.abs(residualKN) <= tolerance || Math.abs(residualKN) / Math.max(EPS, Math.abs(appliedKN)) <= tolerance;
 }
 
 export function solveRoofBay({
@@ -193,39 +179,8 @@ export function solveRoofBay({
     };
   });
 
-  const leftPointLoads = purlins.map((purlin) => ({
-    purlin: purlin.label,
-    stationM: purlin.stationM,
-    ...purlin.leftRafterReaction
-  }));
-  const rightPointLoads = purlins.map((purlin) => ({
-    purlin: purlin.label,
-    stationM: purlin.stationM,
-    ...purlin.rightRafterReaction
-  }));
-
-  const sumReactionNormalKN = purlins.reduce((sum, item) => sum + item.leftRafterReaction.normalKN + item.rightRafterReaction.normalKN, 0);
-  const sumReactionParallelKN = purlins.reduce((sum, item) => sum + item.leftRafterReaction.parallelKN + item.rightRafterReaction.parallelKN, 0);
-
-  const areaM2 = slopeLengthM * spanM;
-  const includeGravity = safeMode !== 'wind';
-  const includeWind = safeMode !== 'gravity';
-  const theta = slope * Math.PI / 180;
-  const gravityAreaKPa = Math.max(0, finite(deadLoadKPa, 0)) + Math.max(0, finite(roofLiveLoadKPa, 0));
-  const roofGravityVerticalKN = includeGravity ? gravityAreaKPa * areaM2 * factor : 0;
-  const purlinSelfWeightVerticalKN = includeGravity
-    ? purlins.reduce((sum, item) => sum + item.result.loads.selfWeightKNM * spanM * factor, 0)
-    : 0;
-  const totalGravityVerticalKN = roofGravityVerticalKN + purlinSelfWeightVerticalKN;
-  const windNormalKN = includeWind ? windSign(safeWindSense) * Math.max(0, finite(windPressureKPa, 0)) * areaM2 * factor : 0;
-  const appliedNormalKN = totalGravityVerticalKN * Math.cos(theta) + windNormalKN;
-  const appliedParallelKN = totalGravityVerticalKN * Math.sin(theta);
-
-  const normalResidualKN = sumReactionNormalKN - appliedNormalKN;
-  const parallelResidualKN = sumReactionParallelKN - appliedParallelKN;
-  const residualKN = vectorMagnitude(normalResidualKN, parallelResidualKN);
-  const appliedMagnitudeKN = Math.max(EPS, vectorMagnitude(appliedNormalKN, appliedParallelKN));
-  const relativeResidual = residualKN / appliedMagnitudeKN;
+  const leftPointLoads = purlins.map((purlin) => ({ purlin: purlin.label, stationM: purlin.stationM, ...purlin.leftRafterReaction }));
+  const rightPointLoads = purlins.map((purlin) => ({ purlin: purlin.label, stationM: purlin.stationM, ...purlin.rightRafterReaction }));
 
   const leftRafter = {
     pointLoads: leftPointLoads,
@@ -239,6 +194,74 @@ export function solveRoofBay({
     parallelKN: rightPointLoads.reduce((sum, item) => sum + item.parallelKN, 0)
   };
   rightRafter.resultantKN = vectorMagnitude(rightRafter.normalKN, rightRafter.parallelKN);
+
+  const sumReactionNormalKN = leftRafter.normalKN + rightRafter.normalKN;
+  const sumReactionParallelKN = leftRafter.parallelKN + rightRafter.parallelKN;
+
+  const areaM2 = slopeLengthM * spanM;
+  const includeGravity = safeMode !== 'wind';
+  const includeWind = safeMode !== 'gravity';
+  const theta = slope * Math.PI / 180;
+  const cosTheta = Math.cos(theta);
+  const sinTheta = Math.sin(theta);
+  const gravityAreaKPa = Math.max(0, finite(deadLoadKPa, 0)) + Math.max(0, finite(roofLiveLoadKPa, 0));
+  const roofGravityVerticalKN = includeGravity ? gravityAreaKPa * areaM2 * factor : 0;
+  const purlinSelfWeightVerticalKN = includeGravity
+    ? purlins.reduce((sum, item) => sum + item.result.loads.selfWeightKNM * spanM * factor, 0)
+    : 0;
+  const totalGravityVerticalKN = roofGravityVerticalKN + purlinSelfWeightVerticalKN;
+  const roofGravityNormalKN = roofGravityVerticalKN * cosTheta;
+  const purlinSelfWeightNormalKN = purlinSelfWeightVerticalKN * cosTheta;
+  const roofGravityParallelKN = roofGravityVerticalKN * sinTheta;
+  const purlinSelfWeightParallelKN = purlinSelfWeightVerticalKN * sinTheta;
+  const windNormalKN = includeWind ? windSign(safeWindSense) * Math.max(0, finite(windPressureKPa, 0)) * areaM2 * factor : 0;
+  const windParallelKN = 0;
+  const appliedNormalKN = roofGravityNormalKN + purlinSelfWeightNormalKN + windNormalKN;
+  const appliedParallelKN = roofGravityParallelKN + purlinSelfWeightParallelKN + windParallelKN;
+
+  const normalResidualKN = sumReactionNormalKN - appliedNormalKN;
+  const parallelResidualKN = sumReactionParallelKN - appliedParallelKN;
+  const residualKN = vectorMagnitude(normalResidualKN, parallelResidualKN);
+  const appliedMagnitudeKN = Math.max(EPS, vectorMagnitude(appliedNormalKN, appliedParallelKN));
+  const relativeResidual = residualKN / appliedMagnitudeKN;
+  const tolerance = 1e-9;
+
+  const conservation = {
+    normal: {
+      axis: 'roof-normal',
+      applied: {
+        roofAreaGravityKN: roofGravityNormalKN,
+        purlinSelfWeightKN: purlinSelfWeightNormalKN,
+        windKN: windNormalKN,
+        totalKN: appliedNormalKN
+      },
+      reactions: {
+        leftRafterKN: leftRafter.normalKN,
+        rightRafterKN: rightRafter.normalKN,
+        totalKN: sumReactionNormalKN
+      },
+      residualKN: normalResidualKN,
+      tolerance,
+      pass: componentPass(normalResidualKN, appliedNormalKN, tolerance)
+    },
+    parallel: {
+      axis: 'roof-downslope',
+      applied: {
+        roofAreaGravityKN: roofGravityParallelKN,
+        purlinSelfWeightKN: purlinSelfWeightParallelKN,
+        windKN: windParallelKN,
+        totalKN: appliedParallelKN
+      },
+      reactions: {
+        leftRafterKN: leftRafter.parallelKN,
+        rightRafterKN: rightRafter.parallelKN,
+        totalKN: sumReactionParallelKN
+      },
+      residualKN: parallelResidualKN,
+      tolerance,
+      pass: componentPass(parallelResidualKN, appliedParallelKN, tolerance)
+    }
+  };
 
   const governingPurlin = [...purlins].sort((a, b) => {
     const utilizationDiff = (b.result.utilization ?? 0) - (a.result.utilization ?? 0);
@@ -263,24 +286,24 @@ export function solveRoofBay({
       windSense: safeWindSense,
       loadFactor: factor
     },
-    geometry: {
-      areaM2,
-      ...layout,
-      purlinCount: purlins.length,
-      tributaryBands,
-      tributaryWidthsM
-    },
+    geometry: { areaM2, ...layout, purlinCount: purlins.length, tributaryBands, tributaryWidthsM },
     purlins,
     rafters: { left: leftRafter, right: rightRafter },
     applied: {
       roofGravityVerticalKN,
       purlinSelfWeightVerticalKN,
       totalGravityVerticalKN,
+      roofGravityNormalKN,
+      purlinSelfWeightNormalKN,
+      roofGravityParallelKN,
+      purlinSelfWeightParallelKN,
       windNormalKN,
+      windParallelKN,
       normalKN: appliedNormalKN,
       parallelKN: appliedParallelKN,
       resultantKN: vectorMagnitude(appliedNormalKN, appliedParallelKN)
     },
+    conservation,
     equilibrium: {
       reactionNormalKN: sumReactionNormalKN,
       reactionParallelKN: sumReactionParallelKN,
@@ -288,8 +311,8 @@ export function solveRoofBay({
       parallelResidualKN,
       residualKN,
       relativeResidual,
-      tolerance: 1e-9,
-      pass: relativeResidual <= 1e-9 || residualKN <= 1e-9
+      tolerance,
+      pass: (relativeResidual <= tolerance || residualKN <= tolerance) && conservation.normal.pass && conservation.parallel.pass
     },
     governingPurlin,
     loadPath: ['roof sheet pressure', 'sheet-to-purlin fasteners (demand routing only)', 'purlins', 'left/right rafter reactions', 'supporting system (not analyzed here)']
