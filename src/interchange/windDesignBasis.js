@@ -115,7 +115,7 @@ export function validateWindDesignBasis(basis) {
   if (basis.projectMode === 'code-baseline' && profile.status === WIND_CODE_PROFILE_STATUS.USER_DEFINED) throw new Error('User-defined profile cannot be code-baseline.');
   string(basis.adoptedCode?.title, 'adoptedCode.title');
   if (basis.adoptedCode.profileStatus !== profile.status) throw new Error('adoptedCode.profileStatus must match the registered profile.');
-  if (JSON.stringify(basis.adoptedCode.evidence ?? []) !== JSON.stringify(profile.evidence)) throw new Error('adoptedCode evidence must match the registered source-backed profile.');
+  if (JSON.stringify(stable(basis.adoptedCode.evidence ?? [])) !== JSON.stringify(stable(profile.evidence))) throw new Error('adoptedCode evidence must match the registered source-backed profile.');
 
   if (!basis.inputs || typeof basis.inputs !== 'object' || Array.isArray(basis.inputs)) throw new Error('Wind design basis inputs must be explicit.');
   for (const key of INPUT_KEYS) {
