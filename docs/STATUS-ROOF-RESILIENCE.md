@@ -33,7 +33,7 @@ Permanent current boundary:
 - Gross-section screening only; no effective-width, local/distortional/LTB or connection-capacity claim.
 
 ## M2 — Roof Bay Physics (2D / 2.5D)
-**Status: ACTIVE / one checklist slice remains before current M2 exit.**
+**Status: EXIT CANDIDATE IN PR #112 — current M2 checklist implemented; merge only after full Engineering Checks pass.**
 
 Foundation implemented in PR #108:
 - Two adjacent rafter lines.
@@ -65,15 +65,24 @@ Completed in PR #111:
 - [x] Combined, gravity-only and wind-only component checks are regression-tested; wind-only uplift remains negative roof-normal and zero downslope.
 - [x] Reaction diagrams remain demand-transfer views only and do not claim rafter/truss or connection capacity.
 
-Remaining M2 checklist before moving the primary physics effort to M3:
-- [ ] Roof-sheet pressure-zoning placeholders that can later accept M3 field/edge/corner zones without changing the shared M2 project geometry model.
+Implemented in PR #112:
+- [x] Stable `futoltech.roof-pressure-zones/1` placeholder schema added without changing the existing M2 bay dimensions or purlin layout model.
+- [x] Roof-local coordinate frame is explicit: origin at Rafter A/eave, x toward Rafter B, y upslope, with extents tied to the solver geometry.
+- [x] Field / edge / corner region types are reserved for M3, while M2 stores zero region polygons, zero purlin-zone assignments and no code basis.
+- [x] Current active pressure model remains one manual uniform wind pressure; M2 validation rejects any silent promotion to code-derived zoning.
+- [x] Solver JSON and project JSON carry the same unresolved pressure-zone bridge, with backward compatibility for older schema-v1 files that omit the new additive fields.
+- [x] Visible M2→M3 bridge panel states that no code zones are applied; deterministic and dedicated real-Chromium gates protect the boundary.
 
-M2 exit gate remains: summed reactions balance the applied roof load within numerical tolerance, with every displayed tributary/reaction path derived from the same solver model.
+M2 exit gate:
+- [x] Summed reactions balance the applied roof load within numerical tolerance.
+- [x] Every displayed tributary/reaction path is derived from the same solver model.
+- [x] The future M3 field/edge/corner zoning interface is reserved without inventing code dimensions, coefficients or pressures.
+- [ ] PR #112 full Engineering Checks must pass before the M2 milestone is marked merged/closed on `main`.
 
 ## M3 — Code Wind / Roof Zoning Engine
-**Status: EARLY FOUNDATION ONLY.**
+**Status: NEXT PRIMARY PHYSICS MILESTONE AFTER PR #112 MERGES.**
 
-Existing work provides manual net-pressure inputs and code-assist experiments, but full reproducible code-derived wind zoning is not yet implemented. M3 remains the next major physics layer after the final M2 data-model slice is complete.
+M3 will replace/augment the current manual uniform-pressure path with a reproducible code-derived option using explicit code/version, wind basis, risk/importance, exposure/terrain, topography, enclosure/internal pressure, building height and roof geometry. The reserved M2 pressure-zone schema is only an interface; it is not itself a wind-code calculation.
 
 ## M4 — Roof Sheet + Fastener / Connection Layer
 **Status: NOT YET INTEGRATED.**
@@ -83,4 +92,4 @@ Connection Lab contains reusable research foundations. Roof Bay deliberately lab
 ## M5–M13
 **Status: ROADMAP / enabling foundations only.**
 
-The current M2 project-data and load-path work is being structured so it can feed the later transparent Three.js roof viewer, full roof-system solver, cold-formed design, automatic resizing, live formula cockpit, resilience/failure sequencing, local product calibration, professional package and final integrated Roof Resilience Physics Engine without duplicating geometry or inventing visual-only physics.
+The current M2 project-data and load-path work is structured so it can feed the later transparent Three.js roof viewer, full roof-system solver, cold-formed design, automatic resizing, live formula cockpit, resilience/failure sequencing, local product calibration, professional package and final integrated Roof Resilience Physics Engine without duplicating geometry or inventing visual-only physics.
