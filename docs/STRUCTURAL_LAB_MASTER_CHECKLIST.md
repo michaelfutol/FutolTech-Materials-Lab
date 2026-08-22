@@ -34,7 +34,7 @@
 9. [x] **Frame Analyzer / NF-001** — connected 2D frame, explicit spring/release states, elastic P–Δ, piecewise redistribution/mechanism detection and brace sensitivity.
 10. [x] **FutolStructure / RPE interchange v1** — versioned component, demand, critical-specimen and evidence-bounded failure/RPE law exchange.
 11. [x] **Roof Resilience Physics M2** — Roof Bay load routing, member selection/exploded trace, stable project JSON, custom/nonuniform purlin stations, reaction diagrams and M3-ready pressure-zone placeholders completed through PR #112 with the M2 exit gate green.
-12. [~] **Roof Resilience Physics M3** — code/version provenance merged in PR #113; benchmarked velocity-pressure chain merged in PR #114; source-backed project wind-input acceptance implemented in PR #115 candidate while pressure coefficients and code zoning remain blocked.
+12. [~] **Roof Resilience Physics M3** — code/version provenance merged in PR #113; benchmarked velocity-pressure chain merged in PR #114; source-backed project wind-input acceptance merged in PR #115; Roof Bay acceptance/q/project-export integration is implemented in PR #116 candidate while pressure coefficients and code zoning remain blocked.
 
 # Protected foundation
 
@@ -265,14 +265,17 @@
 - [x] PR #114 deterministic benchmark: Exposure C, h=8.82 m, V=240 kph, Kzt=1.0 → `Kz = 0.974820633`, `q = 2.257468 kPa` at full precision.
 - [x] Velocity-pressure result validation recalculates Kz/q and rejects changed results or missing source provenance.
 - [x] Manual uniform pressure remains active; the benchmark is not routed into Roof Bay and `pressureZoning.codeBasis` remains null.
-- [~] PR #115 candidate — source-backed `futoltech.wind-project-input-acceptance/1` records for site, occupancy category, basic-wind-speed provenance, Exposure B/C/D, Kzt and evaluation height.
+- [x] PR #115 — source-backed `futoltech.wind-project-input-acceptance/1` records for site, occupancy category, basic-wind-speed provenance, Exposure B/C/D, Kzt and evaluation height; final-head Engineering Checks passed and the PR merged.
 - [x] PR #115 validates the NSCP 2015 occupancy-to-wind-speed-figure relationship: Category I → `207A.5-1C`, Category II → `207A.5-1B`, Categories III/IV/V → `207A.5-1A`.
 - [x] No wind-map contours or province speed table are embedded; an authorized-code-map speed remains an engineer-transcribed project input with declared figure, selection method and source reference.
 - [x] Project design criteria and site-specific studies remain explicit non-map sources and cannot silently claim software-verified code-map status.
 - [x] Exposure, Kzt and height require explicit source references; automatic address-based terrain classification and automatic topographic-factor derivation remain blocked.
 - [x] Accepted project records serialize deterministically and can feed the benchmarked velocity-pressure solver through a dedicated bridge without becoming final roof pressure.
-- [!] External/internal pressure coefficients, field/edge/corner geometry, effective-area zoning and load combinations remain blocked until their code rules and remaining project inputs are verified.
-- [ ] Expose the accepted project-input workflow in Roof Bay and resolve enclosure/internal-pressure plus roof-geometry inputs before any pressure coefficients are enabled.
+- [~] PR #116 candidate — Roof Bay exposes the accepted project-input workflow, displays the occupancy-matched wind-speed figure, validates explicit source references, and shows accepted `Kz`/`q` without routing q as final roof pressure.
+- [~] PR #116 candidate — accepted project records can be embedded in `futoltech.roof-bay-project/1`; the project `windDesignBasis` is deterministically derived from the accepted record and validation rejects detached/mutated q state.
+- [~] PR #116 candidate — editing accepted inputs invalidates acceptance; dedicated real-Chromium QA protects acceptance → q → project export and verifies that `pressureZoning` remains manual-uniform with null code basis and zero code regions.
+- [!] Enclosure/internal-pressure classification, roof-plan geometry required by coefficient/zoning rules, external/internal pressure coefficients, field/edge/corner geometry, effective-area zoning and load combinations remain blocked until their code rules and remaining project inputs are verified.
+- [ ] Resolve enclosure/internal-pressure plus roof-geometry/plan inputs before any pressure coefficients are enabled.
 - [ ] Implement field/edge/corner zone geometry and positive/suction pressures only from verified code rules.
 
 # Definition of DONE for every new product/feature
@@ -313,4 +316,5 @@
 - 2026-08-22 — M2 Roof Bay closed through PR #112 after the reaction-diagram and M3-ready pressure-zone placeholder slices passed full final-head Engineering Checks.
 - 2026-08-22 — M3 begins with code/version provenance rather than equations. PR #113 identifies NSCP 2015 Volume 1, 7th Edition, 2nd Printing from public ASEP/DPWH evidence; its final-head Engineering Checks passed and it merged before equation work began.
 - 2026-08-22 — PR #114 implements only the benchmarked velocity-pressure layer. The independent Exposure C / 8.82 m / 240 kph / Kzt 1.0 case reproduces Kz≈0.975 and q≈2.26 kPa, while map selection, Kzt derivation, pressure coefficients, roof zoning and final code pressure remain deliberately unimplemented.
-- 2026-08-22 — PR #115 accepts project wind inputs only when their provenance is explicit. It validates occupancy-to-figure selection without embedding or reconstructing the NSCP wind maps, distinguishes code-map transcription from project-design-criteria/site-specific-study sources, and keeps automatic terrain/Kzt inference plus final roof pressure blocked.
+- 2026-08-22 — PR #115 accepts project wind inputs only when their provenance is explicit. It validates occupancy-to-figure selection without embedding or reconstructing the NSCP wind maps, distinguishes code-map transcription from project-design-criteria/site-specific-study sources, keeps automatic terrain/Kzt inference plus final roof pressure blocked, passed final-head Engineering Checks and merged.
+- 2026-08-22 — PR #116 candidate brings the PR #115 acceptance contract into the live Roof Bay UI/project package. Accepted q may be displayed and persisted as a derived wind-design-basis state, but the active Roof Bay pressure remains manual-uniform until enclosure, roof geometry, pressure coefficients and zoning are independently verified.
