@@ -25,16 +25,22 @@ Status date: 2026-08-22
     - Requires separate enclosure-classification and building-envelope-opening assessment references.
     - Requires source-referenced roof form, plan length, plan width, mean roof height and roof slope.
     - Mean roof height must match the upstream accepted wind-project height.
-    - Automatic enclosure classification, code threshold evaluation, `GCpi`, external pressure coefficients, effective wind area, field/edge/corner zoning and final roof pressure remain blocked.
-  - [~] Roof Bay pressure-context acceptance + project JSON integration — PR #118 candidate.
-    - Exposes the merged pressure-context contract directly in Roof Bay only after accepted upstream wind inputs exist.
+  - [x] Roof Bay pressure-context acceptance + project JSON integration — PR #118; dedicated V9 Chromium gate, deterministic tests and complete final-head Engineering Checks passed before merge.
+    - Exposes the pressure-context contract directly in Roof Bay only after accepted upstream wind inputs exist.
     - Mean roof height/source is inherited from the accepted wind-project record; pressure-context roof slope must match active Roof Bay slope.
     - Overall building plan dimensions remain explicit building-level inputs and are not inferred from bay dimensions.
     - Project JSON may embed `windPressureContextAcceptance` only with its exact upstream accepted wind-project record.
     - Editing accepted upstream wind inputs or active roof slope invalidates downstream context acceptance.
-    - Deterministic project tests and a real-Chromium V9 gate protect the acceptance → context → project-export chain.
     - `pressureZoning.activePressureModel` remains `manual-uniform`, `codeBasis` remains null, regions remain empty, and `analysisBoundary.codeWindZoning` remains `UNRESOLVED`.
-  - [ ] Implement and independently benchmark internal-pressure coefficient (`GCpi`) rules from explicit authorized code rules after PR #118 is merged.
+  - [~] Source-backed base internal-pressure coefficient (`GCpi`) foundation — PR #119 candidate.
+    - New versioned `futoltech.wind-internal-pressure-coefficient/1` record attaches to the exact accepted pressure-context record.
+    - Implements NSCP 2015 Section 207A.11.1 / Table 207A.11-1 base cases only: open `0.00`, enclosed `+0.18/-0.18`, partially enclosed `+0.55/-0.55`.
+    - Preserves positive and negative internal-pressure cases separately.
+    - Partially enclosed buildings remain blocked behind unresolved Section 207A.11.1.1 large-volume reduction-factor (`Ri`) applicability; `Ri` is not guessed or applied.
+    - Explicit future project facts are required before `Ri` can be resolved: qualifying single unpartitioned volume, total envelope opening area, and unpartitioned internal volume.
+    - Deterministic tests protect the table values, exact upstream enclosure attachment, round-trip serialization, and no-premature `Ri`/final-pressure promotion.
+    - Internal-pressure velocity selection, external pressure coefficients, effective wind area, field/edge/corner geometry, load combinations and final code-pressure routing remain blocked.
+  - [ ] Resolve and benchmark the large-volume `Ri` applicability/calculation path before partially enclosed GCpi can advance.
   - [ ] Add external pressure coefficients, effective wind area, field/edge/corner geometry, load combinations and final code-pressure routing only through their own source-backed gates.
 - [ ] **M4 — Roof Sheet + Fastener / Connection Layer:** reusable Connection Lab foundations exist; Roof Bay integration remains unresolved.
 - [ ] **M5–M13:** follow `ROADMAP-ROOF-RESILIENCE-PHYSICS.md` in order unless an explicit engineering dependency requires resequencing.
