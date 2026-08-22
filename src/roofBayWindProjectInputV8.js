@@ -4,6 +4,7 @@ import {
 } from './interchange/windProjectInputAcceptance.js';
 import { calculateAcceptedWindProjectVelocityPressure } from './interchange/windProjectInputBridge.js';
 import { serializeWindProjectInputAcceptance } from './interchange/windProjectInputSerialization.js';
+import { createRoofBayProject, serializeRoofBayProject } from './interchange/roofBayProject.js';
 
 const root = document.querySelector('[data-roof-bay-app]');
 
@@ -209,6 +210,40 @@ if (root) {
       invalidate();
     }
 
+    function exportRoofBayProject(event) {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      const model = window.__FT_ROOF_BAY_MODEL__;
+      if (!model) return;
+      const sectionSelect = root.querySelector('[data-rb-section]');
+      const fySelect = root.querySelector('[data-rb-fy]');
+      const factorInput = root.querySelector('[data-rb-factor]');
+      const project = createRoofBayProject({
+        projectId:`roof-bay-${Date.now()}`,
+        projectName:'FutolTech Roof Bay M3.2 project',
+        sectionId:sectionSelect?.value,
+        rafterSpacingM:model.inputs.rafterSpacingM,
+        roofSlopeLengthM:model.inputs.roofSlopeLengthM,
+        maxPurlinSpacingM:model.inputs.maxPurlinSpacingM,
+        layoutMode:model.geometry.layoutMode,
+        purlinStationsM:model.geometry.layoutMode === 'custom-stations' ? model.geometry.stationsM : null,
+        slopeDeg:model.inputs.slopeDeg,
+        orientationDeg:model.inputs.orientationDeg,
+        elasticModulusMPa:200000,
+        yieldStrengthMPa:Number(fySelect?.value || 250),
+        densityKgM3:7850,
+        mode:model.inputs.mode,
+        deadLoadKPa:model.inputs.deadLoadKPa,
+        roofLiveLoadKPa:model.inputs.roofLiveLoadKPa,
+        windPressureKPa:model.inputs.windPressureKPa,
+        windSense:model.inputs.windSense,
+        loadFactor:Number(factorInput?.value || 1),
+        windProjectInputAcceptance:acceptedRecord
+      });
+      download(serializeRoofBayProject(project), `futoltech-roof-bay-project-${Date.now()}.json`);
+      window.__FT_LAST_ROOF_BAY_PROJECT__ = project;
+    }
+
     panel.addEventListener('input', (event) => {
       if (event.target === ui.occupancy || event.target === ui.sourceType) syncSourceMode();
       invalidate();
@@ -223,6 +258,9 @@ if (root) {
       if (!acceptedRecord) return;
       download(serializeWindProjectInputAcceptance(acceptedRecord), `futoltech-wind-project-input-${Date.now()}.json`);
     });
+
+    const exportProject = root.querySelector('[data-rb-export-project]');
+    if (exportProject) exportProject.addEventListener('click', exportRoofBayProject, { capture:true });
 
     reset();
   }
