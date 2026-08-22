@@ -41,6 +41,9 @@ jobs:
       - name: Roof Bay reaction-diagram Chromium gate
         timeout-minutes: 3
         run: node scripts/verifyRoofBayReactionDiagramsV4.mjs
+      - name: Roof Bay pressure-zone bridge Chromium gate
+        timeout-minutes: 3
+        run: node scripts/verifyRoofBayPressureZoneBridgeV5.mjs
       - name: General comparison load-test video Chromium gate
         timeout-minutes: 3
         run: node scripts/verifyGeneralComparisonVideoUi.mjs
