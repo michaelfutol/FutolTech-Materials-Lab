@@ -15,12 +15,15 @@ Status date: 2026-08-22
   - [x] Adopted code/version + wind-input provenance foundation — PR #113; final-head Engineering Checks passed before merge.
     - Initial source-backed profile: NSCP 2015, Volume 1, 7th Edition, 2nd Printing.
     - Versioned `futoltech.wind-design-basis/1` object is carried by Roof Bay export.
-    - Eight required wind-input families remain `UNRESOLVED`.
-    - Velocity-pressure, coefficients, zone geometry and load combinations remain `UNIMPLEMENTED`; code calculation remains `BLOCKED`.
-    - Existing manual uniform pressure remains active; no code-derived pressure is claimed.
-    - Deterministic serialization now compares evidence canonically so object key ordering cannot create a false provenance mismatch while semantic mutations are still rejected.
-  - [ ] Implement and hand-benchmark the velocity-pressure chain before applying zone coefficients.
-  - [ ] Resolve/validate code input families with source references and applicability rules.
+    - Manual uniform pressure remains active until later code-derived pressure/zoning slices are verified.
+  - [~] Velocity-pressure chain — PR #114 candidate; merge requires final-head full Engineering Checks.
+    - Implements `qz = 0.613 Kz Kzt Kd V²` for the adopted NSCP 2015 building path, with building `Kd = 0.85` and Exposure B/C/D Kz evaluation.
+    - Uses the 4.57 m minimum Kz evaluation height and explicit kph→m/s conversion; no wind-speed map lookup or silent Kzt assumption is added.
+    - Independent Exposure C / 8.82 m / 240 kph / Kzt 1.0 benchmark gives `Kz = 0.974820633` and `q = 2.257468 kPa` at full solver precision.
+    - Source-referenced velocity-pressure state resolves only site, speed, occupancy/risk basis, exposure, topography and height; enclosure/internal pressure and roof geometry remain `UNRESOLVED`.
+    - External/internal pressure coefficients, field/edge/corner geometry and load combinations remain `UNIMPLEMENTED`.
+    - The benchmark is visible and regression-protected but deliberately not routed into Roof Bay; project pressure remains `manual-uniform`, `pressureZoning.codeBasis` remains null and code-derived regions remain empty.
+  - [ ] Resolve/validate project wind-input families with source references and applicability rules, including a defensible Philippine basic-wind-speed selection path, before pressure coefficients are enabled.
   - [ ] Add field/edge/corner geometry and positive/suction pressures only from explicit code rules and traceable inputs.
 - [ ] **M4 — Roof Sheet + Fastener / Connection Layer:** reusable Connection Lab foundations exist; Roof Bay integration remains unresolved.
 - [ ] **M5–M13:** follow `ROADMAP-ROOF-RESILIENCE-PHYSICS.md` in order unless an explicit engineering dependency requires resequencing.
