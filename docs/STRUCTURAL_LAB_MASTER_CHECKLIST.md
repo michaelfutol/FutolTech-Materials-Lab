@@ -33,6 +33,7 @@
 8. [x] **Physical-Test Calibration v1** — evidence-preserving CSV intake, measured-vs-predicted response, sample statistics and versioned calibration packages.
 9. [x] **Frame Analyzer / NF-001** — connected 2D frame, explicit spring/release states, elastic P–Δ, piecewise redistribution/mechanism detection and brace sensitivity.
 10. [x] **FutolStructure / RPE interchange v1** — versioned component, demand, critical-specimen and evidence-bounded failure/RPE law exchange.
+11. [~] **Roof Resilience Physics M2** — Roof Bay load routing, member selection/exploded trace, stable project JSON and custom/nonuniform purlin stations implemented through PR #110; reaction diagrams and M3-ready pressure-zone placeholders remain before the current M2 exit scope closes.
 
 # Protected foundation
 
@@ -240,6 +241,18 @@
 - [ ] **SARA:** non-code standards/best-practice layer.
 - [x] External specialist solvers may verify/extend physics but never become the source of material/product truth.
 
+# 13 — Roof Resilience Physics — M2 ACTIVE
+
+- [x] PR #108 — two-rafter Roof Bay, multiple purlins, tributary load routing, discrete reactions and vector conservation.
+- [x] PR #109 — selectable purlin/tributary/reaction/formula trace, exploded load path and stable `futoltech.roof-bay-project/1` JSON.
+- [x] PR #110 — optional custom/nonuniform purlin stations, exact physical tributary start/end boundaries, project round-trip and real-Chromium QA.
+- [x] Offset first/last purlins do not truncate roof demand: their tributary bands extend to the real 0 / roof-slope-length boundaries.
+- [x] Base figure and selected-member overlay use the same exact tributary boundaries stored by the solver.
+- [x] Roof sheet, fastener, purlin-to-rafter connection and rafter/truss capacity remain explicitly **UNRESOLVED**; custom geometry does not promote them to PASS.
+- [ ] Add rafter reaction diagrams and an explicit roof-normal / downslope conservation breakdown.
+- [ ] Add M3-ready field/edge/corner roof pressure-zone placeholders without duplicating or replacing the shared Roof Bay geometry model.
+- [ ] Close the M2 exit gate, then move the primary physics effort to M3 Code Wind / Roof Zoning.
+
 # Definition of DONE for every new product/feature
 
 1. [ ] **Source** — exact source/document/date/claim recorded.
@@ -274,3 +287,4 @@
 - 2026-08-18 — Brace Adviser v1 is a system-stiffness/axial-demand sensitivity tool only. Brace capacity, buckling and gusset/connection design remain UNRATED.
 - 2026-08-18 — A fully released, unloaded joint-core rotation may be an inactive zero-energy coordinate rather than a physical mechanism; loaded disconnected DOFs and actual singular structural systems still fail visibly.
 - 2026-08-18 — Structural Interchange v1 uses versioned, deterministic solver-agnostic JSON with explicit source ownership, provenance, units and analysis boundaries. SCREENING/sensitivity evidence is never upgraded by exchange; RPE degradation/residual behavior remains **UNAVAILABLE** unless an explicit validated/calibrated source law supplies it.
+- 2026-08-22 — Roof Resilience development uses `ROADMAP-ROOF-RESILIENCE-PHYSICS.md` plus the dedicated status/checklist files as the execution source of truth. Each completed M2 slice updates those records before merge; PR #110 adds custom/nonuniform purlin stations with exact physical tributary bands while preserving unresolved downstream capacities.
