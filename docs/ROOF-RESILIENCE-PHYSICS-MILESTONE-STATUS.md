@@ -15,32 +15,25 @@ Status date: 2026-08-22
   - [x] Adopted code/version + wind-input provenance foundation — PR #113; final-head Engineering Checks passed before merge.
   - [x] Velocity-pressure chain — PR #114; final-head Engineering Checks passed and PR merged.
   - [x] Project wind-input acceptance — PR #115; final-head Engineering Checks passed and PR merged.
-  - [x] Roof Bay project wind-input integration — PR #116; dedicated M3 Chromium gate and full final-head Engineering Checks passed before merge, and the PR merged.
-    - Roof Bay accepts the source-referenced project record, shows `Kz` / `q`, embeds the accepted record in project JSON, and invalidates acceptance after edits.
-    - The project wind-design basis is deterministically derived from the accepted record.
-    - `pressureZoning.activePressureModel` remains `manual-uniform`, `codeBasis` remains null and regions remain empty.
+  - [x] Roof Bay project wind-input integration — PR #116; dedicated M3 Chromium gate and full final-head Engineering Checks passed before merge.
   - [x] Enclosure + roof/building geometry input acceptance — PR #117; final-head Engineering Checks passed and PR merged.
-    - Adds versioned `futoltech.wind-pressure-context-acceptance/1` records on top of a valid upstream accepted wind-project record.
-    - Stores only the NSCP enclosure classification family `enclosed`, `partially-enclosed`, `open`; classification remains an engineer-declared project input, not an automatic code-definition result.
-    - Requires separate enclosure-classification and building-envelope-opening assessment references.
-    - Requires source-referenced roof form, plan length, plan width, mean roof height and roof slope.
-    - Mean roof height must match the upstream accepted wind-project height.
   - [x] Roof Bay pressure-context acceptance + project JSON integration — PR #118; dedicated V9 Chromium gate, deterministic tests and complete final-head Engineering Checks passed before merge.
-    - Exposes the pressure-context contract directly in Roof Bay only after accepted upstream wind inputs exist.
-    - Mean roof height/source is inherited from the accepted wind-project record; pressure-context roof slope must match active Roof Bay slope.
-    - Overall building plan dimensions remain explicit building-level inputs and are not inferred from bay dimensions.
-    - Project JSON may embed `windPressureContextAcceptance` only with its exact upstream accepted wind-project record.
-    - Editing accepted upstream wind inputs or active roof slope invalidates downstream context acceptance.
-    - `pressureZoning.activePressureModel` remains `manual-uniform`, `codeBasis` remains null, regions remain empty, and `analysisBoundary.codeWindZoning` remains `UNRESOLVED`.
-  - [~] Source-backed base internal-pressure coefficient (`GCpi`) foundation — PR #119 candidate.
-    - New versioned `futoltech.wind-internal-pressure-coefficient/1` record attaches to the exact accepted pressure-context record.
-    - Implements NSCP 2015 Section 207A.11.1 / Table 207A.11-1 base cases only: open `0.00`, enclosed `+0.18/-0.18`, partially enclosed `+0.55/-0.55`.
-    - Preserves positive and negative internal-pressure cases separately.
-    - Partially enclosed buildings remain blocked behind unresolved Section 207A.11.1.1 large-volume reduction-factor (`Ri`) applicability; `Ri` is not guessed or applied.
-    - Explicit future project facts are required before `Ri` can be resolved: qualifying single unpartitioned volume, total envelope opening area, and unpartitioned internal volume.
-    - Deterministic tests protect the table values, exact upstream enclosure attachment, round-trip serialization, and no-premature `Ri`/final-pressure promotion.
-    - Internal-pressure velocity selection, external pressure coefficients, effective wind area, field/edge/corner geometry, load combinations and final code-pressure routing remain blocked.
-  - [ ] Resolve and benchmark the large-volume `Ri` applicability/calculation path before partially enclosed GCpi can advance.
+  - [x] Source-backed base internal-pressure coefficient (`GCpi`) foundation — PR #119; exact final-head Engineering Checks passed before merge.
+    - `futoltech.wind-internal-pressure-coefficient/1` attaches to the exact accepted pressure-context record.
+    - Base cases: open `0.00`, enclosed `+0.18/-0.18`, partially enclosed `+0.55/-0.55`.
+    - Positive and negative cases remain separate.
+    - Partially enclosed base GCpi remains upstream evidence for the large-volume `Ri` path rather than becoming final pressure.
+  - [~] Large-volume partially enclosed reduction factor (`Ri`) applicability + equation — PR #120 candidate.
+    - New `futoltech.wind-large-volume-reduction/1` record requires the exact partially enclosed base-GCpi record.
+    - Applicability remains engineer-declared: the software does not automatically decide whether the building contains a qualifying single unpartitioned large volume.
+    - Non-qualifying path keeps `Ri = 1.0` and carries no unused `Aog` or `Vi` values.
+    - Qualifying path requires positive source-referenced `Aog` and `Vi`.
+    - Metric equation: `Ri = 0.5 * (1 + 1 / sqrt(1 + Vi / (6950 * Aog))) <= 1.0`.
+    - Conservative `Ri = 1.0` remains an explicit selectable path; the reduced value is never silently adopted.
+    - Hand benchmark: `Vi = 6950 m³`, `Aog = 1.00 m²` gives `Ri = 0.8535533905932737` and adjusted `GCpi = ±0.4694543648263006` if the equation reduction is selected.
+    - Validation protects applicability, equation output, selected factor, adjusted GCpi, source references, serialization, and downstream no-final-pressure boundaries.
+    - Internal-pressure velocity selection, external pressure coefficients, effective wind area, field/edge/corner geometry, pressure combination, load combinations and final code-pressure routing remain blocked.
+  - [ ] Implement and independently benchmark internal-pressure velocity-pressure selection/term after PR #120 is merged.
   - [ ] Add external pressure coefficients, effective wind area, field/edge/corner geometry, load combinations and final code-pressure routing only through their own source-backed gates.
 - [ ] **M4 — Roof Sheet + Fastener / Connection Layer:** reusable Connection Lab foundations exist; Roof Bay integration remains unresolved.
 - [ ] **M5–M13:** follow `ROADMAP-ROOF-RESILIENCE-PHYSICS.md` in order unless an explicit engineering dependency requires resequencing.
