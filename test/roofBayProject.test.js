@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createRoofBayProject, parseRoofBayProject, serializeRoofBayProject } from '../src/interchange/roofBayProject.js';
 import { createWindProjectInputAcceptance } from '../src/interchange/windProjectInputAcceptance.js';
+import { createWindPressureContextAcceptance } from '../src/interchange/windPressureContextAcceptance.js';
 
 const INPUT = {
   projectId: 'RB-001',
@@ -37,6 +38,22 @@ const ACCEPTED_WIND_INPUT = createWindProjectInputAcceptance({
   topographySourceReference: 'Engineer topographic-factor project record',
   heightM: 8.82,
   heightSourceReference: 'Project geometry / mean-roof-height record'
+});
+
+const ACCEPTED_PRESSURE_CONTEXT = createWindPressureContextAcceptance({
+  windProjectInputAcceptance: ACCEPTED_WIND_INPUT,
+  enclosureClassification: 'enclosed',
+  enclosureClassificationSourceReference: 'Engineer enclosure classification record; verify against authorized NSCP copy',
+  openingsAssessmentSourceReference: 'Project opening schedule and façade assessment',
+  roofForm: 'gable',
+  roofFormSourceReference: 'Architectural roof plan A-201',
+  planLengthM: 12.4,
+  planWidthM: 8.6,
+  planDimensionSourceReference: 'Dimensioned architectural plan A-101',
+  meanRoofHeightM: 8.82,
+  meanRoofHeightSourceReference: 'Project geometry / mean-roof-height record',
+  roofSlopeDeg: 25,
+  roofSlopeSourceReference: 'Roof section A-301'
 });
 
 test('Roof Bay project keeps geometry, material reference and loading explicit', () => {
@@ -86,6 +103,53 @@ test('accepted project wind inputs are embedded and deterministically produce q-
   assert.equal(project.pressureZoning.activePressureModel, 'manual-uniform');
   assert.equal(project.pressureZoning.codeBasis, null);
   assert.deepEqual(project.pressureZoning.regions, []);
+});
+
+test('accepted pressure context is embedded with its exact upstream wind record while code pressure remains blocked', () => {
+  const project = createRoofBayProject({
+    ...INPUT,
+    windProjectInputAcceptance: ACCEPTED_WIND_INPUT,
+    windPressureContextAcceptance: ACCEPTED_PRESSURE_CONTEXT
+  });
+  assert.equal(project.windPressureContextAcceptance.schemaVersion, 'futoltech.wind-pressure-context-acceptance/1');
+  assert.equal(project.windPressureContextAcceptance.status, 'ACCEPTED_FOR_PRESSURE_COEFFICIENT_INPUT_CONTEXT_ONLY');
+  assert.equal(project.windPressureContextAcceptance.enclosure.classification, 'enclosed');
+  assert.equal(project.windPressureContextAcceptance.roofGeometry.roofSlopeDeg, INPUT.slopeDeg);
+  assert.deepEqual(project.windPressureContextAcceptance.upstreamWindProjectInputAcceptance, project.windProjectInputAcceptance);
+  assert.equal(project.pressureZoning.activePressureModel, 'manual-uniform');
+  assert.equal(project.pressureZoning.codeBasis, null);
+  assert.deepEqual(project.pressureZoning.regions, []);
+  assert.equal(project.analysisBoundary.codeWindZoning, 'UNRESOLVED');
+});
+
+test('pressure-context project cannot detach from the exact accepted wind input record', () => {
+  const changedWind = structuredClone(ACCEPTED_WIND_INPUT);
+  changedWind.note = 'Different accepted project note';
+  assert.throws(() => createRoofBayProject({
+    ...INPUT,
+    windProjectInputAcceptance: changedWind,
+    windPressureContextAcceptance: ACCEPTED_PRESSURE_CONTEXT
+  }), /exact windProjectInputAcceptance record/);
+});
+
+test('pressure-context project rejects roof-slope drift from active Roof Bay geometry', () => {
+  assert.throws(() => createRoofBayProject({
+    ...INPUT,
+    slopeDeg: 24,
+    windProjectInputAcceptance: ACCEPTED_WIND_INPUT,
+    windPressureContextAcceptance: ACCEPTED_PRESSURE_CONTEXT
+  }), /roof slope must match geometry\.slopeDeg/);
+});
+
+test('accepted pressure-context Roof Bay project round-trips exactly', () => {
+  const project = createRoofBayProject({
+    ...INPUT,
+    windProjectInputAcceptance: ACCEPTED_WIND_INPUT,
+    windPressureContextAcceptance: ACCEPTED_PRESSURE_CONTEXT
+  });
+  const first = serializeRoofBayProject(project);
+  const second = serializeRoofBayProject(parseRoofBayProject(first));
+  assert.equal(second, first);
 });
 
 test('accepted wind-input project cannot detach or mutate its derived velocity-pressure basis', () => {
