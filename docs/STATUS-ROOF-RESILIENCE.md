@@ -80,7 +80,7 @@ M2 exit gate:
 - [x] PR #112 final-head full Engineering Checks passed, including syntax, deterministic engineering tests, all Roof Bay Chromium gates, legacy lab/browser gates and PDF/print protections.
 
 ## M3 — Code Wind / Roof Zoning Engine
-**Status: ACTIVE — completed through the roof-purlin C&C effective-wind-area foundation in PR #123; zone geometry/assignment is next before external `GCp`.**
+**Status: ACTIVE — implemented through the source-backed symmetric-gable roof-zone geometry / purlin-band intersection foundation in PR #124 candidate; external roof `GCp` selection is next.**
 
 Completed in PR #113 — code/version + provenance:
 - Source-backed wind-code profile registry for NSCP 2015 Volume 1, 7th Edition, 2nd Printing.
@@ -162,23 +162,39 @@ Completed in PR #123 — roof-purlin C&C target + effective wind area:
 - Deterministic benchmark: 4.0 m span × 1.0 m actual tributary width gives 4.0 m² actual load area and 5.333333333... m² coefficient-selection area for the one-third-span path.
 - Validation rejects mutated areas, missing selection/source references, silent `GCp` promotion, sheet/fastener area promotion, final pressure promotion and purlin capacity promotion.
 - Roof-sheet and fastener effective areas remain explicitly unresolved; the fastener tributary-area cap is not implemented in this purlin slice.
-- Preliminary implementation head passed the full Engineering Checks suite before milestone/checklist advancement; the documentation-updated exact head must also pass before merge.
+- Full exact-head Engineering Checks passed before merge.
 - Public boundary/QA record: `docs/M3_ROOF_PURLIN_EFFECTIVE_WIND_AREA.md`.
 
-Current M3 dependency — source-backed roof C&C zone geometry + purlin zone assignment:
-- Reuse the M2 roof-local coordinate frame and accepted roof/building geometry rather than creating a second drawing-only zone geometry.
-- Resolve field/edge/corner zone dimensions and polygons from the governing C&C procedure without embedding external coefficient values in the zoning layer.
-- Assign physical purlin tributary bands by actual zone intersection; do not label an entire purlin with one convenient zone if its loaded area spans multiple zones.
-- Preserve deterministic geometry, serialization, anti-mutation tests and independent hand benchmarks before enabling external `GCp`.
+Completed implementation candidate in PR #124 — symmetric-gable roof C&C zone geometry + purlin tributary-band intersections:
+- Adds `futoltech.wind-roof-zone-geometry/1` downstream of the accepted pressure-context record.
+- Initial supported geometry is an engineer-confirmed symmetric gable roof only; ridge direction, selected slope and symmetry are explicit/source-referenced.
+- Whole-roof geometry and local Roof Bay geometry are joined by explicit ridge-parallel bay registration; zone identity is never inferred from an unregistered local rectangle.
+- Figure-family selection respects the gable 27° boundary: `207E.4-2B` for `7° < θ <= 27°`, `207E.4-2C` for `27° < θ <= 45°`.
+- Edge dimension `a` is deterministically evaluated in horizontal plan from the least horizontal building dimension and the applicable height reference.
+- For `θ <= 10°`, the slice requires source-referenced eave height; for `θ > 10°`, it requires the accepted mean roof height.
+- The eave edge strip is mapped from horizontal plan onto the roof surface as `a/cos(θ)`.
+- Zone 1/field, Zone 2/edge and Zone 3/corner are stored as deterministic, non-overlapping roof-surface cells; in this symmetric-gable slice the ridge is not treated as an exterior roof edge.
+- Every purlin tributary band must form part of a contiguous, non-overlapping eave-to-ridge partition and is intersected against every zone cell.
+- A single tributary band may therefore store distinct field/edge/corner areas rather than one convenient whole-member zone.
+- Per-band and whole-Roof-Bay area conservation are required and deterministically validated.
+- Serialization round-trip and mutation tests reject changed zone cells, changed `a`, changed intersection areas and any silent promotion into external `GCp`, overhangs, roof-sheet/fastener area, pressure combination or final pressure.
+- Preliminary exact head `e57fd839c8ccf86c600d7d76637e7e990db654a3` passed the complete Engineering Checks suite before milestone/checklist advancement; the documentation-updated exact final head must also pass before PR #124 merge.
+- Public boundary/QA records: `docs/M3_ROOF_ZONE_GEOMETRY.md`, `docs/M3_ROOF_ZONE_GEOMETRY_RESEARCH_NOTES.md` and `docs/M3_ROOF_ZONE_GEOMETRY_ACCEPTANCE_CANDIDATE.md`.
 
-Next M3 work after zone geometry:
-- Source-backed external roof `GCp` selection using roof form/slope, resolved zone identity and PR #123 coefficient-selection effective area together.
-- External pressure term with explicit sign convention.
+Current M3 dependency — source-backed external roof `GCp` selection:
+- Consume roof form/slope, exact PR #124 zone identity/intersection pieces and the PR #123 purlin coefficient-selection effective wind area together.
+- Select/interpolate only the applicable supported external coefficient and keep its figure/rule, substitutions and provenance visible.
+- Do not assign one convenient coefficient to an entire purlin tributary band when different portions lie in different zones.
+- Keep roof-sheet and fastener effective wind areas separate and unresolved; they must not inherit the purlin coefficient-selection area.
+- Independently benchmark coefficient selection before an external pressure term is enabled.
+
+Next M3 work after external `GCp` selection:
+- Source-backed external pressure term with explicit sign convention.
 - External-minus-internal pressure combination.
 - Traceable load combinations.
 - Automatic code-derived Roof Bay pressure only after the full chain passes independent benchmarks and final-head QA.
 
-Permanent M3 boundary: a verified velocity pressure, accepted pressure context, base/adjusted `GCpi`, resolved internal-pressure term, purlin effective-wind-area record, or future zone geometry still does not constitute final roof pressure. Manual pressure entry remains the active Roof Bay path until the complete internal/external coefficient, zoning and pressure-combination chain is verified.
+Permanent M3 boundary: a verified velocity pressure, accepted pressure context, base/adjusted `GCpi`, resolved internal-pressure term, purlin effective-wind-area record, zone geometry or external coefficient still does not constitute final roof pressure. Manual pressure entry remains the active Roof Bay path until the complete internal/external coefficient, zoning and pressure-combination chain is verified.
 
 ## M4 — Roof Sheet + Fastener / Connection Layer
 **Status: NOT YET INTEGRATED.**
