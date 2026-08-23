@@ -18,35 +18,34 @@ Completed M3 chain:
 - **PR #124** — symmetric-gable field/edge/corner geometry + exact purlin tributary-band zone intersections.
 - **PR #127** — external roof `GCp` selection.
 - **PR #128** — independently benchmarked external-only `qh × GCp`; exact final-head Engineering Checks passed and it merged as `3588219906b1171a348b5d4bf135e9476e1138db`.
+- **PR #129** — low-rise Part 1 net roof pressure `qh[(GCp) - (GCpi)]` + minimum directional design envelopes; exact final-head Engineering Checks passed and it merged as `51fbc2bdd6487b06b3255c98672f8c1c21853b5a`.
 
-Current completion candidate: **PR #129 — low-rise Part 1 net roof pressure `qh[(GCp) - (GCpi)]` + minimum directional design envelopes**.
+Current completion candidate: **PR #130 — code-derived Roof Bay pressure routing + exact area/force/reaction/moment conservation**.
 
-Implemented in the PR #129 candidate:
-1. Versioned `futoltech.wind-roof-net-pressure/1` consumes the exact PR #128 external-pressure record and an internal `GCpi` record tied to the exact same accepted pressure context.
-2. Current procedure remains Part 1 Components & Cladding, roof-purlin target, `h <= 18 m`, enclosed or partially enclosed.
-3. Internal velocity basis is forced to `qh`; PR #121's Part 3 opening-height `qi=qz` option is explicitly prohibited.
-4. Enclosed cases use `GCpi = ±0.18`.
-5. Partially enclosed cases require an explicit PR #120 `Ri` decision record even when conservative `Ri = 1.0` is selected; equation-reduced adjusted `GCpi` is supported and benchmarked.
-6. Every physical field/edge/corner zone piece retains the full external-positive/external-negative × internal-positive/internal-negative raw case matrix.
-7. Raw calculated net pressure is retained separately from the governing directional design envelope.
-8. The **0.77 kPa minimum in either direction** is applied only to the directional net-design envelopes, never retroactively to `GCp` or `qh(GCp)`.
-9. Enclosed field benchmark at `qh = 2.257467958862151 kPa` resolves raw cases `+0.4361292350490715`, `+1.2488177002394458`, `-2.294935139677715`, and `-1.4822466744873406 kPa`; raw governing field envelopes are `+1.2488177002394458` and `-2.294935139677715 kPa`.
-10. Partially enclosed equation-Ri benchmark uses `Ri = 0.8535533905932737`, adjusted `GCpi = ±0.4694543648263006`, and preserves the corresponding raw case matrix.
-11. A 60 kph low-pressure regression preserves the small raw calculations but returns design envelopes exactly `+0.77 / -0.77 kPa`.
-12. Preliminary exact implementation head passed the complete Engineering Checks suite after an unchanged rerun confirmed an unrelated legacy playback DOM-timing flake.
-13. Load combinations, code-derived Roof Bay routing, roof-sheet/fastener design, connection capacity and purlin-capacity promotion remain blocked.
+Implemented in the PR #130 candidate:
+1. Versioned `futoltech.wind-roof-bay-code-pressure-routing/1` requires exactly one verified PR #129 net-pressure record for every physical purlin tributary band in one exact PR #124 Roof Bay zone-geometry record.
+2. Routing direction is explicit: `toward-surface` or `away-from-surface`; strength/service load combinations are not created in this slice.
+3. Every stored purlin-band zone piece is reconstructed as its exact physical intersection rectangle from the upstream whole-roof zone cell and physical tributary-band rectangle.
+4. The selected directional **design pressure** is applied to that exact physical area; the governing raw `GCp`, `GCpi`, `qh`, raw net pressure and case identity remain attached.
+5. Pressure becomes piece force by `F = p × A` and piecewise purlin line load by `w = p × tributary width`.
+6. Rafter A/B reactions are resolved from the true spanwise resultant centroid, not by an assumed 50/50 split: `RB = F x̄/L`, `RA = F - RB`.
+7. Each physical piece, every purlin and the complete Roof Bay are regression-protected for area, signed force and moment conservation.
+8. The 25° benchmark bay crossing a gable-end strip intentionally produces asymmetric suction reactions: total `-46.769510965040396 kN`, Rafter A `-24.4711529728144 kN`, Rafter B `-22.298357992225995 kN`, with applied/reaction moment about A both `-89.19343196890398 kN·m`.
+9. The toward-surface benchmark gives total `+19.79058581298942 kN` and equal A/B reactions because its spanwise pressure distribution is symmetric.
+10. A 60 kph low-wind regression proves the router consumes the PR #129 minimum-governed `-0.77 kPa` design pressure rather than the smaller unfloored raw pressure.
+11. The strengthened preliminary exact head passes the complete Engineering Checks suite, including an exact per-piece `RB·L = F·x̄` regression within `1e-12`.
+12. Live manual-uniform Roof Bay UI remains active and distinct; piecewise purlin member response/capacity, rafter/connection capacity, roof-sheet/fastener design and load combinations remain blocked.
 
-Current M3 task after PR #129 merges: **route the verified net design pressures into Roof Bay with explicit case identity and exact force/reaction conservation**.
+Current M3 task after PR #130 merges: **explicit code-wind load-case / load-combination identity**.
 
 Dependency order:
-1. Preserve zone-piece and toward/away case identity when converting pressure × actual physical zone area into purlin demand.
-2. Do not average field/edge/corner pressures into one convenient uniform purlin pressure unless a separately justified equivalent-load representation preserves force and effect.
-3. Prove pressure-area force totals equal routed purlin loads within numerical tolerance.
-4. Prove Rafter A + Rafter B reaction totals equal the routed code wind demand within numerical tolerance, alongside the existing gravity/self-weight decomposition.
-5. Keep the existing manual-uniform Roof Bay pressure mode available and clearly distinct during transition; code-derived mode activates only after this routing gate is verified.
-6. Add explicit code wind case/combination identity only through a traceable separate gate; do not silently mix ultimate/service combinations into the pressure coefficient calculation.
-7. Close M3 only after an independent end-to-end benchmark confirms site/project inputs → `qh` → `GCp/GCpi` → minimum-governed net zone pressures → purlin loads → rafter reactions.
+1. Define source-backed wind load-case identity separately from the already derived pressure physics; combination factors must never be folded backward into `qh`, `GCp`, `GCpi` or the net-pressure calculation.
+2. Preserve toward-surface / away-from-surface, zone-piece, purlin and governing raw-case identity through every generated wind case.
+3. Keep strength/service or other applicable combination families explicit, traceable and procedure-scoped; do not silently select or mix combinations.
+4. After case/combination identity is verified, add controlled Roof Bay project/UI activation of the code-derived route while retaining manual-uniform mode as a clearly separate option during transition.
+5. Piecewise purlin stress/deflection under code pressure is a later member-response gate; routing alone does not promote purlin capacity.
+6. Close M3 only after an independent end-to-end benchmark confirms accepted project/site inputs → `qh` → `GCp/GCpi` → minimum-governed net zone pressures → physical piecewise purlin loads → Rafter A/B reactions → explicit wind case identity, with conservation and final-head QA green.
 
-Permanent M3 rule: procedure applicability, source provenance, physical area, pressure sign/case identity and conservation are all solver state. A verified net-pressure record is not by itself a complete Roof Bay load path. Manual pressure remains available until the code-derived routing chain passes its exit gate.
+Permanent M3 rule: procedure applicability, source provenance, physical area, pressure sign/case identity and conservation are all solver state. A verified routing record is not by itself a complete design combination or capacity check. Manual pressure remains available until the controlled code-derived activation gate passes.
 
-Detailed scope and gates live in `ROADMAP-ROOF-RESILIENCE-PHYSICS.md`, `STATUS-ROOF-RESILIENCE.md`, `ROOF-RESILIENCE-PHYSICS-MILESTONE-STATUS.md`, `STRUCTURAL_LAB_MASTER_CHECKLIST.md`, and the dedicated M3 engineering records through `M3_ROOF_NET_PRESSURE.md`.
+Detailed scope and gates live in `ROADMAP-ROOF-RESILIENCE-PHYSICS.md`, `STATUS-ROOF-RESILIENCE.md`, `ROOF-RESILIENCE-PHYSICS-MILESTONE-STATUS.md`, `STRUCTURAL_LAB_MASTER_CHECKLIST.md`, and the dedicated M3 engineering records through `M3_ROOF_BAY_CODE_PRESSURE_ROUTING.md`.
