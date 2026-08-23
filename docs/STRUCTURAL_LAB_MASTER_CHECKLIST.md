@@ -34,7 +34,7 @@
 9. [x] **Frame Analyzer / NF-001** — connected 2D frame, explicit spring/release states, elastic P–Δ, piecewise redistribution/mechanism detection and brace sensitivity.
 10. [x] **FutolStructure / RPE interchange v1** — versioned component, demand, critical-specimen and evidence-bounded failure/RPE law exchange.
 11. [x] **Roof Resilience Physics M2** — Roof Bay load routing, member selection/exploded trace, stable project JSON, custom/nonuniform purlin stations, reaction diagrams and M3-ready pressure-zone placeholders completed through PR #112 with the M2 exit gate green.
-12. [~] **Roof Resilience Physics M3** — implemented through PR #128 candidate: code/version provenance, velocity-pressure benchmark, project wind-input acceptance + Roof Bay bridge, enclosure/roof-geometry context + Roof Bay bridge, base `GCpi`, large-volume `Ri`, signed internal-pressure foundation, source-backed roof-purlin C&C effective wind area, deterministic symmetric-gable field/edge/corner zoning, exact purlin tributary-band zone intersections, independently benchmarked external roof `GCp`, and independently benchmarked external-only `qh × GCp` per zone piece. Current dependency is low-rise Part 1 net pressure `qh[(GCp)-(GCpi)]`; the Part 3 opening-height `qi=qz` option remains gated out, and the ±0.77 kPa minimum belongs only to the net-design-pressure stage.
+12. [~] **Roof Resilience Physics M3** — pressure derivation is implemented through the PR #129 net-pressure candidate: provenance → `qh` → project/pressure context → base/adjusted `GCpi` → purlin effective area → exact field/edge/corner geometry → external `GCp` → external `qh(GCp)` → low-rise `qh[(GCp)-(GCpi)]` raw cases and ±0.77 kPa minimum directional design envelopes. Current dependency is code-derived Roof Bay routing with exact force/reaction conservation, followed by traceable load-case identity and the M3 end-to-end exit benchmark.
 
 # Protected foundation
 
@@ -258,58 +258,35 @@
 
 ## M3 active
 
-- [x] PR #113 — source-backed code/version identity + `futoltech.wind-design-basis/1` provenance object; final-head Engineering Checks passed and the PR merged.
-- [x] Initial Philippine profile identifies NSCP 2015, Volume 1, 7th Edition, 2nd Printing from public ASEP/DPWH evidence without claiming unimplemented wind rules.
-- [x] Provenance-only state explicitly names eight required wind-input families and blocks silent population.
-- [x] PR #114 — benchmarked building velocity-pressure chain `qz = 0.613 Kz Kzt Kd V²`, with Exposure B/C/D Kz, `Kd = 0.85`, 4.57 m minimum Kz evaluation height, source-referenced inputs and independent hand benchmark; final-head Engineering Checks passed and the PR merged.
-- [x] PR #114 deterministic benchmark: Exposure C, h=8.82 m, V=240 kph, Kzt=1.0 → `Kz = 0.974820633`, `q = 2.257468 kPa` at full precision.
-- [x] Velocity-pressure result validation recalculates Kz/q and rejects changed results or missing source provenance.
-- [x] Manual uniform pressure remains active; the benchmark is not routed into Roof Bay and `pressureZoning.codeBasis` remains null.
-- [x] PR #115 — source-backed `futoltech.wind-project-input-acceptance/1` records for site, occupancy category, basic-wind-speed provenance, Exposure B/C/D, Kzt and evaluation height; final-head Engineering Checks passed and the PR merged.
-- [x] PR #115 validates the NSCP 2015 occupancy-to-wind-speed-figure relationship: Category I → `207A.5-1C`, Category II → `207A.5-1B`, Categories III/IV/V → `207A.5-1A`.
-- [x] No wind-map contours or province speed table are embedded; an authorized-code-map speed remains an engineer-transcribed project input with declared figure, selection method and source reference.
-- [x] Project design criteria and site-specific studies remain explicit non-map sources and cannot silently claim software-verified code-map status.
-- [x] Exposure, Kzt and height require explicit source references; automatic address-based terrain classification and automatic topographic-factor derivation remain blocked.
-- [x] Accepted project records serialize deterministically and can feed the benchmarked velocity-pressure solver through a dedicated bridge without becoming final roof pressure.
-- [x] PR #116 — Roof Bay exposes the accepted project-input workflow, displays the occupancy-matched wind-speed figure, validates explicit source references, shows accepted `Kz`/`q`, persists the exact accepted project record, and leaves `pressureZoning` manual-uniform with null code basis and zero code regions; dedicated Chromium + full final-head Engineering Checks passed before merge.
-- [x] PR #117 — source-backed `futoltech.wind-pressure-context-acceptance/1` accepts engineer-declared enclosure plus openings evidence and source-referenced roof form, plan length/width, mean roof height and roof slope; automatic enclosure thresholds and all pressure coefficients/zones remain blocked; final-head Engineering Checks passed before merge.
-- [x] PR #118 — Roof Bay exposes pressure-context acceptance only after upstream wind acceptance, preserves exact project JSON provenance, enforces mean-height/slope consistency and keeps manual pressure active; dedicated V9 Chromium + full final-head Engineering Checks passed before merge.
-- [x] PR #119 — `futoltech.wind-internal-pressure-coefficient/1` implements source-backed base `GCpi`: open `0.00`, enclosed `±0.18`, partially enclosed `±0.55`, with positive/negative cases explicit and the large-volume reduction left as a separate gate; final-head Engineering Checks passed before merge.
-- [x] PR #120 — `futoltech.wind-large-volume-reduction/1` adds engineer-gated large-volume `Ri`: non-qualifying/conservative `Ri=1.0`, source-referenced `Aog`/`Vi` equation path, deterministic benchmark `Vi=6950 m³`, `Aog=1.00 m²` → `Ri=0.8535533905932737`, and no silent beneficial reduction; final-head Engineering Checks passed before merge.
-- [x] PR #121 — `futoltech.wind-internal-pressure-term/1` resolves internal-pressure velocity selection and signed `qi(GCpi)` as a reusable pressure-term foundation.
-- [x] PR #121 enclosed cases use `qi=qh`; partially enclosed negative uses `qh`; partially enclosed positive can use either explicit conservative `qh` or source-referenced `qz` at the highest relevant opening under the applicable Part 3 rule; open remains zero because `GCpi=0`.
-- [x] PR #121 partially enclosed records cannot bypass the explicit `Ri` decision; deterministic validation recalculates `qh`, optional `qz`, `qi` and `qi(GCpi)` and rejects mutation.
-- [x] **Procedure gate:** current `h <= 18 m` C&C uses NSCP 207E.4 Part 1 and therefore forms net pressure with `qh[(GCp)-(GCpi)]`; it must reject automatic reuse of PR #121's Part 3 opening-height `qi=qz` option.
-- [x] PR #121 exact head `9a458078f610a35a678213583f0f91462bba7dcb` passed the complete Engineering Checks suite after a legacy Chromium temp-profile cleanup flake was rerun successfully; PR #121 squash-merged as `5acab72d3848ee1b3e55191560577dc965b15d08`.
-- [x] PR #123 — `futoltech.wind-roof-purlin-effective-area/1` establishes the supported `roof-purlin` Components & Cladding target and keeps coefficient-selection effective wind area distinct from actual tributary/load-application area.
-- [x] PR #123 supports explicit `actual-tributary-width` and source-referenced `one-third-span-minimum` selections; the latter uses `max(actual width, span/3)` and never rewrites the physical Roof Bay tributary band.
-- [x] PR #123 deterministic benchmark: 4.0 m purlin span × 1.0 m actual tributary width → 4.0 m² actual load area; explicit one-third-span selection → 5.333333333... m² coefficient-selection effective area.
-- [x] PR #123 validation blocks silent roof-sheet/fastener area promotion, external `GCp`, code zones, pressure combination, final Roof Bay pressure and purlin capacity promotion; full exact-head Engineering Checks passed before merge.
-- [x] PR #124 — `futoltech.wind-roof-zone-geometry/1` registers a confirmed symmetric-gable Roof Bay within whole-roof coordinates, resolves deterministic field/edge/corner geometry, and stores exact purlin tributary-band zone intersections without selecting external coefficients.
-- [x] PR #124 preserves the 27° gable figure boundary: `207E.4-2B` for `7° < θ <= 27°`, `207E.4-2C` for `27° < θ <= 45°`.
-- [x] PR #124 resolves horizontal-plan edge dimension `a` from accepted dimensions and the applicable source-backed roof-height reference; low slopes require eave height and the eave strip maps to the roof surface as `a/cos(θ)`.
-- [x] PR #124 uses non-overlapping Zone 1/field, Zone 2/edge and Zone 3/corner roof-surface cells, with the ridge not treated as an exterior roof edge in this symmetric-gable slice.
-- [x] PR #124 never gives one convenient zone to a whole purlin band: each physical tributary band retains exact field/edge/corner intersection pieces and must conserve its full physical area; the whole Roof Bay must also conserve area.
-- [x] PR #124 deterministic round-trip/mutation guards reject changed cells, changed `a`, changed intersection areas, overhang promotion, external `GCp`, roof-sheet/fastener effective area, pressure combination and final-pressure promotion.
-- [x] PR #124 exact final head passed the complete Engineering Checks suite and merged as `a0abdff0275ed6df35cf94317d4912c9be8e2f2b`.
-- [x] PR #127, clean successor to PR #125 — `futoltech.wind-roof-external-gcp/1` resolves source-backed external roof `GCp` for the supported roof-purlin C&C target without creating pressure.
-- [x] PR #127 consumes the exact PR #123 coefficient-selection effective area and PR #124 physical zone-intersection pieces; it never assigns one convenient whole-member coefficient to a multi-zone purlin.
-- [x] PR #127 preserves the 2B/2C 27° figure-family split, the 10/100 ft² plateaus and the source-backed `log10(A)` interpolation region.
-- [x] PR #127 stores separate positive and negative coefficients for every actual field/edge/corner zone portion and retains figure/rule/provenance evidence.
-- [x] PR #127 deterministic benchmarks: 25° / 4.0 m² → positive `+0.3731939868`, negative Z1 `-0.8365969934`, Z2 `-1.3829849670`, Z3 `-2.2195819604`; 30° / 4.8 m² → positive `+0.8286788688`, negative Z1 `-0.8573577376`, Z2/Z3 `-1.0573577376`.
-- [x] PR #127 validation blocks coefficient mutation, missing provenance, rewritten rule/boundary text, `qh × GCp`, external/internal combination, roof-sheet/fastener effective-area promotion, Roof Bay code-pressure routing and purlin-capacity promotion.
-- [x] PR #127 exact final-head Engineering Checks passed; it merged as `fce0c1e12535a9dca0d0eca44128204f9c913643`.
-- [x] PR #128 — external-only roof pressure term `qh × GCp` preserves one positive/toward-surface and one negative/away-from-surface pressure for every actual zone-intersection piece.
-- [x] PR #128 reuses the exact accepted mean-roof-height `qh`; it does not accept a separate arbitrary external velocity pressure.
-- [x] PR #128 benchmark basis Exposure C, `h=8.82 m`, `V=240 kph`, `Kzt=1.0` gives `qh = 2.257467958862151 kPa`, with deterministic 2B/2C zone-piece external pressures.
-- [x] PR #128 keeps raw external terms separate from internal pressure and proves with a low-pressure regression that the 0.77 kPa C&C minimum is not applied early.
-- [x] PR #128 validation blocks upstream/pressure mutation, external/internal combination, minimum-pressure promotion, roof-sheet/fastener effective-area promotion, Roof Bay code-pressure routing and purlin-capacity promotion.
-- [x] PR #128 preliminary exact head `ce1b14ef1d3691994f7cb88c482d0b51f481dc97` passed the complete Engineering Checks suite; this documentation-updated exact final head must also be fully green before merge.
+- [x] PR #113 — code/version + wind-input provenance foundation.
+- [x] PR #114 — benchmarked velocity-pressure chain; Exposure C / 8.82 m / 240 kph / Kzt 1.0 gives `Kz = 0.974820633`, `qh = 2.257467958862151 kPa` at full precision.
+- [x] PR #115 — source-backed project wind-input acceptance, occupancy-to-map-figure gate, no embedded guessed wind map.
+- [x] PR #116 — Roof Bay project-input UI/project JSON bridge while manual pressure remains active.
+- [x] PR #117 — engineer-declared enclosure + source-backed roof/building geometry acceptance.
+- [x] PR #118 — Roof Bay pressure-context UI/project JSON bridge.
+- [x] PR #119 — base `GCpi`: open 0.00, enclosed ±0.18, partially enclosed ±0.55.
+- [x] PR #120 — explicit partially enclosed large-volume `Ri` decision; benchmark `Ri = 0.8535533905932737` for `Vi=6950 m³`, `Aog=1.00 m²`.
+- [x] PR #121 — reusable internal-pressure term foundation; current low-rise Part 1 path explicitly rejects the Part 3 opening-height `qi=qz` option.
+- [x] PR #123 — roof-purlin C&C effective wind area kept separate from actual physical load area.
+- [x] PR #124 — symmetric-gable 2B/2C zone geometry with exact field/edge/corner intersections and area conservation.
+- [x] PR #127 — external roof `GCp` selection per actual zone piece; exact final-head Engineering Checks green and merged as `fce0c1e12535a9dca0d0eca44128204f9c913643`.
+- [x] PR #128 — external-only `qh × GCp` per actual zone piece; exact final-head Engineering Checks green and merged as `3588219906b1171a348b5d4bf135e9476e1138db`.
+- [x] PR #129 — `futoltech.wind-roof-net-pressure/1` low-rise Part 1 net-pressure implementation candidate.
+- [x] PR #129 equation is `p = qh[(GCp)-(GCpi)]`; internal velocity basis is fixed at `qh`, and Part 3 opening-height `qi=qz` is blocked.
+- [x] PR #129 enclosed cases use `GCpi = ±0.18`; partially enclosed cases require an exact PR #120 Ri decision record and use adjusted `GCpi` when reduction is selected.
+- [x] PR #129 preserves every physical zone piece and the full external-sign × internal-sign raw case matrix before deriving directional design envelopes.
+- [x] PR #129 enclosed field benchmark at `qh=2.257467958862151 kPa`: raw net `+0.4361292350490715`, `+1.2488177002394458`, `-2.294935139677715`, `-1.4822466744873406 kPa`; raw governing toward/away envelopes `+1.2488177002394458 / -2.294935139677715 kPa`.
+- [x] PR #129 partially enclosed equation-Ri benchmark preserves `Ri=0.8535533905932737`, adjusted `GCpi=±0.4694543648263006`, and the complete raw case matrix.
+- [x] PR #129 applies the **0.77 kPa minimum in either direction** only to directional net-design envelopes while retaining unfloored raw cases; a 60 kph regression yields exactly `+0.77 / -0.77 kPa` design envelopes.
+- [x] PR #129 deterministic tests protect context/Ri linkage, raw and design values, serialization/mutation, Part 3 exclusion and downstream anti-promotion boundaries.
+- [x] PR #129 preliminary implementation head passed the complete Engineering Checks suite after an unchanged rerun confirmed an unrelated legacy playback DOM-timing flake; this documentation-updated exact final head must also be fully green before merge.
 - [!] Roof sheet and fastener effective areas remain unresolved and independent from the purlin effective area.
-- [ ] **Current M3 slice after PR #128 merges:** implement low-rise Part 1 net roof pressure `qh[(GCp)-(GCpi)]` for every applicable external-zone/internal-sign case.
-- [ ] Require internal velocity basis `qh`; do not import the Part 3 opening-height `qi=qz` option.
-- [ ] Preserve raw calculated net pressure and apply the **0.77 kPa minimum in either direction** only at the net-design-pressure stage.
-- [ ] After net pressure is resolved, implement governing envelopes, traceable load combinations and final code-pressure routing through separate source-backed gates and end-to-end conservation benchmarks.
+- [ ] **Current M3 slice after PR #129 merges:** route code-derived net design pressures into Roof Bay with explicit pressure-case identity and exact pressure-area → purlin-load → rafter-reaction conservation.
+- [ ] Preserve field/edge/corner zone pieces; do not silently average them into one purlin pressure unless an explicit equivalent representation preserves total force and structural effect.
+- [ ] Prove total applied code wind force equals routed purlin demand and Rafter A + Rafter B reactions within numerical tolerance.
+- [ ] Keep manual-uniform and code-derived Roof Bay pressure modes visibly distinct until code routing is independently benchmarked and accepted.
+- [ ] Add traceable wind load-case/load-combination identity through a separate source-backed gate; do not mix combination factors into pressure derivation.
+- [ ] **M3 exit gate:** independent end-to-end benchmark from accepted project/site inputs → `qh` → `GCp/GCpi` → minimum-governed net zone pressure → purlin loads → rafter reactions, with all conservation checks and final-head QA green.
 
 # Definition of DONE for every new product/feature
 
@@ -356,7 +333,8 @@
 - 2026-08-22 — PR #121 exact final head passed the complete Engineering Checks suite after rerunning a legacy Chromium temp-profile cleanup flake; it squash-merged as `5acab72d3848ee1b3e55191560577dc965b15d08`.
 - 2026-08-22 — PR #123 resolves only the current roof-purlin C&C target and coefficient-selection effective wind area. It keeps physical tributary/load area separate, makes one-third-span enlargement explicit and source-referenced, and leaves sheet/fastener area, zone geometry, external `GCp`, pressure combination and final code pressure blocked.
 - 2026-08-22 — M3 sequencing is corrected so source-backed field/edge/corner zone geometry and physical purlin/tributary-band zone assignment precede external `GCp` lookup; zone-dependent coefficients will never be selected first and assigned a zone afterward.
-- 2026-08-22 — PR #124 resolves that zoning dependency for an explicitly confirmed symmetric gable roof: whole-roof registration, the 27° figure-family split, horizontal-plan edge dimension `a`, `a/cos(θ)` roof-surface mapping, deterministic Zone 1/2/3 cells and exact purlin-band zone-area intersections are all separately conserved and regression protected. External `GCp` and final pressure remain blocked until later gates.
-- 2026-08-22 — PR #127 supersedes the now-conflicted PR #125 on the current Engineering Mode base and completes the external roof-purlin `GCp` selection layer. It preserves per-zone positive/negative coefficients and coefficient-area provenance while still blocking `qh × GCp`, internal combination and final Roof Bay code pressure.
-- 2026-08-22 — Source verification before the pressure-combination slice distinguishes NSCP 207E.4 Part 1 (`h <= 18 m`) from 207E.6 Part 3 (`h > 18 m`): the current low-rise C&C net equation uses `qh[(GCp)-(GCpi)]`; opening-height `qi=qz` is a Part 3 option and is explicitly gated out of the current path.
-- 2026-08-23 — PR #128 adds the independently benchmarked external-only `qh × GCp` layer per physical zone piece, preserves the surface-normal sign convention, and deliberately leaves internal subtraction and the 0.77 kPa minimum to the next net-design-pressure gate.
+- 2026-08-22 — PR #124 resolves that zoning dependency for an explicitly confirmed symmetric gable roof: whole-roof registration, the 27° figure-family split, horizontal-plan edge dimension `a`, `a/cos(θ)` roof-surface mapping, deterministic Zone 1/2/3 cells and exact purlin-band zone-area intersections are all separately conserved and regression protected.
+- 2026-08-22 — PR #127 supersedes the conflicted PR #125 on the current Engineering Mode base and completes the external roof-purlin `GCp` selection layer.
+- 2026-08-22 — Source verification distinguishes NSCP 207E.4 Part 1 (`h <= 18 m`) from Part 3 (`h > 18 m`): the current low-rise C&C net equation uses `qh[(GCp)-(GCpi)]`; opening-height `qi=qz` is a Part 3 option and is gated out.
+- 2026-08-23 — PR #128 adds the independently benchmarked external-only `qh × GCp` layer per physical zone piece and leaves the 0.77 kPa minimum to net design pressure.
+- 2026-08-23 — PR #129 adds the independently benchmarked low-rise net-pressure matrix and minimum directional envelopes while keeping load combinations and Roof Bay code-pressure routing as separate gates.
