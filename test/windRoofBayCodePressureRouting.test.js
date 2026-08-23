@@ -195,7 +195,7 @@ test('every routed piece retains governing raw case identity and exact pressure-
       assert.ok(Number.isFinite(piece.governingRawCase.GCpi));
       assert.ok(Math.abs(piece.normalForceKN - piece.designPressureKPa * piece.actualAreaM2) < 1e-12);
       assert.ok(Math.abs(piece.leftRafterReactionKN + piece.rightRafterReactionKN - piece.normalForceKN) < 1e-12);
-      assert.ok(Math.abs(piece.rightRafterReactionKN * record.geometry.spanM - piece.appliedMomentAboutRafterAKNm) < Math.abs(piece.leftRafterReactionKN * record.geometry.spanM) + 1000);
+      assert.ok(Math.abs(piece.rightRafterReactionKN * record.geometry.spanM - piece.appliedMomentAboutRafterAKNm) < 1e-12);
     }
   }
   assert.equal(record.implementation.governingCaseIdentityPreserved, true);
