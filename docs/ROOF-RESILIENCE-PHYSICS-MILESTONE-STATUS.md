@@ -1,6 +1,6 @@
 # Roof Resilience Physics Milestone Status
 
-Status date: 2026-08-22
+Status date: 2026-08-23
 
 - [~] **M0 — Product cleanup / navigation:** primary workflow + Advanced/R&D hub implemented; legacy page-level navigation cleanup and first-time-user responsive QA remain.
 - [x] **M1 — C-Purlin Gravity + Wind Physics Bench:** core solver, animation/video and browser regression implemented; permanent gross-section/cold-formed boundaries remain explicit.
@@ -49,15 +49,22 @@ Status date: 2026-08-22
     - Positive and negative `GCp` are preserved separately for every actual field/edge/corner portion of the selected purlin band.
     - 25° / 4.0 m² benchmark: positive `+0.3731939868`; negative Zone 1 `-0.8365969934`, Zone 2 `-1.3829849670`, Zone 3 `-2.2195819604`.
     - 30° / 4.8 m² benchmark: positive `+0.8286788688`; negative Zone 1 `-0.8573577376`, Zones 2/3 `-1.0573577376`.
-    - Deterministic tests protect curve selection, effective-area behavior, multi-zone handling, provenance, serialization and anti-promotion boundaries.
-    - Preliminary current-main integration head passed the complete Engineering Checks suite; this documentation-updated exact final head must also be fully green before PR #127 merges.
+    - Open buildings are explicitly outside the present Part 1 207E.4 path; enclosed and partially enclosed cases remain supported.
+    - Exact final-head Engineering Checks passed and PR #127 merged as `fce0c1e12535a9dca0d0eca44128204f9c913643`.
     - Roof sheet and fastener effective areas remain independent and unresolved.
-  - [ ] **Current:** implement source-backed external roof pressure term `qh × GCp` with explicit sign convention for each actual zone-intersection piece.
-    - Reuse the already-verified mean-roof-height velocity pressure `qh`; do not recompute it from a different context.
-    - Preserve positive/downward and negative/suction external terms independently.
-    - Benchmark the external term before any internal combination.
-  - [ ] Implement the current low-rise Part 1 net pressure as `qh[(GCp) - (GCpi)]` only after the external term is benchmarked; require the internal velocity basis to be `qh` and do not import PR #121's Part 3 opening-height `qi=qz` option.
-  - [ ] Implement governing toward-surface / away-from-surface cases, traceable load combinations and automatic code-derived Roof Bay pressure only through their own source-backed gates and end-to-end benchmarks.
+  - [x] **External roof pressure term `qh × GCp` — PR #128 implementation candidate, preliminary exact head fully green.**
+    - Reuses the exact accepted mean-roof-height `qh`; it does not accept a separate arbitrary pressure input.
+    - Stores one toward-surface positive and one away-from-surface/suction negative external term for every actual zone-intersection piece.
+    - Keeps the physical zone area and upstream coefficient provenance intact; no multi-zone averaging is permitted.
+    - Exposure C / `h=8.82 m` / `V=240 kph` / `Kzt=1.0` benchmark preserves `qh = 2.257467958862151 kPa` and the corresponding 2B/2C external terms.
+    - Deterministic tests protect numeric values, upstream mutation, serialization, zone-piece identity, and anti-promotion boundaries.
+    - A low-pressure regression proves the ±0.77 kPa minimum C&C pressure is not applied to the external-only term.
+    - Preliminary exact head `ce1b14ef1d3691994f7cb88c482d0b51f481dc97` passed the complete Engineering Checks suite; the documentation-updated exact final head must also be fully green before merge.
+  - [ ] **Current after #128 merges:** implement low-rise Part 1 net roof pressure `qh[(GCp) - (GCpi)]`.
+    - Require the internal velocity basis to be `qh`; do not import PR #121's Part 3 opening-height `qi=qz` option.
+    - Preserve both positive and negative `GCpi` cases and all external field/edge/corner cases before selecting governing envelopes.
+    - Apply the minimum C&C pressure of **0.77 kPa in either direction** only at the net-design-pressure stage.
+  - [ ] Implement governing toward-surface / away-from-surface cases, traceable load combinations and automatic code-derived Roof Bay pressure only through their own source-backed gates and end-to-end conservation benchmarks.
 - [ ] **M4 — Roof Sheet + Fastener / Connection Layer:** reusable Connection Lab foundations exist; Roof Bay integration remains unresolved.
 - [ ] **M5–M13:** follow `ROADMAP-ROOF-RESILIENCE-PHYSICS.md` in order unless an explicit engineering dependency requires resequencing.
 

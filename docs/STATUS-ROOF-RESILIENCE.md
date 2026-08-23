@@ -1,6 +1,6 @@
 # FutolTech Roof Resilience Physics — Implementation Status
 
-Status date: 2026-08-22
+Status date: 2026-08-23
 
 This file records implementation status only. The governing roadmap and milestone exit gates remain in `ROADMAP-ROOF-RESILIENCE-PHYSICS.md`.
 
@@ -81,7 +81,7 @@ M2 exit gate:
 - [x] PR #112 final-head full Engineering Checks passed, including syntax, deterministic engineering tests, all Roof Bay Chromium gates, legacy lab/browser gates and PDF/print protections.
 
 ## M3 — Code Wind / Roof Zoning Engine
-**Status: ACTIVE — external roof `GCp` selection is implemented and independently benchmarked on the current-main PR #127 candidate; external `qh × GCp` is next.**
+**Status: ACTIVE — external roof `GCp` is merged through PR #127 and external-only `qh × GCp` is the fully-green PR #128 completion candidate.**
 
 Completed in PR #113 — code/version + provenance:
 - Source-backed wind-code profile registry for NSCP 2015 Volume 1, 7th Edition, 2nd Printing.
@@ -183,7 +183,7 @@ Completed in PR #124 — symmetric-gable roof C&C zone geometry + purlin tributa
 - Exact final-head Engineering Checks passed; PR #124 merged as `a0abdff0275ed6df35cf94317d4912c9be8e2f2b`.
 - Public boundary/QA records: `docs/M3_ROOF_ZONE_GEOMETRY.md`, `docs/M3_ROOF_ZONE_GEOMETRY_RESEARCH_NOTES.md` and `docs/M3_ROOF_ZONE_GEOMETRY_ACCEPTANCE_CANDIDATE.md`.
 
-Completed implementation candidate in PR #127, clean successor to PR #125 — external roof `GCp` selection:
+Completed in PR #127, clean successor to PR #125 — external roof `GCp` selection:
 - Adds `futoltech.wind-roof-external-gcp/1` for the supported roof-purlin Components & Cladding target.
 - Consumes the exact PR #124 zone identity/intersection pieces and PR #123 purlin coefficient-selection effective wind area together.
 - Selects Figure `207E.4-2B` or `207E.4-2C` from the already-verified roof geometry; the coefficient layer does not re-infer roof zoning.
@@ -193,24 +193,35 @@ Completed implementation candidate in PR #127, clean successor to PR #125 — ex
 - 30° / 4.8 m² benchmark: positive `+0.8286788688`; negative Zone 1 `-0.8573577376`, Zones 2/3 `-1.0573577376`.
 - Effective-area enlargement may change coefficient selection but never the stored physical zone-intersection/load area.
 - Validation rejects coefficient mutation, missing provenance, rewritten rule/boundary text and any silent promotion into pressure, sheet/fastener effective area, Roof Bay routing or purlin capacity.
-- The clean current-main preliminary integration head passed the complete Engineering Checks suite, including the static FutolTech Engineering Mode gate, deterministic tests, PDF/print and NF-001 regressions.
-- This documentation-updated exact final head must also pass the complete suite before PR #127 merges.
+- Current Part 1 scope is enclosed/partially-enclosed symmetric gable, `h <= 18 m`; open buildings are explicitly rejected to their separate procedure.
+- Exact final-head Engineering Checks passed; PR #127 merged as `fce0c1e12535a9dca0d0eca44128204f9c913643`.
 - Public boundary/QA record: `docs/M3_ROOF_EXTERNAL_GCP.md`.
 
-Current M3 dependency — source-backed external pressure term `qh × GCp`:
-- Reuse `qh` from the exact accepted wind/project pressure context already carried by the external-`GCp` record.
-- Multiply `qh` by each resolved positive/negative external `GCp` and retain the sign convention explicitly.
-- Keep each field/edge/corner zone-intersection term separate; do not average coefficients across a purlin band.
-- Independently benchmark the external pressure term before any internal-pressure combination.
-- Keep roof-sheet and fastener effective wind areas separate and unresolved; they must not inherit the purlin coefficient-selection area.
+Completed implementation candidate in PR #128 — external roof pressure term `qh × GCp`:
+- Adds the versioned external-only pressure layer downstream of the exact PR #127 coefficient record.
+- Recalculates `qh` only from the exact accepted project wind inputs already embedded in the upstream chain and verifies that mean-roof-height basis.
+- Multiplies the same `qh` by every positive/negative `GCp` while preserving each actual field/edge/corner intersection piece.
+- Sign convention is surface-normal: positive = toward the roof surface; negative = away from the roof surface / suction.
+- Benchmark basis Exposure C, `h=8.82 m`, `V=240 kph`, `Kzt=1.0` gives `qh = 2.257467958862151 kPa`; deterministic 2B/2C external pressures are independently protected.
+- Low-pressure regression proves the minimum C&C pressure of 0.77 kPa is not applied at this external-only stage.
+- Validation rejects altered `qh`, altered zone-piece pressures, changed upstream coefficient/provenance, external/internal combination, minimum-pressure promotion, sheet/fastener promotion, Roof Bay code-pressure routing and purlin-capacity promotion.
+- Preliminary exact head `ce1b14ef1d3691994f7cb88c482d0b51f481dc97` passed the complete Engineering Checks suite.
+- This documentation-updated exact final head must also pass the complete suite before PR #128 merges.
+- Public boundary/QA record: `docs/M3_ROOF_EXTERNAL_PRESSURE_TERM.md`.
 
-Next M3 work after the external term:
-- For the current `h <= 18 m` Part 1 C&C path, net design pressure is `qh[(GCp) - (GCpi)]`; the internal velocity basis is therefore `qh`, not an opening-height `qi=qz` value from the Part 3 procedure.
-- Preserve both positive and negative `GCpi` cases and derive governing toward-surface / away-from-surface pressure cases with a transparent sign convention.
+Current M3 dependency — low-rise Part 1 net pressure `qh[(GCp) - (GCpi)]`:
+- Require the internal velocity basis to be the same `qh`; do not import the Part 3 opening-height `qi=qz` option.
+- Preserve both positive and negative `GCpi` cases for every external zone-piece case before deriving governing toward-surface / away-from-surface envelopes.
+- Apply the NSCP minimum C&C pressure of **0.77 kPa in either direction** only at the net-design-pressure stage.
+- Keep the raw calculated net pressure and the minimum-governed design pressure separately traceable.
+
+Next M3 work after net pressure:
+- Governing zone/member envelopes with transparent case identity.
 - Traceable code wind load cases/combinations.
-- Automatic code-derived Roof Bay pressure only after the full chain passes independent end-to-end benchmarks and final-head QA.
+- Automatic code-derived Roof Bay pressure routing with physical zone-area force conservation and reaction conservation.
+- Independent end-to-end hand benchmark and final-head QA before the M3 exit gate closes.
 
-Permanent M3 boundary: a verified velocity pressure, accepted pressure context, base/adjusted `GCpi`, resolved internal-pressure term, purlin effective-wind-area record, zone geometry, external coefficient or external-only pressure term still does not constitute final roof pressure. Procedure applicability is a required solver state: the low-rise Part 1 path must not silently import a Part 3 internal-velocity option. Manual pressure entry remains the active Roof Bay path until the complete internal/external coefficient, zoning and pressure-combination chain is verified.
+Permanent M3 boundary: a verified velocity pressure, accepted pressure context, base/adjusted `GCpi`, purlin effective-wind-area record, zone geometry, external coefficient or external-only pressure term still does not constitute final roof pressure. Procedure applicability is a required solver state. Manual pressure entry remains the active Roof Bay path until the complete internal/external coefficient, zoning, net-pressure, minimum-pressure and routing chain is verified.
 
 ## M4 — Roof Sheet + Fastener / Connection Layer
 **Status: NOT YET INTEGRATED.**
