@@ -35,7 +35,7 @@
 10. [x] **FutolStructure / RPE interchange v1** — versioned component, demand, critical-specimen and evidence-bounded failure/RPE law exchange.
 11. [x] **Roof Resilience Physics M2** — Roof Bay load routing, member selection/exploded trace, stable project JSON, custom/nonuniform purlin stations, reaction diagrams and M3-ready pressure-zone placeholders completed through PR #112 with the M2 exit gate green.
 12. [x] **Roof Resilience Physics M3** — code-derived wind/zoning, verified physical routing, signed W, companion actions, complete source-backed strength combinations, controlled Roof Bay activation and the independent end-to-end exit audit are complete through PR #135. The exact documentation-updated closure head passed 46/46 Engineering Checks and merged as `c81032f977d35025474b495c6bf82cbc88bf1bdc`. Member/connection capacity remains later scope.
-13. [~] **Roof Resilience Physics M4** — ACTIVE. PR #136 establishes explicit roof-sheet fastener geometry/evidence with exact tributary-area partitioning and forced `UNRESOLVED` capacity. Preliminary exact implementation head `d60aa4e78e4d7aaebcd8cba82be0034d672b5f96` passed 46/46 Engineering Checks; documentation-updated exact-head QA remains the merge gate.
+13. [~] **Roof Resilience Physics M4** — ACTIVE. PR #136 merged as `ec5e7c99994a4c5d52bdf2ad90a1790b13a8e181` after exact-final-head 46/46 Engineering Checks, establishing explicit roof-sheet fastener geometry/evidence with exact tributary-area partitioning and forced `UNRESOLVED` capacity. PR #137 now adds exact M3 field/edge/corner pressure-piece → individual screw demand routing with signed case identity and area/force conservation; preliminary exact implementation head passed 46/46 Engineering Checks and the documentation-updated exact head remains the merge gate.
 
 # Protected foundation
 
@@ -48,7 +48,7 @@
 - [x] PH angle-bar starter catalog from exact current handbook rows with published kg/m and 6 m stock.
 - [x] Angle main-lab geometry/orientation and Direct Compare gross leg-axis SCREENING.
 - [!] Angle compression blocked pending Ixy/principal-axis and flexural-torsional behavior.
-- [x] SHS 100×100×2.0 mm supplier-handbook-confirmed with 6.483 kg/m; delivered grade/thickness still project-specific.
+- [x] SHS 100×100×2.0 mm supplier-handbook-confirmed with 6.483 kg/m; delivered certificate remains project-specific.
 - [x] Metal stud and double-furring PH library records.
 - [!] Stud/furring independent member capacity blocked until complete fold geometry/design basis is verified.
 - [x] Stock & Splice demand/planning foundation.
@@ -285,9 +285,9 @@
 - [!] M3 closure does **not** include piecewise purlin stress/deflection/capacity, roof-sheet/fastener/connection capacity, rafter/truss/system analysis or cold-formed local/distortional/LTB design. Those remain M4/M6/M7 responsibilities.
 - [!] Rain R remains unimplemented and is never silently treated as zero; public project calculations remain cross-checks and `authorizedCopyReviewRequired=true` remains permanent before project use.
 
-## M4 ACTIVE — PR #136 fastener geometry foundation
+## M4 ACTIVE — PR #136 merged / PR #137 demand routing candidate
 
-- [x] PR #136 candidate creates versioned `futoltech.roof-sheet-fastener-layout/1` geometry/evidence acceptance.
+- [x] PR #136 creates versioned `futoltech.roof-sheet-fastener-layout/1` geometry/evidence acceptance and merged as `ec5e7c99994a4c5d52bdf2ad90a1790b13a8e181` after the exact documentation-updated head passed 46/46 Engineering Checks.
 - [x] Exactly one explicit fastener row is required for each physical purlin; missing/extra/duplicate rows fail visibly.
 - [x] Screw stations along the rafter-to-rafter span remain explicit; equal and irregular fastener spacing are both preserved without silent regularization.
 - [x] Each screw receives a deterministic midpoint tributary strip crossed with the exact physical purlin tributary band.
@@ -295,10 +295,17 @@
 - [x] Row-level and whole-Roof-Bay tributary area conservation are regression protected.
 - [x] Stored fastener geometry is rebuilt during validation so post-creation station/rectangle mutation is rejected.
 - [x] Later Roof Bay geometry edits invalidate the accepted fastener-layout record.
-- [x] Fastener capacity is forced to `UNRESOLVED`; the timber nail/bolt Connection Lab is not reused as roofing self-drilling-screw capacity.
-- [x] Preliminary exact implementation head `d60aa4e78e4d7aaebcd8cba82be0034d672b5f96` passed the complete 46/46 Engineering Checks suite after replacing one binary floating-point deep-equality assertion with the existing `1e-12` engineering-tolerance comparison.
-- [ ] PR #136 merge gate: the documentation-updated exact head must pass all 46/46 Engineering Checks before merge.
-- [ ] Next M4 slice: intersect verified M3 field/edge/corner pressure pieces with every accepted fastener tributary rectangle, derive signed individual-screw demand, and conserve area/force exactly without claiming capacity.
+- [x] Fastener capacity remains `UNRESOLVED`; the timber nail/bolt Connection Lab is not reused as roofing self-drilling-screw capacity.
+- [x] PR #137 candidate adds `futoltech.roof-fastener-code-pressure-demand-routing/1` and intersects every verified M3 field/edge/corner pressure rectangle with every accepted screw tributary rectangle.
+- [x] Both `toward-surface` and `away-from-surface` signed wind cases remain distinct through screw demand routing.
+- [x] A screw crossing multiple pressure zones retains every overlap contribution separately; no one-screw/one-zone shortcut is allowed.
+- [x] Each overlap contribution preserves zone/case identity and computes signed force as `F = p × A` from the exact physical intersection.
+- [x] Screw, row, zone and whole-Roof-Bay area/force totals are independently conserved back to the accepted M3 pressure route within engineering tolerance.
+- [x] Equal and irregular fastener layouts are regression protected; stale/mismatched purlin or route geometry is rejected.
+- [x] PR #137 still forces capacity/utilization to remain unresolved: no pull-out, pull-over, bearing, group action, roof-sheet or purlin-to-rafter connection PASS is created.
+- [x] Preliminary exact PR #137 implementation head `16e320317c10c1cbf5b64ace9d5cc3a677930bf5` passed the complete 46/46 Engineering Checks suite before authority-record synchronization.
+- [ ] PR #137 merge gate: the exact documentation-updated head must pass all 46/46 Engineering Checks before merge.
+- [ ] Next M4 slice: establish source-backed roof-sheet / roofing self-drilling-screw capacity evidence acceptance, including exact product/detail applicability, without inventing generic capacity where published/tested data is absent.
 - [!] Pull-out, pull-over, bearing, group action, roof-sheet capacity and purlin-to-rafter cleat/bolt/weld capacity remain unresolved until source-backed evidence/physics is implemented.
 - [!] M4 exit remains: no roof-system PASS unless every required modeled connection in the load path is checked or explicitly marked unresolved.
 
@@ -358,4 +365,5 @@
 - 2026-08-24 — PR #133 assembles source-backed strength action results only from accepted actions. Unresolved R leaves 203-3/203-4 blocked; only an explicit engineer-sourced R-not-applicable decision releases the Lr path. Public DPWH/BIR 203-3 transcription discrepancy is recorded and authorized-copy review remains mandatory; exact documentation-updated final head passed 45/45 and it merged as `d38fea07ee49438edd0481a48fa89730e4cc5488`.
 - 2026-08-24 — PR #134 activates only already-complete PR #133 action results after exact project compatibility plus explicit purlin self-weight/section evidence. It does not duplicate pressure/combination physics or promote member capacity; M2 manual-uniform remains a separate fallback and stale project/context edits invalidate activation. Exact documentation-updated head passed 46/46 and it merged as `2f03ea6986c32cfcfff8f7656651a03d5845c440`.
 - 2026-08-24 — PR #135 independently re-evaluates the full M3 benchmark from accepted project/site inputs through controlled activation and hardens tributary-band geometry compatibility. The exact documentation-updated closure head passed 46/46 and merged as `c81032f977d35025474b495c6bf82cbc88bf1bdc`; M3 is CLOSED without promoting member/connection capacity.
-- 2026-08-24 — PR #136 begins M4 with explicit roof-sheet fastener geometry/evidence only. Every screw receives a physical tributary rectangle over the accepted Roof Bay geometry, irregular/custom layouts are conserved, stored geometry mutation is rejected, and fastener capacity remains `UNRESOLVED`. Preliminary exact implementation head `d60aa4e78e4d7aaebcd8cba82be0034d672b5f96` passed 46/46 Engineering Checks; the documentation-updated exact head remains the merge gate.
+- 2026-08-24 — PR #136 begins M4 with explicit roof-sheet fastener geometry/evidence only. Every screw receives a physical tributary rectangle over the accepted Roof Bay geometry, irregular/custom layouts are conserved, stored geometry mutation is rejected, and fastener capacity remains `UNRESOLVED`. Exact documentation-updated final-head 46/46 Engineering Checks passed and it merged as `ec5e7c99994a4c5d52bdf2ad90a1790b13a8e181`.
+- 2026-08-24 — PR #137 routes the already-verified M3 directional field/edge/corner pressure pieces into each accepted screw tributary rectangle by exact physical intersection. Multi-zone screw contributions preserve zone/case identity; signed `F=pA` demand conserves at screw/row/zone/bay levels; irregular layouts and stale-geometry rejection are protected. Preliminary exact implementation head `16e320317c10c1cbf5b64ace9d5cc3a677930bf5` passed 46/46 Engineering Checks. Capacity/utilization remains unresolved; the exact documentation-updated head must pass 46/46 before merge.
