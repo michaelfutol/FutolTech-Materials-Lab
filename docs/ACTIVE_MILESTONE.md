@@ -39,43 +39,61 @@ Implemented:
 9. Exact purlin-band mismatch and incomplete toward/away route sets fail visibly.
 10. Fastener capacity remains `UNRESOLVED`; utilization remains `null`.
 
-## Active M4 slice — PR #138
+### PR #138 — explicit attachment-detail and capacity-evidence acceptance
 
-**PR #138 — explicit roof-sheet / self-drilling-screw attachment-detail and capacity-evidence acceptance** is the current completed candidate slice.
+**MERGED** as `471a62cbe305e385a9542f9f3324e251c06a7981`. The exact documentation-updated head `5aabbb5f9bc2f795a73cffde13917a41484ee25a` passed **46/46 Engineering Checks** on an unchanged rerun after one unrelated legacy C-purlin V3 transient DOM-timing flake.
 
 Implemented:
 1. Versioned `futoltech.roof-fastener-capacity-evidence/1` acceptance record.
-2. Exact roof-sheet product/profile, base-metal thickness, material Fy/Fu and source references.
-3. Exact purlin substrate section, base-metal thickness, material Fy/Fu and source references.
-4. Exact self-drilling-screw identity, diameter, thread description, head/bearing component, bearing diameter, drill point, material description and attachment position.
-5. Installed thread penetration must meet an explicitly sourced minimum installation penetration.
-6. Pull-out and pull-over evidence retain source type, source/document/date, capacity value, capacity type and design basis.
-7. Nominal, ASD allowable, LRFD design, manufacturer-rated and ultimate-test references remain distinct; this slice performs no factor conversion.
+2. Exact roof-sheet product/profile, BMT, material Fy/Fu and source references.
+3. Exact purlin substrate section, BMT, material Fy/Fu and source references.
+4. Exact self-drilling-screw identity, geometry, bearing component, attachment position and installation penetration evidence.
+5. Installed thread penetration must meet an explicitly sourced minimum.
+6. Pull-out and pull-over evidence retain source/document/date, capacity value, capacity type and design basis.
+7. Nominal, ASD allowable, LRFD design, manufacturer-rated and ultimate/test references remain distinct; no factor conversion is inferred.
 8. Mechanism-specific applicability is checked against the accepted physical attachment detail.
-9. Missing required applicability remains `REFERENCE_ONLY_INCOMPLETE_APPLICABILITY`; it is never silently treated as a match.
-10. Explicit source applicability that excludes the accepted detail is rejected.
-11. Accepted detail/evidence mutation is protected by deterministic record-integrity fingerprints plus deterministic rebuild validation.
-12. Regression values are clearly synthetic test fixtures only and are not product/project capacity data.
-13. Demand/capacity basis alignment, pull-out utilization, pull-over utilization and all governing PASS states remain deliberately unimplemented.
-14. Preliminary exact implementation head `8d71800b3d8e369b8aa721a89b3fa7b424557b87` passed the complete **46/46 Engineering Checks** suite.
+9. Missing required applicability remains reference-only; explicit mismatch is rejected.
+10. Deterministic fingerprints/rebuild validation reject accepted-detail or evidence mutation.
+11. Regression values are synthetic test fixtures only, not product/project capacity data.
+12. Capacity scope such as single-fastener versus assembly/group is not inferred by #138.
 
-Current merge gate for PR #138:
+## Active M4 slice — PR #139
+
+**PR #139 — basis-compatible individual roof-fastener uplift utilization** is the current preliminary-green candidate slice.
+
+Implemented:
+1. Versioned `futoltech.roof-fastener-capacity-utilization/1` record.
+2. Consumes the exact accepted #137 individual screw demand route and #138 attachment/capacity-evidence record; it does not recompute pressure or capacity evidence.
+3. Current evaluated direction is `away-from-surface` individual-screw uplift only.
+4. A mechanism becomes eligible only when #138 applicability is complete, the source explicitly establishes `single-fastener` capacity scope, and demand/capacity basis compatibility is explicitly accepted.
+5. Current compatible numerical path is explicitly source-backed LRFD demand versus LRFD `design` capacity.
+6. ASD allowable, nominal, manufacturer-rated, ultimate/test-reference and unresolved-basis evidence remain blocked from numerical utilization; no convenience conversion is invented.
+7. Pull-out and pull-over remain separate mechanism checks with their own evidence identity and utilization.
+8. Both mechanisms must be eligible before an individual screw receives a local uplift PASS/FAIL state.
+9. A deliberately low eligible synthetic pull-over design capacity regression produces a genuine local FAIL; ordinary synthetic passing capacities are test fixtures only.
+10. Toward-surface compression/bearing remains `UNRESOLVED_COMPRESSION_BEARING_PATH` with `utilization=null`.
+11. Fastener group action, roof-sheet structural capacity, purlin-local capacity, purlin-to-rafter connection capacity and whole-roof PASS remain unimplemented.
+12. `roofSystemPass` is forced to `null` even when every currently evaluated individual uplift screw passes.
+13. Deterministic validation rejects utilization mutation, upstream layout mismatch, unknown scope evidence, unsupported demand-basis shortcuts and roof-system promotion.
+14. Preliminary exact implementation head `fd64ace9c0750bc63d451cb4429b7b20e1caf690` passed the complete **46/46 Engineering Checks** suite.
+
+Current merge gate for PR #139:
 - Synchronize `ROOF-RESILIENCE-PHYSICS-MILESTONE-STATUS.md`, `STATUS-ROOF-RESILIENCE.md`, `ACTIVE_MILESTONE.md`, and `STRUCTURAL_LAB_MASTER_CHECKLIST.md`.
 - Then the **exact documentation-updated head must pass all 46/46 Engineering Checks again**.
 - Only that exact head may merge.
 
-Next M4 dependency after #138 merges:
-**align individual #137 screw demand with #138 capacity evidence only when source applicability is complete and demand/capacity design bases are demonstrably compatible. If strength/LRFD versus ASD/manufacturer/test-reference basis compatibility is unresolved, utilization must remain `UNRESOLVED` rather than forcing a ratio.**
+Next M4 dependency after #139 merges:
+**continue the physical connection load path without promoting a roof-system PASS: resolve the toward-surface bearing/compression path and then source-backed group/sheet/local/purlin-to-rafter connection checks in dependency order.**
 
 Permanent active-M4 boundary:
 - M3 pressure/zoning and structural-action demand derivation remain closed/verified upstream work.
-- M4 owns roof-sheet/fastener/purlin-to-rafter connection demand and eventual verified capacity work.
-- #136 provides physical screw geometry; #137 provides signed individual screw wind demand; #138 provides attachment-detail/evidence eligibility only.
+- #136 provides physical screw geometry; #137 provides signed individual screw wind demand; #138 provides attachment/evidence eligibility; #139 adds only strict basis-compatible individual uplift utilization.
 - No generic pull-out, pull-over, bearing, group or sheet capacity is inferred from screw count, geometry or a generic “Tek screw” label.
 - Fastener tension/shear, combined interaction, group action, roof-sheet structural capacity, purlin-local failure and purlin-to-rafter cleat/bolt/weld capacity remain unresolved.
+- Toward-surface bearing/compression is not covered by #139.
 - Purlin member stress/deflection/capacity remains outside these M4 fastener slices.
 - Rafter/truss/system interaction remains M6 work.
 - Cold-formed effective-width/local/distortional/LTB design remains M7 work.
 - `authorizedCopyReviewRequired=true` remains permanent where governing code text must be verified against an authorized copy.
 
-Detailed scope and gates live in `ROADMAP-ROOF-RESILIENCE-PHYSICS.md`, `STATUS-ROOF-RESILIENCE.md`, `ROOF-RESILIENCE-PHYSICS-MILESTONE-STATUS.md`, `STRUCTURAL_LAB_MASTER_CHECKLIST.md`, `M4_ROOF_SHEET_FASTENER_LAYOUT_FOUNDATION.md`, `M4_ROOF_FASTENER_CODE_PRESSURE_DEMAND_ROUTING.md`, and `M4_ROOF_FASTENER_CAPACITY_EVIDENCE_ACCEPTANCE.md`.
+Detailed scope and gates live in `ROADMAP-ROOF-RESILIENCE-PHYSICS.md`, `STATUS-ROOF-RESILIENCE.md`, `ROOF-RESILIENCE-PHYSICS-MILESTONE-STATUS.md`, `STRUCTURAL_LAB_MASTER_CHECKLIST.md`, `M4_ROOF_SHEET_FASTENER_LAYOUT_FOUNDATION.md`, `M4_ROOF_FASTENER_CODE_PRESSURE_DEMAND_ROUTING.md`, `M4_ROOF_FASTENER_CAPACITY_EVIDENCE_ACCEPTANCE.md`, and `M4_ROOF_FASTENER_BASIS_COMPATIBLE_UTILIZATION.md`.
