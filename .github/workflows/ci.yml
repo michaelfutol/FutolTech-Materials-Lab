@@ -21,7 +21,12 @@ jobs:
       - name: Repository line count
         run: node scripts/repoLineCount.mjs
       - name: Syntax checks
-        run: npm run check
+        run: |
+          npm run check
+          node --check src/interchange/roofBayCodeDerivedActivation.js
+          node --check src/roofBayCodeDerivedActivationV10.js
+          node --check scripts/fixtures/roofBayCodeDerivedActivationBenchmark.mjs
+          node --check scripts/verifyRoofBayCodeDerivedActivationV10.mjs
       - name: FutolTech engineering identity Chromium gate
         run: node scripts/verifyFutolTechEngineeringIdentityUi.mjs
       - name: Comparison PDF gate
@@ -58,6 +63,9 @@ jobs:
       - name: M3 enclosure + roof geometry pressure-context Chromium gate
         timeout-minutes: 3
         run: node scripts/verifyRoofBayPressureContextV9.mjs
+      - name: M3 controlled code-derived Roof Bay activation Chromium gate
+        timeout-minutes: 3
+        run: node scripts/verifyRoofBayCodeDerivedActivationV10.mjs
       - name: General comparison load-test video Chromium gate
         timeout-minutes: 3
         run: node scripts/verifyGeneralComparisonVideoUi.mjs
