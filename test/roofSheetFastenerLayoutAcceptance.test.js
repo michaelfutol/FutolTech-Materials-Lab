@@ -127,13 +127,21 @@ test('rejects missing, extra, duplicate, unsorted and out-of-span fastener geome
   assert.throws(() => createRoofSheetFastenerLayoutAcceptance(input(project, outsideRows)), /within the Roof Bay span/);
 });
 
-test('round-trips deterministically, rejects capacity promotion and detects later Roof Bay geometry edits', () => {
+test('round-trips deterministically, rejects stored geometry mutation/capacity promotion and detects later Roof Bay edits', () => {
   const project = makeProject();
   const record = createRoofSheetFastenerLayoutAcceptance(input(project));
   const first = serializeRoofSheetFastenerLayoutAcceptance(record);
   const second = serializeRoofSheetFastenerLayoutAcceptance(parseRoofSheetFastenerLayoutAcceptance(first));
   assert.equal(second, first);
   assert.equal(validateRoofSheetFastenerLayoutAcceptance(record, project), true);
+
+  const movedFastener = structuredClone(record);
+  movedFastener.rows[0].fasteners[1].xM += 0.05;
+  assert.throws(() => validateRoofSheetFastenerLayoutAcceptance(movedFastener), /deterministic fastener-layout geometry/);
+
+  const changedRectangle = structuredClone(record);
+  changedRectangle.rows[0].fasteners[0].tributaryRectangle.x1M += 0.02;
+  assert.throws(() => validateRoofSheetFastenerLayoutAcceptance(changedRectangle), /deterministic fastener-layout geometry/);
 
   const promoted = structuredClone(record);
   promoted.fastenerSystem.capacityStatus = 'AVAILABLE';
