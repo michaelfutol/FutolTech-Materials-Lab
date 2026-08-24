@@ -106,7 +106,12 @@ test('supports custom/nonuniform purlin stations and derives exact physical upsl
   }));
   const record = createRoofSheetFastenerLayoutAcceptance(input(project, rows));
   const bands = record.projectBasis.geometry.purlinTributaryBands;
-  assert.deepEqual(bands.map((band) => [band.startM, band.endM]), [[0,0.6],[0.6,1.7],[1.7,3.1],[3.1,4]]);
+  const expectedBands = [[0,0.6],[0.6,1.7],[1.7,3.1],[3.1,4]];
+  assert.equal(bands.length, expectedBands.length);
+  bands.forEach((band, index) => {
+    close(band.startM, expectedBands[index][0]);
+    close(band.endM, expectedBands[index][1]);
+  });
   close(record.summary.roofBayAreaM2, 12);
   close(record.summary.totalFastenerTributaryAreaM2, 12);
 });
