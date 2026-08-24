@@ -140,7 +140,7 @@ function pullOutEvidence(overrides = {}) {
     sourceDocumentId:'TEST-SYNTHETIC-LRFD-PO-01',
     sourceCheckedDate:'2026-08-24',
     capacity:{
-      valueKN:2.40,
+      valueKN:24.0,
       capacityType:'design',
       designBasis:'lrfd',
       basisSourceReference:'TEST FIXTURE — synthetic LRFD design-capacity basis'
@@ -171,7 +171,7 @@ function pullOverEvidence(overrides = {}) {
     sourceDocumentId:'TEST-SYNTHETIC-LRFD-PV-01',
     sourceCheckedDate:'2026-08-24',
     capacity:{
-      valueKN:1.60,
+      valueKN:16.0,
       capacityType:'design',
       designBasis:'lrfd',
       basisSourceReference:'TEST FIXTURE — synthetic LRFD design-capacity basis'
@@ -238,8 +238,8 @@ test('computes individual screw pull-out/pull-over LRFD utilization only after c
   const sourceFastener = sourceAway.rows[0].fasteners[0];
   const demand = Math.abs(sourceFastener.demand.normalForceKN);
   close(first.upliftDemandKN, demand);
-  close(first.mechanisms.find((item) => item.mechanism === 'pull-out').utilization, demand / 2.40);
-  close(first.mechanisms.find((item) => item.mechanism === 'pull-over').utilization, demand / 1.60);
+  close(first.mechanisms.find((item) => item.mechanism === 'pull-out').utilization, demand / 24.0);
+  close(first.mechanisms.find((item) => item.mechanism === 'pull-over').utilization, demand / 16.0);
   assert.equal(first.governingMechanism, 'pull-over');
   assert.equal(first.connectionLocalStatus, 'PASS');
   assert.equal(record.uplift.summary.localUpliftConnectionState, 'PASS');
