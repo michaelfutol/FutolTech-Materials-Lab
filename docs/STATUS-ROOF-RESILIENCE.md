@@ -1,6 +1,6 @@
 # FutolTech Roof Resilience Physics — Implementation Status
 
-Status date: 2026-08-23
+Status date: 2026-08-24
 
 This file records implementation status only. The governing roadmap and milestone exit gates remain in `ROADMAP-ROOF-RESILIENCE-PHYSICS.md`.
 
@@ -81,7 +81,7 @@ M2 exit gate:
 - [x] PR #112 final-head full Engineering Checks passed, including syntax, deterministic engineering tests, all Roof Bay Chromium gates, legacy lab/browser gates and PDF/print protections.
 
 ## M3 — Code Wind / Roof Zoning Engine
-**Status: ACTIVE — pressure derivation is merged through PR #129; code-derived Roof Bay physical routing/conservation is the fully-green PR #130 completion candidate.**
+**Status: ACTIVE — pressure derivation and physical Roof Bay routing/conservation are merged through PR #130; PR #131 is the fully-green wind-action/strength-template completion candidate.**
 
 Completed in PR #113 — code/version + provenance:
 - Source-backed wind-code profile registry for NSCP 2015 Volume 1, 7th Edition, 2nd Printing.
@@ -200,7 +200,7 @@ Completed in PR #129 — low-rise Part 1 net roof pressure + directional minimum
 - Preliminary and documentation-updated exact final heads passed the complete Engineering Checks suite; PR #129 merged as `51fbc2bdd6487b06b3255c98672f8c1c21853b5a`.
 - Public boundary/QA record: `docs/M3_ROOF_NET_PRESSURE.md`.
 
-Completed implementation candidate in PR #130 — code-derived Roof Bay pressure routing + conservation:
+Completed in PR #130 — code-derived Roof Bay pressure routing + conservation:
 - Adds `futoltech.wind-roof-bay-code-pressure-routing/1` downstream of the exact PR #129 net-pressure records.
 - Requires one and only one net-pressure record for every physical purlin tributary band, all tied to the exact same PR #124 roof-zone geometry.
 - Reconstructs each physical field/edge/corner intersection rectangle from the upstream zone cell and tributary-band rectangle; no convenient whole-member zone pressure is substituted.
@@ -212,23 +212,37 @@ Completed implementation candidate in PR #130 — code-derived Roof Bay pressure
 - Toward-surface benchmark gives total `+19.79058581298942 kN` with equal A/B reactions because its spanwise pressure distribution is symmetric.
 - Low-wind regression proves the router uses the minimum-governed `-0.77 kPa` PR #129 design pressure instead of the smaller raw pressure.
 - Deterministic tests protect exact geometry linkage, complete band coverage, pressure-area force trace, governing case identity, reaction/moment conservation, serialization/mutation and anti-promotion boundaries.
-- The strengthened exact implementation head tightens the per-piece moment assertion to `|RB·L - F·x̄| < 1e-12`; the complete preliminary Engineering Checks suite is fully green.
+- The strengthened exact implementation head tightens the per-piece moment assertion to `|RB·L - F·x̄| < 1e-12`.
+- Exact documentation-updated final head passed the complete 45/45 Engineering Checks suite; PR #130 merged as `f2bf5a83711d88736b2ffaa2e2a4d6001cc0e7cb`.
 - Live `solveRoofBay()` / UI remains manual-uniform and distinct. Piecewise purlin member response/capacity, rafter/connection capacity, roof-sheet/fastener design and load combinations remain blocked.
 - Public boundary/QA record: `docs/M3_ROOF_BAY_CODE_PRESSURE_ROUTING.md`.
 
-Current M3 dependency — explicit code-wind load-case / load-combination identity:
-- Keep already derived pressure physics immutable and upstream of combination factors.
-- Preserve direction, zone-piece, purlin and governing raw-case identity through generated wind cases.
-- Make applicable strength/service or other combination families explicit, source-backed and traceable; never silently select or blend them.
+Completed implementation candidate in PR #131 — explicit roof wind action identity + strength-combination W contribution templates:
+- Adds `futoltech.wind-roof-load-case-combination/1` downstream of the exact paired PR #130 directional routing records.
+- Preserves two distinct signed actions, `W-TOWARD` and `W-AWAY`, with every purlin, physical zone piece, governing raw pressure case and Rafter A/B reaction trace intact.
+- Keeps all combination factors downstream of the verified pressure/routing chain; no factor rewrites `qh`, `GCp`, `GCpi`, net pressure or physical routing.
+- Represents the source-backed NSCP 2015 Section 203.3.1 strength/LRFD wind-bearing templates for the 203-3 wind branch (`0.5W`), 203-4 (`1.0W`) and 203-6 (`1.0W`).
+- Calculates only the signed W contribution for each template and wind direction.
+- Required companion actions D/L/Lr/R/H and `f1` remain explicit unresolved state; `fullCombinationResult` is therefore always `null` in this slice.
+- ASD/service combinations, complete combined demand, live code-derived Roof Bay UI activation, piecewise purlin member response/capacity and connection capacity remain blocked.
+- Deterministic tests protect exact W+/W− identity, source-backed factor scaling, physical-route preservation, serialization/mutation and the hard null-full-combination boundary.
+- Preliminary exact implementation head passed all 45 Engineering Checks; documentation-updated exact final head must also pass before merge.
+- Public boundary/QA record: `docs/M3_ROOF_WIND_LOAD_CASE_COMBINATION.md`.
+
+Current M3 dependency — companion structural action acceptance + complete combination assembly:
+- Add versioned, source/assumption-traceable records for the D/L/Lr/R/H actions and required coefficients such as `f1` that appear in the supported combination templates.
+- Reuse existing Roof Bay gravity/self-weight information only through an explicit physical/action mapping; do not silently relabel manual inputs as code actions.
+- Preserve units and case identity for every companion action and keep source evidence or engineering assumption status visible.
+- A full combination result may become non-null only when every required action for the selected source-backed template is available and compatible.
 - Keep live manual-uniform Roof Bay mode distinct until controlled code-derived project/UI activation passes a later gate.
 
-Next M3 work after load-case identity:
-- Controlled Roof Bay project/UI activation of the verified code-derived routing chain while retaining a clearly separate manual-uniform option during transition.
+Next M3 work after companion-action/combination assembly:
+- Controlled Roof Bay project/UI activation of the verified code-derived routing/combination chain while retaining a clearly separate manual-uniform option during transition.
 - Piecewise purlin member response/capacity under code pressure through its own later gate.
-- Independent end-to-end benchmark from accepted project/site inputs → `qh` → `GCp/GCpi` → minimum-governed net zone pressure → physical purlin piece loads → Rafter A/B reactions → explicit wind-case identity.
+- Independent end-to-end benchmark from accepted project/site inputs → `qh` → `GCp/GCpi` → minimum-governed net zone pressure → physical purlin piece loads → Rafter A/B reactions → explicit W action → source-backed complete combination assembly.
 - Close M3 only after all conservation checks and the complete final-head Engineering Checks suite are green.
 
-Permanent M3 boundary: verified pressure derivation, verified physical load routing, load-case identity and member/capacity response are separate responsibilities. Procedure applicability, source provenance, actual physical zone area, pressure sign/case identity and conservation must all remain explicit solver state.
+Permanent M3 boundary: verified pressure derivation, verified physical load routing, wind-action identity, complete combination assembly and member/capacity response are separate responsibilities. Procedure applicability, source provenance, actual physical zone area, pressure sign/case identity, structural action identity and conservation must all remain explicit solver state.
 
 ## M4 — Roof Sheet + Fastener / Connection Layer
 **Status: NOT YET INTEGRATED.**
