@@ -12,7 +12,7 @@ Status date: 2026-08-24
   - [x] PR #112 — M3-ready pressure-zone schema/coordinate-frame placeholders with zero invented code zones.
   - [x] M2 exit gate: applied roof load and reactions conserve within numerical tolerance and the solver/visual paths share the same geometry.
 
-- [x] **M3 — Code Wind / Roof Zoning:** CLOSED CANDIDATE through PR #135; preliminary exact #135 implementation head passed 46/46 Engineering Checks. Final closure/merge still requires the documentation-updated exact head to pass 46/46 again.
+- [x] **M3 — Code Wind / Roof Zoning:** CLOSED through PR #135; exact documentation-updated closure head passed 46/46 Engineering Checks and merged to `main` as `c81032f977d35025474b495c6bf82cbc88bf1bdc`.
 
   ### M3 provenance and pressure foundation
   - [x] PR #113 — adopted code/version + wind-input provenance.
@@ -26,16 +26,16 @@ Status date: 2026-08-24
   - [x] PR #121 — reusable internal-pressure velocity/signed-term foundation; the Part 3 opening-height `qi=qz` path remains blocked from the current low-rise Part 1 C&C procedure.
   - [x] PR #123 — roof-purlin Components & Cladding target + coefficient-selection effective wind area, kept distinct from physical load area.
   - [x] PR #124 — symmetric-gable field/edge/corner geometry with exact purlin tributary-band intersections and area conservation.
-  - [x] PR #127 — external roof `GCp` selection per actual zone portion; merged as `fce0c1e12535a9dca0d0eca44128204f9c913643`.
-  - [x] PR #128 — external-only `qh × GCp`; merged as `3588219906b1171a348b5d4bf135e9476e1138db`.
-  - [x] PR #129 — low-rise Part 1 `p = qh[(GCp)-(GCpi)]` net-pressure matrix plus ±0.77 kPa directional design envelopes; merged as `51fbc2bdd6487b06b3255c98672f8c1c21853b5a`.
+  - [x] PR #127 — external roof `GCp` selection per actual zone portion.
+  - [x] PR #128 — external-only `qh × GCp`.
+  - [x] PR #129 — low-rise Part 1 `p = qh[(GCp)-(GCpi)]` net-pressure matrix plus ±0.77 kPa directional design envelopes.
 
   ### M3 physical routing and structural-action chain
-  - [x] PR #130 — exact physical Roof Bay code-pressure routing; each field/edge/corner rectangle uses `F=pA`, true spanwise resultants, and per-piece/purlin/bay area-force-moment conservation. Merged as `f2bf5a83711d88736b2ffaa2e2a4d6001cc0e7cb`.
-  - [x] PR #131 — separate signed `W-TOWARD` / `W-AWAY` identities and source-backed W contributions for supported NSCP strength templates; merged as `7727f5e009ceb67e7beb5db9be1dadc6a5ffa40a`.
-  - [x] PR #132 — source-backed D/Lr companion actions routed through the same physical geometry. Purlin self-weight remains a separate line action inside D; L/H are explicit target-specific zero/not-applicable decisions; R remains `UNRESOLVED`. Merged as `b656312b4c089717e2b0cdac44dee4d7570b5114`.
-  - [x] PR #133 — complete strength-combination action-result assembly. With unresolved R, 203-3/203-4 remain blocked and only 203-6 is complete; the Lr alternatives require an explicit engineer-sourced `lr-selected-r-not-applicable` decision. Exact force/moment/purlin conservation remains protected. Merged as `d38fea07ee49438edd0481a48fa89730e4cc5488`.
-  - [x] PR #134 — controlled code-derived Roof Bay activation. It selects one already-complete equilibrium-verified #133 case, never recomputes upstream pressure/combination physics, retains the original M2 manual-uniform fallback, attaches the validated activation to project JSON, and invalidates it on stale project/upstream changes. Exact documentation-updated head passed 46/46 Engineering Checks; merged as `2f03ea6986c32cfcfff8f7656651a03d5845c440`.
+  - [x] PR #130 — exact physical Roof Bay code-pressure routing; each field/edge/corner rectangle uses `F=pA`, true spanwise resultants, and per-piece/purlin/bay area-force-moment conservation.
+  - [x] PR #131 — separate signed `W-TOWARD` / `W-AWAY` identities and source-backed W contributions for supported NSCP strength templates.
+  - [x] PR #132 — source-backed D/Lr companion actions routed through the same physical geometry. Purlin self-weight remains a separate line action inside D; L/H are explicit target-specific zero/not-applicable decisions; R remains `UNRESOLVED`.
+  - [x] PR #133 — complete strength-combination action-result assembly. With unresolved R, 203-3/203-4 remain blocked and only 203-6 is complete; the Lr alternatives require an explicit engineer-sourced `lr-selected-r-not-applicable` decision. Exact force/moment/purlin conservation remains protected.
+  - [x] PR #134 — controlled code-derived Roof Bay activation. It selects one already-complete equilibrium-verified #133 case, never recomputes upstream pressure/combination physics, retains the original M2 manual-uniform fallback, attaches the validated activation to project JSON, and invalidates it on stale project/upstream changes.
 
   ### M3 independent exit audit — PR #135
   - [x] Exit audit independently re-evaluates the benchmark from accepted site/project inputs rather than trusting copied intermediate solver outputs.
@@ -48,8 +48,7 @@ Status date: 2026-08-24
   - [x] Controlled activation exposes exactly the audited complete combination result and retains manual fallback.
   - [x] Exit review found and fixed a general-case activation integrity gap: centerline station equality alone was not enough to prove identical physical load area. Activation now requires exact station/start/end/width agreement for every derived purlin tributary band.
   - [x] Adversarial regression builds a fully valid upstream M3 assembly with unchanged purlin stations but shifted tributary boundaries; activation correctly rejects it.
-  - [x] Preliminary exact PR #135 implementation head `1a8a1d4edeec93179801762f86207f43a13a6a05` passed the complete **46/46 Engineering Checks** suite, including deterministic audit, V10 Chromium activation, print/labs and all NF-001 gates.
-  - [x] **Written M3 exit gate is satisfied:** accepted project/site inputs → `qh` → `GCp/GCpi` → net zone pressure → exact physical purlin-piece routing → Rafter A/B → signed W → companions → complete source-backed strength combination → controlled activation, with provenance/identity/conservation and independent benchmark checks.
+  - [x] **Written M3 exit gate satisfied and merged:** accepted project/site inputs → `qh` → `GCp/GCpi` → net zone pressure → exact physical purlin-piece routing → Rafter A/B → signed W → companions → complete source-backed strength combination → controlled activation, with provenance/identity/conservation and independent benchmark checks.
 
   ### Permanent post-M3 boundaries
   - [!] M3 closure does not promote purlin member stress/deflection/capacity under code-derived piecewise demand.
@@ -59,7 +58,14 @@ Status date: 2026-08-24
   - [!] Rain `R` is not implemented and is never inferred as zero. The Lr path is released only by the explicit engineer-sourced R-not-applicable decision contract.
   - [!] Public project calculations remain cross-checks, not substitutes for an authorized governing NSCP copy; `authorizedCopyReviewRequired=true` remains permanent for project use.
 
-- [ ] **M4 — Roof Sheet + Fastener / Connection Layer:** NEXT after PR #135 merges. Reusable Connection Lab foundations exist; verified Roof Bay sheet/fastener/cleat/weld integration remains unresolved.
+- [~] **M4 — Roof Sheet + Fastener / Connection Layer:** ACTIVE.
+  - [x] PR #136 candidate — explicit physical roof-sheet fastener layout geometry foundation: one fastener row per purlin, explicit along-span screw stations, midpoint tributary strips crossed with exact purlin tributary bands, irregular/custom layouts, exact area conservation, deterministic mutation/stale-project rejection, and forced `UNRESOLVED` capacity state.
+  - [x] Preliminary exact implementation head `d60aa4e78e4d7aaebcd8cba82be0034d672b5f96` passed the complete **46/46 Engineering Checks** suite.
+  - [!] Existing timber nail/bolt Connection Lab equations are not roofing self-drilling-screw capacity and must not be reused as such.
+  - [ ] Next M4 slice — intersect verified M3 field/edge/corner pressure pieces with each accepted fastener tributary rectangle to derive individual signed screw demand with exact area/force conservation, still without a pull-out/pull-over/sheet/connection-capacity claim.
+  - [ ] Later M4 slices — verified roof-sheet demand/capacity, source-backed Tek-screw pull-out/pull-over/bearing where data exists, edge/corner densification, purlin-to-rafter cleat/bolt/weld demand and governing connection state.
+  - [ ] M4 exit gate — no roof-system PASS unless every required modeled connection in the load path is checked or explicitly marked unresolved.
+
 - [ ] **M5–M13:** follow `ROADMAP-ROOF-RESILIENCE-PHYSICS.md` in order unless an explicit engineering dependency requires resequencing.
 
 Rule: after each completed Roof Resilience task, update this scoreboard, `STATUS-ROOF-RESILIENCE.md`, `ACTIVE_MILESTONE.md`, and `STRUCTURAL_LAB_MASTER_CHECKLIST.md` before the next feature merge. Do not use chat memory as the implementation record.

@@ -1,8 +1,10 @@
 # Active Structural Lab Milestone
 
-Current milestone transition: **Roof Resilience Physics M3 — Code Wind / Roof Zoning Engine CLOSED CANDIDATE; M4 Roof Sheet + Fastener / Connection Layer is next after PR #135 merges.**
+Current milestone: **Roof Resilience Physics M4 — Roof Sheet + Fastener / Connection Layer ACTIVE.**
 
 M2 Roof Bay is closed through PR #112.
+
+M3 Code Wind / Roof Zoning Engine is **CLOSED** through PR #135, merged on `main` as `c81032f977d35025474b495c6bf82cbc88bf1bdc` after the documentation-updated exact head passed the full 46/46 Engineering Checks suite.
 
 Completed M3 chain:
 - **PR #113** — code/version + wind-input provenance.
@@ -17,28 +19,45 @@ Completed M3 chain:
 - **PR #123** — roof-purlin C&C effective wind area.
 - **PR #124** — symmetric-gable field/edge/corner geometry + exact purlin tributary-band zone intersections.
 - **PR #127** — external roof `GCp` selection.
-- **PR #128** — external-only `qh × GCp`; merged as `3588219906b1171a348b5d4bf135e9476e1138db`.
-- **PR #129** — low-rise Part 1 net roof pressure + minimum directional design envelopes; merged as `51fbc2bdd6487b06b3255c98672f8c1c21853b5a`.
-- **PR #130** — exact physical Roof Bay code-pressure routing/conservation; merged as `f2bf5a83711d88736b2ffaa2e2a4d6001cc0e7cb`.
-- **PR #131** — signed `W-TOWARD` / `W-AWAY` identity + source-backed strength-template W contributions; merged as `7727f5e009ceb67e7beb5db9be1dadc6a5ffa40a`.
-- **PR #132** — companion structural action acceptance/routing; merged as `b656312b4c089717e2b0cdac44dee4d7570b5114`.
-- **PR #133** — source-backed strength-combination action-result assembly; merged as `d38fea07ee49438edd0481a48fa89730e4cc5488`.
-- **PR #134** — controlled code-derived Roof Bay demand activation with manual-uniform fallback retained; exact documentation-updated head passed 46/46 Engineering Checks and merged as `2f03ea6986c32cfcfff8f7656651a03d5845c440`.
-- **PR #135 candidate** — independent end-to-end M3 exit audit + exact tributary-band compatibility hardening. Preliminary exact implementation head `1a8a1d4edeec93179801762f86207f43a13a6a05` passed the complete 46/46 Engineering Checks suite.
+- **PR #128** — external-only `qh × GCp`.
+- **PR #129** — low-rise Part 1 net roof pressure + minimum directional design envelopes.
+- **PR #130** — exact physical Roof Bay code-pressure routing/conservation.
+- **PR #131** — signed `W-TOWARD` / `W-AWAY` identity + source-backed strength-template W contributions.
+- **PR #132** — companion structural action acceptance/routing.
+- **PR #133** — source-backed strength-combination action-result assembly.
+- **PR #134** — controlled code-derived Roof Bay demand activation with manual-uniform fallback retained.
+- **PR #135** — independent end-to-end M3 exit audit + exact tributary-band compatibility hardening; merged as `c81032f977d35025474b495c6bf82cbc88bf1bdc` after exact-final-head 46/46 Engineering Checks.
 
-Why M3 may close after PR #135:
-1. The written M3 roadmap ends at reproducible code-derived wind/zoning, signed pressure cases, traceable load combinations and an independent benchmark; it does not require member-capacity design.
-2. The exit audit independently reconstructs Exposure-C `Kz/qh`, Figure 207E.4-2B `GCp`, `qh[(GCp)-(GCpi)]`, the ±0.77 kPa directional envelopes, each physical `F=pA` zone piece, exact Rafter A/B statics, D/Lr slope resolution, the selected 203-4 away combination and controlled Roof Bay activation.
-3. The audit added an adversarial geometry regression: a fully valid upstream M3 chain with unchanged purlin centerlines but shifted tributary-band boundaries must be rejected. Activation now requires exact station/start/end/width compatibility for every purlin band.
-4. Unresolved rain remains unresolved. 203-3/203-4 cannot become complete unless the explicit engineer-sourced `lr-selected-r-not-applicable` decision contract is satisfied; absence is never treated as `R=0`.
-5. The original M2 manual-uniform Roof Bay solver remains a separate fallback and is never overwritten by code-derived activation.
+## Active M4 slice — PR #136
 
-Permanent post-M3 boundary:
-- M3 closure means **code wind/zoning/load-combination demand derivation and controlled activation are complete for the implemented scope**.
-- It does **not** mean purlin stress/deflection/capacity, roof-sheet capacity, screw/fastener capacity, purlin-to-rafter connection capacity, rafter/truss capacity, or cold-formed local/distortional/LTB design is complete.
-- Those responsibilities remain later gates: M4 connections/sheet-fasteners, M6 system solver and M7 cold-formed design.
-- `authorizedCopyReviewRequired=true` remains permanent for project use where the governing NSCP text must be verified against an authorized copy.
+**PR #136 — explicit roof-sheet fastener layout geometry foundation** is the current completed candidate slice.
 
-Merge gate for PR #135: after these closure records are synchronized, the **exact documentation-updated head must pass all 46/46 Engineering Checks again**. Only that exact head may be merged. After merge, the next active Roof Resilience milestone is **M4 — Roof Sheet + Fastener / Connection Layer**.
+Implemented:
+1. Versioned `futoltech.roof-sheet-fastener-layout/1` acceptance record.
+2. Exactly one explicit fastener row for every physical purlin.
+3. Explicit screw stations along the rafter-to-rafter Roof Bay span.
+4. Midpoint tributary strips crossed with the exact physical purlin tributary bands.
+5. Equal, irregular and custom/nonuniform purlin/fastener layouts preserved without silent regularization.
+6. Row-level and whole-Roof-Bay area conservation.
+7. Deterministic serialization, post-creation geometry mutation rejection and stale-project invalidation.
+8. Fastener capacity remains forced to `UNRESOLVED`.
+9. Existing timber nail/bolt Connection Lab equations are explicitly not reused as roofing self-drilling-screw capacity.
+10. Preliminary exact implementation head `d60aa4e78e4d7aaebcd8cba82be0034d672b5f96` passed the complete **46/46 Engineering Checks** suite after the custom-layout floating-point assertion was corrected to engineering-tolerance comparison.
 
-Detailed scope and gates live in `ROADMAP-ROOF-RESILIENCE-PHYSICS.md`, `STATUS-ROOF-RESILIENCE.md`, `ROOF-RESILIENCE-PHYSICS-MILESTONE-STATUS.md`, `STRUCTURAL_LAB_MASTER_CHECKLIST.md`, and `M3_END_TO_END_EXIT_AUDIT.md`.
+Current merge gate for PR #136:
+- Synchronize `ROOF-RESILIENCE-PHYSICS-MILESTONE-STATUS.md`, `STATUS-ROOF-RESILIENCE.md`, `ACTIVE_MILESTONE.md`, and `STRUCTURAL_LAB_MASTER_CHECKLIST.md`.
+- Then the **exact documentation-updated head must pass all 46/46 Engineering Checks again**.
+- Only that exact head may merge.
+
+Next M4 dependency after #136 merges:
+**intersect the verified M3 field/edge/corner pressure pieces with each accepted fastener tributary rectangle to derive individual signed screw demand, while preserving exact area/force conservation and still making no pull-out, pull-over, roof-sheet or connection-capacity claim.**
+
+Permanent post-M3 / active-M4 boundary:
+- M3 closure means code wind/zoning/load-combination demand derivation and controlled activation are complete for the implemented scope.
+- M4 now owns roof-sheet/fastener/purlin-to-rafter connection demand and eventual verified capacity work.
+- Purlin member stress/deflection/capacity remains outside M4 fastener geometry work and still awaits its appropriate later design layer.
+- Rafter/truss/system interaction remains M6 work.
+- Cold-formed effective-width/local/distortional/LTB design remains M7 work.
+- `authorizedCopyReviewRequired=true` remains permanent for project use where governing NSCP text must be verified against an authorized copy.
+
+Detailed scope and gates live in `ROADMAP-ROOF-RESILIENCE-PHYSICS.md`, `STATUS-ROOF-RESILIENCE.md`, `ROOF-RESILIENCE-PHYSICS-MILESTONE-STATUS.md`, `STRUCTURAL_LAB_MASTER_CHECKLIST.md`, `M3_END_TO_END_EXIT_AUDIT.md`, and `M4_ROOF_SHEET_FASTENER_LAYOUT_FOUNDATION.md`.
