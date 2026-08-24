@@ -196,7 +196,12 @@ function rebuildInput(record) {
     roofBayProject: {
       geometry: clone(record.projectBasis.geometry),
       purlin: clone(record.projectBasis.purlin),
-      loading: clone(record.projectBasis.loading),
+      loading: {
+        deadLoadKPa: record.projectBasis.loading.deadLoadKPa,
+        roofLiveLoadKPa: record.projectBasis.loading.roofLiveLoadKPa,
+        windPressureKPa: record.projectBasis.loading.manualWindPressureKPa,
+        windSense: record.projectBasis.loading.manualWindSense
+      },
       windPressureContextAcceptance: clone(record.projectBasis.windPressureContextAcceptance)
     },
     windRoofStrengthCombinationAssembly: record.upstreamWindRoofStrengthCombinationAssembly,
