@@ -1,5 +1,5 @@
 import { validateWindRoofStrengthCombinationAssembly } from '../solver/windRoofStrengthCombinationAssembly.js';
-import { roofBayPurlinStations } from '../solver/roofBay.js';
+import { roofBayPurlinStations, tributaryBandsFromStations } from '../solver/roofBay.js';
 
 export const ROOF_BAY_CODE_DERIVED_ACTIVATION_SCHEMA = 'futoltech.roof-bay-code-derived-activation/1';
 
@@ -7,7 +7,7 @@ const STATUS = 'CODE_DERIVED_STRENGTH_CASE_ACTIVATED_MANUAL_UNIFORM_RETAINED';
 const ACTIVE_DEMAND_MODEL = 'code-derived-strength-combination';
 const MANUAL_FALLBACK = 'manual-uniform';
 const EPS = 1e-9;
-const ACTIVATION_RULE = 'A complete verified M3 strength-combination case may be activated only when its accepted pressure-context chain, Roof Bay span/slope geometry, purlin stations, D and Lr inputs match the active Roof Bay project. The existing manual-uniform M2 solver is retained as a separate fallback and is not overwritten.';
+const ACTIVATION_RULE = 'A complete verified M3 strength-combination case may be activated only when its accepted pressure-context chain, Roof Bay span/slope geometry, exact purlin stations and derived tributary-band boundaries, D and Lr inputs match the active Roof Bay project. The existing manual-uniform M2 solver is retained as a separate fallback and is not overwritten.';
 const SELF_WEIGHT_RULE = 'PR #132 preserves purlin self-weight as sourced line actions inside D but does not encode the selected Roof Bay section ID. Controlled activation therefore requires an explicit engineer confirmation and source reference that the imported self-weight basis matches the active project purlin section before the complete combination result may be displayed as active.';
 const BOUNDARY = 'This activation record selects and exposes one already-complete PR #133 strength-combination action result. It does not recompute wind pressure, coefficients, zoning, companion actions or combinations; it does not replace the manual-uniform M2 solver; it does not calculate purlin stress/deflection under the code-derived piecewise demand or promote any member/connection capacity.';
 
@@ -30,6 +30,12 @@ function finite(value, label) {
 function nearlyEqual(left, right, tolerance = EPS) { return Math.abs(Number(left) - Number(right)) <= tolerance; }
 function arrayNearlyEqual(left, right, tolerance = EPS) {
   return Array.isArray(left) && Array.isArray(right) && left.length === right.length && left.every((value, index) => nearlyEqual(value, right[index], tolerance));
+}
+function bandsNearlyEqual(left, right, tolerance = EPS) {
+  return Array.isArray(left) && Array.isArray(right) && left.length === right.length && left.every((band, index) => {
+    const other = right[index];
+    return other && nearlyEqual(band.stationM, other.stationM, tolerance) && nearlyEqual(band.startM, other.startM, tolerance) && nearlyEqual(band.endM, other.endM, tolerance) && nearlyEqual(band.widthM, other.widthM, tolerance);
+  });
 }
 
 function selectedCase(assembly, selectedCombinationCaseId) {
@@ -75,14 +81,17 @@ function projectStations(project) {
 function projectBasis(project) {
   const context = project?.windPressureContextAcceptance;
   if (!context) throw new Error('Accepted windPressureContextAcceptance is required before code-derived activation.');
+  const roofSlopeLengthM = finite(project.geometry?.roofSlopeLengthM, 'geometry.roofSlopeLengthM');
   const stationsM = projectStations(project);
+  const tributaryBands = tributaryBandsFromStations(stationsM, roofSlopeLengthM);
   return {
     geometry: {
       rafterSpacingM: finite(project.geometry?.rafterSpacingM, 'geometry.rafterSpacingM'),
-      roofSlopeLengthM: finite(project.geometry?.roofSlopeLengthM, 'geometry.roofSlopeLengthM'),
+      roofSlopeLengthM,
       maxPurlinSpacingM: finite(project.geometry?.maxPurlinSpacingM, 'geometry.maxPurlinSpacingM'),
       layoutMode: project.geometry?.layoutMode ?? 'equal-max-spacing',
       purlinStationsM: stationsM,
+      purlinTributaryBands: tributaryBands,
       slopeDeg: finite(project.geometry?.slopeDeg, 'geometry.slopeDeg')
     },
     purlin: {
@@ -115,6 +124,15 @@ function validateCompatibility(basis, assembly) {
   const assemblyStations = route.purlins.map((item) => Number(item.stationM));
   if (!arrayNearlyEqual(basis.geometry.purlinStationsM, assemblyStations)) {
     throw new Error('Imported strength assembly purlin stations do not match the active Roof Bay layout.');
+  }
+  const assemblyBands = route.purlins.map((item) => ({
+    stationM: Number(item.stationM),
+    startM: Number(item.tributaryStartM),
+    endM: Number(item.tributaryEndM),
+    widthM: Number(item.tributaryWidthM)
+  }));
+  if (!bandsNearlyEqual(basis.geometry.purlinTributaryBands, assemblyBands)) {
+    throw new Error('Imported strength assembly purlin tributary-band boundaries do not match the active Roof Bay physical load-area geometry.');
   }
   if (!nearlyEqual(basis.loading.deadLoadKPa, companion.actions.D.verticalRoofAreaPressureKPa)) {
     throw new Error('Imported strength assembly D roof-area pressure does not match the active Roof Bay dead load input.');
@@ -157,6 +175,7 @@ function buildRecord({
       pressureContextExactMatch: true,
       roofBayGeometryMatch: true,
       purlinStationsMatch: true,
+      purlinTributaryBandsMatch: true,
       deadLoadMatch: true,
       roofLiveLoadMatch: true,
       projectPurlinSectionId: basis.purlin.sectionId,
@@ -234,7 +253,7 @@ export function validateRoofBayCodeDerivedActivation(record, roofBayProject = nu
   nonEmpty(record.sourceBasis?.activationSourceReference, 'sourceBasis.activationSourceReference');
   if (record.sourceBasis?.activationRule !== ACTIVATION_RULE || record.sourceBasis?.selfWeightRule !== SELF_WEIGHT_RULE) throw new Error('Roof Bay activation source rules changed.');
   if (record.boundary !== BOUNDARY) throw new Error('Roof Bay activation engineering boundary changed.');
-  for (const flag of ['pressureContextExactMatch','roofBayGeometryMatch','purlinStationsMatch','deadLoadMatch','roofLiveLoadMatch']) {
+  for (const flag of ['pressureContextExactMatch','roofBayGeometryMatch','purlinStationsMatch','purlinTributaryBandsMatch','deadLoadMatch','roofLiveLoadMatch']) {
     if (record.compatibility?.[flag] !== true) throw new Error(`Roof Bay activation compatibility flag '${flag}' changed.`);
   }
   const rebuilt = buildRecord(rebuildInput(record));
