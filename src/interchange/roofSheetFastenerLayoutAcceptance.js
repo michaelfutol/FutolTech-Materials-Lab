@@ -31,6 +31,9 @@ function nonEmpty(value, label) {
   return value.trim();
 }
 function nearlyEqual(left, right, tolerance = EPS) { return Math.abs(Number(left) - Number(right)) <= tolerance; }
+function sameNumber(left, right, label) {
+  if (!nearlyEqual(left, right)) throw new Error(`${label} changed from its deterministic fastener-layout geometry.`);
+}
 
 function projectStations(project) {
   const geometry = project.geometry;
@@ -80,26 +83,8 @@ function fastenerTributaryIntervals(positionsM, spanM) {
   });
 }
 
-function buildRecord({
-  roofBayProject,
-  fastenerSystemId,
-  fastenerDescription,
-  attachmentPosition,
-  fastenerSpecificationSourceReference,
-  layoutSourceReference,
-  areaShareRoutingAssumptionSourceReference,
-  fastenerRows,
-  note = null
-} = {}) {
-  const project = clone(roofBayProject);
-  const basis = projectBasis(project);
-  const spanM = basis.geometry.rafterSpacingM;
-  const slopeLengthM = basis.geometry.roofSlopeLengthM;
-  const expectedBands = basis.geometry.purlinTributaryBands;
-  const position = nonEmpty(attachmentPosition, 'attachmentPosition').toLowerCase();
-  if (!ATTACHMENT_POSITIONS.includes(position)) throw new Error(`attachmentPosition must be one of: ${ATTACHMENT_POSITIONS.join(', ')}.`);
+function buildRows(expectedBands, spanM, fastenerRows) {
   if (!Array.isArray(fastenerRows)) throw new Error('fastenerRows must be an array with exactly one row for every physical purlin.');
-
   const suppliedByLabel = new Map();
   for (const [index, row] of fastenerRows.entries()) {
     const label = nonEmpty(row?.purlinLabel, `fastenerRows[${index}].purlinLabel`);
@@ -113,7 +98,7 @@ function buildRecord({
     throw new Error(`Fastener layout requires exactly one row for every physical purlin. Missing: ${missing.join(', ') || 'none'}; extra: ${extra.join(', ') || 'none'}.`);
   }
 
-  const rows = expectedBands.map((band) => {
+  return expectedBands.map((band) => {
     const source = suppliedByLabel.get(band.purlinLabel);
     const positionsM = cleanPositions(source.fastenerStationsAlongSpanM, spanM, `${band.purlinLabel}.fastenerStationsAlongSpanM`);
     const intervals = fastenerTributaryIntervals(positionsM, spanM);
@@ -152,7 +137,26 @@ function buildRecord({
       }
     };
   });
+}
 
+function buildRecord({
+  roofBayProject,
+  fastenerSystemId,
+  fastenerDescription,
+  attachmentPosition,
+  fastenerSpecificationSourceReference,
+  layoutSourceReference,
+  areaShareRoutingAssumptionSourceReference,
+  fastenerRows,
+  note = null
+} = {}) {
+  const project = clone(roofBayProject);
+  const basis = projectBasis(project);
+  const spanM = basis.geometry.rafterSpacingM;
+  const slopeLengthM = basis.geometry.roofSlopeLengthM;
+  const position = nonEmpty(attachmentPosition, 'attachmentPosition').toLowerCase();
+  if (!ATTACHMENT_POSITIONS.includes(position)) throw new Error(`attachmentPosition must be one of: ${ATTACHMENT_POSITIONS.join(', ')}.`);
+  const rows = buildRows(basis.geometry.purlinTributaryBands, spanM, fastenerRows);
   const totalFastenerCount = rows.reduce((sum, row) => sum + row.fasteners.length, 0);
   const totalFastenerTributaryAreaM2 = rows.reduce((sum, row) => sum + row.conservation.fastenerTributaryAreaM2, 0);
   const roofBayAreaM2 = spanM * slopeLengthM;
@@ -199,50 +203,59 @@ function buildRecord({
   };
 }
 
-function rebuildInput(record) {
-  return {
-    roofBayProject: {
-      schemaVersion: 'futoltech.roof-bay-project/1',
-      projectId: record.projectBasis.projectId,
-      projectName: 'Fastener layout validation reconstruction',
-      source: 'Fastener layout validation reconstruction',
-      geometry: {
-        rafterSpacingM: record.projectBasis.geometry.rafterSpacingM,
-        roofSlopeLengthM: record.projectBasis.geometry.roofSlopeLengthM,
-        maxPurlinSpacingM: 1,
-        slopeDeg: 0,
-        layoutMode: 'custom-stations',
-        purlinStationsM: record.projectBasis.geometry.purlinStationsM,
-        roofPlaneFrame: record.projectBasis.geometry.coordinateFrame
-      },
-      purlin: {
-        sectionId: record.projectBasis.purlinSectionId,
-        orientationDeg: 0,
-        elasticModulusMPa: 200000,
-        yieldStrengthMPa: 250,
-        densityKgM3: 7850
-      },
-      loading: { mode:'gravity', deadLoadKPa:0, roofLiveLoadKPa:0, windPressureKPa:0, windSense:'uplift', loadFactor:1 },
-      pressureZoning: {
-        schemaVersion:'futoltech.roof-pressure-zones/1', status:'UNRESOLVED', activePressureModel:'manual-uniform',
-        coordinateFrame:record.projectBasis.geometry.coordinateFrame, supportedRegionTypes:['field','edge','corner'], regions:[], codeBasis:null,
-        manualUniformWind:{ pressureKPa:0, sense:'uplift' }, note:'M2 reserves the field/edge/corner region schema and roof-local coordinate frame only. No code-derived zone dimensions, coefficients or zone pressures are assigned until M3.'
-      },
-      windDesignBasis: record._validationWindDesignBasis
-    },
-    fastenerSystemId: record.fastenerSystem.id,
-    fastenerDescription: record.fastenerSystem.description,
-    attachmentPosition: record.fastenerSystem.attachmentPosition,
-    fastenerSpecificationSourceReference: record.fastenerSystem.specificationSourceReference,
-    layoutSourceReference: record.sourceBasis.layoutSourceReference,
-    areaShareRoutingAssumptionSourceReference: record.sourceBasis.areaShareRoutingAssumptionSourceReference,
-    fastenerRows: record.rows.map((row) => ({
-      purlinLabel: row.purlinLabel,
-      fastenerStationsAlongSpanM: row.fasteners.map((fastener) => fastener.xM),
-      rowSourceReference: row.rowSourceReference
-    })),
-    note: record.note
-  };
+function validateDeterministicRows(record) {
+  const spanM = positive(record.projectBasis?.geometry?.rafterSpacingM, 'projectBasis.geometry.rafterSpacingM');
+  const slopeLengthM = positive(record.projectBasis?.geometry?.roofSlopeLengthM, 'projectBasis.geometry.roofSlopeLengthM');
+  const bands = record.projectBasis?.geometry?.purlinTributaryBands;
+  if (!Array.isArray(bands) || !Array.isArray(record.rows) || record.rows.length !== bands.length) throw new Error('Roof-sheet fastener row geometry no longer matches the accepted purlin bands.');
+
+  let totalCount = 0;
+  let totalArea = 0;
+  for (let rowIndex = 0; rowIndex < bands.length; rowIndex += 1) {
+    const band = bands[rowIndex];
+    const row = record.rows[rowIndex];
+    if (row.purlinLabel !== band.purlinLabel) throw new Error(`Fastener row order/identity changed at '${band.purlinLabel}'.`);
+    sameNumber(row.purlinStationM, band.stationM, `${band.purlinLabel}.purlinStationM`);
+    if (!sameRecord(row.purlinTributaryBand, band)) throw new Error(`Fastener row '${band.purlinLabel}' tributary band changed.`);
+    const positions = cleanPositions(row.fasteners?.map((fastener) => fastener.xM), spanM, `${band.purlinLabel}.storedFastenerStations`);
+    const intervals = fastenerTributaryIntervals(positions, spanM);
+    if (row.fasteners.length !== intervals.length) throw new Error(`Fastener count changed for '${band.purlinLabel}'.`);
+
+    let rowArea = 0;
+    for (let index = 0; index < intervals.length; index += 1) {
+      const expected = intervals[index];
+      const fastener = row.fasteners[index];
+      if (fastener.fastenerId !== `${band.purlinLabel}-F${index + 1}` || fastener.purlinLabel !== band.purlinLabel) throw new Error(`Fastener identity changed in '${band.purlinLabel}'.`);
+      sameNumber(fastener.xM, expected.xM, `${fastener.fastenerId}.xM`);
+      sameNumber(fastener.yM, band.stationM, `${fastener.fastenerId}.yM`);
+      const rectangle = fastener.tributaryRectangle;
+      sameNumber(rectangle?.x0M, expected.startM, `${fastener.fastenerId}.tributaryRectangle.x0M`);
+      sameNumber(rectangle?.x1M, expected.endM, `${fastener.fastenerId}.tributaryRectangle.x1M`);
+      sameNumber(rectangle?.y0M, band.startM, `${fastener.fastenerId}.tributaryRectangle.y0M`);
+      sameNumber(rectangle?.y1M, band.endM, `${fastener.fastenerId}.tributaryRectangle.y1M`);
+      sameNumber(rectangle?.widthAlongSpanM, expected.widthM, `${fastener.fastenerId}.tributaryRectangle.widthAlongSpanM`);
+      sameNumber(rectangle?.widthUpslopeM, band.widthM, `${fastener.fastenerId}.tributaryRectangle.widthUpslopeM`);
+      const expectedArea = expected.widthM * band.widthM;
+      sameNumber(rectangle?.areaM2, expectedArea, `${fastener.fastenerId}.tributaryRectangle.areaM2`);
+      positive(rectangle?.areaM2, `${fastener.fastenerId}.tributaryRectangle.areaM2`);
+      rowArea += expectedArea;
+    }
+    const expectedRowArea = spanM * band.widthM;
+    sameNumber(row.conservation?.expectedRowAreaM2, expectedRowArea, `${band.purlinLabel}.conservation.expectedRowAreaM2`);
+    sameNumber(row.conservation?.fastenerTributaryAreaM2, rowArea, `${band.purlinLabel}.conservation.fastenerTributaryAreaM2`);
+    sameNumber(row.conservation?.residualM2, 0, `${band.purlinLabel}.conservation.residualM2`);
+    if (row.conservation?.pass !== true) throw new Error(`Fastener row '${band.purlinLabel}' conservation status changed.`);
+    totalCount += intervals.length;
+    totalArea += rowArea;
+  }
+
+  const roofBayArea = spanM * slopeLengthM;
+  sameNumber(record.summary?.purlinRowCount, bands.length, 'summary.purlinRowCount');
+  sameNumber(record.summary?.totalFastenerCount, totalCount, 'summary.totalFastenerCount');
+  sameNumber(record.summary?.roofBayAreaM2, roofBayArea, 'summary.roofBayAreaM2');
+  sameNumber(record.summary?.totalFastenerTributaryAreaM2, totalArea, 'summary.totalFastenerTributaryAreaM2');
+  sameNumber(record.summary?.areaResidualM2, 0, 'summary.areaResidualM2');
+  if (record.summary?.areaConservationPass !== true) throw new Error('Roof-sheet fastener total area-conservation status changed.');
 }
 
 export function createRoofSheetFastenerLayoutAcceptance(input = {}) {
@@ -255,6 +268,8 @@ export function validateRoofSheetFastenerLayoutAcceptance(record, roofBayProject
   if (!record || typeof record !== 'object' || Array.isArray(record)) throw new Error('Roof-sheet fastener layout record must be an object.');
   if (record.schemaVersion !== ROOF_SHEET_FASTENER_LAYOUT_SCHEMA) throw new Error(`Unsupported roof-sheet fastener layout schema '${record.schemaVersion}'.`);
   if (record.status !== STATUS) throw new Error('Roof-sheet fastener layout status changed.');
+  nonEmpty(record.projectBasis?.projectId, 'projectBasis.projectId');
+  nonEmpty(record.projectBasis?.purlinSectionId, 'projectBasis.purlinSectionId');
   nonEmpty(record.fastenerSystem?.id, 'fastenerSystem.id');
   nonEmpty(record.fastenerSystem?.description, 'fastenerSystem.description');
   nonEmpty(record.fastenerSystem?.specificationSourceReference, 'fastenerSystem.specificationSourceReference');
@@ -263,17 +278,18 @@ export function validateRoofSheetFastenerLayoutAcceptance(record, roofBayProject
   nonEmpty(record.sourceBasis?.layoutSourceReference, 'sourceBasis.layoutSourceReference');
   nonEmpty(record.sourceBasis?.areaShareRoutingAssumptionSourceReference, 'sourceBasis.areaShareRoutingAssumptionSourceReference');
   if (record.sourceBasis?.layoutRule !== LAYOUT_RULE || record.boundary !== BOUNDARY) throw new Error('Roof-sheet fastener layout engineering boundary changed.');
-  if (record.implementation?.codePressureToFastenerDemandRoutingImplemented !== false || record.implementation?.screwPullOutCapacityImplemented !== false || record.implementation?.screwPullOverCapacityImplemented !== false) {
-    throw new Error('Roof-sheet fastener layout record was improperly promoted beyond geometry acceptance.');
-  }
-  if (!record.summary?.areaConservationPass || !nearlyEqual(record.summary.areaResidualM2, 0)) throw new Error('Roof-sheet fastener layout does not conserve Roof Bay area.');
-  if (!Array.isArray(record.rows) || record.rows.length !== record.summary.purlinRowCount) throw new Error('Roof-sheet fastener row summary changed.');
-  for (const row of record.rows) {
-    if (!row.conservation?.pass || !nearlyEqual(row.conservation.residualM2, 0)) throw new Error(`Fastener row '${row.purlinLabel}' does not conserve its physical tributary area.`);
-    for (const fastener of row.fasteners) {
-      positive(fastener.tributaryRectangle?.areaM2, `${fastener.fastenerId}.tributaryRectangle.areaM2`);
-    }
-  }
+  const expectedImplementation = {
+    explicitFastenerGeometryAccepted: true,
+    midpointTributaryAreaGeometryImplemented: true,
+    codePressureToFastenerDemandRoutingImplemented: false,
+    roofSheetStructuralCapacityImplemented: false,
+    screwPullOutCapacityImplemented: false,
+    screwPullOverCapacityImplemented: false,
+    fastenerGroupRedistributionImplemented: false,
+    purlinToRafterConnectionCapacityImplemented: false
+  };
+  if (!sameRecord(record.implementation, expectedImplementation)) throw new Error('Roof-sheet fastener layout record was improperly promoted beyond geometry acceptance.');
+  validateDeterministicRows(record);
   if (roofBayProject != null) {
     const currentBasis = projectBasis(roofBayProject);
     if (!sameRecord(currentBasis, record.projectBasis)) throw new Error('Roof Bay project geometry changed after fastener layout acceptance.');
