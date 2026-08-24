@@ -40,6 +40,15 @@ function stable(value) {
   return value;
 }
 function sameRecord(left, right) { return JSON.stringify(stable(left)) === JSON.stringify(stable(right)); }
+function fingerprint(value) {
+  const text = JSON.stringify(stable(value));
+  let hash = 2166136261;
+  for (let index = 0; index < text.length; index += 1) {
+    hash ^= text.charCodeAt(index);
+    hash = Math.imul(hash, 16777619);
+  }
+  return `fnv1a32:${(hash >>> 0).toString(16).padStart(8, '0')}`;
+}
 function finite(value, label) {
   const number = Number(value);
   if (!Number.isFinite(number)) throw new Error(`${label} must be finite.`);
@@ -57,7 +66,6 @@ function nonEmpty(value, label) {
 function nullableText(value) {
   return value == null || String(value).trim() === '' ? null : String(value).trim();
 }
-function nearlyEqual(left, right, tolerance = EPS) { return Math.abs(Number(left) - Number(right)) <= tolerance; }
 function enumValue(value, allowed, label) {
   const normalized = nonEmpty(value, label).toLowerCase();
   if (!allowed.includes(normalized)) throw new Error(`${label} must be one of: ${allowed.join(', ')}.`);
@@ -256,6 +264,10 @@ function buildRecord({ roofSheetFastenerLayoutAcceptance, attachmentDetail, capa
     upstreamRoofSheetFastenerLayoutAcceptance: upstream,
     attachmentDetail: detail,
     capacityEvidence: evidence,
+    integrity: {
+      attachmentDetailFingerprint: fingerprint(detail),
+      capacityEvidenceFingerprint: fingerprint(evidence)
+    },
     summary: {
       evidenceMechanisms: evidence.map((item) => item.mechanism),
       applicabilityCompleteMechanisms: complete,
@@ -361,6 +373,10 @@ export function validateRoofFastenerCapacityEvidenceAcceptance(record) {
   if (record.status !== STATUS) throw new Error('Roof fastener capacity-evidence status changed.');
   if (record.sourceBasis?.detailRule !== DETAIL_RULE || record.sourceBasis?.evidenceRule !== EVIDENCE_RULE || record.sourceBasis?.basisRule !== BASIS_RULE || record.boundary !== BOUNDARY) {
     throw new Error('Roof fastener capacity-evidence engineering boundary changed.');
+  }
+  if (record.integrity?.attachmentDetailFingerprint !== fingerprint(record.attachmentDetail)
+    || record.integrity?.capacityEvidenceFingerprint !== fingerprint(record.capacityEvidence)) {
+    throw new Error('Roof fastener capacity-evidence record changed from its deterministic accepted evidence/detail integrity.');
   }
   const expectedImplementation = {
     attachmentDetailAccepted: true,
