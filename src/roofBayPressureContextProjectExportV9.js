@@ -1,4 +1,5 @@
 import { createRoofBayProject, serializeRoofBayProject } from './interchange/roofBayProject.js';
+import { validateRoofBayCodeDerivedActivation } from './interchange/roofBayCodeDerivedActivation.js';
 
 const root = document.querySelector('[data-roof-bay-app]');
 
@@ -23,9 +24,9 @@ function buildProject() {
   const sectionSelect = root.querySelector('[data-rb-section]');
   const fySelect = root.querySelector('[data-rb-fy]');
   const factorInput = root.querySelector('[data-rb-factor]');
-  return createRoofBayProject({
+  const project = createRoofBayProject({
     projectId:`roof-bay-${Date.now()}`,
-    projectName:'FutolTech Roof Bay M3.3 pressure-context project',
+    projectName:'FutolTech Roof Bay M3 pressure-context project',
     sectionId:sectionSelect?.value,
     rafterSpacingM:model.inputs.rafterSpacingM,
     roofSlopeLengthM:model.inputs.roofSlopeLengthM,
@@ -46,6 +47,13 @@ function buildProject() {
     windProjectInputAcceptance,
     windPressureContextAcceptance
   });
+
+  const activation = window.__FT_ROOF_BAY_CODE_DERIVED_ACTIVATION__ ?? null;
+  if (activation) {
+    validateRoofBayCodeDerivedActivation(activation, project);
+    project.codeDerivedActivation = JSON.parse(JSON.stringify(activation));
+  }
+  return project;
 }
 
 if (root) {
