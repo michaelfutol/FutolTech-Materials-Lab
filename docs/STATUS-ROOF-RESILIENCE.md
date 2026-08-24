@@ -49,7 +49,7 @@ Permanent M2 boundaries:
 - M2 exit: applied roof load and reaction totals conserve within numerical tolerance; solver/visual paths use the same geometry.
 
 ## M3 — Code Wind / Roof Zoning Engine
-**Status: ACTIVE — pressure derivation, physical Roof Bay routing, W identity and source-backed companion-action acceptance are implemented through the PR #132 completion candidate.**
+**Status: ACTIVE — pressure derivation, physical routing, W identity and companion-action acceptance are merged through PR #132; PR #133 is the fully-green strength-combination assembly candidate.**
 
 ### Completed M3 foundation
 
@@ -139,40 +139,52 @@ Permanent M2 boundaries:
 - Full combination stays `null` while companion actions are unresolved.
 - Exact documentation-updated final head passed 45/45 Engineering Checks; merged as `7727f5e009ceb67e7beb5db9be1dadc6a5ffa40a`.
 
-### Current completion candidate — PR #132 companion structural actions
-
-- Adds `futoltech.wind-roof-companion-actions/1` downstream of the exact PR #131 record.
-- `D` and `Lr` are distinct source-referenced vertical gravity actions; `roofLiveLoad` is never relabeled as ordinary `L`.
+**PR #132 — companion structural actions**
+- Schema `futoltech.wind-roof-companion-actions/1`.
+- `D` and `Lr` are distinct source-referenced vertical gravity actions; roof live is never relabeled as ordinary `L`.
 - Uniform roof-area `D` and `Lr` are partitioned over the same exact PR #130 physical rectangles used by W.
 - Vertical gravity resolves into roof-normal/down-slope components using the accepted roof slope and actual spanwise piece locations.
 - Purlin self-weight is a separate line action inside `D`, one sourced entry per purlin; it is not hidden in or double-counted with roof-area pressure.
-- `L` and `H` are only explicit target-specific zero/not-applicable decisions with source/engineering basis for the current roof-purlin target.
+- `L` and `H` are explicit target-specific zero/not-applicable decisions with source/engineering basis for the current roof-purlin target.
 - `R` remains `UNRESOLVED`; missing rain data is never treated as zero.
 - `f1×L` is zero because accepted `L=0`; `f1` itself remains uninferred.
 - Benchmark geometry: 25°, 4.0 m bay, area `17.654046703399867 m²`.
 - Benchmark `D`: `0.20 kPa` area load + two `0.05 kN/m` purlin self-weights → `3.9308093406799736 kN` vertical / `3.5625231148146597 kN` normal / `1.6612318107922752 kN` downslope.
 - Benchmark `Lr=0.75 kPa`: `13.2405350275499 kN` vertical / `12.0 kN` normal / `5.595691897859982 kN` downslope.
-- Deterministic tests protect D/Lr identity, physical piece preservation, gravity decomposition, self-weight anti-double-counting, L/H zero decisions, unresolved R, public-state round-trip and anti-promotion boundaries.
-- Preliminary exact implementation head passed the complete 45/45 Engineering Checks suite.
-- Complete strength-combination assembly, rain/action-alternative selection, live code-derived Roof Bay activation and member/capacity promotion remain blocked.
+- Exact documentation-updated final head passed 45/45 Engineering Checks; merged as `b656312b4c089717e2b0cdac44dee4d7570b5114`.
 - Public boundary/QA record: `docs/M3_ROOF_COMPANION_ACTIONS.md`.
 
-## Current M3 dependency — rain/action-alternative resolution + complete combination assembly
+### Current completion candidate — PR #133 strength-combination action-result assembly
 
-- Resolve `R` through an explicit project rain action or explicit source/engineering-backed applicability decision; unresolved R cannot silently become zero.
-- Preserve `D`, `L`, `Lr`, `R`, `H`, W direction and exact physical load-path identity through combination assembly.
-- Assemble 203-6 only when D/W/H are explicit. Assemble 203-3/203-4 only after the `(Lr or R)` alternative is explicitly selected/resolved.
-- Keep all combination factors downstream of immutable pressure/action records.
-- Only a fully resolved source-backed combination may produce a non-null complete result.
+- Adds `futoltech.wind-roof-strength-combination-assembly/1` downstream of the exact PR #132 record.
+- Preserves all six supported template × signed W-direction identities for NSCP-203-3-W, 203-4 and 203-6.
+- With `R` unresolved, four 203-3/203-4 cases remain explicitly blocked; both 203-6 directions become complete because D/W are accepted and H is an explicit target-specific zero decision.
+- `lr-selected-r-not-applicable` is allowed only when an engineer confirmation flag, decision source reference and rationale are all present. This releases the accepted Lr path without claiming that R was calculated or compared.
+- D purlin self-weight remains a traceable component inside D and is not double-counted by the factored assembler.
+- Complete cases preserve exact field/edge/corner physical piece identity, W governing raw-case identity, purlin totals, signed Rafter A/B normal/down-slope reactions and combination case ID.
+- Every complete case independently checks normal force, down-slope force, normal moment, down-slope moment and purlin-to-Roof-Bay conservation.
+- 25° benchmark, explicit Lr path: 203-3 toward `+33.370320644272304 / +10.946585209526702 kN` normal/down-slope; 203-3 away `+0.09027225525739624 / +10.946585209526702 kN`; 203-4 toward `+30.06561355076701 / +4.791324121880722 kN`; 203-4 away `-36.494483227262805 / +4.791324121880722 kN`; 203-6 toward `+22.996856616322614 / +1.4951086297130478 kN`; 203-6 away `-43.5632401617072 / +1.4951086297130478 kN`.
+- Public government cross-checks are inconsistent on one 203-3 transcription: multiple recent DPWH plan sets show `1.6(Lr or R)` while one BIR calculation shows `1.6(Lr + R)`. Project calculations are treated only as cross-checks; `authorizedCopyReviewRequired=true` remains mandatory.
+- Deterministic tests protect unresolved-R blocking, 203-6 completion, explicit Lr release, exact vector benchmarks, piece/self-weight trace, force/moment conservation, public-state round-trip and anti-promotion boundaries.
+- Preliminary exact implementation head passed the complete 45/45 Engineering Checks suite.
+- Rain calculation, automatic governing Lr/R selection, live code-derived Roof Bay activation and member/capacity promotion remain blocked.
+- Public boundary/QA record: `docs/M3_ROOF_STRENGTH_COMBINATION_ASSEMBLY.md`.
 
-## Remaining M3 work after complete combination assembly
+## Current M3 dependency — controlled code-derived Roof Bay activation
 
-- Controlled code-derived Roof Bay project/UI activation while retaining a clearly distinct manual-uniform option during transition.
-- Piecewise purlin member response/capacity under code-derived/combined loading through a separate gate.
-- Independent end-to-end benchmark: project/site inputs → `qh` → `GCp/GCpi` → minimum-governed net zone pressures → physical purlin piece loads → Rafter A/B reactions → W identity → companion actions → complete source-backed combination result.
-- Close M3 only after all conservation checks and complete exact-final-head Engineering Checks are green.
+- Expose only the exact accepted M3 records; do not create a second hidden pressure or combination model in the UI.
+- Preserve manual-uniform Roof Bay mode as a clearly separate transition option.
+- Unresolved `R` must remain visibly blocked for 203-3/203-4; only complete cases may be labeled complete.
+- Preserve W direction, physical zone-piece identity, companion-action provenance, Lr/R resolution state and complete combination case ID in project JSON/print trace.
+- Add dedicated real-Chromium activation/invalidation QA.
 
-Permanent M3 boundary: verified pressure derivation, physical routing, wind-action identity, companion-action acceptance, complete combination assembly and member/capacity response are separate responsibilities. Procedure applicability, source provenance, physical area, pressure sign/case identity, structural action identity and conservation remain explicit solver state.
+## Remaining M3 work after controlled activation
+
+- Independent end-to-end benchmark: project/site inputs → `qh` → `GCp/GCpi` → minimum-governed net zone pressures → physical purlin piece loads → Rafter A/B reactions → W identity → companion actions → complete source-backed combination result → controlled UI/project activation.
+- Close M3 only after all conservation checks and the complete exact-final-head Engineering Checks suite are green.
+- Piecewise purlin member response/capacity under code-derived/combined loading remains a separate later gate after M3.
+
+Permanent M3 boundary: verified pressure derivation, physical routing, wind-action identity, companion-action acceptance, complete combination assembly, controlled activation and member/capacity response are separate responsibilities. Procedure applicability, source provenance, physical area, pressure sign/case identity, structural action identity and conservation remain explicit solver state.
 
 ## M4 — Roof Sheet + Fastener / Connection Layer
 **Status: NOT YET INTEGRATED.**
