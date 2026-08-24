@@ -34,7 +34,7 @@
 9. [x] **Frame Analyzer / NF-001** — connected 2D frame, explicit spring/release states, elastic P–Δ, piecewise redistribution/mechanism detection and brace sensitivity.
 10. [x] **FutolStructure / RPE interchange v1** — versioned component, demand, critical-specimen and evidence-bounded failure/RPE law exchange.
 11. [x] **Roof Resilience Physics M2** — Roof Bay load routing, member selection/exploded trace, stable project JSON, custom/nonuniform purlin stations, reaction diagrams and M3-ready pressure-zone placeholders completed through PR #112 with the M2 exit gate green.
-12. [~] **Roof Resilience Physics M3** — pressure derivation is merged through PR #129 and the PR #130 completion candidate now routes minimum-governed code pressure through exact physical field/edge/corner rectangles into piecewise purlin line loads and true-centroid Rafter A/B reactions with area, force and moment conservation. Current dependency is explicit code-wind load-case/load-combination identity, followed by controlled code-derived Roof Bay project/UI activation and the M3 end-to-end exit benchmark.
+12. [~] **Roof Resilience Physics M3** — pressure derivation and exact physical Roof Bay routing/conservation are merged through PR #130. PR #131 now adds explicit `W-TOWARD` / `W-AWAY` identity plus source-backed NSCP strength-template wind contributions (`0.5W` / `1.0W`) while deliberately keeping full combination results null until D/L/Lr/R/H/`f1` companion actions are accepted. Current dependency is that companion-action bridge, followed by controlled code-derived Roof Bay activation and the end-to-end M3 exit benchmark.
 
 # Protected foundation
 
@@ -276,19 +276,20 @@
 - [x] PR #129 enclosed cases use `GCpi = ±0.18`; partially enclosed cases require an exact PR #120 Ri decision record and use adjusted `GCpi` when reduction is selected.
 - [x] PR #129 preserves every physical zone piece and the full external-sign × internal-sign raw case matrix before deriving directional design envelopes.
 - [x] PR #129 applies the **0.77 kPa minimum in either direction** only to directional net-design envelopes while retaining unfloored raw cases; a 60 kph regression yields exactly `+0.77 / -0.77 kPa` design envelopes.
-- [x] PR #130 — `futoltech.wind-roof-bay-code-pressure-routing/1` implementation candidate routes one verified directional net-pressure record for every physical purlin tributary band through the exact same PR #124 Roof Bay zone geometry.
+- [x] PR #130 — `futoltech.wind-roof-bay-code-pressure-routing/1` routes one verified directional net-pressure record for every physical purlin tributary band through the exact same PR #124 Roof Bay zone geometry; exact final-head Engineering Checks green and merged as `f2bf5a83711d88736b2ffaa2e2a4d6001cc0e7cb`.
 - [x] PR #130 reconstructs each field/edge/corner physical rectangle, preserves governing raw `GCp`/`GCpi`/`qh`/case identity, converts pressure by `F=pA` and `w=p·tributary width`, and derives simply-supported `RA/RB` from the true spanwise centroid instead of assuming 50/50 reactions.
-- [x] PR #130 checks area, signed force and moment conservation at the physical piece, purlin and whole-Roof-Bay levels.
-- [x] PR #130 25° away/suction benchmark: total `-46.769510965040396 kN`, Rafter A `-24.4711529728144 kN`, Rafter B `-22.298357992225995 kN`, applied/reaction moment about A `-89.19343196890398 kN·m`; unequal reactions are intentional because the bay crosses a gable-end strip.
-- [x] PR #130 toward-surface benchmark: total `+19.79058581298942 kN` with equal A/B reactions because the positive spanwise pressure distribution is symmetric.
-- [x] PR #130 low-wind regression consumes the PR #129 minimum-governed `-0.77 kPa` design pressure rather than smaller raw pressure.
-- [x] PR #130 strengthened preliminary implementation head passed the complete Engineering Checks suite with exact per-piece `|RB·L-F·x̄| < 1e-12` regression.
-- [!] Live manual-uniform Roof Bay UI remains distinct; piecewise purlin member response/capacity, rafter/connection capacity, roof-sheet/fastener effective areas/capacity and load combinations remain unresolved.
-- [ ] **Current M3 slice after PR #130 merges:** implement explicit code-wind load-case / load-combination identity through a separate source-backed gate.
-- [ ] Combination factors must remain downstream of immutable pressure physics; preserve toward/away, zone-piece, purlin and governing raw-case identity.
-- [ ] Add controlled code-derived Roof Bay project/UI activation only after load-case identity is verified; retain manual-uniform mode as a separate transition option.
+- [x] PR #130 checks area, signed force and moment conservation at the physical piece, purlin and whole-Roof-Bay levels; strengthened regression protects exact per-piece `|RB·L-F·x̄| < 1e-12`.
+- [x] PR #131 — `futoltech.wind-roof-load-case-combination/1` implementation candidate promotes the exact paired PR #130 routes into separate `W-TOWARD` and `W-AWAY` action identities while preserving purlin/zone-piece/governing raw-case trace.
+- [x] PR #131 keeps all combination factors downstream of immutable pressure/routing physics and represents source-backed NSCP 2015 Section 203.3.1 strength wind branches: 203-3 wind branch `0.5W`, 203-4 `1.0W`, 203-6 `1.0W`.
+- [x] PR #131 calculates only the W contribution; companion D/L/Lr/R/H terms and `f1` remain explicit unresolved state, and `fullCombinationResult` remains `null` until every required action is accepted.
+- [x] PR #131 deterministic tests protect W+/W− identity, factor scaling, route preservation, serialization/mutation and the hard null-full-combination boundary; preliminary exact implementation head passed all 45 Engineering Checks.
+- [!] Live manual-uniform Roof Bay UI remains distinct; piecewise purlin member response/capacity, rafter/connection capacity, roof-sheet/fastener effective areas/capacity and complete combined demand remain unresolved.
+- [ ] **Current M3 slice after PR #131 merges:** build the versioned companion-action bridge for D/L/Lr/R/H and source-backed coefficients such as `f1` required by the supported templates.
+- [ ] Existing Roof Bay gravity/self-weight may be reused only through explicit physical/action mapping and provenance/assumption state; do not silently relabel manual loads as code actions.
+- [ ] A full combination result may become non-null only when every required action for its selected source-backed template is available and compatible.
+- [ ] Add controlled code-derived Roof Bay project/UI activation only after complete combination assembly is verified; retain manual-uniform mode as a separate transition option.
 - [ ] Piecewise purlin member response/capacity under code pressure remains a separate later gate.
-- [ ] **M3 exit gate:** independent end-to-end benchmark from accepted project/site inputs → `qh` → `GCp/GCpi` → minimum-governed net zone pressure → physical purlin piece loads → Rafter A/B reactions → explicit wind-case identity, with all conservation checks and final-head QA green.
+- [ ] **M3 exit gate:** independent end-to-end benchmark from accepted project/site inputs → `qh` → `GCp/GCpi` → minimum-governed net zone pressure → physical purlin piece loads → Rafter A/B reactions → explicit W identity → source-backed complete combination assembly, with all conservation checks and final-head QA green.
 
 # Definition of DONE for every new product/feature
 
@@ -340,4 +341,5 @@
 - 2026-08-22 — Source verification distinguishes NSCP 207E.4 Part 1 (`h <= 18 m`) from Part 3 (`h > 18 m`): the current low-rise C&C net equation uses `qh[(GCp)-(GCpi)]`; opening-height `qi=qz` is a Part 3 option and is gated out.
 - 2026-08-23 — PR #128 adds the independently benchmarked external-only `qh × GCp` layer per physical zone piece and leaves the 0.77 kPa minimum to net design pressure.
 - 2026-08-23 — PR #129 adds the independently benchmarked low-rise net-pressure matrix and minimum directional envelopes while keeping load combinations and Roof Bay code-pressure routing as separate gates.
-- 2026-08-23 — PR #130 routes minimum-governed net design pressures through exact physical zone-piece rectangles, uses true spanwise resultants for Rafter A/B reactions, and requires signed area/force/moment conservation down to each individual piece; load combinations, live code-derived UI activation and capacity remain separate gates.
+- 2026-08-23 — PR #130 routes minimum-governed net design pressures through exact physical zone-piece rectangles, uses true spanwise resultants for Rafter A/B reactions, and requires signed area/force/moment conservation down to each individual piece; exact final-head 45/45 Engineering Checks passed before merge.
+- 2026-08-24 — PR #131 separates `W-TOWARD` and `W-AWAY` from the verified physical routes and adds source-backed NSCP strength-template wind contributions (`0.5W` for the 203-3 wind branch, `1.0W` for 203-4 and 203-6). Missing companion actions remain explicit and every full combination result stays null until they are accepted.
