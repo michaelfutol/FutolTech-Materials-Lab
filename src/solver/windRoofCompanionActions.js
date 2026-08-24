@@ -26,7 +26,6 @@ function finiteNonnegative(value, label) {
   if (!Number.isFinite(number) || number < 0) throw new Error(`${label} must be a finite number >= 0.`);
   return number;
 }
-function nearlyEqual(left, right, tolerance = EPS) { return Math.abs(Number(left) - Number(right)) <= tolerance; }
 
 function routeAndGeometry(record) {
   validateWindRoofLoadCaseCombination(record);
@@ -331,6 +330,26 @@ function buildRecord({
   };
 }
 
+function rebuildInput(record) {
+  return {
+    windRoofLoadCaseCombination: record.upstreamWindRoofLoadCaseCombination,
+    codeLoadDefinitionsSourceReference: record.sourceBasis.codeLoadDefinitionsSourceReference,
+    roofDeadLoadKPa: record.actions.D.verticalRoofAreaPressureKPa,
+    roofDeadLoadSourceReference: record.actions.D.sourceReference,
+    purlinSelfWeightLineLoads: record.actions.D.purlins.map((purlin) => ({
+      label: purlin.label,
+      lineLoadKNM: purlin.purlinSelfWeight.lineLoadKNM,
+      sourceReference: purlin.purlinSelfWeight.sourceReference
+    })),
+    roofLiveLoadKPa: record.actions.Lr.verticalRoofAreaPressureKPa,
+    roofLiveLoadSourceReference: record.actions.Lr.sourceReference,
+    ordinaryLiveLoadZeroDecisionSourceReference: record.actions.L.decisionSourceReference,
+    hydrostaticSoilZeroDecisionSourceReference: record.actions.H.decisionSourceReference,
+    rainActionDecisionSourceReference: record.actions.R.decisionSourceReference,
+    note: record.note
+  };
+}
+
 export function resolveWindRoofCompanionActions(input = {}) {
   const record = buildRecord(input);
   validateWindRoofCompanionActions(record);
@@ -351,27 +370,9 @@ export function validateWindRoofCompanionActions(record) {
   if (record.f1?.status !== 'NOT_REQUIRED_WHILE_L_TARGET_ACTION_IS_ZERO' || record.f1?.value !== null) throw new Error('f1 boundary changed from the zero-L target decision.');
   if (record.boundary !== BOUNDARY) throw new Error('Roof companion-action engineering boundary changed.');
 
-  const inputs = record._inputs;
-  if (!inputs) {
-    throw new Error('Roof companion-action deterministic input capsule is missing.');
-  }
-  const rebuilt = buildRecord(inputs);
-  delete rebuilt._inputs;
-  const comparable = clone(record);
-  delete comparable._inputs;
-  if (!sameRecord(comparable, rebuilt)) throw new Error('Roof companion-action record changed from its deterministic upstream/action/source inputs.');
+  const rebuilt = buildRecord(rebuildInput(record));
+  if (!sameRecord(record, rebuilt)) throw new Error('Roof companion-action record changed from its deterministic public upstream/action/source state.');
   return true;
-}
-
-function withInputs(record, input) {
-  return { ...record, _inputs: clone(input) };
-}
-
-export function createWindRoofCompanionActions(input = {}) {
-  const record = buildRecord(input);
-  const wrapped = withInputs(record, input);
-  validateWindRoofCompanionActions(wrapped);
-  return clone(wrapped);
 }
 
 export function serializeWindRoofCompanionActions(record) {
