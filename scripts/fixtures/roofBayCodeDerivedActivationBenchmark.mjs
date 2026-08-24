@@ -23,7 +23,7 @@ export const ROOF_BAY_ACTIVATION_BENCHMARK = Object.freeze({
   sectionId:'ph-cp-colorsteel-colorsteel-c100-h100xb38xa15-0_8'
 });
 
-export function createRoofBayActivationBenchmark({ rainResolved = true } = {}) {
+export function createRoofBayActivationBenchmark({ rainResolved = true, firstBandBoundaryShiftM = 0 } = {}) {
   const b = ROOF_BAY_ACTIVATION_BENCHMARK;
   const heightM = 8.82;
   const windProjectInputAcceptance = createWindProjectInputAcceptance({
@@ -60,7 +60,14 @@ export function createRoofBayActivationBenchmark({ rainResolved = true } = {}) {
     roofSlopeSourceReference:'Architectural roof section'
   });
   const layout = roofBayPurlinStations(b.slopeLengthM, b.maxSpacingM);
-  const bands = tributaryBandsFromStations(layout.stationsM, b.slopeLengthM).map((band, index) => ({
+  const rawBands = tributaryBandsFromStations(layout.stationsM, b.slopeLengthM);
+  if (firstBandBoundaryShiftM !== 0) {
+    const shifted = rawBands[0].endM + Number(firstBandBoundaryShiftM);
+    if (!(shifted > rawBands[0].startM && shifted < rawBands[1].endM)) throw new Error('firstBandBoundaryShiftM creates an invalid benchmark tributary boundary.');
+    rawBands[0] = { ...rawBands[0], endM:shifted, widthM:shifted - rawBands[0].startM };
+    rawBands[1] = { ...rawBands[1], startM:shifted, widthM:rawBands[1].endM - shifted };
+  }
+  const bands = rawBands.map((band, index) => ({
     label:`P${index + 1}`,
     stationM:layout.stationsM[index],
     startM:band.startM,
@@ -151,6 +158,7 @@ export function createRoofBayActivationBenchmark({ rainResolved = true } = {}) {
     windPressureContextAcceptance,
     windRoofStrengthCombinationAssembly,
     selectedCombinationCaseId:selectedCase?.combinationCaseId ?? null,
-    stationsM:layout.stationsM
+    stationsM:layout.stationsM,
+    tributaryBands:bands
   };
 }
