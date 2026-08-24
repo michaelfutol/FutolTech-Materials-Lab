@@ -72,7 +72,7 @@ Status date: 2026-08-24
     - A 60 kph regression confirms the routing layer consumes the minimum-governed `-0.77 kPa` design pressure rather than the smaller raw pressure.
     - Strengthened regression proves per-piece `RB·L = F·x̄` within `1e-12`.
     - Exact final-head Engineering Checks passed; PR #130 merged as `f2bf5a83711d88736b2ffaa2e2a4d6001cc0e7cb`.
-  - [x] **Explicit roof wind action identity + strength-combination W contribution templates — PR #131 implementation candidate, preliminary exact head 45/45 green.**
+  - [x] **Explicit roof wind action identity + strength-combination W contribution templates — PR #131.**
     - Schema: `futoltech.wind-roof-load-case-combination/1`.
     - Requires the exact paired PR #130 toward-surface and away-from-surface routing records.
     - Preserves separate signed `W-TOWARD` and `W-AWAY` cases with full purlin/zone-piece/governing raw-case trace.
@@ -80,16 +80,26 @@ Status date: 2026-08-24
     - Represents source-backed NSCP 2015 Section 203.3.1 strength wind branches for 203-3 (`0.5W`), 203-4 (`1.0W`) and 203-6 (`1.0W`).
     - Calculates only the W contribution for each template/direction; required D/L/Lr/R/H companions and `f1` remain explicit unresolved state.
     - Every full-combination result remains `null` until all required companion actions are accepted; no complete combined demand is fabricated.
-    - ASD/service combinations, live code-derived Roof Bay UI activation, piecewise purlin response/capacity and connection capacity remain blocked.
     - Deterministic tests protect W+/W− identity, factor scaling, route preservation, serialization/mutation and the null-full-combination boundary.
+    - Exact documentation-updated final head passed all 45 Engineering Checks; PR #131 merged as `7727f5e009ceb67e7beb5db9be1dadc6a5ffa40a`.
+  - [x] **Companion structural action acceptance/routing — PR #132 implementation candidate, preliminary exact head 45/45 green.**
+    - Schema: `futoltech.wind-roof-companion-actions/1`.
+    - Accepts source-referenced roof-area `D` and `Lr` as distinct actions; roof live is not relabeled as ordinary `L`.
+    - Partitions `D` and `Lr` over the exact PR #130 physical Roof Bay rectangles and resolves vertical gravity into roof-normal/down-slope components from the accepted roof slope.
+    - Purlin self-weight remains a separate source-referenced line action inside `D`, one record per physical purlin, and is not double-counted as roof-area pressure.
+    - `L` and `H` remain explicit target-specific zero/not-applicable decisions with traceable basis for the current roof-purlin target.
+    - `R` remains `UNRESOLVED`; missing rain data is not treated as zero.
+    - `f1 × L` is zero only because the accepted target has `L=0`; `f1` itself is not auto-inferred.
+    - 25° benchmark: `D = 0.20 kPa` + two `0.05 kN/m` purlin self-weights → `3.9308093406799736 kN` vertical / `3.5625231148146597 kN` normal / `1.6612318107922752 kN` downslope. `Lr=0.75 kPa` → `13.2405350275499 kN` vertical / `12.0 kN` normal / `5.595691897859982 kN` downslope.
+    - Complete strength-combination assembly, rain calculation/applicability selection, code-derived UI activation and member/capacity promotion remain blocked.
     - Preliminary exact implementation head passed all 45 Engineering Checks; documentation-updated exact final head must also be fully green before merge.
-  - [ ] **Current after PR #131 merges:** add a versioned companion-action bridge for the required D/L/Lr/R/H terms and other source-backed combination inputs.
-    - Reuse existing Roof Bay gravity/self-weight only through an explicit physical mapping; do not silently relabel manual inputs as code actions.
-    - Preserve units, source/assumption provenance and case identity for every accepted companion action.
-    - Produce a non-null full combination result only when every required action for the selected template is available.
-  - [ ] Controlled Roof Bay project/UI activation of the verified code-derived route after the combination bridge; keep manual-uniform mode visibly separate during transition.
+  - [ ] **Current after PR #132 merges:** resolve rain/action-alternative applicability and assemble complete source-backed strength combinations only when every required action is explicit.
+    - Never silently select `Lr` instead of unresolved `R`.
+    - Preserve D/L/Lr/R/H/W identity, signed directions, physical route and units through assembly.
+    - 203-6 may be assembled once D/W/H are explicitly resolved; 203-3/203-4 require the `(Lr or R)` alternative to be explicit.
+  - [ ] Controlled Roof Bay project/UI activation of the verified code-derived route after complete combination assembly; keep manual-uniform mode visibly separate during transition.
   - [ ] Piecewise purlin member response/capacity under code pressure remains a separate later gate.
-  - [ ] **M3 exit gate:** independent end-to-end benchmark from accepted project/site inputs through `qh`, `GCp/GCpi`, minimum-governed net zone pressures, physical purlin piece loads, Rafter A/B reactions, explicit W identity and source-backed full combination assembly; all conservation and final-head QA green.
+  - [ ] **M3 exit gate:** independent end-to-end benchmark from accepted project/site inputs through `qh`, `GCp/GCpi`, minimum-governed net zone pressures, physical purlin piece loads, Rafter A/B reactions, explicit W identity, companion actions and complete source-backed combination assembly; all conservation and final-head QA green.
 - [ ] **M4 — Roof Sheet + Fastener / Connection Layer:** reusable Connection Lab foundations exist; Roof Bay integration remains unresolved.
 - [ ] **M5–M13:** follow `ROADMAP-ROOF-RESILIENCE-PHYSICS.md` in order unless an explicit engineering dependency requires resequencing.
 
