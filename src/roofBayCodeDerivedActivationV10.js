@@ -48,7 +48,7 @@ if (root) {
         <article class="roof-bay-code-derived-v10__card roof-bay-code-derived-v10__input-only">
           <h3>Verified assembly record</h3>
           <div class="roof-bay-code-derived-v10__form">
-            <label><span>Paste `futoltech.wind-roof-strength-combination-assembly/1` JSON</span><textarea data-rb-cda-json placeholder="Paste verified PR #133 assembly JSON here"></textarea></label>
+            <label><span>Paste <code>futoltech.wind-roof-strength-combination-assembly/1</code> JSON</span><textarea data-rb-cda-json placeholder="Paste verified PR #133 assembly JSON here"></textarea></label>
             <button class="button button--ghost" type="button" data-rb-cda-load>LOAD + VALIDATE ASSEMBLY</button>
             <label><span>Complete combination case</span><select data-rb-cda-case disabled><option value="">Load a verified assembly first</option></select></label>
             <label class="roof-bay-code-derived-v10__check"><input data-rb-cda-selfweight-confirm type="checkbox" /><span>I confirm the imported PR #132 purlin self-weight basis matches the active Roof Bay C-purlin section.</span></label>
