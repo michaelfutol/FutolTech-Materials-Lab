@@ -34,7 +34,7 @@
 9. [x] **Frame Analyzer / NF-001** — connected 2D frame, explicit spring/release states, elastic P–Δ, piecewise redistribution/mechanism detection and brace sensitivity.
 10. [x] **FutolStructure / RPE interchange v1** — versioned component, demand, critical-specimen and evidence-bounded failure/RPE law exchange.
 11. [x] **Roof Resilience Physics M2** — Roof Bay load routing, member selection/exploded trace, stable project JSON, custom/nonuniform purlin stations, reaction diagrams and M3-ready pressure-zone placeholders completed through PR #112 with the M2 exit gate green.
-12. [~] **Roof Resilience Physics M3** — pressure derivation, exact physical Roof Bay routing and W case identity are merged through PR #131. PR #132 now accepts/routs source-backed `D` and `Lr`, separates purlin self-weight inside `D`, keeps `L`/`H` explicit target-specific zero decisions, and leaves `R` unresolved rather than silently zero. Current dependency is rain/action-alternative resolution plus complete source-backed strength-combination assembly, followed by controlled code-derived Roof Bay activation and the M3 exit benchmark.
+12. [~] **Roof Resilience Physics M3** — pressure derivation and exact physical Roof Bay routing are merged through PR #130, W case identity through PR #131, and source-backed D/Lr companion-action routing through PR #132. PR #133 now assembles only complete source-backed strength action results, keeps unresolved `R` blocking 203-3/203-4, and preserves full force/moment conservation. Current dependency is controlled code-derived Roof Bay activation, followed by the independent M3 exit benchmark.
 
 # Protected foundation
 
@@ -280,19 +280,25 @@
 - [x] PR #131 — `futoltech.wind-roof-load-case-combination/1` promotes the paired PR #130 routes into separate `W-TOWARD` and `W-AWAY` action identities.
 - [x] PR #131 keeps combination factors downstream and represents source-backed strength wind branches: 203-3 wind branch `0.5W`, 203-4 `1.0W`, 203-6 `1.0W`.
 - [x] PR #131 computes W contribution only; full combination remains null until companion actions are resolved. Exact final-head 45/45 Engineering Checks passed and it merged as `7727f5e009ceb67e7beb5db9be1dadc6a5ffa40a`.
-- [x] PR #132 — `futoltech.wind-roof-companion-actions/1` implementation candidate accepts/routs source-backed `D` and `Lr` over the exact physical Roof Bay rectangles, while keeping their action identities distinct.
-- [x] PR #132 keeps purlin self-weight as a separate line action inside `D`, one source-referenced entry per purlin, so it is not double-counted as roof-area pressure.
-- [x] PR #132 resolves vertical `D`/`Lr` into roof-normal/down-slope components using the accepted roof slope and actual spanwise piece locations; reaction totals conserve each component.
-- [x] PR #132 carries `L` and `H` only as explicit target-specific zero/not-applicable decisions; `R` remains `UNRESOLVED`, so missing rain data is not treated as zero.
+- [x] PR #132 — `futoltech.wind-roof-companion-actions/1` accepts/routs source-backed `D` and `Lr` over the exact physical Roof Bay rectangles while keeping their action identities distinct; exact final-head 45/45 Engineering Checks passed and it merged as `b656312b4c089717e2b0cdac44dee4d7570b5114`.
+- [x] PR #132 keeps purlin self-weight as a separate line action inside `D`, resolves vertical `D`/`Lr` into roof-normal/down-slope components, carries `L`/`H` only as explicit target-specific zero decisions, and leaves `R` `UNRESOLVED` rather than treating absence as zero.
 - [x] PR #132 benchmark at 25°: `D=0.20 kPa` + two `0.05 kN/m` purlin self-weights gives `3.9308093406799736 kN` vertical / `3.5625231148146597 kN` normal / `1.6612318107922752 kN` downslope; `Lr=0.75 kPa` gives `13.2405350275499 kN` vertical / `12.0 kN` normal / `5.595691897859982 kN` downslope.
-- [x] PR #132 deterministic tests protect action identity, physical pieces, decomposition, self-weight anti-double-counting, zero/unresolved decisions, public-state round-trip and anti-promotion boundaries; preliminary exact implementation head passed 45/45 Engineering Checks.
-- [!] Live manual-uniform Roof Bay UI remains distinct; piecewise purlin response/capacity, rafter/connection capacity, roof-sheet/fastener effective areas/capacity and complete combined demand remain unresolved.
-- [ ] **Current M3 slice after PR #132 merges:** resolve rain/action-alternative applicability and assemble only complete source-backed strength combinations.
-- [ ] Never silently select `Lr` over unresolved `R`; all required action alternatives must be explicit before a full combination result is non-null.
-- [ ] Preserve D/L/Lr/R/H/W identity, sign, units and physical load-path trace through combination assembly.
-- [ ] Add controlled code-derived Roof Bay project/UI activation only after complete combination assembly is verified; retain manual-uniform mode as a separate transition option.
-- [ ] Piecewise purlin member response/capacity under code pressure remains a separate later gate.
-- [ ] **M3 exit gate:** independent end-to-end benchmark from accepted project/site inputs → `qh` → `GCp/GCpi` → net zone pressure → physical purlin loads → Rafter A/B reactions → W identity → companion actions → complete source-backed combination assembly, with all conservation checks and final-head QA green.
+- [x] PR #133 — `futoltech.wind-roof-strength-combination-assembly/1` implementation candidate preserves all six 203-3-W / 203-4 / 203-6 × signed W-direction identities and assembles only action sets whose required terms are explicitly resolved.
+- [x] PR #133 unresolved-R state leaves the four 203-3/203-4 cases blocked and completes only the two 203-6 cases; unresolved rain is never silently converted to zero or replaced by Lr.
+- [x] PR #133 allows the Lr path only through an explicit engineer-sourced `lr-selected-r-not-applicable` decision with confirmation, source reference and rationale; it does not claim that R was calculated or compared.
+- [x] PR #133 preserves D purlin self-weight trace, exact field/edge/corner pieces, governing W raw-case identity, purlin totals and signed Rafter A/B reactions through factored assembly.
+- [x] PR #133 checks roof-normal force, down-slope force, normal moment, down-slope moment and purlin-to-Roof-Bay conservation for every complete case.
+- [x] PR #133 25° Lr benchmark reproduces 203-3 toward `+33.370320644272304 / +10.946585209526702 kN`, 203-3 away `+0.09027225525739624 / +10.946585209526702 kN`, 203-4 toward `+30.06561355076701 / +4.791324121880722 kN`, 203-4 away `-36.494483227262805 / +4.791324121880722 kN`, 203-6 toward `+22.996856616322614 / +1.4951086297130478 kN`, and 203-6 away `-43.5632401617072 / +1.4951086297130478 kN` normal/down-slope.
+- [x] PR #133 public-source cross-check records that multiple DPWH plans show `1.6(Lr or R)` while one BIR calculation shows `1.6(Lr + R)` for 203-3; `authorizedCopyReviewRequired=true` remains mandatory because project documents are not governing code text.
+- [x] PR #133 deterministic tests protect unresolved-R blocking, explicit Lr release, exact numeric cases, piece/self-weight trace, force/moment conservation, public-state round-trip and anti-promotion boundaries; preliminary exact implementation head passed 45/45 Engineering Checks.
+- [!] Live manual-uniform Roof Bay UI remains distinct; piecewise purlin response/capacity, rafter/connection capacity and roof-sheet/fastener effective areas/capacity remain unresolved.
+- [ ] **Current M3 slice after PR #133 merges:** controlled code-derived Roof Bay project/UI activation of the exact accepted M3 route and complete combination result.
+- [ ] Do not create a parallel hidden pressure/combination model in the UI; expose exact accepted records and preserve selected W direction, physical piece identity, companion provenance, Lr/R resolution state and combination case ID.
+- [ ] Keep manual-uniform Roof Bay mode visibly separate during transition; unresolved R must remain visibly blocked for 203-3/203-4.
+- [ ] Add dedicated real-Chromium activation/invalidation QA.
+- [ ] Run the independent end-to-end M3 benchmark after controlled activation; only then may M3 close if the complete exact-final-head Engineering Checks suite is green.
+- [ ] Piecewise purlin member response/capacity under code pressure remains a separate later gate after M3.
+- [ ] **M3 exit gate:** accepted project/site inputs → `qh` → `GCp/GCpi` → net zone pressure → physical purlin loads → Rafter A/B reactions → W identity → companion actions → complete source-backed combination → controlled project/UI activation, with all conservation checks and final-head QA green.
 
 # Definition of DONE for every new product/feature
 
@@ -346,4 +352,5 @@
 - 2026-08-23 — PR #129 adds the independently benchmarked low-rise net-pressure matrix and minimum directional envelopes while keeping load combinations and Roof Bay code-pressure routing as separate gates.
 - 2026-08-23 — PR #130 routes minimum-governed net design pressures through exact physical zone-piece rectangles, uses true spanwise resultants for Rafter A/B reactions, and requires signed area/force/moment conservation down to each individual piece; exact final-head 45/45 Engineering Checks passed before merge.
 - 2026-08-24 — PR #131 separates `W-TOWARD` and `W-AWAY` from the verified physical routes and adds source-backed NSCP strength-template wind contributions (`0.5W` for the 203-3 wind branch, `1.0W` for 203-4 and 203-6). Exact documentation-updated final head passed 45/45 and it merged as `7727f5e009ceb67e7beb5db9be1dadc6a5ffa40a`.
-- 2026-08-24 — PR #132 accepts/routs source-backed D/Lr over the exact Roof Bay geometry, keeps purlin self-weight separate within D, treats L/H as explicit target-specific zero decisions, and leaves rain R unresolved; an absent action is never silently zero.
+- 2026-08-24 — PR #132 accepts/routs source-backed D/Lr over the exact Roof Bay geometry, keeps purlin self-weight separate within D, treats L/H as explicit target-specific zero decisions, and leaves rain R unresolved; exact documentation-updated final head passed 45/45 and it merged as `b656312b4c089717e2b0cdac44dee4d7570b5114`.
+- 2026-08-24 — PR #133 assembles source-backed strength action results only from accepted actions. Unresolved R leaves 203-3/203-4 blocked; only an explicit engineer-sourced R-not-applicable decision releases the Lr path. Public DPWH/BIR 203-3 transcription discrepancy is recorded and authorized-copy review remains mandatory.
