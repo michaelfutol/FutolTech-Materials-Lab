@@ -1,6 +1,6 @@
 # FutolTech Roof Resilience Physics — Implementation Status
 
-Status date: 2026-08-25
+Status date: 2026-08-26
 
 This file records implementation status only. The governing roadmap and milestone exit gates remain in `ROADMAP-ROOF-RESILIENCE-PHYSICS.md`.
 
@@ -97,7 +97,7 @@ Completed and merged:
 - Public project calculations remain cross-checks only; `authorizedCopyReviewRequired=true` remains permanent for project use.
 
 ## M4 — Roof Sheet + Fastener / Connection Layer
-**Status: ACTIVE — PR #136/#137/#138 are merged; PR #139 basis-compatible individual uplift utilization is preliminary-green and awaiting authority-synchronized exact-final-head verification.**
+**Status: ACTIVE — PR #136/#137/#138/#139 are merged; PR #140 toward-surface support-contact demand routing is preliminary-green and awaiting authority-synchronized exact-final-head verification.**
 
 ### PR #136 — explicit roof-sheet fastener layout geometry — MERGED
 
@@ -152,25 +152,45 @@ Implemented:
 - Capacity scope such as single-fastener versus assembly/group is not inferred.
 - Engineering-boundary record: `docs/M4_ROOF_FASTENER_CAPACITY_EVIDENCE_ACCEPTANCE.md`.
 
-### PR #139 — basis-compatible individual uplift utilization — CANDIDATE
+### PR #139 — basis-compatible individual uplift utilization — MERGED
+
+Merged as `91400114a54cc074d7763c7f5df4eb0f37165245`. Exact documentation-updated head `e819720a3d6699a7714b25390cc37688b191fcc9` passed the complete **46/46 Engineering Checks** suite with no rerun and no branch mutation.
 
 Implemented:
 - Versioned `futoltech.roof-fastener-capacity-utilization/1` record.
 - Consumes exact #137 demand and #138 evidence/attachment records and verifies that both reference the same accepted roof-sheet fastener layout.
-- Current numerical evaluation is deliberately limited to `away-from-surface` individual-screw uplift.
+- Numerical evaluation is deliberately limited to `away-from-surface` individual-screw uplift.
 - Each pull-out/pull-over mechanism requires complete #138 applicability, explicit source-backed `single-fastener` scope acceptance, and explicit demand/capacity basis compatibility before utilization exists.
 - Current supported compatible ratio is LRFD demand / LRFD `design` capacity only.
 - ASD allowable, nominal, manufacturer-rated, ultimate/test-reference and unresolved-basis values are not converted by assumption and remain blocked from utilization.
 - Pull-out and pull-over remain separate mechanisms with retained evidence identity and separate utilization.
 - Both mechanisms must be eligible before an individual screw receives a local uplift PASS/FAIL state; otherwise it remains `INCOMPLETE`.
-- Toward-surface compression/bearing remains `UNRESOLVED_COMPRESSION_BEARING_PATH` with no utilization.
+- Toward-surface compression/bearing remained unresolved by #139.
 - Group action, roof-sheet structural capacity, purlin-local effects and purlin-to-rafter capacity remain unimplemented.
 - Even if all currently evaluated individual uplift screws pass, `roofSystemPass` remains forced to `null`.
 - Deterministic regression proves both an eligible synthetic PASS case and a deliberately low eligible pull-over local FAIL case, while mutation/shortcut/whole-roof-promotion attempts are rejected.
-- Preliminary exact implementation head `fd64ace9c0750bc63d451cb4429b7b20e1caf690` passed the full **46/46 Engineering Checks** suite.
 - Engineering-boundary record: `docs/M4_ROOF_FASTENER_BASIS_COMPATIBLE_UTILIZATION.md`.
 
-Current PR #139 merge gate:
+### PR #140 — roof-sheet → purlin support-contact demand routing — CANDIDATE
+
+Implemented:
+- Versioned `futoltech.roof-sheet-purlin-support-contact-demand-routing/1` record.
+- Consumes the exact verified M4 #137 demand routing and its preserved M3 toward-surface route; it does not recompute wind pressure or zoning.
+- Treats positive/toward-surface roof pressure as a **roof-sheet → purlin support-line resultant**, not as axial compression in each roofing screw.
+- For each verified pressure piece, computes `w = p_design × pressure tributary width` and `F = w × spanwise segment length = p_design × area`.
+- Preserves purlin label/station, exact tributary-band geometry, spanwise segment, field/edge/corner zone identity, zone number, minimum-pressure flag and governing raw pressure-case identity.
+- Piece/row/zone/whole-bay area and normal-force totals reproduce the source M3 toward-surface route within engineering tolerance.
+- The #137 toward-surface fastener partition is retained only as an independent conservation audit; screw spacing/count does not define the inward support-line resultant.
+- Moving screw stations while preserving the physical roof/purlin pressure geometry does not change the inward support-line demand.
+- Positive fastener cells cannot be promoted into screw axial-compression capacity/utilization.
+- Exact local sheet-to-purlin contact footprint is `UNRESOLVED` because it depends on the actual panel profile and support detail.
+- Roof-sheet positive-pressure bending/local capacity, local sheet bearing/crushing, purlin local bearing/web crippling, screw bearing/shear, group action, purlin member capacity and purlin-to-rafter capacity remain unresolved.
+- `roofSystemPass` remains `null`; no toward-surface capacity or whole-roof PASS is created.
+- Deterministic rebuild/serialization rejects altered support-line demand, fake capacity promotion and upstream-route mutation.
+- Preliminary exact implementation head `884624fb69ec557f53ec50f9fd4775a00e3d156f` passed the complete **46/46 Engineering Checks** suite on an unchanged rerun after one unrelated legacy dedicated C-purlin playback DOM-timing flake.
+- Engineering-boundary record: `docs/M4_ROOF_SHEET_PURLIN_SUPPORT_CONTACT_DEMAND_ROUTING.md`.
+
+Current PR #140 merge gate:
 - all four permanent authority records synchronized;
 - exact documentation-updated head must pass **46/46 Engineering Checks** again;
 - only that exact green head may merge.
@@ -179,22 +199,22 @@ Current boundary:
 - No numerical utilization is allowed merely because a capacity number exists.
 - No LRFD/strength demand may be divided by ASD allowable or ultimate/test-reference capacity without explicit source-backed compatibility/conversion.
 - No generic capacity may be inferred from screw count, screw label, purlin thickness or sheet thickness alone.
-- Toward-surface bearing/compression remains unresolved.
+- Toward-surface support-line demand is now routed, but exact local contact/bearing capacity remains unresolved.
 - Fastener tensile/shear capacity and interaction remain unresolved.
 - Group action/redistribution remains unresolved.
 - Roof-sheet structural capacity remains unresolved.
-- Purlin-local fastener effects and purlin-to-rafter cleat/bolt/weld capacity remain unresolved.
-- No roof-system PASS exists from #136–#139 alone.
+- Purlin-local fastener/contact effects and purlin-to-rafter cleat/bolt/weld capacity remain unresolved.
+- No roof-system PASS exists from #136–#140 alone.
 
 Next M4 dependency:
-- Resolve the toward-surface compression/bearing path without borrowing uplift capacities.
+- Accept and evaluate source-backed roof-sheet positive-pressure/local support-contact limit states without inventing a contact footprint or borrowing uplift capacities.
 - Add fastener group action/redistribution only from source-backed physics/evidence; `n × single-fastener` is not automatically a group design capacity.
 - Add roof-sheet structural/pull-through/local capacity and edge/corner densification scenarios only from verified evidence/physics.
-- Continue through purlin-local fastener effects and purlin-to-rafter cleat/bolt/weld demand/capacity in physical load-path order.
+- Continue through purlin-local fastener/contact effects and purlin-to-rafter cleat/bolt/weld demand/capacity in physical load-path order.
 
 M4 exit remains the roadmap rule: no roof-system PASS unless every required modeled connection in the load path is checked or explicitly marked unresolved.
 
 ## M5–M13
 **Status: ROADMAP / enabling foundations only.**
 
-The M2/M3 project-data and load-path chain plus the active M4 attachment-demand/evidence/utilization foundation provide the basis for the later transparent Three.js roof viewer, system solver, cold-formed design, automatic resizing, live formula cockpit, resilience/failure sequencing, local product calibration, professional package and final integrated Roof Resilience Physics Engine without duplicating geometry or inventing visual-only physics.
+The M2/M3 project-data and load-path chain plus the active M4 attachment-demand/evidence/utilization/support-contact foundation provide the basis for the later transparent Three.js roof viewer, system solver, cold-formed design, automatic resizing, live formula cockpit, resilience/failure sequencing, local product calibration, professional package and final integrated Roof Resilience Physics Engine without duplicating geometry or inventing visual-only physics.

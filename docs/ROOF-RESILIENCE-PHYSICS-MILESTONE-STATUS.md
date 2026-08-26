@@ -1,6 +1,6 @@
 # Roof Resilience Physics Milestone Status
 
-Status date: 2026-08-25
+Status date: 2026-08-26
 
 - [~] **M0 — Product cleanup / navigation:** primary workflow + Advanced/R&D hub implemented; legacy page-level navigation cleanup and first-time-user responsive QA remain.
 - [x] **M1 — C-Purlin Gravity + Wind Physics Bench:** core solver, animation/video and browser regression implemented; permanent gross-section/cold-formed boundaries remain explicit.
@@ -58,25 +58,37 @@ Status date: 2026-08-25
   - [x] Capacity scope such as single-fastener versus assembly/group is deliberately not inferred by #138.
   - [x] Exact documentation-updated head `5aabbb5f9bc2f795a73cffde13917a41484ee25a` passed **46/46 Engineering Checks** on an unchanged rerun after one unrelated legacy V3 DOM-timing flake.
 
-  ### M4 basis-compatible individual uplift utilization — PR #139 candidate
-  - [x] Versioned `futoltech.roof-fastener-capacity-utilization/1` record.
+  ### M4 basis-compatible individual uplift utilization
+  - [x] **PR #139 — merged as `91400114a54cc074d7763c7f5df4eb0f37165245`.** Versioned `futoltech.roof-fastener-capacity-utilization/1` record.
   - [x] Consumes the exact #137 demand route and #138 attachment/evidence record without recalculating wind pressure or evidence capacity.
   - [x] Numerical utilization is limited to `away-from-surface` individual-screw uplift in this slice.
   - [x] A pull-out or pull-over mechanism is eligible only when #138 applicability is complete, its source scope is explicitly accepted as `single-fastener`, and demand/capacity engineering bases are explicitly compatible.
   - [x] Current compatible numerical path is source-backed LRFD demand against LRFD `design` capacity only.
   - [x] ASD allowable, nominal, manufacturer-rated, ultimate/test-reference and unresolved-basis evidence stay blocked from a numerical ratio; no inferred conversion is allowed.
   - [x] Pull-out and pull-over remain separate mechanism records and retain evidence identity.
-  - [x] Both mechanisms must be eligible before an individual screw receives a local uplift PASS/FAIL state.
-  - [x] Missing single-fastener scope, incomplete applicability or incompatible basis produces `INCOMPLETE`, not a fabricated utilization.
-  - [x] A deliberately tiny eligible synthetic pull-over design capacity regression produces a real local FAIL.
-  - [x] Toward-surface pressure remains `UNRESOLVED_COMPRESSION_BEARING_PATH` with `utilization=null`.
-  - [x] Group action, roof-sheet structural capacity, purlin-local capacity, purlin-to-rafter capacity and whole-roof PASS remain unimplemented; `roofSystemPass` stays `null`.
-  - [x] Deterministic round-trip and mutation checks reject utilization edits, unsupported demand-basis shortcuts, unknown scope evidence and roof-system promotion.
-  - [x] Preliminary exact implementation head `fd64ace9c0750bc63d451cb4429b7b20e1caf690` passed the complete **46/46 Engineering Checks** suite.
-  - [ ] PR #139 merge gate — all four authority records synchronized, then exact documentation-updated head must pass **46/46 Engineering Checks** before merge.
+  - [x] Both mechanisms must be eligible before an individual screw receives a local uplift PASS/FAIL state; otherwise it remains `INCOMPLETE`.
+  - [x] Toward-surface compression/bearing remains unresolved by #139.
+  - [x] Group action, roof-sheet structural capacity, purlin-local effects and purlin-to-rafter capacity remain unimplemented.
+  - [x] Even if all currently evaluated individual uplift screws pass, `roofSystemPass` remains forced to `null`.
+  - [x] Exact documentation-updated head `e819720a3d6699a7714b25390cc37688b191fcc9` passed the complete **46/46 Engineering Checks** suite before merge.
+
+  ### M4 toward-surface support-contact demand routing — PR #140 candidate
+  - [x] Versioned `futoltech.roof-sheet-purlin-support-contact-demand-routing/1` record implemented.
+  - [x] Verified positive/toward-surface roof pressure is routed as a **roof-sheet → purlin support-line resultant**, not as axial compression in every roofing screw.
+  - [x] Each verified pressure piece computes `w = p_design × pressure tributary width` and `F = w × segment length = p_design × area`.
+  - [x] Purlin label/station, exact tributary band, span segment, zone cell/type/number, minimum-pressure flag and governing raw pressure-case identity are retained.
+  - [x] Piece, purlin-row, zone and whole-bay area/normal-force conservation reproduce the accepted M3 toward-surface route.
+  - [x] The #137 toward-surface screw tributary partition is retained only as a conservation audit; moving screw stations does not change the physical inward support-line demand.
+  - [x] Positive-pressure screw cells cannot be promoted into screw axial-compression capacity/utilization.
+  - [x] Local sheet-to-purlin contact footprint is explicitly `UNRESOLVED` because the exact panel profile/support detail governs it.
+  - [x] Roof-sheet positive-pressure bending/local capacity, sheet bearing/crushing, purlin local bearing/web crippling, screw bearing/shear, group action, purlin member capacity and purlin-to-rafter capacity remain unresolved.
+  - [x] `roofSystemPass` remains `null`; this is a demand-routing slice, not a capacity/PASS slice.
+  - [x] Deterministic round-trip and mutation checks reject altered line demand, fake capacity promotion and upstream-route mismatch.
+  - [x] Preliminary exact implementation head `884624fb69ec557f53ec50f9fd4775a00e3d156f` passed the complete **46/46 Engineering Checks** suite on an unchanged rerun after one unrelated legacy dedicated C-purlin playback DOM-timing flake.
+  - [ ] PR #140 merge gate — all four authority records synchronized, then exact documentation-updated head must pass **46/46 Engineering Checks** before merge.
 
   ### Next M4 dependency
-  - [ ] Resolve the toward-surface compression/bearing path before any bidirectional connection-complete claim.
+  - [ ] Accept/evaluate source-backed roof-sheet positive-pressure/local support-contact limit states without inventing contact footprint or borrowing uplift capacities.
   - [ ] Add source-backed fastener group action/redistribution only when justified; never infer group capacity as `n × single-fastener`.
   - [ ] Add roof-sheet structural/pull-through/local capacity and edge/corner densification scenarios from explicit verified evidence/physics.
   - [ ] Add purlin-local fastener effects and purlin-to-rafter cleat/bolt/weld demand/capacity in physical load-path order.
