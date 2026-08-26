@@ -97,7 +97,7 @@ Completed and merged:
 - Public project calculations remain cross-checks only; `authorizedCopyReviewRequired=true` remains permanent for project use.
 
 ## M4 — Roof Sheet + Fastener / Connection Layer
-**Status: ACTIVE — PR #136–#141 are merged; PR #142 explicit panel span/continuity/end-lap configuration is preliminary-green and awaiting authority-synchronized exact-final-head verification.**
+**Status: ACTIVE — PR #136–#142 are merged; PR #143 source-to-project applicability is preliminary-green and awaiting authority-synchronized exact-final-head verification.**
 
 ### PR #136 — explicit roof-sheet fastener layout geometry — MERGED
 
@@ -176,40 +176,62 @@ Implemented:
 - Synthetic regression capacities are test fixtures only, not production manufacturer/project data.
 - Engineering-boundary record: `docs/M4_ROOF_SHEET_POSITIVE_PRESSURE_CAPACITY_EVIDENCE_ACCEPTANCE.md`.
 
-### PR #142 — explicit roof-sheet panel span / continuity / end-lap configuration — CANDIDATE
+### PR #142 — explicit roof-sheet panel span / continuity / end-lap configuration — MERGED
+
+Merged as `a9a48d139e0b9098a77be3cc9a33ab32b16c866e` after exact documentation-updated head `65a1c371af648fb694e08303356801a99158852b` passed the complete **46/46 Engineering Checks** suite with no rerun or branch mutation.
 
 Implemented:
 - Versioned `futoltech.roof-sheet-panel-span-continuity/1` acceptance record.
 - Treats roof-sheet structural spans as **upslope distances between successive physical purlin support lines**, not the rafter-to-rafter Roof Bay x-span.
-- Panel runs must partition the full Roof Bay width with no x-direction gaps or overlaps.
+- Panel runs partition the full Roof Bay width with no x-direction gaps or overlaps.
 - Each physical sheet piece records its eave/ridge extent and source reference, then deterministically derives the exact purlin support sequence, successive support-span lengths, span count and span type.
 - Continuity exists only inside one explicitly identified physical sheet piece across the supports it actually crosses.
-- Adjacent physical sheet pieces require explicit positive end-lap overlap; a butt joint or gap is rejected.
+- Adjacent physical sheet pieces require explicit positive end-lap overlap; butt joints/gaps fail visibly.
 - Every end lap records overlap geometry, lap length, detail source and optional identified purlin support inside the lap.
-- An end lap between separate sheet pieces is a **monolithic-continuity break**; overlapping/fastening does not silently create continuous-sheet action.
-- A missing lap-support purlin may be recorded but remains visibly unresolved/unrated.
-- Nonuniform/custom purlin stations are regression protected; floating-point comparison uses engineering tolerance rather than decimal-string equality.
-- Deterministic validation rejects run gaps/overlaps, sheet-piece gaps/butt joints, incorrect lap length, unknown/out-of-lap supports, insufficient supported span geometry, stored-span mutation and fake project-applicability/utilization/PASS promotion.
-- Preliminary exact implementation/test/doc head `d10d3c5ea78fc7de94373b73ade5522596d74c5b` passed the complete **46/46 Engineering Checks** suite on an unchanged rerun after one unrelated legacy C-purlin V3 transient DOM-timing flake.
+- End laps between separate sheet pieces are monolithic-continuity breaks; overlapping/fastening does not silently create continuous-sheet action.
+- A missing lap-support purlin may remain recorded but is visibly unresolved/unrated.
+- Nonuniform/custom purlin stations and deterministic mutation rejection are regression protected.
+- Project capacity-evidence applicability, demand/capacity basis alignment, positive-pressure panel utilization and all downstream local/system capacities remain unresolved.
 - Engineering-boundary record: `docs/M4_ROOF_SHEET_PANEL_SPAN_CONTINUITY_ACCEPTANCE.md`.
 
-Current PR #142 merge gate:
+### PR #143 — roof-sheet positive-pressure project applicability — CANDIDATE
+
+Implemented:
+- Versioned `futoltech.roof-sheet-positive-pressure-project-applicability/1` acceptance record.
+- Reuses exact #142 project panel geometry and embedded #141 capacity evidence without duplicating either source.
+- Requires #141 product applicability complete before project applicability can be complete.
+- Evaluates every evidence row against every physical sheet piece independently.
+- Exact piece span type must be explicitly covered by source applicability.
+- **Every actual purlin-to-purlin support spacing** in the piece must lie within the source-backed range; unequal spacings are never averaged.
+- Overhang is piece-specific: only a piece that itself reaches an eave/ridge boundary beyond its outer support is `with-overhang`; interior end-lapped pieces do not inherit whole-run overhang.
+- `toward-support` and an explicit source-referenced target load category must be explicitly covered.
+- Live-load/deflection evidence cannot be reused as positive-wind capacity unless its source applicability explicitly covers positive wind.
+- `source-defined` remains literal and is not a wildcard.
+- Supplied source applicability must cover its own source row; contradictory source metadata fails visibly.
+- Per-piece states distinguish complete project applicability, incomplete reference-only applicability and explicit project exclusion.
+- Different source rows may cover different physical pieces; coverage is reported without selecting a governing row.
+- Capacity-row selection, interpolation/extrapolation, demand/capacity basis alignment, positive-pressure panel utilization, end-lap capacity, exact local contact capacity, purlin local bearing/web crippling, screw compression/bearing/shear and roof-system PASS remain unresolved.
+- Preliminary exact implementation/test/doc head `294335cc1c29e43943cadf876ab21b2ed2ec0a14` passed the complete **46/46 Engineering Checks** suite with no rerun or branch mutation.
+- Engineering-boundary record: `docs/M4_ROOF_SHEET_POSITIVE_PRESSURE_PROJECT_APPLICABILITY_ACCEPTANCE.md`.
+
+Current PR #143 merge gate:
 - all four permanent authority records synchronized;
 - exact documentation-updated head must pass **46/46 Engineering Checks** again;
 - only that exact green head may merge.
 
 Current boundary:
-- No numerical utilization is allowed merely because a panel capacity row exists or project span geometry is now known.
-- #142 does not select a #141 capacity row and does not decide project capacity-evidence applicability.
-- End-lap strength and continuity across separate sheet pieces remain unrated unless a later explicit applicable model/evidence supports them.
+- Project applicability does not select a governing source capacity row.
+- No interpolation/extrapolation is allowed by convenience.
+- No numerical panel utilization is allowed until selected capacity and project demand engineering bases are explicitly compatible.
+- End-lap strength/continuity across separate physical pieces remains unrated unless a later explicit applicable model/evidence supports it.
 - Exact local sheet-to-purlin contact footprint/stress remains unresolved unless explicitly source-backed.
 - Purlin local bearing/web crippling remains in the purlin-capacity layer; it is not hidden inside a roofing screw check.
 - Fastener group action, screw tension/shear interaction and purlin-to-rafter cleat/bolt/weld capacity remain unresolved.
-- No roof-system PASS exists from #136–#142 alone.
+- No roof-system PASS exists from #136–#143 alone.
 
 Next M4 dependency:
-- Compare each exact project sheet-piece span type, every actual support spacing and relevant edge/overhang condition against accepted #141 source applicability.
-- Only explicit product + project applicability may proceed to demand/capacity basis alignment and later positive-pressure utilization.
+- Select an explicitly project-applicable capacity row per physical sheet-piece use case without convenience interpolation/extrapolation.
+- Align selected capacity basis with the actual project demand basis before any numerical positive-pressure utilization.
 - Resolve exact local contact/bearing only where explicit applicable evidence/physics exists.
 - Continue through fastener group action, purlin-local effects and purlin-to-rafter connection checks in physical load-path order.
 
@@ -218,4 +240,4 @@ M4 exit remains the roadmap rule: no roof-system PASS unless every required mode
 ## M5–M13
 **Status: ROADMAP / enabling foundations only.**
 
-The M2/M3 project-data and load-path chain plus the active M4 geometry/demand/evidence/utilization/support-contact/panel-evidence foundations provide the basis for the later transparent roof viewer, system solver, cold-formed design, automatic resizing, live formula cockpit, resilience/failure sequencing, local product calibration, professional package and final integrated Roof Resilience Physics Engine without duplicating geometry or inventing visual-only physics.
+The M2/M3 project-data and load-path chain plus the active M4 geometry/demand/evidence/utilization/support-contact/panel-evidence/panel-geometry/project-applicability foundations provide the basis for the later transparent roof viewer, system solver, cold-formed design, automatic resizing, live formula cockpit, resilience/failure sequencing, local product calibration, professional package and final integrated Roof Resilience Physics Engine without duplicating geometry or inventing visual-only physics.
