@@ -76,41 +76,56 @@ Implemented:
 12. `roofSystemPass` is forced to `null` even when every currently evaluated individual uplift screw passes.
 13. Deterministic validation rejects utilization mutation, upstream layout mismatch, unknown scope evidence, unsupported demand-basis shortcuts and roof-system promotion.
 
-## Active M4 slice — PR #140
+### PR #140 — roof-sheet → purlin support-contact demand routing
 
-**PR #140 — roof-sheet → purlin support-contact demand routing** is the current preliminary-green candidate slice.
+**MERGED** as `dfe58947f09fbd214f590b999ac02886419677b6`. Exact documentation-updated head `7fc6d10614e7304dedc0ccdb15ac3318c0f57b82` passed the complete **46/46 Engineering Checks** suite before merge.
 
 Implemented:
 1. Versioned `futoltech.roof-sheet-purlin-support-contact-demand-routing/1` record.
-2. Resolves the physical interpretation of verified `toward-surface` roof pressure as a **roof-sheet → purlin support-line resultant**, not as axial compression in each roofing screw.
+2. Resolves verified `toward-surface` roof pressure as a **roof-sheet → purlin support-line resultant**, not axial compression in each roofing screw.
 3. For every verified M3 pressure piece, support-line demand is `w = p_design × tributary width` and piece force is `F = w × segment length = p_design × area`.
-4. Preserves exact purlin identity, purlin station, tributary-band geometry, spanwise segment, field/edge/corner zone identity, minimum-pressure flag and governing raw pressure case.
+4. Preserves exact purlin identity/station, tributary-band geometry, spanwise segment, field/edge/corner zone identity, minimum-pressure flag and governing raw pressure case.
 5. Reproduces source M3 piece, row, zone and whole-bay area/normal-force totals within engineering tolerance.
-6. Retains the PR #137 toward-surface fastener tributary partition **only as an independent conservation audit**; changing screw stations/count does not redefine the inward support-line resultant.
-7. Explicitly blocks promotion of positive-pressure fastener cells into screw axial-compression capacity/utilization.
-8. Exact local sheet-to-purlin contact footprint remains `UNRESOLVED` because it depends on the panel profile/support detail.
-9. Roof-sheet positive-pressure bending/local capacity, local sheet bearing/crushing, purlin local bearing/web crippling, screw bearing/shear, group action, purlin member capacity, purlin-to-rafter capacity and roof-system PASS remain unresolved.
-10. Deterministic rebuild validation rejects altered line loads, fake capacity promotion and stale/mutated upstream demand identity.
-11. Preliminary exact implementation head `884624fb69ec557f53ec50f9fd4775a00e3d156f` passed the complete **46/46 Engineering Checks** suite on an unchanged rerun after one unrelated legacy dedicated C-purlin playback DOM-timing flake.
+6. Keeps the PR #137 toward-surface screw tributary partition only as an independent conservation audit; changing screw stations/count does not redefine inward support-line demand.
+7. Blocks promotion of positive-pressure screw cells into screw axial-compression capacity/utilization.
+8. Exact local sheet-to-purlin contact footprint stays `UNRESOLVED` because panel profile/support detail governs it.
+9. Roof-sheet positive-pressure capacity, local sheet bearing/crushing, purlin local bearing/web crippling, screw bearing/shear, group action, purlin member capacity, purlin-to-rafter capacity and roof-system PASS remain unresolved.
 
-Current merge gate for PR #140:
+## Active M4 slice — PR #141
+
+**PR #141 — roof-sheet positive-pressure capacity-evidence acceptance** is the current preliminary-green candidate slice.
+
+Implemented:
+1. Versioned `futoltech.roof-sheet-positive-pressure-capacity-evidence/1` acceptance record.
+2. Reuses the exact accepted roof-sheet product/profile/BMT/material detail from #138 instead of creating a second product identity.
+3. Accepts only source-backed panel capacity evidence for loading that pushes the sheet `toward-support`.
+4. Preserves source/document/date, original source load-category label, span type, support spacing, overhang condition, uniform-pressure capacity, capacity type/design basis, deflection limit when supplied and explicitly source-covered limit states.
+5. Checks product applicability against exact product ID, profile ID, BMT, Fy and Fu.
+6. Missing required product applicability remains `REFERENCE_ONLY_INCOMPLETE_PRODUCT_APPLICABILITY`; explicit mismatch is rejected.
+7. `PRODUCT_APPLICABILITY_COMPLETE` does **not** mean project-applicable: actual sheet continuity/end laps/support spacing/span configuration are not inferred from purlin locations.
+8. Project panel-span configuration, project span applicability, positive-pressure panel demand/utilization, exact local sheet-to-purlin contact capacity, purlin local bearing/web crippling, screw compression/bearing/shear and roof-system PASS remain `UNRESOLVED`.
+9. Nominal, allowable/ASD, LRFD design, manufacturer-rated and ultimate/test-reference bases remain distinct; no factor conversion is inferred.
+10. Deterministic validation rejects evidence/detail mutation, unsupported direction/category/span metadata and fake project applicability/utilization/PASS promotion.
+11. Synthetic regression capacities are test fixtures only; no manufacturer/project value is imported into production data.
+12. Preliminary exact implementation/test/doc head `7badaee080d6352ddb991ea480d34e215dcf205a` passed the complete **46/46 Engineering Checks** suite.
+
+Current merge gate for PR #141:
 - Synchronize `ROOF-RESILIENCE-PHYSICS-MILESTONE-STATUS.md`, `STATUS-ROOF-RESILIENCE.md`, `ACTIVE_MILESTONE.md`, and `STRUCTURAL_LAB_MASTER_CHECKLIST.md`.
 - Then the **exact documentation-updated head must pass all 46/46 Engineering Checks again**.
 - Only that exact green head may merge.
 
-Next M4 dependency after #140 merges:
-**accept and evaluate source-backed roof-sheet positive-pressure/local support-contact limit states without inventing a contact footprint or borrowing uplift capacity; then continue group/sheet/local/purlin-to-rafter checks in physical load-path dependency order.**
+Next M4 dependency after #141 merges:
+**explicit roof-sheet panel span / continuity configuration tied to actual Roof Bay purlin supports and sheet end-lap/continuity evidence; only then may a source positive-pressure capacity row be checked for project applicability and later basis-compatible utilization.**
 
 Permanent active-M4 boundary:
 - M3 pressure/zoning and structural-action demand derivation remain closed/verified upstream work.
-- #136 provides physical screw geometry; #137 provides signed individual screw wind demand; #138 provides attachment/evidence eligibility; #139 adds strict basis-compatible individual uplift utilization; #140 routes toward-surface pressure to the physical purlin support line without inventing screw compression.
-- No generic pull-out, pull-over, bearing, group or sheet capacity is inferred from screw count, geometry or a generic “Tek screw” label.
-- Fastener tension/shear, combined interaction, group action, roof-sheet structural capacity, purlin-local failure and purlin-to-rafter cleat/bolt/weld capacity remain unresolved.
-- Exact toward-surface local contact/bearing capacity is not covered by #140.
-- Purlin member stress/deflection/capacity remains outside these M4 fastener/support-contact slices.
+- #136 provides physical screw geometry; #137 provides signed individual screw wind demand; #138 provides exact attachment/product identity and uplift evidence eligibility; #139 adds strict basis-compatible individual uplift utilization; #140 routes toward-surface pressure to the physical purlin support line; #141 accepts source-backed positive-pressure panel capacity rows without claiming project span applicability.
+- No generic pull-out, pull-over, bearing, group or sheet capacity is inferred from screw count, sheet thickness, geometry or a generic product label.
+- Fastener tension/shear, combined interaction, group action, exact local roof-sheet contact capacity, purlin-local failure and purlin-to-rafter cleat/bolt/weld capacity remain unresolved.
+- Purlin member stress/deflection/capacity remains outside these M4 fastener/sheet-support slices.
 - Rafter/truss/system interaction remains M6 work.
 - Cold-formed effective-width/local/distortional/LTB design remains M7 work.
 - `roofSystemPass` remains `null` until the roadmap exit condition is satisfied.
 - `authorizedCopyReviewRequired=true` remains permanent where governing code text must be verified against an authorized copy.
 
-Detailed scope and gates live in `ROADMAP-ROOF-RESILIENCE-PHYSICS.md`, `STATUS-ROOF-RESILIENCE.md`, `ROOF-RESILIENCE-PHYSICS-MILESTONE-STATUS.md`, `STRUCTURAL_LAB_MASTER_CHECKLIST.md`, `M4_ROOF_SHEET_FASTENER_LAYOUT_FOUNDATION.md`, `M4_ROOF_FASTENER_CODE_PRESSURE_DEMAND_ROUTING.md`, `M4_ROOF_FASTENER_CAPACITY_EVIDENCE_ACCEPTANCE.md`, `M4_ROOF_FASTENER_BASIS_COMPATIBLE_UTILIZATION.md`, and `M4_ROOF_SHEET_PURLIN_SUPPORT_CONTACT_DEMAND_ROUTING.md`.
+Detailed scope and gates live in `ROADMAP-ROOF-RESILIENCE-PHYSICS.md`, `STATUS-ROOF-RESILIENCE.md`, `ROOF-RESILIENCE-PHYSICS-MILESTONE-STATUS.md`, `STRUCTURAL_LAB_MASTER_CHECKLIST.md`, `M4_ROOF_SHEET_FASTENER_LAYOUT_FOUNDATION.md`, `M4_ROOF_FASTENER_CODE_PRESSURE_DEMAND_ROUTING.md`, `M4_ROOF_FASTENER_CAPACITY_EVIDENCE_ACCEPTANCE.md`, `M4_ROOF_FASTENER_BASIS_COMPATIBLE_UTILIZATION.md`, `M4_ROOF_SHEET_PURLIN_SUPPORT_CONTACT_DEMAND_ROUTING.md`, and `M4_ROOF_SHEET_POSITIVE_PRESSURE_CAPACITY_EVIDENCE_ACCEPTANCE.md`.
