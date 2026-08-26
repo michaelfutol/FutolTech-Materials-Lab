@@ -35,7 +35,7 @@
 10. [x] **FutolStructure / RPE interchange v1** — versioned component, demand, critical-specimen and evidence-bounded failure/RPE law exchange.
 11. [x] **Roof Resilience Physics M2** — Roof Bay load routing, member selection/exploded trace, stable project JSON, custom/nonuniform purlin stations, reaction diagrams and M3-ready pressure-zone placeholders completed through PR #112 with the M2 exit gate green.
 12. [x] **Roof Resilience Physics M3** — code-derived wind/zoning, verified physical routing, signed W, companion actions, complete source-backed strength combinations, controlled Roof Bay activation and the independent end-to-end exit audit are complete through PR #135. The exact documentation-updated closure head passed 46/46 Engineering Checks and merged as `c81032f977d35025474b495c6bf82cbc88bf1bdc`. Member/connection capacity remains later scope.
-13. [~] **Roof Resilience Physics M4** — ACTIVE. PR #136 merged as `ec5e7c99994a4c5d52bdf2ad90a1790b13a8e181`; PR #137 merged as `6e5de1e29373c0657f7bb42fe16a415abca0229b`; PR #138 merged as `471a62cbe305e385a9542f9f3324e251c06a7981`; PR #139 merged as `91400114a54cc074d7763c7f5df4eb0f37165245` after exact documentation-updated head `e819720a…` passed 46/46. PR #140 now routes toward-surface pressure into physical roof-sheet → purlin support-line demand without inventing screw compression; preliminary exact implementation head `884624fb…` passed 46/46 on an unchanged rerun and the documentation-updated exact head remains the merge gate.
+13. [~] **Roof Resilience Physics M4** — ACTIVE. PR #136 merged as `ec5e7c99994a4c5d52bdf2ad90a1790b13a8e181`; PR #137 merged as `6e5de1e29373c0657f7bb42fe16a415abca0229b`; PR #138 merged as `471a62cbe305e385a9542f9f3324e251c06a7981`; PR #139 merged as `91400114a54cc074d7763c7f5df4eb0f37165245`; PR #140 merged as `dfe58947f09fbd214f590b999ac02886419677b6` after exact documentation-updated head `7fc6d106…` passed 46/46. PR #141 accepts source-backed positive-pressure roof-sheet panel capacity evidence while keeping project span/continuity applicability unresolved; preliminary implementation head `7badaee…` passed 46/46 and the exact documentation-updated head remains the merge gate.
 
 # Protected foundation
 
@@ -265,7 +265,7 @@
 - [x] PR #116 — Roof Bay project-input UI/project JSON bridge while manual pressure remains active.
 - [x] PR #117 — engineer-declared enclosure + source-backed roof/building geometry acceptance.
 - [x] PR #118 — Roof Bay pressure-context UI/project JSON bridge.
-- [x] PR #119 — base `GCpi`: open 0.00, enclosed ±0.18, partially enclosed ±0.55.
+- [x] PR #119 — base `GCpi`: open `0.00`, enclosed `±0.18`, partially enclosed `±0.55`.
 - [x] PR #120 — explicit partially enclosed large-volume `Ri` decision; benchmark `Ri = 0.8535533905932737` for `Vi=6950 m³`, `Aog=1.00 m²`.
 - [x] PR #121 — reusable internal-pressure term foundation; current low-rise Part 1 path explicitly rejects the Part 3 opening-height `qi=qz` option.
 - [x] PR #123 — roof-purlin C&C effective wind area kept separate from actual physical load area.
@@ -285,7 +285,7 @@
 - [!] M3 closure does **not** include piecewise purlin stress/deflection/capacity, roof-sheet/fastener/connection capacity, rafter/truss/system analysis or cold-formed local/distortional/LTB design. Those remain M4/M6/M7 responsibilities.
 - [!] Rain R remains unimplemented and is never silently treated as zero; public project calculations remain cross-checks and `authorizedCopyReviewRequired=true` remains permanent before project use.
 
-## M4 ACTIVE — PR #136/#137/#138/#139 merged / PR #140 support-contact candidate
+## M4 ACTIVE — PR #136/#137/#138/#139/#140 merged / PR #141 positive-pressure evidence candidate
 
 - [x] PR #136 creates versioned `futoltech.roof-sheet-fastener-layout/1` geometry/evidence acceptance and merged as `ec5e7c99994a4c5d52bdf2ad90a1790b13a8e181` after the exact documentation-updated head passed 46/46 Engineering Checks.
 - [x] Exactly one explicit fastener row is required for each physical purlin; missing/extra/duplicate rows fail visibly.
@@ -317,7 +317,7 @@
 - [x] `roofSystemPass` is forced to `null`; an all-local-uplift-screw PASS cannot promote the roof system.
 - [x] Synthetic regressions protect both ordinary eligible PASS and deliberately low eligible pull-over local FAIL behavior without introducing product/project capacity data.
 - [x] Exact documentation-updated PR #139 head `e819720a…` passed the complete 46/46 Engineering Checks suite before merge.
-- [~] PR #140 candidate adds versioned `futoltech.roof-sheet-purlin-support-contact-demand-routing/1` for verified toward-surface support-line demand only.
+- [x] PR #140 adds versioned `futoltech.roof-sheet-purlin-support-contact-demand-routing/1` for verified toward-surface support-line demand only and merged as `dfe58947f09fbd214f590b999ac02886419677b6`.
 - [x] #140 interprets positive/toward-surface roof pressure as roof-sheet → purlin support-line demand, not axial compression in individual roofing screws.
 - [x] Each verified pressure piece computes `w = p × tributary width` and `F = wL = pA`, retaining exact field/edge/corner zone and raw pressure-case identity.
 - [x] Piece, purlin-row, zone and whole-bay area/normal-force conservation reproduce the accepted M3 toward-surface route.
@@ -325,9 +325,18 @@
 - [x] Exact local sheet-to-purlin contact footprint remains `UNRESOLVED`; positive-pressure screw cells cannot be promoted into screw axial-compression capacity.
 - [x] Roof-sheet positive-pressure bending/local capacity, local sheet bearing/crushing, purlin local bearing/web crippling, screw bearing/shear, group action, purlin member capacity and purlin-to-rafter capacity remain unimplemented.
 - [x] `roofSystemPass` remains `null`; #140 is demand routing only.
-- [x] Preliminary exact PR #140 implementation head `884624fb…` passed the complete 46/46 Engineering Checks suite on an unchanged rerun after one unrelated dedicated C-purlin playback DOM-timing flake.
-- [ ] PR #140 merge gate: all four authority records synchronized, then exact documentation-updated head must pass all 46/46 Engineering Checks before merge.
-- [ ] Next M4 slice: accept/evaluate source-backed roof-sheet positive-pressure/local support-contact limit states without inventing contact footprint or borrowing uplift capacity; then continue group/sheet/local/purlin-to-rafter checks in physical load-path dependency order.
+- [x] Exact documentation-updated PR #140 head `7fc6d10614e7304dedc0ccdb15ac3318c0f57b82` passed the complete 46/46 Engineering Checks suite before merge.
+- [~] PR #141 candidate adds versioned `futoltech.roof-sheet-positive-pressure-capacity-evidence/1` acceptance for source-backed panel-capacity rows applicable to loading pushing the roof sheet toward its supports.
+- [x] #141 reuses the exact accepted #138 roof-sheet product/profile/BMT/material identity and checks evidence applicability against product ID, profile ID, BMT, Fy and Fu.
+- [x] Each accepted evidence row preserves load direction/category, original source label, span type, support spacing, overhang condition, pressure capacity, capacity type/design basis, optional deflection limit, source-covered limit states, source/document/date references and applicability evidence.
+- [x] Missing required product applicability remains reference-only; an explicit source mismatch is rejected rather than silently widened.
+- [x] Uplift/pull-away capacity rows are not accepted into the positive-pressure evidence path.
+- [x] Project sheet continuity, end laps, actual panel span count and exact source-row project applicability are deliberately not inferred from purlin locations; `projectPanelSpanConfigurationStatus` remains unresolved.
+- [x] Panel demand/utilization, exact local sheet-to-purlin contact capacity, purlin local bearing/web crippling, screw compression/bearing/shear and `roofSystemPass` remain unresolved.
+- [x] Synthetic regression capacities are test fixtures only and are not manufacturer/project production data.
+- [x] Preliminary exact PR #141 implementation/test/doc head `7badaee080d6352ddb991ea480d34e215dcf205a` passed the complete 46/46 Engineering Checks suite.
+- [ ] PR #141 merge gate: all four authority records synchronized, then only the exact documentation-updated head may merge after a fresh complete 46/46 Engineering Checks pass.
+- [ ] Next M4 slice: explicit roof-sheet panel span/continuity/end-lap configuration tied to actual Roof Bay purlin supports, followed by source-row project applicability and basis alignment before any positive-pressure utilization.
 - [!] `n × single-fastener` is not automatically a group design capacity; no group/redistribution model is inferred from screw count.
 - [!] M4 exit remains: no roof-system PASS unless every required modeled connection in the load path is checked or explicitly marked unresolved.
 
@@ -391,4 +400,5 @@
 - 2026-08-24 — PR #137 routes the already-verified M3 directional field/edge/corner pressure pieces into each accepted screw tributary rectangle by exact physical intersection. Multi-zone screw contributions preserve zone/case identity; signed `F=pA` demand conserves at screw/row/zone/bay levels; irregular layouts and stale-geometry rejection are protected. Exact documentation-updated head passed 46/46 and it merged as `6e5de1e29373c0657f7bb42fe16a415abca0229b`. Capacity/utilization remains unresolved.
 - 2026-08-24 — PR #138 accepts only exact roof-sheet/self-drilling-screw/purlin attachment details plus traceable pull-out/pull-over evidence, preserves evidence basis/applicability, rejects explicit mismatch and post-acceptance mutation, and introduces no production capacity values or utilization. Exact documentation-updated head `5aabbb5f…` passed 46/46 on an unchanged rerun and it merged as `471a62cbe305e385a9542f9f3324e251c06a7981`.
 - 2026-08-25 — PR #139 adds strict individual `away-from-surface` screw utilization only after complete #138 applicability, explicit source-backed single-fastener scope and explicit LRFD demand/LRFD design-capacity compatibility. ASD/test-reference shortcuts, toward-surface bearing, group action, sheet/local/downstream capacities and roof-system PASS remain blocked. Exact documentation-updated head `e819720a…` passed 46/46 and it merged as `91400114a54cc074d7763c7f5df4eb0f37165245`.
-- 2026-08-26 — PR #140 routes verified `toward-surface` pressure into physical roof-sheet → purlin support-line demand and explicitly refuses to reinterpret positive screw-cell tributary partitions as axial screw compression. Exact piece/row/zone/bay conservation and upstream identity are protected; contact footprint and every positive-pressure capacity remain unresolved. Preliminary exact implementation head `884624fb…` passed 46/46 on an unchanged rerun after one unrelated legacy playback DOM-timing flake; exact documentation-updated head remains the merge gate.
+- 2026-08-26 — PR #140 routes verified `toward-surface` pressure into physical roof-sheet → purlin support-line demand and explicitly refuses to reinterpret positive screw-cell tributary partitions as axial screw compression. Exact piece/row/zone/bay conservation and upstream identity are protected; contact footprint and every positive-pressure capacity remain unresolved. Exact documentation-updated head `7fc6d106…` passed 46/46 and it merged as `dfe58947f09fbd214f590b999ac02886419677b6`.
+- 2026-08-26 — PR #141 accepts source-backed roof-sheet positive-pressure panel capacity evidence only after exact product/profile/BMT/Fy/Fu applicability checks. Source span type/support spacing/overhang, capacity basis, deflection limit and covered limit states are preserved, but actual project panel continuity/end laps/span count are not inferred; project applicability and every positive-pressure utilization/PASS remain unresolved. Preliminary exact implementation/test/doc head `7badaee080d6352ddb991ea480d34e215dcf205a` passed 46/46; exact documentation-updated head remains the merge gate.
