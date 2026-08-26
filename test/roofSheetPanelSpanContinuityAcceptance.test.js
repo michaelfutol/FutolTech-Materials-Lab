@@ -16,6 +16,15 @@ const FASTENER_ID = 'TEK-ROOF-BENCHMARK';
 const SHEET_ID = 'SYNTHETIC-ROOF-SHEET-01';
 const PROFILE_ID = 'SYNTHETIC-RIB-01';
 const PURLIN_STATIONS = [0.2,1.2,2.2,3.2,3.8];
+const TOL = 1e-9;
+
+function assertApprox(actual, expected, label = 'value') {
+  assert.ok(Math.abs(actual - expected) <= TOL, `${label}: expected ${expected}, got ${actual}`);
+}
+function assertApproxArray(actual, expected, label = 'values') {
+  assert.equal(actual.length, expected.length, `${label} length`);
+  actual.forEach((value, index) => assertApprox(value, expected[index], `${label}[${index}]`));
+}
 
 function makeProject() {
   return createRoofBayProject({
@@ -206,17 +215,17 @@ test('accepts explicit panel pieces, derives real purlin spans and records end l
   const run = record.panelRuns[0];
   assert.deepEqual(run.panelPieces[0].supportSequence.map((item) => item.purlinLabel), ['P1','P2','P3']);
   assert.deepEqual(run.panelPieces[1].supportSequence.map((item) => item.purlinLabel), ['P3','P4','P5']);
-  assert.deepEqual(run.panelPieces[0].spans.map((item) => item.spanLengthM), [1,1]);
-  assert.deepEqual(run.panelPieces[1].spans.map((item) => item.spanLengthM), [1,0.6]);
+  assertApproxArray(run.panelPieces[0].spans.map((item) => item.spanLengthM), [1,1], 'SHEET-A spans');
+  assertApproxArray(run.panelPieces[1].spans.map((item) => item.spanLengthM), [1,0.6], 'SHEET-B spans');
   assert.equal(run.panelPieces[0].spanType, '2-span');
   assert.equal(run.panelPieces[1].spanType, '2-span');
-  assert.equal(run.endLaps[0].lapLengthM, 0.4);
+  assertApprox(run.endLaps[0].lapLengthM, 0.4, 'lap length');
   assert.equal(run.endLaps[0].lapSupportLabel, 'P3');
   assert.equal(run.endLaps[0].supportStatus, 'PURLIN_SUPPORT_IDENTIFIED_WITHIN_END_LAP');
   assert.equal(run.endLaps[0].structuralContinuityAcrossLap, 'NOT_INFERRED');
   assert.equal(run.continuityBreaks.length, 1);
-  assert.equal(run.roofEdgeSupportGeometry.eaveOverhangM, 0.2);
-  assert.ok(Math.abs(run.roofEdgeSupportGeometry.ridgeOverhangM - 0.2) < 1e-9);
+  assertApprox(run.roofEdgeSupportGeometry.eaveOverhangM, 0.2, 'eave overhang');
+  assertApprox(run.roofEdgeSupportGeometry.ridgeOverhangM, 0.2, 'ridge overhang');
   assert.equal(record.summary.projectPanelSpanConfigurationStatus, 'EXPLICIT_GEOMETRY_ACCEPTED');
   assert.equal(record.summary.capacityEvidenceProjectApplicabilityStatus, 'UNRESOLVED');
   assert.equal(record.summary.positivePressurePanelUtilizationStatus, 'UNRESOLVED');
