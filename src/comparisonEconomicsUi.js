@@ -107,7 +107,7 @@ function ensureStyles() {
     .price-override-actions{display:flex;gap:.4rem;margin-top:.55rem;flex-wrap:wrap}.price-override-actions button{font-size:.75rem;padding:.35rem .55rem}
     .price-policy{font-size:.78rem;opacity:.82;margin:.65rem 0 0}.price-cheapest{outline:2px solid currentColor;outline-offset:2px}
     @media(max-width:900px){.compare-economics-grid{grid-template-columns:1fr}}
-    @media print{.price-override-grid,.price-override-actions{display:none!important}}
+    @media print{.compare-economics,tr[data-economics-row]{display:none!important}}
   `;
   document.head.append(style);
 }
