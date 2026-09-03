@@ -21,7 +21,7 @@ function format(value, decimals = 2) {
   return new Intl.NumberFormat('en-PH', { minimumFractionDigits: 0, maximumFractionDigits: decimals }).format(Number(value));
 }
 function peso(value) {
-  if (!Number.isFinite(Number(value))) return '—';
+  if (value == null || value === '' || !Number.isFinite(Number(value))) return '—';
   return new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP', maximumFractionDigits: 2 }).format(Number(value));
 }
 function allPresets() {
