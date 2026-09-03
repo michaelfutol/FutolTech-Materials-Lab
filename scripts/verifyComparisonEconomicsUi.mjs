@@ -32,8 +32,14 @@ try{
   const webState=await evaluate(cdp,`(()=>{const c=document.querySelector('[data-price-card="${chosen.id}"]');return {text:c.textContent,table:document.querySelector('#compareTableBody')?.textContent||''};})()`);
   if(!/Procurement material cost/i.test(webState.table)||!/675/.test(webState.table))throw new Error('Procurement material-cost table row did not use the web observation.');
 
-  await evaluate(cdp,`(()=>{const id=${JSON.stringify(chosen.id)};const panel=document.querySelector('#compareEconomicsPanel');panel.querySelector('[data-price-value="'+CSS.escape(id)+'"]').value='620';panel.querySelector('[data-price-length="'+CSS.escape(id)+'"]').value='6';panel.querySelector('[data-price-supplier="'+CSS.escape(id)+'"]').value='Sorsogon Test Supplier';panel.querySelector('[data-price-source="'+CSS.escape(id)+'"]').value='QA-QUOTE-001';panel.querySelector('[data-price-save="'+CSS.escape(id)+'"]').click();})()`);
-  await waitFor(cdp,`(()=>{const c=document.querySelector('[data-price-card="${chosen.id}"]');return !!c&&/MANUAL \/ PROJECT/.test(c.textContent)&&/620/.test(c.textContent)&&/Sorsogon Test Supplier/.test(c.textContent);})()`,'manual project-price override');
+  await evaluate(cdp,`(()=>{window.__priceAlert=null;window.alert=(message)=>{window.__priceAlert=String(message)};const id=${JSON.stringify(chosen.id)};const panel=document.querySelector('#compareEconomicsPanel');panel.querySelector('[data-price-value="'+CSS.escape(id)+'"]').value='620';panel.querySelector('[data-price-length="'+CSS.escape(id)+'"]').value='6';panel.querySelector('[data-price-supplier="'+CSS.escape(id)+'"]').value='Sorsogon Test Supplier';panel.querySelector('[data-price-source="'+CSS.escape(id)+'"]').value='QA-QUOTE-001';panel.querySelector('[data-price-save="'+CSS.escape(id)+'"]').click();})()`);
+  await sleep(300);
+  const overrideDebug=await evaluate(cdp,`(()=>{const id=${JSON.stringify(chosen.id)};const stored=JSON.parse(localStorage.getItem('futoltech.structuralLab.priceOverrides.v1')||'[]');return {alert:window.__priceAlert||null,stored:stored.find(x=>x.presetId===id)||null,card:document.querySelector('[data-price-card="'+CSS.escape(id)+'"]')?.textContent||'',table:document.querySelector('#compareTableBody')?.textContent||''};})()`);
+  console.log('PRICE_OVERRIDE_DEBUG '+JSON.stringify(overrideDebug));
+  if(overrideDebug.alert)throw new Error(`Manual price validation alert: ${overrideDebug.alert}`);
+  if(!overrideDebug.stored)throw new Error('Manual price click did not persist an override record to localStorage.');
+  if(!/MANUAL \/ PROJECT/.test(overrideDebug.card)||!/620/.test(overrideDebug.card)||!/Sorsogon Test Supplier/.test(overrideDebug.card))throw new Error(`Manual price persisted but card did not render it: ${overrideDebug.card}`);
+  if(!/620/.test(overrideDebug.table))throw new Error('Manual project price did not update the procurement-cost table row.');
   const afterOverrideEngineering=await evaluate(cdp,`document.querySelector('#compareResultCards')?.textContent||''`);
   if(beforeEngineering!==afterOverrideEngineering)throw new Error('Changing only economic price evidence altered the engineering result cards.');
 
