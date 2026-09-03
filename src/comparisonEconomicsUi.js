@@ -183,11 +183,11 @@ function renderPanel() {
       note: 'Manual price entered in Structural Member Comparison.'
     });
     saveOverrides(existing);
-    renderEconomics();
+    renderPanel();
   }));
   panel.querySelectorAll('[data-price-clear]').forEach((button) => button.addEventListener('click', () => {
     saveOverrides(loadOverrides().filter((item) => item.presetId !== button.dataset.priceClear));
-    renderEconomics();
+    renderPanel();
   }));
   renderTableEconomics(items);
 }
