@@ -26,7 +26,7 @@ try{
 
   const chosen=await evaluate(cdp,`(()=>{const preset=document.querySelector('[data-slot-preset="0"]');const option=[...preset.options].find(o=>/C-purlin 2×4 nominal/i.test(o.textContent)&&/1\.20 mm/i.test(o.textContent));if(!option)return null;preset.value=option.value;preset.dispatchEvent(new Event('change',{bubbles:true}));return {id:option.value,label:option.textContent};})()`);
   if(!chosen?.id)throw new Error('Could not select the 2×4 × 1.20 mm C-purlin benchmark in Direct Compare.');
-  await waitFor(cdp,`(()=>{const c=document.querySelector('[data-price-card="${chosen.id}"]');return !!c&&/WEB OBSERVED/.test(c.textContent)&&/675/.test(c.textContent);})()`,'seeded CitiHardware web price');
+  await waitFor(cdp,`(()=>{const c=document.querySelector('[data-price-card="${chosen.id}"]');return !!c&&c.textContent.includes('WEB OBSERVED')&&c.textContent.includes('675');})()`,'seeded CitiHardware web price');
 
   const beforeEngineering=await evaluate(cdp,`document.querySelector('#compareResultCards')?.textContent||''`);
   const webState=await evaluate(cdp,`(()=>{const c=document.querySelector('[data-price-card="${chosen.id}"]');return {text:c.textContent,table:document.querySelector('#compareTableBody')?.textContent||''};})()`);
@@ -35,10 +35,9 @@ try{
   await evaluate(cdp,`(()=>{window.__priceAlert=null;window.alert=(message)=>{window.__priceAlert=String(message)};const id=${JSON.stringify(chosen.id)};const panel=document.querySelector('#compareEconomicsPanel');panel.querySelector('[data-price-value="'+CSS.escape(id)+'"]').value='620';panel.querySelector('[data-price-length="'+CSS.escape(id)+'"]').value='6';panel.querySelector('[data-price-supplier="'+CSS.escape(id)+'"]').value='Sorsogon Test Supplier';panel.querySelector('[data-price-source="'+CSS.escape(id)+'"]').value='QA-QUOTE-001';panel.querySelector('[data-price-save="'+CSS.escape(id)+'"]').click();})()`);
   await sleep(300);
   const overrideDebug=await evaluate(cdp,`(()=>{const id=${JSON.stringify(chosen.id)};const stored=JSON.parse(localStorage.getItem('futoltech.structuralLab.priceOverrides.v1')||'[]');return {alert:window.__priceAlert||null,stored:stored.find(x=>x.presetId===id)||null,card:document.querySelector('[data-price-card="'+CSS.escape(id)+'"]')?.textContent||'',table:document.querySelector('#compareTableBody')?.textContent||''};})()`);
-  console.log('PRICE_OVERRIDE_DEBUG '+JSON.stringify(overrideDebug));
   if(overrideDebug.alert)throw new Error(`Manual price validation alert: ${overrideDebug.alert}`);
   if(!overrideDebug.stored)throw new Error('Manual price click did not persist an override record to localStorage.');
-  if(!/MANUAL \/ PROJECT/.test(overrideDebug.card)||!/620/.test(overrideDebug.card)||!/Sorsogon Test Supplier/.test(overrideDebug.card))throw new Error(`Manual price persisted but card did not render it: ${overrideDebug.card}`);
+  if(!overrideDebug.card.includes('MANUAL / PROJECT')||!overrideDebug.card.includes('620')||!overrideDebug.card.includes('Sorsogon Test Supplier'))throw new Error(`Manual price persisted but card did not render it: ${overrideDebug.card}`);
   if(!/620/.test(overrideDebug.table))throw new Error('Manual project price did not update the procurement-cost table row.');
   const afterOverrideEngineering=await evaluate(cdp,`document.querySelector('#compareResultCards')?.textContent||''`);
   if(beforeEngineering!==afterOverrideEngineering)throw new Error('Changing only economic price evidence altered the engineering result cards.');
@@ -47,17 +46,13 @@ try{
   await cdp.send('Page.reload',{ignoreCache:true});
   await waitFor(cdp,`document.readyState==='complete' && !!document.querySelector('#compareEconomicsPanel') && document.querySelectorAll('[data-slot-preset]').length>=3 && [...(document.querySelector('[data-slot-preset="0"]')?.options||[])].some(o=>o.value===${JSON.stringify(chosen.id)})`,'reloaded economics panel and benchmark preset options');
   const reloadStorage=await evaluate(cdp,`(()=>{const id=${JSON.stringify(chosen.id)};const stored=JSON.parse(localStorage.getItem('futoltech.structuralLab.priceOverrides.v1')||'[]');return stored.find(x=>x.presetId===id)||null;})()`);
-  console.log('PRICE_RELOAD_STORAGE '+JSON.stringify(reloadStorage));
   if(!reloadStorage)throw new Error('Manual project override did not survive page reload in localStorage.');
   await evaluate(cdp,`(()=>{const preset=document.querySelector('[data-slot-preset="0"]');preset.value=${JSON.stringify(chosen.id)};preset.dispatchEvent(new Event('change',{bubbles:true}));})()`);
   await waitFor(cdp,`document.querySelector('[data-slot-preset="0"]')?.value===${JSON.stringify(chosen.id)}`,'reselected benchmark preset after reload');
-  await sleep(700);
-  const reloadDebug=await evaluate(cdp,`(()=>{const id=${JSON.stringify(chosen.id)};return {selected:document.querySelector('[data-slot-preset="0"]')?.value||null,stored:JSON.parse(localStorage.getItem('futoltech.structuralLab.priceOverrides.v1')||'[]').find(x=>x.presetId===id)||null,card:document.querySelector('[data-price-card="'+CSS.escape(id)+'"]')?.textContent||'',table:document.querySelector('#compareTableBody')?.textContent||''};})()`);
-  console.log('PRICE_RELOAD_DEBUG '+JSON.stringify(reloadDebug));
-  await waitFor(cdp,`(()=>{const c=document.querySelector('[data-price-card="${chosen.id}"]');return !!c&&/MANUAL \/ PROJECT/.test(c.textContent)&&/620/.test(c.textContent);})()`,'persisted local project override');
+  await waitFor(cdp,`(()=>{const c=document.querySelector('[data-price-card="${chosen.id}"]');return !!c&&c.textContent.includes('MANUAL / PROJECT')&&c.textContent.includes('620');})()`,'persisted local project override');
 
   await evaluate(cdp,`(()=>{const id=${JSON.stringify(chosen.id)};document.querySelector('#compareEconomicsPanel [data-price-clear="'+CSS.escape(id)+'"]')?.click();})()`);
-  await waitFor(cdp,`(()=>{const c=document.querySelector('[data-price-card="${chosen.id}"]');return !!c&&/WEB OBSERVED/.test(c.textContent)&&/675/.test(c.textContent)&&!/MANUAL \/ PROJECT/.test(c.textContent);})()`,'return to web-observed price');
+  await waitFor(cdp,`(()=>{const c=document.querySelector('[data-price-card="${chosen.id}"]');return !!c&&c.textContent.includes('WEB OBSERVED')&&c.textContent.includes('675')&&!c.textContent.includes('MANUAL / PROJECT');})()`,'return to web-observed price');
   const stored=await evaluate(cdp,`JSON.parse(localStorage.getItem('futoltech.structuralLab.priceOverrides.v1')||'[]').some(x=>x.presetId===${JSON.stringify(chosen.id)})`);
   if(stored)throw new Error('Clearing the manual override did not remove the saved project price.');
 
