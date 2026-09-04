@@ -31,6 +31,9 @@ jobs:
           node --check src/solver/priceIntelligence.js
           node --check src/comparisonEconomicsUi.js
           node --check scripts/verifyComparisonEconomicsUi.mjs
+          node --check src/genericComparisonVideoTextGuardV3.js
+          node --check src/comparisonBeamClarityV1.js
+          node --check scripts/verifyBeamStrengthProgressionUi.mjs
       - name: FutolTech engineering identity Chromium gate
         run: node scripts/verifyFutolTechEngineeringIdentityUi.mjs
       - name: Comparison PDF gate
@@ -76,6 +79,9 @@ jobs:
       - name: General comparison load-test video Chromium gate
         timeout-minutes: 3
         run: node scripts/verifyGeneralComparisonVideoUi.mjs
+      - name: Beam point-load + progressive strength-limit Chromium gate
+        timeout-minutes: 3
+        run: node scripts/verifyBeamStrengthProgressionUi.mjs
       - name: General comparison full-width + 16s recording Chromium gate
         timeout-minutes: 3
         run: node scripts/verifyGeneralComparisonUxV2.mjs
