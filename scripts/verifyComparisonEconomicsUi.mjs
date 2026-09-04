@@ -24,13 +24,15 @@ try{
   const debugPort=await waitPort(profile,chromeProcess);const target=await pageTarget(`http://127.0.0.1:${debugPort}`);cdp=await cdpOpen(target.webSocketDebuggerUrl);await cdp.send('Runtime.enable');await cdp.send('Page.enable');
   await waitFor(cdp,`document.readyState==='complete' && document.querySelectorAll('[data-slot-preset]').length>=3 && !!document.querySelector('#compareEconomicsPanel')`,'Direct Compare economics panel');
 
+  await waitFor(cdp,`(()=>{const b=document.querySelector('[data-price-card="shs-50-15"]');const c=document.querySelector('[data-price-card="wood-2x4"]');return !!b&&!!c&&b.textContent.includes('660')&&c.textContent.includes('240');})()`,'expanded default SHS and coco price coverage');
+
   const chosen=await evaluate(cdp,`(()=>{const preset=document.querySelector('[data-slot-preset="0"]');const option=[...preset.options].find(o=>/C-purlin 2×4 nominal/i.test(o.textContent)&&/1\.20 mm/i.test(o.textContent));if(!option)return null;preset.value=option.value;preset.dispatchEvent(new Event('change',{bubbles:true}));return {id:option.value,label:option.textContent};})()`);
   if(!chosen?.id)throw new Error('Could not select the 2×4 × 1.20 mm C-purlin benchmark in Direct Compare.');
-  await waitFor(cdp,`(()=>{const c=document.querySelector('[data-price-card="${chosen.id}"]');return !!c&&c.textContent.includes('WEB OBSERVED')&&c.textContent.includes('675');})()`,'seeded CitiHardware web price');
+  await waitFor(cdp,`(()=>{const c=document.querySelector('[data-price-card="${chosen.id}"]');return !!c&&c.textContent.includes('WEB OBSERVED')&&c.textContent.includes('600');})()`,'seeded Alpha Steel web price');
 
   const beforeEngineering=await evaluate(cdp,`document.querySelector('#compareResultCards')?.textContent||''`);
   const webState=await evaluate(cdp,`(()=>{const c=document.querySelector('[data-price-card="${chosen.id}"]');return {text:c.textContent,table:document.querySelector('#compareTableBody')?.textContent||''};})()`);
-  if(!/Procurement material cost/i.test(webState.table)||!/675/.test(webState.table))throw new Error('Procurement material-cost table row did not use the web observation.');
+  if(!/Procurement material cost/i.test(webState.table)||!/600/.test(webState.table))throw new Error('Procurement material-cost table row did not use the selected web observation.');
 
   await evaluate(cdp,`(()=>{window.__priceAlert=null;window.alert=(message)=>{window.__priceAlert=String(message)};const id=${JSON.stringify(chosen.id)};const panel=document.querySelector('#compareEconomicsPanel');panel.querySelector('[data-price-value="'+CSS.escape(id)+'"]').value='620';panel.querySelector('[data-price-length="'+CSS.escape(id)+'"]').value='6';panel.querySelector('[data-price-supplier="'+CSS.escape(id)+'"]').value='Sorsogon Test Supplier';panel.querySelector('[data-price-source="'+CSS.escape(id)+'"]').value='QA-QUOTE-001';panel.querySelector('[data-price-save="'+CSS.escape(id)+'"]').click();})()`);
   await sleep(300);
@@ -52,9 +54,9 @@ try{
   await waitFor(cdp,`(()=>{const c=document.querySelector('[data-price-card="${chosen.id}"]');return !!c&&c.textContent.includes('MANUAL / PROJECT')&&c.textContent.includes('620');})()`,'persisted local project override');
 
   await evaluate(cdp,`(()=>{const id=${JSON.stringify(chosen.id)};document.querySelector('#compareEconomicsPanel [data-price-clear="'+CSS.escape(id)+'"]')?.click();})()`);
-  await waitFor(cdp,`(()=>{const c=document.querySelector('[data-price-card="${chosen.id}"]');return !!c&&c.textContent.includes('WEB OBSERVED')&&c.textContent.includes('675')&&!c.textContent.includes('MANUAL / PROJECT');})()`,'return to web-observed price');
+  await waitFor(cdp,`(()=>{const c=document.querySelector('[data-price-card="${chosen.id}"]');return !!c&&c.textContent.includes('WEB OBSERVED')&&c.textContent.includes('600')&&!c.textContent.includes('MANUAL / PROJECT');})()`,'return to web-observed price');
   const stored=await evaluate(cdp,`JSON.parse(localStorage.getItem('futoltech.structuralLab.priceOverrides.v1')||'[]').some(x=>x.presetId===${JSON.stringify(chosen.id)})`);
   if(stored)throw new Error('Clearing the manual override did not remove the saved project price.');
 
-  console.log('Price Intelligence web observation → manual override → persistence → clear-to-web QA passed in real Chromium.');
+  console.log('Price Intelligence expanded web coverage → manual override → persistence → clear-to-web QA passed in real Chromium.');
 }finally{try{cdp?.socket.close();}catch{}await stop(chromeProcess);await new Promise((resolve)=>server.close(resolve));await rm(work,{recursive:true,force:true});}
