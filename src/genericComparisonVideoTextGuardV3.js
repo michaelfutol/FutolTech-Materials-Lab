@@ -106,3 +106,4 @@ function install() {
 }
 
 install();
+import('./comparisonBeamClarityV1.js').catch((error) => console.error('Beam clarity module failed to load.', error));
