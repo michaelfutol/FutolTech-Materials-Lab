@@ -67,7 +67,8 @@ function effectiveLedger() {
   });
 }
 function slotEconomics(slot, ledger, lengthM) {
-  const effectivePrice = effectivePriceForPreset({ preset: slot.preset, ledger });
+  const pricingPreset = { ...slot.preset, materialId: slot.materialId };
+  const effectivePrice = effectivePriceForPreset({ preset: pricingPreset, ledger });
   const economics = memberProcurementEconomics({
     preset: slot.preset,
     requiredLengthM: lengthM,

@@ -114,16 +114,18 @@ function tradeSizeForPreset(preset) {
 export function observationMatchesPreset(observation, preset) {
   if (!observation || !preset) return false;
   const match = observation.match ?? {};
+  if (match.presetId && preset.id !== match.presetId) return false;
+  if (match.materialId && preset.materialId !== match.materialId) return false;
   if (match.productCategory && preset.productCategory !== match.productCategory) return false;
   if (match.tradeSize && tradeSizeForPreset(preset) !== match.tradeSize) return false;
   const comparisons = [
-    ['depthMm', preset.purlinDepthMm ?? preset.depthMm],
-    ['flangeMm', preset.purlinFlangeMm ?? preset.widthMm],
-    ['thicknessMm', preset.thicknessMm]
+    ['depthMm', preset.purlinDepthMm ?? preset.depthMm, 0.51],
+    ['flangeMm', preset.purlinFlangeMm ?? preset.widthMm, 0.51],
+    ['thicknessMm', preset.thicknessMm, 0.051]
   ];
-  for (const [key, actual] of comparisons) {
+  for (const [key, actual, tolerance] of comparisons) {
     if (match[key] == null) continue;
-    if (!Number.isFinite(Number(actual)) || !sameNumber(match[key], actual, 0.51)) return false;
+    if (!Number.isFinite(Number(actual)) || !sameNumber(match[key], actual, tolerance)) return false;
   }
   return true;
 }
@@ -156,6 +158,14 @@ export function buildPriceLedger({ observations = [], overrides = [], asOf = nul
 function ageDays(iso, asOf) {
   if (!asOf) return null;
   return Math.max(0, (Date.parse(asOf) - Date.parse(iso)) / 86400000);
+}
+
+function availabilityRank(value) {
+  const text = String(value ?? '').toLowerCase();
+  if (/out[- ]?of[- ]?stock|sold out|unavailable/.test(text)) return 0;
+  if (/low[- ]?stock|limited/.test(text)) return 2;
+  if (/available|in stock|listed with quantity input/.test(text)) return 3;
+  return 1;
 }
 
 export function effectivePriceForPreset({ preset, ledger, asOf = null } = {}) {
@@ -203,7 +213,17 @@ export function effectivePriceForPreset({ preset, ledger, asOf = null } = {}) {
       note: null
     });
   }
-  candidates.sort((a, b) => b.priority - a.priority || Date.parse(b.timestamp) - Date.parse(a.timestamp) || a.unitPrice - b.unitPrice);
+  const candidateIsStale = (item) => {
+    const days = ageDays(item.timestamp, effectiveAsOf);
+    return days != null && days > ledger.staleAfterDays;
+  };
+  candidates.sort((a, b) => (
+    b.priority - a.priority ||
+    availabilityRank(b.availability) - availabilityRank(a.availability) ||
+    Number(candidateIsStale(a)) - Number(candidateIsStale(b)) ||
+    (a.unitPrice / a.stockLengthM) - (b.unitPrice / b.stockLengthM) ||
+    Date.parse(b.timestamp) - Date.parse(a.timestamp)
+  ));
   const selected = candidates[0] ?? null;
   if (!selected) {
     return {
@@ -284,7 +304,11 @@ export function applyEconomicsToComparison({ comparison, selections, lengthM, le
     throw new Error('Comparison records and selections must align for economics enrichment.');
   }
   const records = comparison.records.map((record, index) => {
-    const preset = selections[index].preset;
+    const selection = selections[index];
+    const preset = {
+      ...selection.preset,
+      materialId: selection.material?.id ?? selection.materialId ?? null
+    };
     const effectivePrice = effectivePriceForPreset({ preset, ledger, asOf });
     const economics = memberProcurementEconomics({
       preset,
