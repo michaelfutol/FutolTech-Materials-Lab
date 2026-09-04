@@ -98,7 +98,10 @@ function tradeSizeForPreset(preset) {
   const flange = Number(preset.purlinFlangeMm ?? preset.widthMm);
   const depthIn = depth / 25.4;
   const flangeIn = flange / 25.4;
-  const near = (value, target) => Math.abs(value - target) < 0.08;
+  // Philippine trade sizes commonly use rounded metric dimensions (for example,
+  // 150 mm for nominal 6 in and 250 mm for nominal 10 in). This tolerance is
+  // economic-catalog matching only; it never changes the engineering geometry.
+  const near = (value, target) => Math.abs(value - target) <= 0.2;
   if (near(flangeIn, 2) && near(depthIn, 3)) return '2x3';
   if (near(flangeIn, 2) && near(depthIn, 4)) return '2x4';
   if (near(flangeIn, 2) && near(depthIn, 6)) return '2x6';
