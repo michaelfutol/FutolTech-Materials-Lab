@@ -119,13 +119,13 @@ export function observationMatchesPreset(observation, preset) {
   if (match.productCategory && preset.productCategory !== match.productCategory) return false;
   if (match.tradeSize && tradeSizeForPreset(preset) !== match.tradeSize) return false;
   const comparisons = [
-    ['depthMm', preset.purlinDepthMm ?? preset.depthMm],
-    ['flangeMm', preset.purlinFlangeMm ?? preset.widthMm],
-    ['thicknessMm', preset.thicknessMm]
+    ['depthMm', preset.purlinDepthMm ?? preset.depthMm, 0.51],
+    ['flangeMm', preset.purlinFlangeMm ?? preset.widthMm, 0.51],
+    ['thicknessMm', preset.thicknessMm, 0.051]
   ];
-  for (const [key, actual] of comparisons) {
+  for (const [key, actual, tolerance] of comparisons) {
     if (match[key] == null) continue;
-    if (!Number.isFinite(Number(actual)) || !sameNumber(match[key], actual, 0.51)) return false;
+    if (!Number.isFinite(Number(actual)) || !sameNumber(match[key], actual, tolerance)) return false;
   }
   return true;
 }
