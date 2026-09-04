@@ -44,8 +44,9 @@ try{
   if(beforeEngineering!==afterOverrideEngineering)throw new Error('Changing only economic price evidence altered the engineering result cards.');
 
   await cdp.send('Page.reload',{ignoreCache:true});
-  await waitFor(cdp,`document.readyState==='complete' && !!document.querySelector('#compareEconomicsPanel')`,'reloaded economics panel');
+  await waitFor(cdp,`document.readyState==='complete' && !!document.querySelector('#compareEconomicsPanel') && document.querySelectorAll('[data-slot-preset]').length>=3 && [...(document.querySelector('[data-slot-preset="0"]')?.options||[])].some(o=>o.value===${JSON.stringify(chosen.id)})`,'reloaded economics panel and benchmark preset options');
   await evaluate(cdp,`(()=>{const preset=document.querySelector('[data-slot-preset="0"]');preset.value=${JSON.stringify(chosen.id)};preset.dispatchEvent(new Event('change',{bubbles:true}));})()`);
+  await waitFor(cdp,`document.querySelector('[data-slot-preset="0"]')?.value===${JSON.stringify(chosen.id)}`,'reselected benchmark preset after reload');
   await waitFor(cdp,`(()=>{const c=document.querySelector('[data-price-card="${chosen.id}"]');return !!c&&/MANUAL \/ PROJECT/.test(c.textContent)&&/620/.test(c.textContent);})()`,'persisted local project override');
 
   await evaluate(cdp,`(()=>{const id=${JSON.stringify(chosen.id)};document.querySelector('#compareEconomicsPanel [data-price-clear="'+CSS.escape(id)+'"]')?.click();})()`);
