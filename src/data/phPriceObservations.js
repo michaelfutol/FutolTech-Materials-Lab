@@ -1,0 +1,116 @@
+export const PRICE_OBSERVATION_SCHEMA = 'futoltech.price-observation/1';
+
+// Price observations are MARKET EVIDENCE ONLY. They do not upgrade or replace
+// engineering geometry, material grade, strength, certification, or product identity.
+// The resolver deliberately records the matching scope and provenance separately.
+export const PH_PRICE_OBSERVATIONS = [
+  {
+    schemaVersion: PRICE_OBSERVATION_SCHEMA,
+    id: 'citihardware-dgp-cp-2x3-1_2-6m-2026-09-03',
+    sourceType: 'online-retail-listing',
+    supplier: 'CitiHardware',
+    supplierProduct: 'DGP C-Purlins 2×3×6.0 m T-1.2 mm',
+    supplierReference: '1080101001532',
+    sourceUrl: 'https://citihardware.com/products/c-purlins-dgp-cdd0424-dgp-2x3x6m-t-12mm-1080101001532',
+    observedAt: '2026-09-03T20:01:00+08:00',
+    currency: 'PHP',
+    unit: 'stock-piece',
+    unitPrice: 445,
+    stockLengthM: 6,
+    availability: 'out-of-stock',
+    locationScope: 'Philippines; store-specific availability may vary',
+    match: { productCategory: 'c-purlin', tradeSize: '2x3', depthMm: 75, flangeMm: 50, thicknessMm: 1.2 },
+    matchScope: 'trade-size-thickness-stock-length-only',
+    engineeringEquivalence: false,
+    evidenceStatus: 'web-observed-retail-price'
+  },
+  {
+    schemaVersion: PRICE_OBSERVATION_SCHEMA,
+    id: 'citihardware-fleximetal-cp-2x3-1_2-6m-2026-09-03',
+    sourceType: 'online-retail-listing',
+    supplier: 'CitiHardware',
+    supplierProduct: 'Fleximetal Cee-Purlins 2×3×6.0 m T-1.2 mm galvanized',
+    supplierReference: '1080100712606',
+    sourceUrl: 'https://citihardware.com/products/fleximetal-cee-purlins-1080100712606',
+    observedAt: '2026-09-03T20:01:00+08:00',
+    currency: 'PHP',
+    unit: 'stock-piece',
+    unitPrice: 595,
+    stockLengthM: 6,
+    availability: 'low-stock',
+    locationScope: 'Philippines; store-specific availability may vary',
+    match: { productCategory: 'c-purlin', tradeSize: '2x3', depthMm: 75, flangeMm: 50, thicknessMm: 1.2 },
+    matchScope: 'trade-size-thickness-stock-length-only',
+    engineeringEquivalence: false,
+    evidenceStatus: 'web-observed-retail-price'
+  },
+  {
+    schemaVersion: PRICE_OBSERVATION_SCHEMA,
+    id: 'citihardware-fleximetal-cp-2x4-1_2-6m-2026-09-03',
+    sourceType: 'online-retail-listing',
+    supplier: 'CitiHardware',
+    supplierProduct: 'Fleximetal Cee-Purlins 2×4×6.0 m T-1.2 mm galvanized',
+    supplierReference: '1080100712613',
+    sourceUrl: 'https://citihardware.com/products/fleximetal-cee-purlins-1080100712613',
+    observedAt: '2026-09-03T20:01:00+08:00',
+    currency: 'PHP',
+    unit: 'stock-piece',
+    unitPrice: 675,
+    stockLengthM: 6,
+    availability: 'available',
+    locationScope: 'Philippines; store-specific availability may vary',
+    match: { productCategory: 'c-purlin', tradeSize: '2x4', depthMm: 100, flangeMm: 50, thicknessMm: 1.2 },
+    matchScope: 'trade-size-thickness-stock-length-only',
+    engineeringEquivalence: false,
+    evidenceStatus: 'web-observed-retail-price'
+  },
+  {
+    schemaVersion: PRICE_OBSERVATION_SCHEMA,
+    id: 'citihardware-dgp-cp-2x6-1_2-6m-2026-09-03',
+    sourceType: 'online-retail-listing',
+    supplier: 'CitiHardware',
+    supplierProduct: 'DGP C-Purlins 2×6×6.0 m T-1.2 mm',
+    supplierReference: '1080101001556',
+    sourceUrl: 'https://citihardware.com/products/c-purlins-dgp-cdd0424-dgp-2x6x6m-t-12mm-1080101001556',
+    observedAt: '2026-09-03T20:01:00+08:00',
+    currency: 'PHP',
+    unit: 'stock-piece',
+    unitPrice: 665,
+    stockLengthM: 6,
+    availability: 'available',
+    locationScope: 'Philippines; store-specific availability may vary',
+    match: { productCategory: 'c-purlin', tradeSize: '2x6', depthMm: 150, flangeMm: 50, thicknessMm: 1.2 },
+    matchScope: 'trade-size-thickness-stock-length-only',
+    engineeringEquivalence: false,
+    evidenceStatus: 'web-observed-retail-price'
+  },
+  {
+    schemaVersion: PRICE_OBSERVATION_SCHEMA,
+    id: 'citihardware-fleximetal-cp-2x6-1_2-6m-2026-09-03',
+    sourceType: 'online-retail-listing',
+    supplier: 'CitiHardware',
+    supplierProduct: 'Fleximetal Cee-Purlins 2×6×6.0 m T-1.2 mm galvanized',
+    supplierReference: '1080100712620',
+    sourceUrl: 'https://citihardware.com/products/fleximetal-cee-purlins-1080100712620',
+    observedAt: '2026-09-03T20:01:00+08:00',
+    currency: 'PHP',
+    unit: 'stock-piece',
+    unitPrice: 845,
+    stockLengthM: 6,
+    availability: 'available',
+    locationScope: 'Philippines; store-specific availability may vary',
+    match: { productCategory: 'c-purlin', tradeSize: '2x6', depthMm: 150, flangeMm: 50, thicknessMm: 1.2 },
+    matchScope: 'trade-size-thickness-stock-length-only',
+    engineeringEquivalence: false,
+    evidenceStatus: 'web-observed-retail-price'
+  }
+];
+
+export const PRICE_SOURCE_POLICY = Object.freeze({
+  refreshable: true,
+  staleAfterDays: 30,
+  manualOverridePriority: true,
+  supplierQuotePriority: true,
+  webObservationIsEngineeringEvidence: false,
+  note: 'Prices are economic observations only. Re-check source/availability before procurement; project/manual supplier quotes override web observations.'
+});

@@ -27,10 +27,17 @@ jobs:
           node --check src/roofBayCodeDerivedActivationV10.js
           node --check scripts/fixtures/roofBayCodeDerivedActivationBenchmark.mjs
           node --check scripts/verifyRoofBayCodeDerivedActivationV10.mjs
+          node --check src/data/phPriceObservations.js
+          node --check src/solver/priceIntelligence.js
+          node --check src/comparisonEconomicsUi.js
+          node --check scripts/verifyComparisonEconomicsUi.mjs
       - name: FutolTech engineering identity Chromium gate
         run: node scripts/verifyFutolTechEngineeringIdentityUi.mjs
       - name: Comparison PDF gate
         run: node scripts/verifyComparisonPdf.mjs
+      - name: Price Intelligence Direct Compare Chromium gate
+        timeout-minutes: 3
+        run: node scripts/verifyComparisonEconomicsUi.mjs
       - name: Dedicated C-purlin comparison playback Chromium gate
         run: node scripts/verifyComparisonPlaybackUi.mjs
       - name: C-purlin gravity + wind Chromium gate
