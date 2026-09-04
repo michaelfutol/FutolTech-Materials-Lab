@@ -97,15 +97,28 @@ function ensureStyles() {
   const style = document.createElement('style');
   style.id = 'comparisonEconomicsStyles';
   style.textContent = `
-    .compare-economics{margin-top:1rem;padding-top:1rem;border-top:1px solid var(--line,#c9c1ad)}
+    .compare-economics{margin-top:1rem;padding-top:1rem;border-top:1px solid var(--border);color:var(--text)}
+    .compare-economics .panel-heading{align-items:flex-start}.compare-economics .panel-heading h3{margin:.15rem 0 0;color:var(--text)}
     .compare-economics-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.8rem;margin-top:.8rem}
-    .compare-economics-card{border:1px solid var(--line,#c9c1ad);border-radius:10px;padding:.9rem;background:color-mix(in srgb,var(--paper,#fff) 92%,transparent)}
-    .compare-economics-card h4{margin:.15rem 0 .45rem;font-size:1rem}.compare-economics-card dl{display:grid;grid-template-columns:1fr auto;gap:.3rem .7rem;margin:.6rem 0}
-    .compare-economics-card dt{font-size:.78rem;opacity:.78}.compare-economics-card dd{margin:0;font-weight:700;text-align:right}
-    .price-badge{display:inline-flex;border:1px solid currentColor;border-radius:999px;padding:.12rem .45rem;font-size:.68rem;font-weight:800;letter-spacing:.04em}.price-badge--manual{color:#835a05}.price-badge--web{color:#126b5f}.price-badge--stale{color:#9a4b22}
-    .price-source{font-size:.75rem;line-height:1.35;opacity:.78;min-height:2.3rem}.price-override-grid{display:grid;grid-template-columns:1fr 1fr;gap:.45rem}.price-override-grid label{font-size:.72rem}.price-override-grid input{width:100%}
-    .price-override-actions{display:flex;gap:.4rem;margin-top:.55rem;flex-wrap:wrap}.price-override-actions button{font-size:.75rem;padding:.35rem .55rem}
-    .price-policy{font-size:.78rem;opacity:.82;margin:.65rem 0 0}.price-cheapest{outline:2px solid currentColor;outline-offset:2px}
+    .compare-economics-card{min-width:0;border:1px solid var(--border);border-radius:14px;padding:.95rem;background:linear-gradient(180deg,rgba(13,24,34,.98),rgba(17,31,43,.98));color:var(--text);box-shadow:0 10px 28px rgba(0,0,0,.16)}
+    .compare-economics-card h4{margin:.35rem 0 .45rem;font-size:1rem;line-height:1.35;color:var(--text)}
+    .compare-economics-card dl{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:.3rem .7rem;margin:.7rem 0;padding-top:.15rem}
+    .compare-economics-card dt{font-size:.78rem;color:var(--muted);opacity:1}
+    .compare-economics-card dd{margin:0;font-weight:750;text-align:right;color:var(--text)}
+    .price-badge{display:inline-flex;border:1px solid currentColor;border-radius:999px;padding:.16rem .48rem;font-size:.68rem;font-weight:800;letter-spacing:.04em;color:var(--warning);background:rgba(239,195,107,.08)}
+    .price-badge--manual{color:#8ce6c9;background:rgba(82,214,181,.10)}
+    .price-badge--web{color:var(--accent);background:var(--accent-soft)}
+    .price-badge--stale{color:#f3c278;background:rgba(239,195,107,.10)}
+    .price-source{font-size:.75rem;line-height:1.42;color:#cbd8df;opacity:1;min-height:2.3rem}
+    .price-override-grid{display:grid;grid-template-columns:1fr 1fr;gap:.55rem;margin-top:.75rem;padding-top:.75rem;border-top:1px solid rgba(38,57,71,.8)}
+    .price-override-grid label{display:grid;gap:.3rem;font-size:.72rem;line-height:1.25;color:var(--muted)}
+    .price-override-grid input{width:100%;min-width:0;border:1px solid var(--border);background:#08131c;color:var(--text);border-radius:.55rem;padding:.58rem .62rem}
+    .price-override-grid input::placeholder{color:#6f828e;opacity:1}
+    .price-override-grid input:focus{outline:2px solid var(--accent);outline-offset:1px;border-color:var(--accent)}
+    .price-override-actions{display:flex;gap:.45rem;margin-top:.7rem;flex-wrap:wrap}.price-override-actions button{font-size:.75rem;padding:.42rem .62rem}
+    .price-policy{font-size:.78rem;line-height:1.5;color:#cbd8df;opacity:1;margin:.65rem 0 0;max-width:96rem}
+    .price-cheapest{border-color:rgba(82,214,181,.75);box-shadow:0 0 0 1px rgba(82,214,181,.28),0 12px 30px rgba(0,0,0,.18)}
+    .compare-economics-card .compare-winner-chip{margin-left:.35rem;background:rgba(82,214,181,.08)}
     @media(max-width:900px){.compare-economics-grid{grid-template-columns:1fr}}
     @media print{.compare-economics,tr[data-economics-row]{display:none!important}}
   `;
