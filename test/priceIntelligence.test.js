@@ -60,12 +60,16 @@ function manualOverride(overrides = {}) {
   };
 }
 
-test('web observations match economic trade size without claiming engineering equivalence', () => {
+test('web observations match economic trade size and thickness without claiming engineering equivalence', () => {
   const matching = PH_PRICE_OBSERVATIONS.filter((item) => observationMatchesPreset(item, cp2x4));
   assert.ok(matching.length >= 2);
   assert.equal(matching.some((item) => item.unitPrice === 675), true);
   assert.equal(matching.some((item) => item.unitPrice === 600), true);
+  assert.equal(matching.every((item) => item.match?.thicknessMm === 1.2), true);
   assert.equal(matching.every((item) => item.engineeringEquivalence === false), true);
+  const alphaOneMm = PH_PRICE_OBSERVATIONS.find((item) => item.match?.tradeSize === '2x4' && item.match?.thicknessMm === 1.0);
+  assert.ok(alphaOneMm);
+  assert.equal(observationMatchesPreset(alphaOneMm, cp2x4), false);
   assert.equal(observationMatchesPreset(matching[0], cp2x6), false);
   assert.equal(observationMatchesPreset(matching[0], unpricedShs), false);
 });
